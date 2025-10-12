@@ -139,6 +139,7 @@ class AcademicRoleAdmin(admin.ModelAdmin):
     search_fields = ('code', 'name_en', 'name_sw')
     list_filter = ('created_at', 'updated_at')
     ordering = ('code',)
+    readonly_fields = ('code',)
 
 @admin.register(LegalSpecialization)
 class LegalSpecializationAdmin(admin.ModelAdmin):
@@ -146,6 +147,7 @@ class LegalSpecializationAdmin(admin.ModelAdmin):
     search_fields = ('code', 'name_en', 'name_sw')
     list_filter = ('created_at', 'updated_at')
     ordering = ('code',)
+    readonly_fields = ('code',)
 
 @admin.register(PlaceOfWork)
 class PlaceOfWorkAdmin(admin.ModelAdmin):
@@ -153,3 +155,4 @@ class PlaceOfWorkAdmin(admin.ModelAdmin):
     search_fields = ('code', 'name_en', 'name_sw')
     list_filter = ('created_at', 'updated_at')
     ordering = ('code',)
+    readonly_fields = ('code',)

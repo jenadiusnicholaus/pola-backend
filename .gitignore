@@ -71,7 +71,11 @@ media/
 # ignore service_account_file.json
 service_account_file.json
 
-# igore .md file
+# ignore .md files except in docs folder
 *.md
+!docs/*.md
+!docs/**/*.md
+*.sh
+
 
 

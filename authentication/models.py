@@ -314,8 +314,23 @@ class VerificationDocument(models.Model):
 class Document(models.Model):
     """Model for storing and verifying user documents"""
     DOCUMENT_TYPES = [
-        ('registration', _('Registration Certificate')),
-        ('practice', _('Practice License')),
+        # Advocate documents
+        ('roll_number_cert', _('Roll Number Certificate')),
+        ('practice_license', _('Practice License')),
+        ('work_certificate', _('Certificate of Work')),
+        
+        # Lawyer/Paralegal documents
+        ('professional_cert', _('Professional Certificate')),
+        ('employment_letter', _('Employment Letter')),
+        ('organization_cert', _('Organization Certificate')),
+        
+        # Law Firm documents
+        ('business_license', _('Business License')),
+        ('registration_cert', _('Registration Certificate')),
+        ('firm_documents', _('Other Firm Documents')),
+        
+        # General
+        ('id_document', _('ID Document')),
         ('academic', _('Academic Certificate')),
         ('other', _('Other Document')),
     ]
@@ -975,7 +990,7 @@ class ProfessionalSpecialization(models.Model):
 
 class LegalSpecialization(models.Model):
     """Model for storing legal specialization choices"""
-    code = models.CharField(max_length=50, unique=True)
+    code = models.CharField(max_length=50, unique=True, blank=True)
     name_en = models.CharField(max_length=255)
     name_sw = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -985,6 +1000,12 @@ class LegalSpecialization(models.Model):
         verbose_name = _("legal specialization")
         verbose_name_plural = _("legal specializations")
         ordering = ['name_en']
+
+    def save(self, *args, **kwargs):
+        if not self.code:
+            # Auto-generate code from name_en: convert to lowercase, replace spaces with underscores
+            self.code = self.name_en.lower().replace(' ', '_').replace('/', '_').replace('-', '_')
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.name_en} / {self.name_sw}"
@@ -999,7 +1020,7 @@ class LegalSpecialization(models.Model):
 
 class PlaceOfWork(models.Model):
     """Model for storing place of work choices"""
-    code = models.CharField(max_length=50, unique=True)
+    code = models.CharField(max_length=50, unique=True, blank=True)
     name_en = models.CharField(max_length=255)
     name_sw = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -1009,6 +1030,12 @@ class PlaceOfWork(models.Model):
         verbose_name = _("place of work")
         verbose_name_plural = _("places of work")
         ordering = ['name_en']
+
+    def save(self, *args, **kwargs):
+        if not self.code:
+            # Auto-generate code from name_en: convert to lowercase, replace spaces with underscores
+            self.code = self.name_en.lower().replace(' ', '_').replace('/', '_').replace('-', '_').replace('(', '').replace(')', '')
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.name_en} / {self.name_sw}"
@@ -1023,7 +1050,7 @@ class PlaceOfWork(models.Model):
 
 class AcademicRole(models.Model):
     """Model for storing academic role choices with bilingual support"""
-    code = models.CharField(max_length=50, unique=True)
+    code = models.CharField(max_length=50, unique=True, blank=True)
     name_en = models.CharField(max_length=255)
     name_sw = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -1033,6 +1060,12 @@ class AcademicRole(models.Model):
         verbose_name = _("academic role")
         verbose_name_plural = _("academic roles")
         ordering = ['name_en']
+
+    def save(self, *args, **kwargs):
+        if not self.code:
+            # Auto-generate code from name_en: convert to lowercase, replace spaces with underscores
+            self.code = self.name_en.lower().replace(' ', '_').replace('/', '_').replace('-', '_')
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.name_en} / {self.name_sw}"
