@@ -275,6 +275,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
     address = AddressSerializer(read_only=True)
     verification_status = serializers.ReadOnlyField()
     permissions = serializers.SerializerMethodField()
+    subscription = serializers.SerializerMethodField()
     
     # Related fields
     regional_chapter = RegionalChapterSerializer(read_only=True)
@@ -320,6 +321,49 @@ class UserDetailSerializer(serializers.ModelSerializer):
         # Remove duplicates and return
         return list(set(all_permissions))
     
+    def get_subscription(self, obj):
+        """Get user's current subscription with permissions"""
+        try:
+            from subscriptions.models import UserSubscription
+            subscription = obj.subscription
+            
+            return {
+                'id': subscription.id,
+                'plan_name': subscription.plan.name,
+                'plan_name_sw': subscription.plan.name_sw,
+                'plan_type': subscription.plan.plan_type,
+                'status': subscription.status,
+                'is_active': subscription.is_active(),
+                'is_trial': subscription.is_trial(),
+                'start_date': subscription.start_date.isoformat(),
+                'end_date': subscription.end_date.isoformat(),
+                'days_remaining': subscription.days_remaining(),
+                'auto_renew': subscription.auto_renew,
+                'permissions': subscription.get_permissions(),  # All subscription permissions
+            }
+        except UserSubscription.DoesNotExist:
+            return {
+                'has_subscription': False,
+                'message': 'No active subscription',
+                'permissions': {
+                    'is_active': False,
+                    'can_access_legal_library': False,
+                    'can_ask_questions': False,
+                    'can_generate_documents': False,
+                    'can_receive_legal_updates': False,
+                    'can_access_forum': False,
+                    'can_access_student_hub': False,
+                    'can_purchase_consultations': False,
+                    'can_purchase_documents': False,
+                    'can_purchase_learning_materials': False,
+                }
+            }
+        except Exception as e:
+            return {
+                'error': str(e),
+                'has_subscription': False
+            }
+    
     def get_operating_regions(self, obj):
         """Get regions where the professional operates"""
         return RegionSerializer(obj.regions.all(), many=True).data
@@ -338,7 +382,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'id', 'email', 'first_name', 'last_name', 'date_of_birth',
             'user_role', 'gender', 'profile_picture', 'is_active', 'is_verified',
             'is_staff', 'is_superuser',  # Admin flags for frontend
-            'contact', 'address', 'verification_status', 'permissions',
+            'contact', 'address', 'verification_status', 'permissions', 'subscription',
             
             # Professional fields
             'roll_number', 'bar_membership_number', 'practice_status',
@@ -373,13 +417,13 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'citizen': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
                 'user_role', 'gender', 'profile_picture', 'is_active', 'is_verified',
-                'contact', 'address', 'verification_status', 'permissions', 'id_number',
+                'contact', 'address', 'verification_status', 'permissions', 'subscription', 'id_number',
                 'date_joined', 'last_login'
             ],
             'advocate': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
                 'user_role', 'gender', 'profile_picture', 'is_active', 'is_verified',
-                'contact', 'address', 'verification_status', 'permissions',
+                'contact', 'address', 'verification_status', 'permissions', 'subscription',
                 'roll_number', 'practice_status', 'year_established', 'regional_chapter',
                 'operating_regions', 'specializations', 'associated_law_firm',
                 'date_joined', 'last_login'
@@ -387,7 +431,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'lawyer': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
                 'user_role', 'gender', 'profile_picture', 'is_active', 'is_verified',
-                'contact', 'address', 'verification_status', 'permissions',
+                'contact', 'address', 'verification_status', 'permissions', 'subscription',
                 'bar_membership_number', 'years_of_experience', 'place_of_work',
                 'operating_regions', 'operating_districts', 'specializations',
                 'associated_law_firm', 'date_joined', 'last_login'
@@ -395,21 +439,21 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'paralegal': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
                 'user_role', 'gender', 'profile_picture', 'is_active', 'is_verified',
-                'contact', 'address', 'verification_status', 'permissions',
+                'contact', 'address', 'verification_status', 'permissions', 'subscription',
                 'years_of_experience', 'place_of_work', 'operating_regions',
                 'operating_districts', 'associated_law_firm',
                 'date_joined', 'last_login'
             ],
             'law_firm': [
                 'id', 'email', 'user_role', 'profile_picture', 'is_active', 'is_verified',
-                'contact', 'address', 'verification_status', 'permissions',
+                'contact', 'address', 'verification_status', 'permissions', 'subscription',
                 'firm_name', 'managing_partner', 'number_of_lawyers', 'year_established',
                 'specializations', 'date_joined', 'last_login'
             ],
             'law_student': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
                 'user_role', 'gender', 'profile_picture', 'is_active', 'is_verified',
-                'contact', 'verification_status', 'permissions',
+                'contact', 'verification_status', 'permissions', 'subscription',
                 'university_name', 'academic_role', 'year_of_study', 'academic_qualification',
                 'date_joined', 'last_login'
             ]

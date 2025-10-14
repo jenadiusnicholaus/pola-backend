@@ -70,6 +70,8 @@ urlpatterns = [
     
     # API endpoints
     path(f"api/{API_VERSION}/authentication/", include("authentication.urls")),
+    path(f"api/{API_VERSION}/admin/", include("authentication.admin_urls")),  # Admin APIs
+    path(f"api/{API_VERSION}/subscriptions/", include("subscriptions.urls")),  # Subscription APIs
     path(f"api/{API_VERSION}/lookups/", include("lookups.urls")),
     
     # API Documentation

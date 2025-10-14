@@ -51,7 +51,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'drf_yasg',  # Swagger/OpenAPI documentation
     'authentication',
+    'subscriptions',  # Subscription and wallet system
     'django_filters',
     'corsheaders',
 ]
