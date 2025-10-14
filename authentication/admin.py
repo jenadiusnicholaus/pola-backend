@@ -3,7 +3,7 @@ from .models import (
     AcademicRole, LegalSpecialization, PlaceOfWork, UserRole, RolePermission,
     Contact, Address, Verification, VerificationDocument, Document, PolaUser,
     Region, District, OperatingRegion, OperatingDistrict, Specialization,
-    ProfessionalSpecialization
+    ProfessionalSpecialization, RegionalChapter
 )
 
 @admin.register(PolaUser)
@@ -22,7 +22,7 @@ class PolaUserAdmin(admin.ModelAdmin):
         }),
         ('Professional Information', {
             'fields': ('roll_number', 'bar_membership_number', 'practice_status', 'years_of_experience', 
-                      'year_established', 'regional_champter', 'place_of_work', 'associated_law_firm')
+                      'year_established', 'regional_chapter', 'place_of_work', 'associated_law_firm')
         }),
         ('Law Firm Information', {
             'fields': ('firm_name', 'managing_partner', 'number_of_lawyers')
@@ -105,6 +105,21 @@ class DistrictAdmin(admin.ModelAdmin):
     list_filter = ('region', 'created_at')
     ordering = ('region__name', 'name')
 
+@admin.register(RegionalChapter)
+class RegionalChapterAdmin(admin.ModelAdmin):
+    list_display = ('name', 'code', 'region', 'is_active', 'created_at', 'updated_at')
+    search_fields = ('name', 'code', 'region__name', 'description')
+    list_filter = ('is_active', 'region', 'created_at')
+    ordering = ('name',)
+    fieldsets = (
+        ('Chapter Information', {
+            'fields': ('name', 'code', 'region', 'description')
+        }),
+        ('Status', {
+            'fields': ('is_active',)
+        }),
+    )
+
 @admin.register(OperatingRegion)
 class OperatingRegionAdmin(admin.ModelAdmin):
     list_display = ('user', 'region', 'created_at')
@@ -139,7 +154,6 @@ class AcademicRoleAdmin(admin.ModelAdmin):
     search_fields = ('code', 'name_en', 'name_sw')
     list_filter = ('created_at', 'updated_at')
     ordering = ('code',)
-    readonly_fields = ('code',)
 
 @admin.register(LegalSpecialization)
 class LegalSpecializationAdmin(admin.ModelAdmin):
@@ -147,7 +161,6 @@ class LegalSpecializationAdmin(admin.ModelAdmin):
     search_fields = ('code', 'name_en', 'name_sw')
     list_filter = ('created_at', 'updated_at')
     ordering = ('code',)
-    readonly_fields = ('code',)
 
 @admin.register(PlaceOfWork)
 class PlaceOfWorkAdmin(admin.ModelAdmin):
@@ -155,4 +168,3 @@ class PlaceOfWorkAdmin(admin.ModelAdmin):
     search_fields = ('code', 'name_en', 'name_sw')
     list_filter = ('created_at', 'updated_at')
     ordering = ('code',)
-    readonly_fields = ('code',)

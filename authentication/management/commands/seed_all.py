@@ -23,4 +23,15 @@ class Command(BaseCommand):
         self.stdout.write(self.style.NOTICE('\n4. Seeding place of work...'))
         call_command('seed_place_of_work')
         
+        # Seed regional chapters
+        self.stdout.write(self.style.NOTICE('\n5. Seeding regional chapters...'))
+        try:
+            call_command('seed_regional_chapters')
+        except:
+            self.stdout.write(self.style.WARNING('   Regional chapters seeding skipped (may already exist)'))
+        
+        # Seed permissions
+        self.stdout.write(self.style.NOTICE('\n6. Seeding permissions...'))
+        call_command('seed_permissions')
+        
         self.stdout.write(self.style.SUCCESS('\n✓ All data seeded successfully!'))

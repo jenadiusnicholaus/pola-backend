@@ -15,6 +15,7 @@ class UserRoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserRole
         fields = ['id', 'role_name', 'get_role_display', 'description']
+        ref_name = 'LookupUserRole'
 
 
 class RegionSerializer(serializers.ModelSerializer):
@@ -22,6 +23,7 @@ class RegionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Region
         fields = ['id', 'name']
+        ref_name = 'LookupRegion'
 
 
 class DistrictSerializer(serializers.ModelSerializer):
@@ -31,6 +33,7 @@ class DistrictSerializer(serializers.ModelSerializer):
     class Meta:
         model = District
         fields = ['id', 'name', 'region', 'region_name']
+        ref_name = 'LookupDistrict'
 
 
 class SpecializationSerializer(serializers.ModelSerializer):
@@ -38,6 +41,7 @@ class SpecializationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Specialization
         fields = ['id', 'name_en', 'name_sw', 'description']
+        ref_name = 'LookupSpecialization'
 
 
 class PlaceOfWorkSerializer(serializers.ModelSerializer):
@@ -45,6 +49,7 @@ class PlaceOfWorkSerializer(serializers.ModelSerializer):
     class Meta:
         model = PlaceOfWork
         fields = ['id', 'code', 'name_en', 'name_sw']
+        ref_name = 'LookupPlaceOfWork'
 
 
 class AcademicRoleSerializer(serializers.ModelSerializer):
@@ -52,3 +57,4 @@ class AcademicRoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = AcademicRole
         fields = ['id', 'code', 'name_en', 'name_sw']
+        ref_name = 'LookupAcademicRole'

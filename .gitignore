@@ -73,8 +73,8 @@ service_account_file.json
 
 # ignore .md files except in docs folder
 *.md
-!docs/*.md
-!docs/**/*.md
+docs/*.md
+# !docs/**/*.md
 *.sh
 
 

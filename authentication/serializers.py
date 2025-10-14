@@ -1,9 +1,10 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from .models import (
     UserRole, Contact, Address, Verification, Document, Region, District,
     Specialization, PlaceOfWork, AcademicRole, OperatingRegion, OperatingDistrict,
-    ProfessionalSpecialization
+    ProfessionalSpecialization, RegionalChapter
 )
 
 User = get_user_model()
@@ -22,6 +23,16 @@ class RegionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Region
         fields = ['id', 'name']
+        read_only_fields = ['id']
+
+
+class RegionalChapterSerializer(serializers.ModelSerializer):
+    """Serializer for RegionalChapter model (TLS Chapters)"""
+    region_name = serializers.CharField(source='region.name', read_only=True)
+    
+    class Meta:
+        model = RegionalChapter
+        fields = ['id', 'name', 'code', 'region', 'region_name', 'description', 'is_active']
         read_only_fields = ['id']
 
 
@@ -57,6 +68,7 @@ class AcademicRoleSerializer(serializers.ModelSerializer):
         model = AcademicRole
         fields = ['id', 'code', 'name_en', 'name_sw']
         read_only_fields = ['id', 'code']
+        ref_name = 'AuthAcademicRole'
 
 
 class ContactSerializer(serializers.ModelSerializer):
@@ -128,7 +140,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             
             # Professional fields (Advocate/Lawyer)
             'roll_number', 'bar_membership_number', 'practice_status', 'years_of_experience',
-            'year_established', 'regional_champter', 'place_of_work', 'associated_law_firm',
+            'year_established', 'regional_chapter', 'place_of_work', 'associated_law_firm',
             'operating_regions', 'operating_districts', 'specializations',
             
             # Law Firm fields
@@ -236,22 +248,22 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         for specialization in specializations:
             ProfessionalSpecialization.objects.create(user=user, specialization=specialization)
         
-        # Auto-verify citizens and law students (no admin confirmation needed)
+        # Auto-verify certain user roles (no admin confirmation needed)
         user_role = user.user_role
-        if user_role and user_role.role_name in ['citizen', 'law_student']:
+        auto_verify_roles = ['citizen', 'law_student', 'lecturer']
+        
+        if user_role and user_role.role_name in auto_verify_roles:
+            # Set user as verified
             user.is_verified = True
             user.save()
             
-            # Update verification status
-            try:
-                verification = user.verification
-                verification.status = 'verified'
-                verification.verification_date = timezone.now()
-                verification.current_step = 'final'
-                verification.verification_notes = 'Auto-verified upon registration (citizen/law student)'
-                verification.save()
-            except:
-                pass
+            # Update or create verification record
+            verification, created = Verification.objects.get_or_create(user=user)
+            verification.status = 'verified'
+            verification.verification_date = timezone.now()
+            verification.current_step = 'final'
+            verification.verification_notes = f'Auto-verified upon registration ({user_role.role_name})'
+            verification.save()
         
         return user
 
@@ -262,14 +274,51 @@ class UserDetailSerializer(serializers.ModelSerializer):
     contact = ContactSerializer(read_only=True)
     address = AddressSerializer(read_only=True)
     verification_status = serializers.ReadOnlyField()
+    permissions = serializers.SerializerMethodField()
     
     # Related fields
-    regional_champter = RegionSerializer(read_only=True)
+    regional_chapter = RegionalChapterSerializer(read_only=True)
     operating_regions = serializers.SerializerMethodField()
     operating_districts = serializers.SerializerMethodField()
     specializations = serializers.SerializerMethodField()
     place_of_work = PlaceOfWorkSerializer(read_only=True)
     academic_role = AcademicRoleSerializer(read_only=True)
+    
+    def get_permissions(self, obj):
+        """Get user permissions for frontend access control"""
+        # Superusers have all permissions - return key permissions for frontend
+        if obj.is_superuser:
+            # Return all model permissions for the main models
+            return [
+                # User management (all operations)
+                'view_polauser', 'add_polauser', 'change_polauser', 'delete_polauser',
+                # Document management (all operations)
+                'view_document', 'add_document', 'change_document', 'delete_document',
+                # Verification management (all operations)
+                'view_verification', 'add_verification', 'change_verification', 'delete_verification',
+                # Contact management (all operations)
+                'view_contact', 'add_contact', 'change_contact', 'delete_contact',
+                # Address management (all operations)
+                'view_address', 'add_address', 'change_address', 'delete_address',
+                # Custom permissions
+                'can_approve_documents', 'can_verify_others',
+                # Special superuser indicator
+                '*superuser*'  # Frontend can check for this to know user is superuser
+            ]
+        
+        all_permissions = []
+        
+        # Get permissions from role (if assigned)
+        if obj.user_role:
+            role_permissions = obj.user_role.permissions.values_list('codename', flat=True)
+            all_permissions.extend(list(role_permissions))
+        
+        # Get direct user permissions (for staff or individual assignments)
+        user_permissions = obj.user_permissions.values_list('codename', flat=True)
+        all_permissions.extend(list(user_permissions))
+        
+        # Remove duplicates and return
+        return list(set(all_permissions))
     
     def get_operating_regions(self, obj):
         """Get regions where the professional operates"""
@@ -288,11 +337,12 @@ class UserDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'email', 'first_name', 'last_name', 'date_of_birth',
             'user_role', 'gender', 'profile_picture', 'is_active', 'is_verified',
-            'contact', 'address', 'verification_status',
+            'is_staff', 'is_superuser',  # Admin flags for frontend
+            'contact', 'address', 'verification_status', 'permissions',
             
             # Professional fields
             'roll_number', 'bar_membership_number', 'practice_status',
-            'years_of_experience', 'year_established', 'regional_champter',
+            'years_of_experience', 'year_established', 'regional_chapter',
             'place_of_work', 'associated_law_firm', 'operating_regions',
             'operating_districts', 'specializations',
             
@@ -307,7 +357,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             
             'date_joined', 'last_login',
         ]
-        read_only_fields = ['id', 'date_joined', 'last_login', 'is_verified']
+        read_only_fields = ['id', 'date_joined', 'last_login', 'is_verified', 'is_staff', 'is_superuser']
     
     def to_representation(self, instance):
         """Filter fields based on user role - only show relevant fields"""
@@ -323,21 +373,21 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'citizen': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
                 'user_role', 'gender', 'profile_picture', 'is_active', 'is_verified',
-                'contact', 'address', 'verification_status', 'id_number',
+                'contact', 'address', 'verification_status', 'permissions', 'id_number',
                 'date_joined', 'last_login'
             ],
             'advocate': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
                 'user_role', 'gender', 'profile_picture', 'is_active', 'is_verified',
-                'contact', 'address', 'verification_status',
-                'roll_number', 'practice_status', 'year_established', 'regional_champter',
+                'contact', 'address', 'verification_status', 'permissions',
+                'roll_number', 'practice_status', 'year_established', 'regional_chapter',
                 'operating_regions', 'specializations', 'associated_law_firm',
                 'date_joined', 'last_login'
             ],
             'lawyer': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
                 'user_role', 'gender', 'profile_picture', 'is_active', 'is_verified',
-                'contact', 'address', 'verification_status',
+                'contact', 'address', 'verification_status', 'permissions',
                 'bar_membership_number', 'years_of_experience', 'place_of_work',
                 'operating_regions', 'operating_districts', 'specializations',
                 'associated_law_firm', 'date_joined', 'last_login'
@@ -345,21 +395,21 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'paralegal': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
                 'user_role', 'gender', 'profile_picture', 'is_active', 'is_verified',
-                'contact', 'address', 'verification_status',
+                'contact', 'address', 'verification_status', 'permissions',
                 'years_of_experience', 'place_of_work', 'operating_regions',
                 'operating_districts', 'associated_law_firm',
                 'date_joined', 'last_login'
             ],
             'law_firm': [
                 'id', 'email', 'user_role', 'profile_picture', 'is_active', 'is_verified',
-                'contact', 'address', 'verification_status',
+                'contact', 'address', 'verification_status', 'permissions',
                 'firm_name', 'managing_partner', 'number_of_lawyers', 'year_established',
                 'specializations', 'date_joined', 'last_login'
             ],
             'law_student': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
                 'user_role', 'gender', 'profile_picture', 'is_active', 'is_verified',
-                'contact', 'verification_status',
+                'contact', 'verification_status', 'permissions',
                 'university_name', 'academic_role', 'year_of_study', 'academic_qualification',
                 'date_joined', 'last_login'
             ]
@@ -376,7 +426,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
         for key, value in filtered_data.items():
             # Keep these fields even if null/empty
             if key in ['id', 'email', 'user_role', 'is_active', 'is_verified', 
-                      'verification_status', 'date_joined', 'last_login']:
+                      'verification_status', 'permissions', 'date_joined', 'last_login']:
                 cleaned_data[key] = value
             # Remove null values
             elif value is None:

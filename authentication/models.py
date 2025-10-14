@@ -329,10 +329,14 @@ class Document(models.Model):
         ('registration_cert', _('Registration Certificate')),
         ('firm_documents', _('Other Firm Documents')),
         
-        # General
+        # General documents
         ('id_document', _('ID Document')),
         ('academic', _('Academic Certificate')),
         ('other', _('Other Document')),
+        
+        # Legacy types (keep for backward compatibility)
+        ('registration', _('Registration Certificate')),
+        ('practice', _('Practice License')),
     ]
 
     VERIFICATION_STATUS = [
@@ -395,7 +399,7 @@ class PolaUser(AbstractUser):
      advocate
      1. roll_number
      2. gender
-     3. regional_chamber(list of regions)
+     3. regional_chapter (TLS chapter - e.g., Dar es Salaam Chapter, Arusha Chapter)
      4. year of admission
      5. practice_status (active/inactive)
      6. law_firm (name of the law firm)
@@ -506,8 +510,16 @@ class PolaUser(AbstractUser):
         verbose_name=_("Districts of Operation"),
         help_text=_("Districts where the professional operates/practices")
     )
-    # same as regions
-    regional_champter = models.ForeignKey('Region', on_delete=models.SET_NULL, null=True, related_name='chamber_professionals')
+    # Regional chapter (TLS chapter for advocates)
+    regional_chapter = models.ForeignKey(
+        'RegionalChapter', 
+        on_delete=models.SET_NULL, 
+        null=True,
+        blank=True,
+        related_name='chapter_professionals',
+        verbose_name=_("Regional Chapter"),
+        help_text=_("TLS regional chapter where the advocate is registered (e.g., Dar es Salaam Chapter, Arusha Chapter)")
+    )
     place_of_work = models.ForeignKey('PlaceOfWork', on_delete=models.SET_NULL, null=True, related_name='professionals')
     associated_law_firm = models.ForeignKey(
         'self', 
@@ -725,7 +737,7 @@ class PolaUser(AbstractUser):
                 *all_common_fields,
                 *legal_professional_fields,
                 'roll_number',
-                'regional_champter',
+                'regional_chapter',
                 'regions_of_operation',
                 'districts_of_operation',
                 'years_of_experience',
@@ -852,6 +864,64 @@ class Region(models.Model):
         ordering = ['name']
 
 
+class RegionalChapter(models.Model):
+    """
+    Model for storing TLS (Tanganyika Law Society) Regional Chapters
+    
+    A regional chapter is a local branch of the TLS that advocates register with
+    and operate under. Examples include:
+    - Arusha Chapter
+    - Dar es Salaam Chapter
+    - Mwanza Chapter
+    - Dodoma Chapter
+    - Mbeya Chapter
+    etc.
+    """
+    name = models.CharField(
+        max_length=100, 
+        unique=True,
+        verbose_name=_("Chapter Name"),
+        help_text=_("Name of the TLS regional chapter (e.g., 'Dar es Salaam Chapter', 'Arusha Chapter')")
+    )
+    region = models.ForeignKey(
+        'Region', 
+        on_delete=models.SET_NULL, 
+        null=True,
+        related_name='chapters',
+        verbose_name=_("Region"),
+        help_text=_("Geographic region where this chapter is located")
+    )
+    code = models.CharField(
+        max_length=20,
+        unique=True,
+        null=True,
+        blank=True,
+        verbose_name=_("Chapter Code"),
+        help_text=_("Short code for the chapter (e.g., 'DSM', 'ARU', 'MWZ')")
+    )
+    description = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name=_("Description"),
+        help_text=_("Additional information about this chapter")
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name=_("Active"),
+        help_text=_("Whether this chapter is currently active")
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _("regional chapter")
+        verbose_name_plural = _("regional chapters")
+        ordering = ['name']
+
+
 class District(models.Model):
     """Model for storing districts in Tanzania"""
     name = models.CharField(max_length=100)
@@ -957,40 +1027,10 @@ class ProfessionalSpecialization(models.Model):
     def __str__(self):
         return f"{self.user} - {self.specialization}"
 
-    @property
-    def regional_chamber(self):
-        """Get the regional chamber for an advocate"""
-        if not self.has_role('advocate'):
-            return None
-        # Get the first operating region as the chamber
-        operating_region = self.operating_regions.first()
-        return operating_region.region if operating_region else None
-
-    def set_regional_chamber(self, region):
-        """Set the regional chamber for an advocate"""
-        if not self.has_role('advocate'):
-            raise ValueError("Only advocates can have a regional chamber")
-        
-        if isinstance(region, str):
-            region = Region.objects.get(name=region)
-            
-        # Clear existing operating regions
-        self.operating_regions.all().delete()
-        # Create new operating region as chamber
-        if region:
-            OperatingRegion.objects.create(user=self, region=region)
-
-    @staticmethod
-    def get_advocates_by_chamber(chamber):
-        """Get all advocates in a specific chamber"""
-        return PolaUser.objects.filter(
-            user_role__role_name='advocate',
-            operating_regions__region=chamber
-        )
 
 class LegalSpecialization(models.Model):
     """Model for storing legal specialization choices"""
-    code = models.CharField(max_length=50, unique=True, blank=True)
+    code = models.CharField(max_length=50, unique=True)
     name_en = models.CharField(max_length=255)
     name_sw = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -1000,12 +1040,6 @@ class LegalSpecialization(models.Model):
         verbose_name = _("legal specialization")
         verbose_name_plural = _("legal specializations")
         ordering = ['name_en']
-
-    def save(self, *args, **kwargs):
-        if not self.code:
-            # Auto-generate code from name_en: convert to lowercase, replace spaces with underscores
-            self.code = self.name_en.lower().replace(' ', '_').replace('/', '_').replace('-', '_')
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.name_en} / {self.name_sw}"
@@ -1020,7 +1054,7 @@ class LegalSpecialization(models.Model):
 
 class PlaceOfWork(models.Model):
     """Model for storing place of work choices"""
-    code = models.CharField(max_length=50, unique=True, blank=True)
+    code = models.CharField(max_length=50, unique=True)
     name_en = models.CharField(max_length=255)
     name_sw = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -1030,12 +1064,6 @@ class PlaceOfWork(models.Model):
         verbose_name = _("place of work")
         verbose_name_plural = _("places of work")
         ordering = ['name_en']
-
-    def save(self, *args, **kwargs):
-        if not self.code:
-            # Auto-generate code from name_en: convert to lowercase, replace spaces with underscores
-            self.code = self.name_en.lower().replace(' ', '_').replace('/', '_').replace('-', '_').replace('(', '').replace(')', '')
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.name_en} / {self.name_sw}"
@@ -1050,7 +1078,7 @@ class PlaceOfWork(models.Model):
 
 class AcademicRole(models.Model):
     """Model for storing academic role choices with bilingual support"""
-    code = models.CharField(max_length=50, unique=True, blank=True)
+    code = models.CharField(max_length=50, unique=True)
     name_en = models.CharField(max_length=255)
     name_sw = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -1060,12 +1088,6 @@ class AcademicRole(models.Model):
         verbose_name = _("academic role")
         verbose_name_plural = _("academic roles")
         ordering = ['name_en']
-
-    def save(self, *args, **kwargs):
-        if not self.code:
-            # Auto-generate code from name_en: convert to lowercase, replace spaces with underscores
-            self.code = self.name_en.lower().replace(' ', '_').replace('/', '_').replace('-', '_')
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.name_en} / {self.name_sw}"
