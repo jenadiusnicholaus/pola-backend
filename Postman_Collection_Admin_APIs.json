@@ -1,0 +1,469 @@
+{
+  "info": {
+    "name": "Pola Backend - Admin APIs",
+    "description": "Complete collection of admin endpoints for subscription management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "YOUR_ADMIN_TOKEN_HERE",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Admin Login",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin_password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/authentication/login/",
+              "host": ["{{base_url}}"],
+              "path": ["authentication", "login", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Plans Management",
+      "item": [
+        {
+          "name": "List All Plans",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/subscriptions/admin/plans/"
+          }
+        },
+        {
+          "name": "Create Plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan_type\": \"annual\",\n  \"name\": \"Annual Premium\",\n  \"name_sw\": \"Kifurushi cha Mwaka\",\n  \"description\": \"Full access for one year\",\n  \"price\": 30000.00,\n  \"duration_days\": 365,\n  \"full_legal_library_access\": true,\n  \"monthly_questions_limit\": 0,\n  \"free_documents_per_month\": 12,\n  \"legal_updates\": true,\n  \"forum_access\": true,\n  \"student_hub_access\": true\n}"
+            },
+            "url": "{{base_url}}/subscriptions/admin/plans/"
+          }
+        },
+        {
+          "name": "Update Plan",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 3500.00\n}"
+            },
+            "url": "{{base_url}}/subscriptions/admin/plans/2/"
+          }
+        },
+        {
+          "name": "Activate Plan",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/subscriptions/admin/plans/2/activate/"
+          }
+        },
+        {
+          "name": "Deactivate Plan",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/subscriptions/admin/plans/2/deactivate/"
+          }
+        },
+        {
+          "name": "Plan Statistics",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/subscriptions/admin/plans/statistics/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Subscriptions Management",
+      "item": [
+        {
+          "name": "List All Subscriptions",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/subscriptions/admin/subscriptions/"
+          }
+        },
+        {
+          "name": "Filter Active Subscriptions",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": {
+              "raw": "{{base_url}}/subscriptions/admin/subscriptions/?status=active",
+              "host": ["{{base_url}}"],
+              "path": ["subscriptions", "admin", "subscriptions", ""],
+              "query": [{"key": "status", "value": "active"}]
+            }
+          }
+        },
+        {
+          "name": "Search by Email",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": {
+              "raw": "{{base_url}}/subscriptions/admin/subscriptions/?email=paralegal",
+              "host": ["{{base_url}}"],
+              "path": ["subscriptions", "admin", "subscriptions", ""],
+              "query": [{"key": "email", "value": "paralegal"}]
+            }
+          }
+        },
+        {
+          "name": "Expiring in 7 Days",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": {
+              "raw": "{{base_url}}/subscriptions/admin/subscriptions/?expiring_in_days=7",
+              "host": ["{{base_url}}"],
+              "path": ["subscriptions", "admin", "subscriptions", ""],
+              "query": [{"key": "expiring_in_days", "value": "7"}]
+            }
+          }
+        },
+        {
+          "name": "Get Subscription Details",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/subscriptions/admin/subscriptions/25/"
+          }
+        },
+        {
+          "name": "Cancel Subscription",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"User requested cancellation\"\n}"
+            },
+            "url": "{{base_url}}/subscriptions/admin/subscriptions/25/cancel/"
+          }
+        },
+        {
+          "name": "Extend Subscription",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"days\": 30,\n  \"reason\": \"Compensation for service disruption\"\n}"
+            },
+            "url": "{{base_url}}/subscriptions/admin/subscriptions/25/extend/"
+          }
+        },
+        {
+          "name": "Create Subscription for User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 19,\n  \"plan_id\": 2,\n  \"auto_renew\": true\n}"
+            },
+            "url": "{{base_url}}/subscriptions/admin/subscriptions/create_for_user/"
+          }
+        },
+        {
+          "name": "Subscription Statistics",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/subscriptions/admin/subscriptions/statistics/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transactions Management",
+      "item": [
+        {
+          "name": "List All Transactions",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/subscriptions/admin/transactions/"
+          }
+        },
+        {
+          "name": "Filter Completed Transactions",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": {
+              "raw": "{{base_url}}/subscriptions/admin/transactions/?status=completed",
+              "host": ["{{base_url}}"],
+              "path": ["subscriptions", "admin", "transactions", ""],
+              "query": [{"key": "status", "value": "completed"}]
+            }
+          }
+        },
+        {
+          "name": "Filter Refunds",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": {
+              "raw": "{{base_url}}/subscriptions/admin/transactions/?type=refund",
+              "host": ["{{base_url}}"],
+              "path": ["subscriptions", "admin", "transactions", ""],
+              "query": [{"key": "type", "value": "refund"}]
+            }
+          }
+        },
+        {
+          "name": "Filter by Date Range",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": {
+              "raw": "{{base_url}}/subscriptions/admin/transactions/?start_date=2025-10-01&end_date=2025-10-31",
+              "host": ["{{base_url}}"],
+              "path": ["subscriptions", "admin", "transactions", ""],
+              "query": [
+                {"key": "start_date", "value": "2025-10-01"},
+                {"key": "end_date", "value": "2025-10-31"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Transaction Details",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/subscriptions/admin/transactions/45/"
+          }
+        },
+        {
+          "name": "⭐ Process Refund (Full)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Service not provided as expected\"\n}"
+            },
+            "url": "{{base_url}}/subscriptions/admin/transactions/45/refund/"
+          }
+        },
+        {
+          "name": "⭐ Process Refund (Partial)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Partial refund for quality issue\",\n  \"amount\": 1500.00\n}"
+            },
+            "url": "{{base_url}}/subscriptions/admin/transactions/45/refund/"
+          }
+        },
+        {
+          "name": "Mark as Completed",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/subscriptions/admin/transactions/45/complete/"
+          }
+        },
+        {
+          "name": "Mark as Failed",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Payment gateway timeout\"\n}"
+            },
+            "url": "{{base_url}}/subscriptions/admin/transactions/45/fail/"
+          }
+        },
+        {
+          "name": "Cancel Transaction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Duplicate transaction\"\n}"
+            },
+            "url": "{{base_url}}/subscriptions/admin/transactions/45/cancel_transaction/"
+          }
+        },
+        {
+          "name": "Transaction Statistics",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/subscriptions/admin/transactions/statistics/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wallets Management",
+      "item": [
+        {
+          "name": "List All Wallets",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/subscriptions/admin/wallets/"
+          }
+        },
+        {
+          "name": "Filter by Min Balance",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": {
+              "raw": "{{base_url}}/subscriptions/admin/wallets/?min_balance=10000",
+              "host": ["{{base_url}}"],
+              "path": ["subscriptions", "admin", "wallets", ""],
+              "query": [{"key": "min_balance", "value": "10000"}]
+            }
+          }
+        },
+        {
+          "name": "Filter Frozen Wallets",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": {
+              "raw": "{{base_url}}/subscriptions/admin/wallets/?is_active=false",
+              "host": ["{{base_url}}"],
+              "path": ["subscriptions", "admin", "wallets", ""],
+              "query": [{"key": "is_active", "value": "false"}]
+            }
+          }
+        },
+        {
+          "name": "Get Wallet Details",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/subscriptions/admin/wallets/19/"
+          }
+        },
+        {
+          "name": "Adjust Balance (Add)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 5000.00,\n  \"reason\": \"Compensation for service disruption\"\n}"
+            },
+            "url": "{{base_url}}/subscriptions/admin/wallets/19/adjust/"
+          }
+        },
+        {
+          "name": "Adjust Balance (Subtract)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": -1000.00,\n  \"reason\": \"Correction of error\"\n}"
+            },
+            "url": "{{base_url}}/subscriptions/admin/wallets/19/adjust/"
+          }
+        },
+        {
+          "name": "Freeze Wallet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Suspicious activity detected\"\n}"
+            },
+            "url": "{{base_url}}/subscriptions/admin/wallets/19/freeze/"
+          }
+        },
+        {
+          "name": "Unfreeze Wallet",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/subscriptions/admin/wallets/19/unfreeze/"
+          }
+        },
+        {
+          "name": "Wallet Statistics",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": "{{base_url}}/subscriptions/admin/wallets/statistics/"
+          }
+        }
+      ]
+    }
+  ]
+}

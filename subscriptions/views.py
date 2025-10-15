@@ -165,26 +165,62 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
         """Get subscription benefits in both languages"""
         language = request.query_params.get('lang', 'en')
         
+        # Currency symbols mapping
+        currency_symbols = {
+            'TZS': 'TSh',
+            'USD': '$',
+            'EUR': '€',
+        }
+        
         plans_data = []
         for plan in SubscriptionPlan.objects.filter(is_active=True):
+            symbol = currency_symbols.get(plan.currency, plan.currency)
+            price_formatted = f"{float(plan.price):,.2f}"
+            
             plans_data.append({
                 'plan_type': plan.plan_type,
                 'name': plan.name if language == 'en' else plan.name_sw,
                 'price': float(plan.price),
+                'currency': plan.currency,
+                'currency_symbol': symbol,
+                'price_formatted': f"{symbol} {price_formatted}",
                 'duration_days': plan.duration_days,
                 'benefits': plan.get_benefits_dict(language=language)
             })
+        
+        # Get monthly plan for dynamic messaging
+        monthly_plan = SubscriptionPlan.objects.filter(
+            plan_type='monthly', 
+            is_active=True
+        ).first()
+        
+        if monthly_plan:
+            monthly_symbol = currency_symbols.get(monthly_plan.currency, monthly_plan.currency)
+            monthly_price = float(monthly_plan.price)
+            daily_price = monthly_price / 30
+            
+            daily_value_en = f"For only {daily_price:.0f} {monthly_plan.currency} a day, get legal guidance and assistance anytime"
+            daily_value_sw = f"Kwa Shilingi {daily_price:.0f} tu kwa siku, pata mwongozo na msaada wa Kisheria kila wakati"
+            
+            subscribe_en = f"Subscribe for only {monthly_symbol} {monthly_price:,.0f} per month"
+            subscribe_sw = f"Jiunge sasa kwa {monthly_symbol} {monthly_price:,.0f} tu kwa mwezi"
+        else:
+            # Fallback if no monthly plan
+            daily_value_en = "Get legal guidance and assistance anytime"
+            daily_value_sw = "Pata mwongozo na msaada wa Kisheria kila wakati"
+            subscribe_en = "Subscribe now"
+            subscribe_sw = "Jiunge sasa"
         
         return Response({
             'language': language,
             'plans': plans_data,
             'daily_value_message': {
-                'en': 'For only 100 shillings a day, get legal guidance and assistance anytime',
-                'sw': 'Kwa Shilingi 100 tu kwa siku, pata mwongozo na msaada wa Kisheria kila wakati'
+                'en': daily_value_en,
+                'sw': daily_value_sw
             },
             'subscribe_button': {
-                'en': 'Subscribe for only 3,000 Tsh per month',
-                'sw': 'Jiunge sasa kwa Shilingi 3,000 tu kwa mwezi'
+                'en': subscribe_en,
+                'sw': subscribe_sw
             }
         })
 

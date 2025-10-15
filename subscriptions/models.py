@@ -15,12 +15,19 @@ class SubscriptionPlan(models.Model):
         ('monthly', 'Monthly Subscription'),
     ]
     
+    CURRENCY_CHOICES = [
+        ('TZS', 'Tanzanian Shilling'),
+        ('USD', 'US Dollar'),
+        ('EUR', 'Euro'),
+    ]
+    
     plan_type = models.CharField(max_length=20, choices=PLAN_TYPES, unique=True)
     name = models.CharField(max_length=100)
     name_sw = models.CharField(max_length=100, help_text="Swahili name")
     description = models.TextField()
     description_sw = models.TextField(help_text="Swahili description")
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='TZS', help_text="Price currency")
     duration_days = models.IntegerField(help_text="Duration in days (1 for trial, 30 for monthly)")
     is_active = models.BooleanField(default=True)
     
@@ -41,7 +48,13 @@ class SubscriptionPlan(models.Model):
         verbose_name_plural = 'Subscription Plans'
     
     def __str__(self):
-        return f"{self.name} - {self.price} TZS"
+        currency_symbols = {
+            'TZS': 'TSh',
+            'USD': '$',
+            'EUR': '€',
+        }
+        symbol = currency_symbols.get(self.currency, self.currency)
+        return f"{self.name} - {symbol} {self.price}"
     
     def get_benefits_dict(self, language='en'):
         """Return benefits as dictionary for API responses"""
@@ -368,6 +381,7 @@ class Transaction(models.Model):
     wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE, related_name='transactions')
     transaction_type = models.CharField(max_length=50, choices=TRANSACTION_TYPES)
     amount = models.DecimalField(max_digits=12, decimal_places=2)
+    currency = models.CharField(max_length=3, default='TZS', help_text="Transaction currency")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     
     reference = models.CharField(max_length=100, unique=True, blank=True)
@@ -394,7 +408,13 @@ class Transaction(models.Model):
         ]
     
     def __str__(self):
-        return f"{self.wallet.user.email} - {self.transaction_type} - {self.amount} TZS"
+        currency_symbols = {
+            'TZS': 'TSh',
+            'USD': '$',
+            'EUR': '€',
+        }
+        symbol = currency_symbols.get(self.currency, self.currency)
+        return f"{self.wallet.user.email} - {self.transaction_type} - {symbol} {self.amount}"
     
     def save(self, *args, **kwargs):
         # Generate unique reference if not provided

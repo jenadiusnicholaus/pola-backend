@@ -22,15 +22,16 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
     benefits_en = serializers.SerializerMethodField()
     benefits_sw = serializers.SerializerMethodField()
     permissions = serializers.SerializerMethodField()
+    price_details = serializers.SerializerMethodField()
     
     class Meta:
         model = SubscriptionPlan
         fields = [
             'id', 'plan_type', 'name', 'name_sw', 'description', 'description_sw',
-            'price', 'duration_days', 'is_active', 'full_legal_library_access',
-            'monthly_questions_limit', 'free_documents_per_month', 'legal_updates',
-            'forum_access', 'student_hub_access', 'benefits_en', 'benefits_sw',
-            'permissions'
+            'price', 'currency', 'price_details', 'duration_days', 'is_active', 
+            'full_legal_library_access', 'monthly_questions_limit', 'free_documents_per_month', 
+            'legal_updates', 'forum_access', 'student_hub_access', 'benefits_en', 
+            'benefits_sw', 'permissions', 'created_at', 'updated_at'
         ]
     
     def get_benefits_en(self, obj):
@@ -41,6 +42,25 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
     
     def get_permissions(self, obj):
         return obj.get_permissions()
+    
+    def get_price_details(self, obj):
+        """Return formatted price object with currency"""
+        currency_symbols = {
+            'TZS': 'TSh',
+            'USD': '$',
+            'EUR': '€',
+        }
+        symbol = currency_symbols.get(obj.currency, obj.currency)
+        
+        # Format amount with thousands separator
+        amount_str = f"{float(obj.price):,.2f}"
+        
+        return {
+            'amount': str(obj.price),
+            'currency': obj.currency,
+            'currency_symbol': symbol,
+            'formatted': f"{symbol} {amount_str}"
+        }
 
 
 class UserSubscriptionSerializer(serializers.ModelSerializer):
@@ -79,33 +99,85 @@ class WalletSerializer(serializers.ModelSerializer):
     """Serializer for wallet"""
     user_email = serializers.EmailField(source='user.email', read_only=True)
     available_for_withdrawal = serializers.SerializerMethodField()
+    balance_details = serializers.SerializerMethodField()
+    earnings_details = serializers.SerializerMethodField()
+    withdrawn_details = serializers.SerializerMethodField()
     
     class Meta:
         model = Wallet
         fields = [
-            'id', 'user', 'user_email', 'balance', 'currency', 'is_active',
-            'total_earnings', 'total_withdrawn', 'available_for_withdrawal',
-            'created_at', 'updated_at'
+            'id', 'user', 'user_email', 'balance', 'balance_details', 'currency', 'is_active',
+            'total_earnings', 'earnings_details', 'total_withdrawn', 'withdrawn_details',
+            'available_for_withdrawal', 'created_at', 'updated_at'
         ]
         read_only_fields = ['user', 'balance', 'total_earnings', 'total_withdrawn', 'created_at', 'updated_at']
     
     def get_available_for_withdrawal(self, obj):
         # Balance that can be withdrawn (earnings - already withdrawn)
         return float(obj.balance)
+    
+    def _format_currency(self, amount, currency):
+        """Helper to format currency consistently"""
+        currency_symbols = {
+            'TZS': 'TSh',
+            'USD': '$',
+            'EUR': '€',
+        }
+        symbol = currency_symbols.get(currency, currency)
+        amount_str = f"{float(amount):,.2f}"
+        
+        return {
+            'amount': str(amount),
+            'currency': currency,
+            'currency_symbol': symbol,
+            'formatted': f"{symbol} {amount_str}"
+        }
+    
+    def get_balance_details(self, obj):
+        """Return formatted balance object"""
+        return self._format_currency(obj.balance, obj.currency)
+    
+    def get_earnings_details(self, obj):
+        """Return formatted earnings object"""
+        return self._format_currency(obj.total_earnings, obj.currency)
+    
+    def get_withdrawn_details(self, obj):
+        """Return formatted withdrawn object"""
+        return self._format_currency(obj.total_withdrawn, obj.currency)
 
 
 class TransactionSerializer(serializers.ModelSerializer):
     """Serializer for transactions"""
     wallet_user = serializers.EmailField(source='wallet.user.email', read_only=True)
+    amount_details = serializers.SerializerMethodField()
     
     class Meta:
         model = Transaction
         fields = [
-            'id', 'wallet', 'wallet_user', 'transaction_type', 'amount', 'status',
-            'reference', 'description', 'payment_method', 'payment_reference',
-            'created_at', 'updated_at'
+            'id', 'wallet', 'wallet_user', 'transaction_type', 'amount', 'currency',
+            'amount_details', 'status', 'reference', 'description', 'payment_method', 
+            'payment_reference', 'created_at', 'updated_at'
         ]
         read_only_fields = ['reference', 'created_at', 'updated_at']
+    
+    def get_amount_details(self, obj):
+        """Return formatted amount object with currency"""
+        currency_symbols = {
+            'TZS': 'TSh',
+            'USD': '$',
+            'EUR': '€',
+        }
+        symbol = currency_symbols.get(obj.currency, obj.currency)
+        
+        # Format amount with thousands separator
+        amount_str = f"{float(obj.amount):,.2f}"
+        
+        return {
+            'amount': str(obj.amount),
+            'currency': obj.currency,
+            'currency_symbol': symbol,
+            'formatted': f"{symbol} {amount_str}"
+        }
 
 
 class ConsultationVoucherSerializer(serializers.ModelSerializer):
