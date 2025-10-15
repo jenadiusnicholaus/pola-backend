@@ -289,21 +289,21 @@ def user_analytics(request):
     
     # Active users by type
     active_by_type = {}
-    for user_type in ['client', 'consultant', 'student', 'lecturer', 'admin']:
+    for role_name in ['citizen', 'advocate', 'lawyer', 'law_student', 'law_firm', 'paralegal']:
         active_count = PolaUser.objects.filter(
-            user_type=user_type,
+            user_role__role_name=role_name,
             is_active=True
         ).count()
         
         # Has activity in last 30 days (made payment or login)
         engaged_count = PolaUser.objects.filter(
-            user_type=user_type,
+            user_role__role_name=role_name,
             is_active=True,
             last_login__gte=thirty_days_ago
         ).count()
         
-        active_by_type[user_type] = {
-            'total': PolaUser.objects.filter(user_type=user_type).count(),
+        active_by_type[role_name] = {
+            'total': PolaUser.objects.filter(user_role__role_name=role_name).count(),
             'active': active_count,
             'engaged_30d': engaged_count
         }
