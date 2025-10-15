@@ -265,12 +265,6 @@ class ConsultantRegistrationRequest(models.Model):
     """
     Consultant registration request - advocates, lawyers, paralegals
     must submit and get approved before becoming consultants
-    
-    Note: User data (name, email, phone, license numbers, experience, specializations) 
-    is already in PolaUser model. This model only stores:
-    1. Verification documents (needed for approval)
-    2. Service preferences (mobile/physical consultations)
-    3. Admin review status
     """
     STATUS_CHOICES = [
         ('pending', 'Pending Review'),
@@ -284,50 +278,33 @@ class ConsultantRegistrationRequest(models.Model):
         ('paralegal', 'Paralegal'),
     ]
     
-    # User submitting the request (inherits all professional info from PolaUser)
+    # User submitting the request
     user = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='consultant_requests')
     consultant_type = models.CharField(max_length=20, choices=CONSULTANT_TYPES)
     
-    # Professional Documents (required for verification)
-    license_document = models.FileField(
-        upload_to='consultant_licenses/', 
-        blank=True, 
-        null=True,
-        help_text="Professional license certificate (if not already in PolaUser documents)"
-    )
-    id_document = models.FileField(
-        upload_to='consultant_ids/',
-        help_text="National ID or Passport for identity verification"
-    )
-    cv_document = models.FileField(
-        upload_to='consultant_cvs/', 
-        blank=True, 
-        null=True,
-        help_text="Professional CV/Resume"
-    )
-    additional_documents = models.FileField(
-        upload_to='consultant_docs/', 
-        blank=True, 
-        null=True,
-        help_text="Any additional certifications or credentials"
-    )
+    # Professional Information
+    full_name = models.CharField(max_length=255)
+    professional_license_number = models.CharField(max_length=100, blank=True)
+    years_of_experience = models.IntegerField(validators=[MinValueValidator(0)])
+    specialization = models.TextField(help_text="Areas of legal expertise")
     
-    # Service Preferences
-    offers_mobile_consultations = models.BooleanField(
-        default=True,
-        help_text="Willing to provide mobile/video consultations"
-    )
-    offers_physical_consultations = models.BooleanField(
-        default=False,
-        help_text="Willing to provide in-person consultations"
-    )
-    preferred_consultation_city = models.CharField(
-        max_length=100,
-        blank=True,
-        help_text="City for physical consultations (if applicable)"
-    )
+    # Documents
+    license_document = models.FileField(upload_to='consultant_licenses/', blank=True, null=True)
+    id_document = models.FileField(upload_to='consultant_ids/')
+    cv_document = models.FileField(upload_to='consultant_cvs/', blank=True, null=True)
+    additional_documents = models.FileField(upload_to='consultant_docs/', blank=True, null=True)
     
-    # Admin Review
+    # Contact Information
+    phone_number = models.CharField(max_length=20)
+    email = models.EmailField()
+    city = models.CharField(max_length=100)
+    physical_address = models.TextField(blank=True)
+    
+    # Availability Preferences
+    offers_mobile_consultations = models.BooleanField(default=True)
+    offers_physical_consultations = models.BooleanField(default=False)
+    
+    # Status and Review
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     reviewed_by = models.ForeignKey(
         PolaUser, 
@@ -337,10 +314,7 @@ class ConsultantRegistrationRequest(models.Model):
         related_name='reviewed_consultant_requests'
     )
     reviewed_at = models.DateTimeField(null=True, blank=True)
-    admin_notes = models.TextField(
-        blank=True, 
-        help_text="Admin review notes, feedback, or rejection reason"
-    )
+    admin_notes = models.TextField(blank=True, help_text="Admin review notes or rejection reason")
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -351,19 +325,7 @@ class ConsultantRegistrationRequest(models.Model):
         verbose_name_plural = 'Consultant Registration Requests'
     
     def __str__(self):
-        return f"{self.user.get_full_name()} ({self.consultant_type}) - {self.status}"
-    
-    def get_professional_info(self):
-        """Get professional information from the associated user"""
-        return {
-            'full_name': self.user.get_full_name(),
-            'email': self.user.email,
-            'phone': self.user.contact.phone_number if hasattr(self.user, 'contact') else None,
-            'years_of_experience': self.user.years_of_experience,
-            'specializations': list(self.user.specializations.values_list('name', flat=True)),
-            'roll_number': self.user.roll_number,
-            'bar_membership_number': self.user.bar_membership_number,
-        }
+        return f"{self.full_name} ({self.consultant_type}) - {self.status}"
     
     def approve(self, admin_user):
         """Approve the request and create ConsultantProfile"""
@@ -372,19 +334,16 @@ class ConsultantRegistrationRequest(models.Model):
         self.reviewed_at = timezone.now()
         self.save()
         
-        # Get specializations as comma-separated string
-        specializations = ', '.join(self.user.specializations.values_list('name', flat=True))
-        
-        # Create ConsultantProfile (using data from PolaUser + request preferences)
+        # Create ConsultantProfile
         ConsultantProfile.objects.create(
             user=self.user,
             registration_request=self,
             consultant_type=self.consultant_type,
-            specialization=specializations or 'General Practice',
-            years_of_experience=self.user.years_of_experience or 0,
+            specialization=self.specialization,
+            years_of_experience=self.years_of_experience,
             offers_mobile_consultations=self.offers_mobile_consultations,
             offers_physical_consultations=self.offers_physical_consultations,
-            city=self.preferred_consultation_city or '',
+            city=self.city,
             is_available=True
         )
     
@@ -395,7 +354,6 @@ class ConsultantRegistrationRequest(models.Model):
         self.reviewed_at = timezone.now()
         self.admin_notes = reason
         self.save()
-
 
 
 class ConsultantProfile(models.Model):
@@ -448,35 +406,20 @@ class ConsultantProfile(models.Model):
     def get_pricing(self):
         """Get pricing for this consultant type"""
         try:
-            pricing = {}
-            
-            # Mobile consultation pricing (50/50 split)
-            if self.offers_mobile_consultations:
-                mobile_pricing = PricingConfiguration.objects.get(
-                    service_type=f'MOBILE_{self.consultant_type.upper()}',
-                    is_active=True
-                )
-                pricing['mobile'] = {
-                    'price': mobile_pricing.price,
-                    'consultant_share': mobile_pricing.consultant_share_percent,
-                    'platform_share': mobile_pricing.platform_commission_percent,
-                }
-            
-            # Physical consultation pricing (60/40 split)
-            if self.offers_physical_consultations:
-                physical_pricing = PricingConfiguration.objects.get(
-                    service_type=f'PHYSICAL_{self.consultant_type.upper()}',
-                    is_active=True
-                )
-                pricing['physical'] = {
-                    'price': physical_pricing.price,
-                    'consultant_share': physical_pricing.consultant_share_percent,
-                    'platform_share': physical_pricing.platform_commission_percent,
-                }
-            
-            return pricing
+            mobile_pricing = PricingConfiguration.objects.get(
+                service_type=f'MOBILE_{self.consultant_type.upper()}',
+                is_active=True
+            )
+            physical_pricing = PricingConfiguration.objects.get(
+                service_type='PHYSICAL_CONSULTATION',
+                is_active=True
+            )
+            return {
+                'mobile': mobile_pricing.price if self.offers_mobile_consultations else None,
+                'physical': physical_pricing.price if self.offers_physical_consultations else None
+            }
         except PricingConfiguration.DoesNotExist:
-            return {}
+            return {'mobile': None, 'physical': None}
 
 
 # ============================================================================
@@ -487,52 +430,35 @@ class PricingConfiguration(models.Model):
     """
     Centralized pricing for all pay-per-use services
     Separate from monthly subscription (SubscriptionPlan)
-    
-    Revenue Splits:
-    - Mobile consultations: 50/50 (App/Consultant)
-    - Physical consultations: 60/40 (App/Consultant)
-    - Student materials: 50/50 (App/Uploader)
-    - Lecturer materials: 40/60 (App/Uploader)
-    - Admin materials: 100/0 (App/Uploader)
     """
     SERVICE_TYPES = [
-        # Mobile Consultations (50/50 split)
-        ('MOBILE_ADVOCATE', 'Mobile Consultation - Advocate (In-App Call)'),
-        ('MOBILE_LAWYER', 'Mobile Consultation - Lawyer (In-App Call)'),
-        ('MOBILE_PARALEGAL', 'Mobile Consultation - Paralegal (In-App Call)'),
-        
-        # Physical Consultations (60/40 split)
-        ('PHYSICAL_ADVOCATE', 'Physical Consultation - Advocate'),
-        ('PHYSICAL_LAWYER', 'Physical Consultation - Lawyer'),
-        ('PHYSICAL_PARALEGAL', 'Physical Consultation - Paralegal'),
-        
-        # Documents
-        ('DOCUMENT_STANDARD', 'Standard Document Generation'),
-        ('DOCUMENT_ADVANCED', 'Advanced Document Generation'),
-        
-        # Learning Materials
-        ('MATERIAL_STUDENT', 'Study Material - Student Upload'),
-        ('MATERIAL_LECTURER', 'Study Material - Lecturer Upload'),
-        ('MATERIAL_ADMIN', 'Study Material - Admin Upload'),
+        ('MOBILE_ADVOCATE', 'Mobile Consultation - Advocate'),
+        ('MOBILE_LAWYER', 'Mobile Consultation - Lawyer'),
+        ('MOBILE_PARALEGAL', 'Mobile Consultation - Paralegal'),
+        ('PHYSICAL_CONSULTATION', 'Physical Consultation (Any Type)'),
+        ('TEMPLATE_DOWNLOAD', 'Legal Template Download'),
+        ('GENERATED_DOCUMENT', 'Generated Legal Document'),
+        ('STUDY_MATERIAL_BASIC', 'Study Material - Basic'),
+        ('STUDY_MATERIAL_ADVANCED', 'Study Material - Advanced'),
     ]
     
     service_type = models.CharField(max_length=50, choices=SERVICE_TYPES, unique=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0'))])
     
-    # Revenue Split (varies by service type)
+    # Revenue Split
     platform_commission_percent = models.DecimalField(
         max_digits=5, 
         decimal_places=2, 
-        default=Decimal('50.00'),
+        default=Decimal('60.00'),
         validators=[MinValueValidator(Decimal('0'))],
-        help_text="Platform commission percentage (50% for mobile, 60% for physical, varies for materials)"
+        help_text="Platform commission percentage (default 60%)"
     )
     consultant_share_percent = models.DecimalField(
         max_digits=5, 
         decimal_places=2, 
-        default=Decimal('50.00'),
+        default=Decimal('40.00'),
         validators=[MinValueValidator(Decimal('0'))],
-        help_text="Consultant/Uploader share percentage (50% for mobile, 40% for physical, varies for materials)"
+        help_text="Consultant/Uploader share percentage (default 40%)"
     )
     
     description = models.TextField(blank=True)
@@ -566,17 +492,12 @@ class PricingConfiguration(models.Model):
 
 class CallCreditBundle(models.Model):
     """
-    Call credit bundles for mobile consultations (Consultation Vouchers)
-    
-    Pricing:
-    - 5 min = 3,000 TZS (3 days expiry; carry forward unused minutes within 3 days)
-    - 10 min = 5,000 TZS (5 days expiry; carry forward unused minutes within 5 days)
-    - 20 min = 9,000 TZS (7 days expiry; carry forward unused minutes within 7 days)
+    Call credit bundles for mobile consultations
     """
     name = models.CharField(max_length=100)
     minutes = models.IntegerField(help_text="Total minutes in bundle")
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    validity_days = models.IntegerField(help_text="Days until expiry after purchase (carry forward period)")
+    validity_days = models.IntegerField(help_text="Days until expiry after purchase")
     is_active = models.BooleanField(default=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
@@ -584,11 +505,11 @@ class CallCreditBundle(models.Model):
     
     class Meta:
         ordering = ['price']
-        verbose_name = 'Call Credit Bundle (Consultation Voucher)'
-        verbose_name_plural = 'Call Credit Bundles (Consultation Vouchers)'
+        verbose_name = 'Call Credit Bundle'
+        verbose_name_plural = 'Call Credit Bundles'
     
     def __str__(self):
-        return f"{self.name} - {self.minutes} minutes - {self.price} TZS ({self.validity_days} days)"
+        return f"{self.name} - {self.minutes} minutes - {self.price} TZS"
 
 
 class UserCallCredit(models.Model):
@@ -833,121 +754,6 @@ class UploaderEarnings(models.Model):
     
     def __str__(self):
         return f"{self.uploader.email} - {self.net_earnings} TZS"
-
-
-class Disbursement(models.Model):
-    """
-    Track manual disbursements/payouts to consultants and uploaders
-    Admin-initiated payments for earnings withdrawal
-    """
-    DISBURSEMENT_STATUS = [
-        ('pending', 'Pending'),
-        ('processing', 'Processing'),
-        ('completed', 'Completed'),
-        ('failed', 'Failed'),
-        ('cancelled', 'Cancelled'),
-    ]
-    
-    DISBURSEMENT_TYPE = [
-        ('consultant', 'Consultant Earnings'),
-        ('uploader', 'Uploader Earnings'),
-        ('refund', 'Refund'),
-        ('other', 'Other'),
-    ]
-    
-    PAYMENT_METHOD = [
-        ('tigo_pesa', 'Tigo Pesa'),
-        ('airtel_money', 'Airtel Money'),
-        ('mpesa', 'M-Pesa'),
-        ('halopesa', 'Halopesa'),
-        ('bank_transfer', 'Bank Transfer'),
-    ]
-    
-    # Recipient information
-    recipient = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='disbursements')
-    recipient_phone = models.CharField(max_length=15, help_text="Phone number for mobile money (255XXXXXXXXX)")
-    recipient_name = models.CharField(max_length=255, blank=True)
-    
-    # Bank details (for bank transfers)
-    bank_account_number = models.CharField(max_length=50, blank=True, null=True, help_text="Bank account number")
-    bank_code = models.CharField(max_length=20, blank=True, null=True, help_text="Bank code/SWIFT code")
-    bank_name = models.CharField(max_length=100, blank=True, null=True, help_text="Bank name")
-    account_verified = models.BooleanField(default=False, help_text="Whether account was verified via name inquiry")
-    
-    # Disbursement details
-    disbursement_type = models.CharField(max_length=20, choices=DISBURSEMENT_TYPE, default='consultant')
-    amount = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(Decimal('1000'))])
-    currency = models.CharField(max_length=3, default='TZS')
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD)
-    
-    # Transaction tracking
-    azampay_transaction_id = models.CharField(max_length=255, blank=True, null=True)
-    external_reference = models.CharField(max_length=255, unique=True, help_text="Internal reference ID")
-    status = models.CharField(max_length=20, choices=DISBURSEMENT_STATUS, default='pending')
-    
-    # Related earnings (if applicable)
-    consultant_earnings = models.ManyToManyField('ConsultantEarnings', blank=True, related_name='disbursements')
-    uploader_earnings = models.ManyToManyField('UploaderEarnings', blank=True, related_name='disbursements')
-    
-    # Admin details
-    initiated_by = models.ForeignKey(PolaUser, on_delete=models.SET_NULL, null=True, related_name='initiated_disbursements')
-    notes = models.TextField(blank=True, help_text="Admin notes")
-    failure_reason = models.TextField(blank=True, help_text="Reason for failure if status is failed")
-    
-    # Timestamps
-    initiated_at = models.DateTimeField(auto_now_add=True)
-    processed_at = models.DateTimeField(null=True, blank=True)
-    completed_at = models.DateTimeField(null=True, blank=True)
-    
-    class Meta:
-        ordering = ['-initiated_at']
-        verbose_name = 'Disbursement'
-        verbose_name_plural = 'Disbursements'
-        indexes = [
-            models.Index(fields=['-initiated_at']),
-            models.Index(fields=['status']),
-            models.Index(fields=['recipient', '-initiated_at']),
-        ]
-    
-    def __str__(self):
-        return f"Disbursement {self.external_reference} - {self.amount} TZS to {self.recipient.email}"
-    
-    def save(self, *args, **kwargs):
-        # Auto-generate external reference if not provided
-        if not self.external_reference:
-            import uuid
-            timestamp = int(timezone.now().timestamp())
-            self.external_reference = f"DISB_{timestamp}_{uuid.uuid4().hex[:8].upper()}"
-        
-        # Set recipient name if not provided
-        if not self.recipient_name:
-            if hasattr(self.recipient, 'full_name'):
-                self.recipient_name = self.recipient.full_name
-            else:
-                self.recipient_name = self.recipient.email
-        
-        super().save(*args, **kwargs)
-    
-    def mark_completed(self, transaction_id: str = None):
-        """Mark disbursement as completed"""
-        self.status = 'completed'
-        self.completed_at = timezone.now()
-        if transaction_id:
-            self.azampay_transaction_id = transaction_id
-        self.save()
-        
-        # Mark related earnings as paid out
-        if self.disbursement_type == 'consultant':
-            self.consultant_earnings.update(paid_out=True, payout_date=timezone.now())
-        elif self.disbursement_type == 'uploader':
-            self.uploader_earnings.update(paid_out=True, payout_date=timezone.now())
-    
-    def mark_failed(self, reason: str):
-        """Mark disbursement as failed"""
-        self.status = 'failed'
-        self.failure_reason = reason
-        self.processed_at = timezone.now()
-        self.save()
 
 
 # ============================================================================
@@ -1325,17 +1131,11 @@ class LearningMaterial(models.Model):
         return f"{self.title} by {self.uploader.email}"
     
     def get_revenue_split(self):
-        """
-        Calculate revenue split based on uploader type
-        
-        Student uploads: 50/50 (App/Uploader)
-        Lecturer uploads: 40/60 (App/Uploader) - Lecturer gets 60%
-        Admin uploads: 100/0 (App/Uploader) - All to platform
-        """
+        """Calculate revenue split based on uploader type"""
         splits = {
-            'student': {'uploader': 0.50, 'app': 0.50},   # 50/50
-            'lecturer': {'uploader': 0.60, 'app': 0.40},  # 60% uploader, 40% app
-            'admin': {'uploader': 0.00, 'app': 1.00},     # 100% to app
+            'student': {'uploader': 0.50, 'app': 0.50},  # 50/50
+            'lecturer': {'uploader': 0.60, 'app': 0.40},  # 60/40
+            'admin': {'uploader': 0.00, 'app': 1.00},  # 100% to app
         }
         return splits.get(self.uploader_type, {'uploader': 0.50, 'app': 0.50})
     

@@ -1,8 +1,41 @@
-# Pola API Documentation
+# 📚 Pola Backend Documentation
 
-Welcome to the Pola Legal Platform API documentation.
+Welcome to the Pola Legal Platform documentation hub.
 
-## 📚 Available Documentation
+---
+
+## 📁 Documentation Structure
+
+```
+docs/
+├── subscription/          # ⭐ Subscription & Payment System (NEW)
+│   ├── README.md          # Start here for subscription system
+│   └── ... (12 comprehensive guides)
+│
+└── API Documentation (below)
+```
+
+---
+
+## 🎯 Featured: Subscription System Documentation
+
+### � **NEW: Complete Subscription System**
+
+All documentation for the redesigned subscription and payment system (NO wallet, direct AzamPay).
+
+👉 **[Go to Subscription Docs →](./subscription/README.md)**
+
+**Quick links:**
+- [Quick Start Guide](./subscription/QUICK_START_GUIDE.md) - 5 min overview
+- [Implementation Plan](./subscription/REVISED_IMPLEMENTATION_PLAN.md) - Full technical details
+- [Pricing Guide](./subscription/PRICING_CONFIGURATION_GUIDE.md) - Admin-managed pricing
+- [Admin Guide](./subscription/ADMIN_PRICING_GUIDE.md) - For administrators
+
+**Status:** ✅ Planning complete, ready for Phase 1 (Database models)
+
+---
+
+## 📚 API Documentation
 
 ### Verification System
 - **[Verification System Guide](09-VERIFICATION-SYSTEM.md)** - Complete guide to user verification with document uploads and admin approval

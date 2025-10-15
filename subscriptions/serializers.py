@@ -5,14 +5,17 @@ from decimal import Decimal
 from .models import (
     SubscriptionPlan,
     UserSubscription,
-    Wallet,
-    Transaction,
+    # Wallet,  # REMOVED - Replaced by PaymentTransaction
+    # Transaction,  # REMOVED - Replaced by PaymentTransaction
     ConsultationVoucher,
-    ConsultationSession,
+    # ConsultationSession,  # REMOVED - Replaced by ConsultationBooking + CallSession
     DocumentType,
     DocumentPurchase,
     LearningMaterial,
-    LearningMaterialPurchase
+    LearningMaterialPurchase,
+    ConsultantEarnings,
+    UploaderEarnings,
+    Disbursement
 )
 from authentication.models import PolaUser
 
@@ -95,89 +98,31 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
         return obj.get_permissions()
 
 
-class WalletSerializer(serializers.ModelSerializer):
-    """Serializer for wallet"""
-    user_email = serializers.EmailField(source='user.email', read_only=True)
-    available_for_withdrawal = serializers.SerializerMethodField()
-    balance_details = serializers.SerializerMethodField()
-    earnings_details = serializers.SerializerMethodField()
-    withdrawn_details = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = Wallet
-        fields = [
-            'id', 'user', 'user_email', 'balance', 'balance_details', 'currency', 'is_active',
-            'total_earnings', 'earnings_details', 'total_withdrawn', 'withdrawn_details',
-            'available_for_withdrawal', 'created_at', 'updated_at'
-        ]
-        read_only_fields = ['user', 'balance', 'total_earnings', 'total_withdrawn', 'created_at', 'updated_at']
-    
-    def get_available_for_withdrawal(self, obj):
-        # Balance that can be withdrawn (earnings - already withdrawn)
-        return float(obj.balance)
-    
-    def _format_currency(self, amount, currency):
-        """Helper to format currency consistently"""
-        currency_symbols = {
-            'TZS': 'TSh',
-            'USD': '$',
-            'EUR': '€',
-        }
-        symbol = currency_symbols.get(currency, currency)
-        amount_str = f"{float(amount):,.2f}"
-        
-        return {
-            'amount': str(amount),
-            'currency': currency,
-            'currency_symbol': symbol,
-            'formatted': f"{symbol} {amount_str}"
-        }
-    
-    def get_balance_details(self, obj):
-        """Return formatted balance object"""
-        return self._format_currency(obj.balance, obj.currency)
-    
-    def get_earnings_details(self, obj):
-        """Return formatted earnings object"""
-        return self._format_currency(obj.total_earnings, obj.currency)
-    
-    def get_withdrawn_details(self, obj):
-        """Return formatted withdrawn object"""
-        return self._format_currency(obj.total_withdrawn, obj.currency)
+# ============================================================================
+# REMOVED SERIALIZERS - Wallet system replaced by PaymentTransaction  
+# ============================================================================
+# These serializers are commented out because the models were removed in Phase 1.
+# They will be replaced with new serializers in Phase 2.
+# See: docs/PHASE_1_COMPLETE_SUMMARY.md for details
 
+# class WalletSerializer(serializers.ModelSerializer):
+#     ... (lines 98-153 commented out - Wallet model removed)
 
-class TransactionSerializer(serializers.ModelSerializer):
-    """Serializer for transactions"""
-    wallet_user = serializers.EmailField(source='wallet.user.email', read_only=True)
-    amount_details = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = Transaction
-        fields = [
-            'id', 'wallet', 'wallet_user', 'transaction_type', 'amount', 'currency',
-            'amount_details', 'status', 'reference', 'description', 'payment_method', 
-            'payment_reference', 'created_at', 'updated_at'
-        ]
-        read_only_fields = ['reference', 'created_at', 'updated_at']
-    
-    def get_amount_details(self, obj):
-        """Return formatted amount object with currency"""
-        currency_symbols = {
-            'TZS': 'TSh',
-            'USD': '$',
-            'EUR': '€',
-        }
-        symbol = currency_symbols.get(obj.currency, obj.currency)
-        
-        # Format amount with thousands separator
-        amount_str = f"{float(obj.amount):,.2f}"
-        
-        return {
-            'amount': str(obj.amount),
-            'currency': obj.currency,
-            'currency_symbol': symbol,
-            'formatted': f"{symbol} {amount_str}"
-        }
+# class TransactionSerializer(serializers.ModelSerializer):
+#     ... (lines 156-189 commented out - Transaction model removed)
+
+# class ConsultationSessionSerializer(serializers.ModelSerializer):
+#     ... (lines 223-242 commented out - ConsultationSession model removed)
+
+# class WalletDepositSerializer(serializers.Serializer):
+#     ... (lines 325-333 commented out - Wallet model removed)
+
+# class WalletWithdrawSerializer(serializers.Serializer):
+#     ... (lines 335-343 commented out - Wallet model removed)
+
+# ============================================================================
+# END OF REMOVED SERIALIZERS
+# ============================================================================
 
 
 class ConsultationVoucherSerializer(serializers.ModelSerializer):
@@ -213,26 +158,8 @@ class ConsultantSerializer(serializers.ModelSerializer):
         return f"{obj.first_name} {obj.last_name}"
 
 
-class ConsultationSessionSerializer(serializers.ModelSerializer):
-    """Serializer for consultation sessions"""
-    client_details = ConsultantSerializer(source='client', read_only=True)
-    consultant_details = ConsultantSerializer(source='consultant', read_only=True)
-    actual_duration = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = ConsultationSession
-        fields = [
-            'id', 'client', 'client_details', 'consultant', 'consultant_details',
-            'consultation_type', 'scheduled_date', 'start_time', 'end_time',
-            'duration_minutes', 'actual_duration', 'total_amount', 'consultant_share',
-            'app_share', 'voucher', 'status', 'notes', 'created_at', 'updated_at'
-        ]
-        read_only_fields = ['start_time', 'end_time', 'duration_minutes', 'created_at', 'updated_at']
-    
-    def get_actual_duration(self, obj):
-        if obj.start_time and obj.end_time:
-            return int((obj.end_time - obj.start_time).total_seconds() / 60)
-        return 0
+# ConsultationSessionSerializer REMOVED - ConsultationSession model no longer exists
+# Use ConsultationBooking and CallSession models instead (Phase 2)
 
 
 class DocumentTypeSerializer(serializers.ModelSerializer):
@@ -322,24 +249,18 @@ class SubscribeSerializer(serializers.Serializer):
     )
 
 
-class WalletDepositSerializer(serializers.Serializer):
-    """Serializer for wallet deposits"""
-    amount = serializers.DecimalField(max_digits=12, decimal_places=2, min_value=100)
-    payment_method = serializers.ChoiceField(
-        choices=['mpesa', 'tigo_pesa', 'airtel_money', 'card'],
-        required=True
-    )
-    phone_number = serializers.CharField(max_length=15, required=False)
+# ============================================================================
+# REMOVED ACTION SERIALIZERS - Wallet and old Consultation system
+# ============================================================================
 
+# class WalletDepositSerializer(serializers.Serializer):
+#     ... (Wallet deposits - replaced by PaymentTransaction in Phase 2)
 
-class WalletWithdrawSerializer(serializers.Serializer):
-    """Serializer for wallet withdrawals"""
-    amount = serializers.DecimalField(max_digits=12, decimal_places=2, min_value=1000)
-    withdrawal_method = serializers.ChoiceField(
-        choices=['mpesa', 'tigo_pesa', 'airtel_money', 'bank'],
-        required=True
-    )
-    account_number = serializers.CharField(max_length=50, required=True)
+# class WalletWithdrawSerializer(serializers.Serializer):
+#     ... (Wallet withdrawals - replaced by PaymentTransaction in Phase 2)
+
+# class BookConsultationSerializer(serializers.Serializer):
+#     ... (Old consultation booking - replaced by ConsultationBookingSerializer in Phase 2)
 
 
 class PurchaseVoucherSerializer(serializers.Serializer):
@@ -352,13 +273,7 @@ class PurchaseVoucherSerializer(serializers.Serializer):
     )
 
 
-class BookConsultationSerializer(serializers.Serializer):
-    """Serializer for booking a consultation"""
-    consultant_id = serializers.IntegerField(required=True)
-    consultation_type = serializers.ChoiceField(choices=['mobile', 'physical'])
-    scheduled_date = serializers.DateTimeField(required=True)
-    voucher_id = serializers.IntegerField(required=False, allow_null=True)
-    notes = serializers.CharField(required=False, allow_blank=True)
+# BookConsultationSerializer REMOVED - See Phase 2 for new ConsultationBookingSerializer
 
 
 class PurchaseDocumentSerializer(serializers.Serializer):
@@ -390,3 +305,210 @@ class PurchaseLearningMaterialSerializer(serializers.Serializer):
         choices=['wallet', 'mpesa', 'tigo_pesa'],
         default='wallet'
     )
+
+
+# ============================================================================
+# DISBURSEMENT SERIALIZERS (Admin APIs)
+# ============================================================================
+
+class ConsultantEarningsSerializer(serializers.ModelSerializer):
+    """Serializer for consultant earnings"""
+    consultant_email = serializers.EmailField(source='consultant.email', read_only=True)
+    consultant_name = serializers.CharField(source='consultant.full_name', read_only=True, allow_null=True)
+    booking_reference = serializers.CharField(source='booking.booking_reference', read_only=True)
+    
+    class Meta:
+        model = ConsultantEarnings
+        fields = [
+            'id', 'consultant', 'consultant_email', 'consultant_name',
+            'booking', 'booking_reference', 'service_type',
+            'gross_amount', 'platform_commission', 'net_earnings',
+            'paid_out', 'payout_date', 'created_at'
+        ]
+        read_only_fields = ['id', 'created_at']
+
+
+class UploaderEarningsSerializer(serializers.ModelSerializer):
+    """Serializer for uploader earnings"""
+    uploader_email = serializers.EmailField(source='uploader.email', read_only=True)
+    uploader_name = serializers.CharField(source='uploader.full_name', read_only=True, allow_null=True)
+    material_title = serializers.CharField(source='material.title', read_only=True, allow_null=True)
+    
+    class Meta:
+        model = UploaderEarnings
+        fields = [
+            'id', 'uploader', 'uploader_email', 'uploader_name',
+            'material', 'material_title', 'service_type',
+            'gross_amount', 'platform_commission', 'net_earnings',
+            'paid_out', 'payout_date', 'created_at'
+        ]
+        read_only_fields = ['id', 'created_at']
+
+
+class DisbursementSerializer(serializers.ModelSerializer):
+    """Serializer for disbursements (payouts)"""
+    recipient_email = serializers.EmailField(source='recipient.email', read_only=True)
+    recipient_full_name = serializers.CharField(source='recipient.full_name', read_only=True, allow_null=True)
+    initiated_by_email = serializers.EmailField(source='initiated_by.email', read_only=True, allow_null=True)
+    
+    # Total earnings counts
+    consultant_earnings_count = serializers.IntegerField(
+        source='consultant_earnings.count', read_only=True
+    )
+    uploader_earnings_count = serializers.IntegerField(
+        source='uploader_earnings.count', read_only=True
+    )
+    
+    class Meta:
+        model = Disbursement
+        fields = [
+            'id', 'recipient', 'recipient_email', 'recipient_full_name',
+            'recipient_phone', 'recipient_name', 'disbursement_type',
+            'amount', 'currency', 'payment_method', 'azampay_transaction_id',
+            'external_reference', 'status', 'consultant_earnings_count',
+            'uploader_earnings_count', 'initiated_by', 'initiated_by_email',
+            'notes', 'failure_reason', 'initiated_at', 'processed_at', 'completed_at'
+        ]
+        read_only_fields = [
+            'id', 'external_reference', 'azampay_transaction_id',
+            'initiated_at', 'processed_at', 'completed_at'
+        ]
+
+
+class DisbursementDetailSerializer(serializers.ModelSerializer):
+    """Detailed serializer for disbursements with related earnings"""
+    recipient_email = serializers.EmailField(source='recipient.email', read_only=True)
+    recipient_full_name = serializers.CharField(source='recipient.full_name', read_only=True, allow_null=True)
+    initiated_by_email = serializers.EmailField(source='initiated_by.email', read_only=True, allow_null=True)
+    
+    # Related earnings
+    consultant_earnings = ConsultantEarningsSerializer(many=True, read_only=True)
+    uploader_earnings = UploaderEarningsSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Disbursement
+        fields = [
+            'id', 'recipient', 'recipient_email', 'recipient_full_name',
+            'recipient_phone', 'recipient_name', 'disbursement_type',
+            'amount', 'currency', 'payment_method', 'azampay_transaction_id',
+            'external_reference', 'status', 'consultant_earnings',
+            'uploader_earnings', 'initiated_by', 'initiated_by_email',
+            'notes', 'failure_reason', 'initiated_at', 'processed_at', 'completed_at'
+        ]
+        read_only_fields = [
+            'id', 'external_reference', 'azampay_transaction_id',
+            'initiated_at', 'processed_at', 'completed_at'
+        ]
+
+
+class InitiateDisbursementSerializer(serializers.Serializer):
+    """Serializer for initiating a disbursement"""
+    recipient_id = serializers.IntegerField(required=True)
+    disbursement_type = serializers.ChoiceField(
+        choices=['consultant', 'uploader', 'refund', 'other'],
+        required=True
+    )
+    amount = serializers.DecimalField(max_digits=12, decimal_places=2, min_value=1000, required=True)
+    payment_method = serializers.ChoiceField(
+        choices=['tigo_pesa', 'airtel_money', 'mpesa', 'halopesa', 'bank_transfer'],
+        required=True
+    )
+    recipient_phone = serializers.CharField(max_length=15, required=False, help_text="Phone number for mobile money (255XXXXXXXXX)")
+    
+    # Bank transfer fields
+    bank_account_number = serializers.CharField(max_length=50, required=False, help_text="Bank account number")
+    bank_code = serializers.CharField(max_length=20, required=False, help_text="Bank code/SWIFT code")
+    bank_name = serializers.CharField(max_length=100, required=False, help_text="Bank name")
+    recipient_name = serializers.CharField(max_length=255, required=False, help_text="Account holder name")
+    verify_account = serializers.BooleanField(default=False, help_text="Verify account before creating disbursement")
+    
+    notes = serializers.CharField(required=False, allow_blank=True)
+    
+    # Optional: Link to specific earnings
+    consultant_earnings_ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        required=False,
+        allow_empty=True
+    )
+    uploader_earnings_ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        required=False,
+        allow_empty=True
+    )
+    
+    def validate_recipient_phone(self, value):
+        """Validate and normalize phone number"""
+        if value:
+            from subscriptions.azampay_integration import format_phone_number
+            return format_phone_number(value)
+        return value
+    
+    def validate(self, data):
+        """Cross-field validation"""
+        # Check if recipient exists
+        recipient_id = data.get('recipient_id')
+        try:
+            recipient = PolaUser.objects.get(id=recipient_id)
+            data['recipient'] = recipient
+        except PolaUser.DoesNotExist:
+            raise serializers.ValidationError("Recipient user not found")
+        
+        payment_method = data.get('payment_method')
+        
+        # Validate bank transfer fields
+        if payment_method == 'bank_transfer':
+            if not data.get('bank_account_number'):
+                raise serializers.ValidationError("bank_account_number is required for bank transfers")
+            if not data.get('bank_code'):
+                raise serializers.ValidationError("bank_code is required for bank transfers")
+            if not data.get('recipient_name'):
+                raise serializers.ValidationError("recipient_name is required for bank transfers")
+        else:
+            # Mobile money requires phone number
+            if not data.get('recipient_phone'):
+                raise serializers.ValidationError("recipient_phone is required for mobile money transfers")
+        
+        # Validate earnings IDs if provided
+        if data.get('consultant_earnings_ids'):
+            earnings = ConsultantEarnings.objects.filter(
+                id__in=data['consultant_earnings_ids'],
+                consultant=recipient
+            )
+            if earnings.count() != len(data['consultant_earnings_ids']):
+                raise serializers.ValidationError("Some consultant earnings not found or don't belong to recipient")
+            data['consultant_earnings'] = earnings
+        
+        if data.get('uploader_earnings_ids'):
+            earnings = UploaderEarnings.objects.filter(
+                id__in=data['uploader_earnings_ids'],
+                uploader=recipient
+            )
+            if earnings.count() != len(data['uploader_earnings_ids']):
+                raise serializers.ValidationError("Some uploader earnings not found or don't belong to recipient")
+            data['uploader_earnings'] = earnings
+        
+        return data
+
+
+class EarningsSummarySerializer(serializers.Serializer):
+    """Serializer for earnings summary"""
+    user_id = serializers.IntegerField()
+    user_email = serializers.EmailField()
+    user_name = serializers.CharField()
+    
+    # Consultant earnings
+    total_consultant_earnings = serializers.DecimalField(max_digits=12, decimal_places=2)
+    paid_consultant_earnings = serializers.DecimalField(max_digits=12, decimal_places=2)
+    unpaid_consultant_earnings = serializers.DecimalField(max_digits=12, decimal_places=2)
+    consultant_earnings_count = serializers.IntegerField()
+    
+    # Uploader earnings
+    total_uploader_earnings = serializers.DecimalField(max_digits=12, decimal_places=2)
+    paid_uploader_earnings = serializers.DecimalField(max_digits=12, decimal_places=2)
+    unpaid_uploader_earnings = serializers.DecimalField(max_digits=12, decimal_places=2)
+    uploader_earnings_count = serializers.IntegerField()
+    
+    # Totals
+    total_earnings = serializers.DecimalField(max_digits=12, decimal_places=2)
+    total_paid = serializers.DecimalField(max_digits=12, decimal_places=2)
+    total_unpaid = serializers.DecimalField(max_digits=12, decimal_places=2)

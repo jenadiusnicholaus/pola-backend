@@ -7,13 +7,12 @@ from authentication.models import PolaUser
 
 
 # ============================================================================
-# SUBSCRIPTION MODELS (Monthly Platform Access - 3,000 TZS)
+# SUBSCRIPTION MODELS (Existing - Monthly Platform Access)
 # ============================================================================
 
 class SubscriptionPlan(models.Model):
     """
     Defines available subscription plans (free trial, monthly, etc.)
-    Monthly subscription provides platform access only
     """
     PLAN_TYPES = [
         ('free_trial', 'Free Trial (24 hours)'),
@@ -31,7 +30,7 @@ class SubscriptionPlan(models.Model):
     name_sw = models.CharField(max_length=100, help_text="Swahili name")
     description = models.TextField()
     description_sw = models.TextField(help_text="Swahili description")
-    price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0'))])
+    price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='TZS', help_text="Price currency")
     duration_days = models.IntegerField(help_text="Duration in days (1 for trial, 30 for monthly)")
     is_active = models.BooleanField(default=True)
@@ -258,19 +257,13 @@ class UserSubscription(models.Model):
 
 
 # ============================================================================
-# CONSULTANT REGISTRATION & APPROVAL MODELS
+# CONSULTANT REGISTRATION & APPROVAL MODELS (NEW)
 # ============================================================================
 
 class ConsultantRegistrationRequest(models.Model):
     """
     Consultant registration request - advocates, lawyers, paralegals
     must submit and get approved before becoming consultants
-    
-    Note: User data (name, email, phone, license numbers, experience, specializations) 
-    is already in PolaUser model. This model only stores:
-    1. Verification documents (needed for approval)
-    2. Service preferences (mobile/physical consultations)
-    3. Admin review status
     """
     STATUS_CHOICES = [
         ('pending', 'Pending Review'),
@@ -284,50 +277,33 @@ class ConsultantRegistrationRequest(models.Model):
         ('paralegal', 'Paralegal'),
     ]
     
-    # User submitting the request (inherits all professional info from PolaUser)
+    # User submitting the request
     user = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='consultant_requests')
     consultant_type = models.CharField(max_length=20, choices=CONSULTANT_TYPES)
     
-    # Professional Documents (required for verification)
-    license_document = models.FileField(
-        upload_to='consultant_licenses/', 
-        blank=True, 
-        null=True,
-        help_text="Professional license certificate (if not already in PolaUser documents)"
-    )
-    id_document = models.FileField(
-        upload_to='consultant_ids/',
-        help_text="National ID or Passport for identity verification"
-    )
-    cv_document = models.FileField(
-        upload_to='consultant_cvs/', 
-        blank=True, 
-        null=True,
-        help_text="Professional CV/Resume"
-    )
-    additional_documents = models.FileField(
-        upload_to='consultant_docs/', 
-        blank=True, 
-        null=True,
-        help_text="Any additional certifications or credentials"
-    )
+    # Professional Information
+    full_name = models.CharField(max_length=255)
+    professional_license_number = models.CharField(max_length=100, blank=True)
+    years_of_experience = models.IntegerField(validators=[MinValueValidator(0)])
+    specialization = models.TextField(help_text="Areas of legal expertise")
     
-    # Service Preferences
-    offers_mobile_consultations = models.BooleanField(
-        default=True,
-        help_text="Willing to provide mobile/video consultations"
-    )
-    offers_physical_consultations = models.BooleanField(
-        default=False,
-        help_text="Willing to provide in-person consultations"
-    )
-    preferred_consultation_city = models.CharField(
-        max_length=100,
-        blank=True,
-        help_text="City for physical consultations (if applicable)"
-    )
+    # Documents
+    license_document = models.FileField(upload_to='consultant_licenses/', blank=True, null=True)
+    id_document = models.FileField(upload_to='consultant_ids/')
+    cv_document = models.FileField(upload_to='consultant_cvs/', blank=True, null=True)
+    additional_documents = models.FileField(upload_to='consultant_docs/', blank=True, null=True)
     
-    # Admin Review
+    # Contact Information
+    phone_number = models.CharField(max_length=20)
+    email = models.EmailField()
+    city = models.CharField(max_length=100)
+    physical_address = models.TextField(blank=True)
+    
+    # Availability Preferences
+    offers_mobile_consultations = models.BooleanField(default=True)
+    offers_physical_consultations = models.BooleanField(default=False)
+    
+    # Status and Review
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     reviewed_by = models.ForeignKey(
         PolaUser, 
@@ -337,10 +313,7 @@ class ConsultantRegistrationRequest(models.Model):
         related_name='reviewed_consultant_requests'
     )
     reviewed_at = models.DateTimeField(null=True, blank=True)
-    admin_notes = models.TextField(
-        blank=True, 
-        help_text="Admin review notes, feedback, or rejection reason"
-    )
+    admin_notes = models.TextField(blank=True, help_text="Admin review notes or rejection reason")
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -351,19 +324,7 @@ class ConsultantRegistrationRequest(models.Model):
         verbose_name_plural = 'Consultant Registration Requests'
     
     def __str__(self):
-        return f"{self.user.get_full_name()} ({self.consultant_type}) - {self.status}"
-    
-    def get_professional_info(self):
-        """Get professional information from the associated user"""
-        return {
-            'full_name': self.user.get_full_name(),
-            'email': self.user.email,
-            'phone': self.user.contact.phone_number if hasattr(self.user, 'contact') else None,
-            'years_of_experience': self.user.years_of_experience,
-            'specializations': list(self.user.specializations.values_list('name', flat=True)),
-            'roll_number': self.user.roll_number,
-            'bar_membership_number': self.user.bar_membership_number,
-        }
+        return f"{self.full_name} ({self.consultant_type}) - {self.status}"
     
     def approve(self, admin_user):
         """Approve the request and create ConsultantProfile"""
@@ -372,19 +333,16 @@ class ConsultantRegistrationRequest(models.Model):
         self.reviewed_at = timezone.now()
         self.save()
         
-        # Get specializations as comma-separated string
-        specializations = ', '.join(self.user.specializations.values_list('name', flat=True))
-        
-        # Create ConsultantProfile (using data from PolaUser + request preferences)
+        # Create ConsultantProfile
         ConsultantProfile.objects.create(
             user=self.user,
             registration_request=self,
             consultant_type=self.consultant_type,
-            specialization=specializations or 'General Practice',
-            years_of_experience=self.user.years_of_experience or 0,
+            specialization=self.specialization,
+            years_of_experience=self.years_of_experience,
             offers_mobile_consultations=self.offers_mobile_consultations,
             offers_physical_consultations=self.offers_physical_consultations,
-            city=self.preferred_consultation_city or '',
+            city=self.city,
             is_available=True
         )
     
@@ -395,7 +353,6 @@ class ConsultantRegistrationRequest(models.Model):
         self.reviewed_at = timezone.now()
         self.admin_notes = reason
         self.save()
-
 
 
 class ConsultantProfile(models.Model):
@@ -430,8 +387,8 @@ class ConsultantProfile(models.Model):
     
     # Stats
     total_consultations = models.IntegerField(default=0)
-    total_earnings = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0'))
-    average_rating = models.DecimalField(max_digits=3, decimal_places=2, default=Decimal('0'), validators=[MinValueValidator(Decimal('0'))])
+    total_earnings = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    average_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0, validators=[MinValueValidator(0)])
     total_reviews = models.IntegerField(default=0)
     
     created_at = models.DateTimeField(auto_now_add=True)
@@ -448,91 +405,58 @@ class ConsultantProfile(models.Model):
     def get_pricing(self):
         """Get pricing for this consultant type"""
         try:
-            pricing = {}
-            
-            # Mobile consultation pricing (50/50 split)
-            if self.offers_mobile_consultations:
-                mobile_pricing = PricingConfiguration.objects.get(
-                    service_type=f'MOBILE_{self.consultant_type.upper()}',
-                    is_active=True
-                )
-                pricing['mobile'] = {
-                    'price': mobile_pricing.price,
-                    'consultant_share': mobile_pricing.consultant_share_percent,
-                    'platform_share': mobile_pricing.platform_commission_percent,
-                }
-            
-            # Physical consultation pricing (60/40 split)
-            if self.offers_physical_consultations:
-                physical_pricing = PricingConfiguration.objects.get(
-                    service_type=f'PHYSICAL_{self.consultant_type.upper()}',
-                    is_active=True
-                )
-                pricing['physical'] = {
-                    'price': physical_pricing.price,
-                    'consultant_share': physical_pricing.consultant_share_percent,
-                    'platform_share': physical_pricing.platform_commission_percent,
-                }
-            
-            return pricing
+            mobile_pricing = PricingConfiguration.objects.get(
+                service_type=f'MOBILE_{self.consultant_type.upper()}',
+                is_active=True
+            )
+            physical_pricing = PricingConfiguration.objects.get(
+                service_type='PHYSICAL_CONSULTATION',
+                is_active=True
+            )
+            return {
+                'mobile': mobile_pricing.price if self.offers_mobile_consultations else None,
+                'physical': physical_pricing.price if self.offers_physical_consultations else None
+            }
         except PricingConfiguration.DoesNotExist:
-            return {}
+            return {'mobile': None, 'physical': None}
 
 
 # ============================================================================
-# PRICING CONFIGURATION (Pay-Per-Use Services)
+# PRICING CONFIGURATION (NEW - Pay-Per-Use Services)
 # ============================================================================
 
 class PricingConfiguration(models.Model):
     """
     Centralized pricing for all pay-per-use services
-    Separate from monthly subscription (SubscriptionPlan)
-    
-    Revenue Splits:
-    - Mobile consultations: 50/50 (App/Consultant)
-    - Physical consultations: 60/40 (App/Consultant)
-    - Student materials: 50/50 (App/Uploader)
-    - Lecturer materials: 40/60 (App/Uploader)
-    - Admin materials: 100/0 (App/Uploader)
     """
     SERVICE_TYPES = [
-        # Mobile Consultations (50/50 split)
-        ('MOBILE_ADVOCATE', 'Mobile Consultation - Advocate (In-App Call)'),
-        ('MOBILE_LAWYER', 'Mobile Consultation - Lawyer (In-App Call)'),
-        ('MOBILE_PARALEGAL', 'Mobile Consultation - Paralegal (In-App Call)'),
-        
-        # Physical Consultations (60/40 split)
-        ('PHYSICAL_ADVOCATE', 'Physical Consultation - Advocate'),
-        ('PHYSICAL_LAWYER', 'Physical Consultation - Lawyer'),
-        ('PHYSICAL_PARALEGAL', 'Physical Consultation - Paralegal'),
-        
-        # Documents
-        ('DOCUMENT_STANDARD', 'Standard Document Generation'),
-        ('DOCUMENT_ADVANCED', 'Advanced Document Generation'),
-        
-        # Learning Materials
-        ('MATERIAL_STUDENT', 'Study Material - Student Upload'),
-        ('MATERIAL_LECTURER', 'Study Material - Lecturer Upload'),
-        ('MATERIAL_ADMIN', 'Study Material - Admin Upload'),
+        ('MOBILE_ADVOCATE', 'Mobile Consultation - Advocate'),
+        ('MOBILE_LAWYER', 'Mobile Consultation - Lawyer'),
+        ('MOBILE_PARALEGAL', 'Mobile Consultation - Paralegal'),
+        ('PHYSICAL_CONSULTATION', 'Physical Consultation (Any Type)'),
+        ('TEMPLATE_DOWNLOAD', 'Legal Template Download'),
+        ('GENERATED_DOCUMENT', 'Generated Legal Document'),
+        ('STUDY_MATERIAL_BASIC', 'Study Material - Basic'),
+        ('STUDY_MATERIAL_ADVANCED', 'Study Material - Advanced'),
     ]
     
     service_type = models.CharField(max_length=50, choices=SERVICE_TYPES, unique=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0'))])
+    price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     
-    # Revenue Split (varies by service type)
+    # Revenue Split
     platform_commission_percent = models.DecimalField(
         max_digits=5, 
         decimal_places=2, 
-        default=Decimal('50.00'),
-        validators=[MinValueValidator(Decimal('0'))],
-        help_text="Platform commission percentage (50% for mobile, 60% for physical, varies for materials)"
+        default=60.00,
+        validators=[MinValueValidator(0)],
+        help_text="Platform commission percentage (default 60%)"
     )
     consultant_share_percent = models.DecimalField(
         max_digits=5, 
         decimal_places=2, 
-        default=Decimal('50.00'),
-        validators=[MinValueValidator(Decimal('0'))],
-        help_text="Consultant/Uploader share percentage (50% for mobile, 40% for physical, varies for materials)"
+        default=40.00,
+        validators=[MinValueValidator(0)],
+        help_text="Consultant/Uploader share percentage (default 40%)"
     )
     
     description = models.TextField(blank=True)
@@ -561,22 +485,17 @@ class PricingConfiguration(models.Model):
 
 
 # ============================================================================
-# CALL CREDITS & CONSULTATION BOOKINGS
+# CALL CREDITS & CONSULTATION BOOKINGS (NEW)
 # ============================================================================
 
 class CallCreditBundle(models.Model):
     """
-    Call credit bundles for mobile consultations (Consultation Vouchers)
-    
-    Pricing:
-    - 5 min = 3,000 TZS (3 days expiry; carry forward unused minutes within 3 days)
-    - 10 min = 5,000 TZS (5 days expiry; carry forward unused minutes within 5 days)
-    - 20 min = 9,000 TZS (7 days expiry; carry forward unused minutes within 7 days)
+    Call credit bundles for mobile consultations
     """
     name = models.CharField(max_length=100)
     minutes = models.IntegerField(help_text="Total minutes in bundle")
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    validity_days = models.IntegerField(help_text="Days until expiry after purchase (carry forward period)")
+    validity_days = models.IntegerField(help_text="Days until expiry after purchase")
     is_active = models.BooleanField(default=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
@@ -584,11 +503,11 @@ class CallCreditBundle(models.Model):
     
     class Meta:
         ordering = ['price']
-        verbose_name = 'Call Credit Bundle (Consultation Voucher)'
-        verbose_name_plural = 'Call Credit Bundles (Consultation Vouchers)'
+        verbose_name = 'Call Credit Bundle'
+        verbose_name_plural = 'Call Credit Bundles'
     
     def __str__(self):
-        return f"{self.name} - {self.minutes} minutes - {self.price} TZS ({self.validity_days} days)"
+        return f"{self.name} - {self.minutes} minutes - {self.price} TZS"
 
 
 class UserCallCredit(models.Model):
@@ -780,7 +699,7 @@ class CallSession(models.Model):
 
 
 # ============================================================================
-# EARNINGS TRACKING
+# EARNINGS TRACKING (NEW)
 # ============================================================================
 
 class ConsultantEarnings(models.Model):
@@ -835,123 +754,8 @@ class UploaderEarnings(models.Model):
         return f"{self.uploader.email} - {self.net_earnings} TZS"
 
 
-class Disbursement(models.Model):
-    """
-    Track manual disbursements/payouts to consultants and uploaders
-    Admin-initiated payments for earnings withdrawal
-    """
-    DISBURSEMENT_STATUS = [
-        ('pending', 'Pending'),
-        ('processing', 'Processing'),
-        ('completed', 'Completed'),
-        ('failed', 'Failed'),
-        ('cancelled', 'Cancelled'),
-    ]
-    
-    DISBURSEMENT_TYPE = [
-        ('consultant', 'Consultant Earnings'),
-        ('uploader', 'Uploader Earnings'),
-        ('refund', 'Refund'),
-        ('other', 'Other'),
-    ]
-    
-    PAYMENT_METHOD = [
-        ('tigo_pesa', 'Tigo Pesa'),
-        ('airtel_money', 'Airtel Money'),
-        ('mpesa', 'M-Pesa'),
-        ('halopesa', 'Halopesa'),
-        ('bank_transfer', 'Bank Transfer'),
-    ]
-    
-    # Recipient information
-    recipient = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='disbursements')
-    recipient_phone = models.CharField(max_length=15, help_text="Phone number for mobile money (255XXXXXXXXX)")
-    recipient_name = models.CharField(max_length=255, blank=True)
-    
-    # Bank details (for bank transfers)
-    bank_account_number = models.CharField(max_length=50, blank=True, null=True, help_text="Bank account number")
-    bank_code = models.CharField(max_length=20, blank=True, null=True, help_text="Bank code/SWIFT code")
-    bank_name = models.CharField(max_length=100, blank=True, null=True, help_text="Bank name")
-    account_verified = models.BooleanField(default=False, help_text="Whether account was verified via name inquiry")
-    
-    # Disbursement details
-    disbursement_type = models.CharField(max_length=20, choices=DISBURSEMENT_TYPE, default='consultant')
-    amount = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(Decimal('1000'))])
-    currency = models.CharField(max_length=3, default='TZS')
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD)
-    
-    # Transaction tracking
-    azampay_transaction_id = models.CharField(max_length=255, blank=True, null=True)
-    external_reference = models.CharField(max_length=255, unique=True, help_text="Internal reference ID")
-    status = models.CharField(max_length=20, choices=DISBURSEMENT_STATUS, default='pending')
-    
-    # Related earnings (if applicable)
-    consultant_earnings = models.ManyToManyField('ConsultantEarnings', blank=True, related_name='disbursements')
-    uploader_earnings = models.ManyToManyField('UploaderEarnings', blank=True, related_name='disbursements')
-    
-    # Admin details
-    initiated_by = models.ForeignKey(PolaUser, on_delete=models.SET_NULL, null=True, related_name='initiated_disbursements')
-    notes = models.TextField(blank=True, help_text="Admin notes")
-    failure_reason = models.TextField(blank=True, help_text="Reason for failure if status is failed")
-    
-    # Timestamps
-    initiated_at = models.DateTimeField(auto_now_add=True)
-    processed_at = models.DateTimeField(null=True, blank=True)
-    completed_at = models.DateTimeField(null=True, blank=True)
-    
-    class Meta:
-        ordering = ['-initiated_at']
-        verbose_name = 'Disbursement'
-        verbose_name_plural = 'Disbursements'
-        indexes = [
-            models.Index(fields=['-initiated_at']),
-            models.Index(fields=['status']),
-            models.Index(fields=['recipient', '-initiated_at']),
-        ]
-    
-    def __str__(self):
-        return f"Disbursement {self.external_reference} - {self.amount} TZS to {self.recipient.email}"
-    
-    def save(self, *args, **kwargs):
-        # Auto-generate external reference if not provided
-        if not self.external_reference:
-            import uuid
-            timestamp = int(timezone.now().timestamp())
-            self.external_reference = f"DISB_{timestamp}_{uuid.uuid4().hex[:8].upper()}"
-        
-        # Set recipient name if not provided
-        if not self.recipient_name:
-            if hasattr(self.recipient, 'full_name'):
-                self.recipient_name = self.recipient.full_name
-            else:
-                self.recipient_name = self.recipient.email
-        
-        super().save(*args, **kwargs)
-    
-    def mark_completed(self, transaction_id: str = None):
-        """Mark disbursement as completed"""
-        self.status = 'completed'
-        self.completed_at = timezone.now()
-        if transaction_id:
-            self.azampay_transaction_id = transaction_id
-        self.save()
-        
-        # Mark related earnings as paid out
-        if self.disbursement_type == 'consultant':
-            self.consultant_earnings.update(paid_out=True, payout_date=timezone.now())
-        elif self.disbursement_type == 'uploader':
-            self.uploader_earnings.update(paid_out=True, payout_date=timezone.now())
-    
-    def mark_failed(self, reason: str):
-        """Mark disbursement as failed"""
-        self.status = 'failed'
-        self.failure_reason = reason
-        self.processed_at = timezone.now()
-        self.save()
-
-
 # ============================================================================
-# DOCUMENT GENERATION & PURCHASES
+# DOCUMENT GENERATION & PURCHASES (NEW)
 # ============================================================================
 
 class GeneratedDocument(models.Model):
@@ -1039,13 +843,12 @@ class MaterialPurchase(models.Model):
 
 
 # ============================================================================
-# PAYMENT TRANSACTIONS (Replaces Wallet System)
+# PAYMENT TRANSACTIONS (NEW - Replacing Wallet)
 # ============================================================================
 
 class PaymentTransaction(models.Model):
     """
     All payment transactions - subscriptions, consultations, documents, materials
-    Direct payment via AzamPay (no wallet)
     """
     TRANSACTION_TYPES = [
         ('subscription', 'Subscription Payment'),
@@ -1115,14 +918,182 @@ class PaymentTransaction(models.Model):
         self.save()
 
 
-# ============================================================================
-# EXISTING MODELS (Keep for backward compatibility - will deprecate later)
-# ============================================================================
+# Keep existing models below
+class Wallet(models.Model):
+    """
+    User's in-app wallet for transactions
+    """
+    CURRENCY_CHOICES = [
+        ('TZS', 'Tanzanian Shilling'),
+    ]
+    
+    user = models.OneToOneField(PolaUser, on_delete=models.CASCADE, related_name='wallet')
+    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0, validators=[MinValueValidator(0)])
+    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='TZS')
+    is_active = models.BooleanField(default=True)
+    
+    # Earnings tracking (for consultants, uploaders, etc.)
+    total_earnings = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_withdrawn = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Wallet'
+        verbose_name_plural = 'Wallets'
+    
+    def __str__(self):
+        return f"{self.user.email} - {self.balance} {self.currency}"
+    
+    def has_sufficient_balance(self, amount):
+        """Check if wallet has sufficient balance"""
+        return self.balance >= amount
+    
+    def deposit(self, amount, description="Deposit"):
+        """Add money to wallet"""
+        if amount <= 0:
+            raise ValueError("Deposit amount must be positive")
+        
+        self.balance += Decimal(str(amount))
+        self.save()
+        
+        # Create transaction record
+        Transaction.objects.create(
+            wallet=self,
+            transaction_type='deposit',
+            amount=amount,
+            status='completed',
+            description=description
+        )
+    
+    def withdraw(self, amount, description="Withdrawal"):
+        """Withdraw money from wallet"""
+        if amount <= 0:
+            raise ValueError("Withdrawal amount must be positive")
+        
+        if not self.has_sufficient_balance(amount):
+            raise ValueError("Insufficient balance")
+        
+        self.balance -= Decimal(str(amount))
+        self.total_withdrawn += Decimal(str(amount))
+        self.save()
+        
+        # Create transaction record
+        Transaction.objects.create(
+            wallet=self,
+            transaction_type='withdrawal',
+            amount=amount,
+            status='completed',
+            description=description
+        )
+    
+    def deduct(self, amount, transaction_type, description):
+        """Deduct amount for purchases/subscriptions"""
+        if not self.has_sufficient_balance(amount):
+            raise ValueError("Insufficient balance")
+        
+        self.balance -= Decimal(str(amount))
+        self.save()
+        
+        # Create transaction record
+        Transaction.objects.create(
+            wallet=self,
+            transaction_type=transaction_type,
+            amount=amount,
+            status='completed',
+            description=description
+        )
+    
+    def add_earnings(self, amount, transaction_type, description):
+        """Add earnings (for consultants, uploaders)"""
+        self.balance += Decimal(str(amount))
+        self.total_earnings += Decimal(str(amount))
+        self.save()
+        
+        # Create transaction record
+        Transaction.objects.create(
+            wallet=self,
+            transaction_type=transaction_type,
+            amount=amount,
+            status='completed',
+            description=description
+        )
+
+
+class Transaction(models.Model):
+    """
+    Record of all wallet transactions
+    """
+    TRANSACTION_TYPES = [
+        ('deposit', 'Deposit'),
+        ('withdrawal', 'Withdrawal'),
+        ('subscription', 'Subscription Payment'),
+        ('consultation_purchase', 'Consultation Voucher Purchase'),
+        ('consultation_earning', 'Consultation Earning'),
+        ('document_purchase', 'Document Purchase'),
+        ('learning_material_purchase', 'Learning Material Purchase'),
+        ('learning_material_earning', 'Learning Material Earning'),
+        ('refund', 'Refund'),
+        ('adjustment', 'Admin Adjustment'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
+    wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE, related_name='transactions')
+    transaction_type = models.CharField(max_length=50, choices=TRANSACTION_TYPES)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    currency = models.CharField(max_length=3, default='TZS', help_text="Transaction currency")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    
+    reference = models.CharField(max_length=100, unique=True, blank=True)
+    description = models.TextField()
+    
+    # Payment gateway details
+    payment_method = models.CharField(max_length=50, blank=True, null=True, help_text="M-Pesa, Tigo Pesa, Card, etc.")
+    payment_reference = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Related objects (optional)
+    related_subscription = models.ForeignKey('UserSubscription', on_delete=models.SET_NULL, null=True, blank=True)
+    related_voucher = models.ForeignKey('ConsultationVoucher', on_delete=models.SET_NULL, null=True, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Transaction'
+        verbose_name_plural = 'Transactions'
+        indexes = [
+            models.Index(fields=['wallet', '-created_at']),
+            models.Index(fields=['reference']),
+        ]
+    
+    def __str__(self):
+        currency_symbols = {
+            'TZS': 'TSh',
+            'USD': '$',
+            'EUR': '€',
+        }
+        symbol = currency_symbols.get(self.currency, self.currency)
+        return f"{self.wallet.user.email} - {self.transaction_type} - {symbol} {self.amount}"
+    
+    def save(self, *args, **kwargs):
+        # Generate unique reference if not provided
+        if not self.reference:
+            import uuid
+            self.reference = f"TXN-{uuid.uuid4().hex[:12].upper()}"
+        super().save(*args, **kwargs)
+
 
 class ConsultationVoucher(models.Model):
     """
     Consultation vouchers purchased by users
-    NOTE: Being replaced by ConsultationBooking model
     """
     VOUCHER_TYPES = [
         ('mobile', 'Mobile Consultation (In-App Call)'),
@@ -1192,6 +1163,111 @@ class ConsultationVoucher(models.Model):
             self.status = 'used'
         
         self.save()
+    
+    def get_pricing_details(self):
+        """Return pricing details for this voucher type"""
+        pricing = {
+            5: {'price': 3000, 'expiry_days': 3},
+            10: {'price': 5000, 'expiry_days': 5},
+            20: {'price': 9000, 'expiry_days': 7},
+        }
+        return pricing.get(self.duration_minutes, {})
+
+
+class ConsultationSession(models.Model):
+    """
+    Individual consultation sessions
+    """
+    CONSULTATION_TYPES = [
+        ('mobile', 'Mobile Consultation (In-App Call)'),
+        ('physical', 'Physical Consultation'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('scheduled', 'Scheduled'),
+        ('ongoing', 'Ongoing'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+        ('no_show', 'No Show'),
+    ]
+    
+    # Participants
+    client = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='client_sessions')
+    consultant = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='consultant_sessions')
+    
+    # Session details
+    consultation_type = models.CharField(max_length=20, choices=CONSULTATION_TYPES)
+    scheduled_date = models.DateTimeField()
+    start_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    duration_minutes = models.IntegerField(default=0, help_text="Actual duration")
+    
+    # Payment and revenue split
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    consultant_share = models.DecimalField(max_digits=10, decimal_places=2)
+    app_share = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    # Related voucher (if mobile consultation)
+    voucher = models.ForeignKey(ConsultationVoucher, on_delete=models.SET_NULL, null=True, blank=True, related_name='sessions')
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled')
+    notes = models.TextField(blank=True, help_text="Session notes or feedback")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-scheduled_date']
+        verbose_name = 'Consultation Session'
+        verbose_name_plural = 'Consultation Sessions'
+    
+    def __str__(self):
+        return f"{self.client.email} with {self.consultant.email} - {self.scheduled_date}"
+    
+    def start_session(self):
+        """Mark session as started"""
+        self.status = 'ongoing'
+        self.start_time = timezone.now()
+        self.save()
+    
+    def end_session(self):
+        """Mark session as completed and calculate revenue split"""
+        self.status = 'completed'
+        self.end_time = timezone.now()
+        
+        if self.start_time:
+            self.duration_minutes = int((self.end_time - self.start_time).total_seconds() / 60)
+        
+        # Deduct from voucher if mobile consultation
+        if self.consultation_type == 'mobile' and self.voucher:
+            self.voucher.use_minutes(self.duration_minutes)
+        
+        # Pay consultant their share
+        if hasattr(self.consultant, 'wallet'):
+            self.consultant.wallet.add_earnings(
+                self.consultant_share,
+                'consultation_earning',
+                f"Consultation with {self.client.email}"
+            )
+        
+        self.save()
+    
+    @staticmethod
+    def calculate_revenue_split(amount, consultation_type):
+        """Calculate revenue split between consultant and app"""
+        if consultation_type == 'mobile':
+            # 50/50 split for mobile
+            consultant_share = amount * Decimal('0.50')
+            app_share = amount * Decimal('0.50')
+        else:
+            # 60/40 split for physical
+            consultant_share = amount * Decimal('0.60')
+            app_share = amount * Decimal('0.40')
+        
+        return {
+            'consultant_share': consultant_share,
+            'app_share': app_share
+        }
 
 
 class DocumentType(models.Model):
@@ -1238,7 +1314,6 @@ class DocumentType(models.Model):
 class DocumentPurchase(models.Model):
     """
     User's purchased/generated documents
-    NOTE: Being replaced by GeneratedDocumentPurchase
     """
     user = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='purchased_documents')
     document_type = models.ForeignKey(DocumentType, on_delete=models.PROTECT, related_name='purchases')
@@ -1307,8 +1382,8 @@ class LearningMaterial(models.Model):
     
     # Stats
     downloads_count = models.IntegerField(default=0)
-    total_revenue = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0'))
-    uploader_earnings = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0'))
+    total_revenue = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    uploader_earnings = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     
     is_approved = models.BooleanField(default=False, help_text="Admin approval required")
     is_active = models.BooleanField(default=True)
@@ -1325,17 +1400,11 @@ class LearningMaterial(models.Model):
         return f"{self.title} by {self.uploader.email}"
     
     def get_revenue_split(self):
-        """
-        Calculate revenue split based on uploader type
-        
-        Student uploads: 50/50 (App/Uploader)
-        Lecturer uploads: 40/60 (App/Uploader) - Lecturer gets 60%
-        Admin uploads: 100/0 (App/Uploader) - All to platform
-        """
+        """Calculate revenue split based on uploader type"""
         splits = {
-            'student': {'uploader': 0.50, 'app': 0.50},   # 50/50
-            'lecturer': {'uploader': 0.60, 'app': 0.40},  # 60% uploader, 40% app
-            'admin': {'uploader': 0.00, 'app': 1.00},     # 100% to app
+            'student': {'uploader': 0.50, 'app': 0.50},  # 50/50
+            'lecturer': {'uploader': 0.60, 'app': 0.40},  # 60/40
+            'admin': {'uploader': 0.00, 'app': 1.00},  # 100% to app
         }
         return splits.get(self.uploader_type, {'uploader': 0.50, 'app': 0.50})
     
@@ -1352,15 +1421,12 @@ class LearningMaterial(models.Model):
         self.uploader_earnings += uploader_share
         self.save()
         
-        # Record in UploaderEarnings
-        if uploader_share > 0:
-            UploaderEarnings.objects.create(
-                uploader=self.uploader,
-                material=self,
-                service_type='learning_material',
-                gross_amount=self.price,
-                platform_commission=app_share,
-                net_earnings=uploader_share
+        # Pay uploader their share
+        if uploader_share > 0 and hasattr(self.uploader, 'wallet'):
+            self.uploader.wallet.add_earnings(
+                uploader_share,
+                'learning_material_earning',
+                f"Purchase of '{self.title}' by {buyer.email}"
             )
         
         return {
@@ -1391,9 +1457,79 @@ class LearningMaterialPurchase(models.Model):
     
     def __str__(self):
         return f"{self.buyer.email} - {self.material.title}"
+
+
+# ============================================================================
+# PAYMENT TRANSACTIONS (NEW - Replacing Wallet)
+# ============================================================================
+
+class PaymentTransaction(models.Model):
+    """
+    All payment transactions - subscriptions, consultations, documents, materials
+    """
+    TRANSACTION_TYPES = [
+        ('subscription', 'Subscription Payment'),
+        ('consultation', 'Consultation Payment'),
+        ('document', 'Document Purchase'),
+        ('material', 'Study Material Purchase'),
+        ('call_credit', 'Call Credit Purchase'),
+        ('refund', 'Refund'),
+    ]
     
-    def increment_download(self):
-        """Increment download count"""
-        self.download_count += 1
-        self.last_downloaded = timezone.now()
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+        ('refunded', 'Refunded'),
+    ]
+    
+    PAYMENT_METHODS = [
+        ('azampay', 'AzamPay'),
+        ('mpesa', 'M-Pesa'),
+        ('tigopesa', 'Tigo Pesa'),
+        ('card', 'Card Payment'),
+        ('bank', 'Bank Transfer'),
+    ]
+    
+    user = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='payment_transactions')
+    transaction_type = models.CharField(max_length=50, choices=TRANSACTION_TYPES)
+    
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    currency = models.CharField(max_length=3, default='TZS')
+    
+    payment_method = models.CharField(max_length=50, choices=PAYMENT_METHODS)
+    payment_reference = models.CharField(max_length=255, unique=True)
+    gateway_reference = models.CharField(max_length=255, blank=True, help_text="Reference from payment gateway")
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    
+    # Related objects
+    related_subscription = models.ForeignKey(UserSubscription, on_delete=models.SET_NULL, null=True, blank=True)
+    related_booking = models.ForeignKey(ConsultationBooking, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    description = models.TextField(blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Payment Transaction'
+        verbose_name_plural = 'Payment Transactions'
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['payment_reference']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.email} - {self.transaction_type} - {self.amount} TZS - {self.status}"
+    
+    def mark_completed(self):
+        """Mark transaction as completed"""
+        self.status = 'completed'
+        self.save()
+    
+    def mark_failed(self):
+        """Mark transaction as failed"""
+        self.status = 'failed'
         self.save()

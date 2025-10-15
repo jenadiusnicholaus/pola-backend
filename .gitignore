@@ -76,6 +76,8 @@ service_account_file.json
 docs/*.md
 # !docs/**/*.md
 *.sh
+*.drawio
 
 
 
+logs/*.log

@@ -16,14 +16,14 @@ from decimal import Decimal
 from .models import (
     SubscriptionPlan,
     UserSubscription,
-    Wallet,
-    Transaction,
+    PaymentTransaction,
+    ConsultantEarnings,
+    UploaderEarnings,
 )
 from .serializers import (
     SubscriptionPlanSerializer,
     UserSubscriptionSerializer,
-    WalletSerializer,
-    TransactionSerializer,
+    # PaymentTransactionSerializer,  # TODO: Create in Phase 2
 )
 from authentication.models import PolaUser
 
@@ -65,7 +65,7 @@ class AdminSubscriptionPlanViewSet(viewsets.ModelViewSet):
                 'expired_subscriptions': subscriptions.filter(status='expired').count(),
                 'cancelled_subscriptions': subscriptions.filter(status='cancelled').count(),
                 'total_revenue': float(
-                    Transaction.objects.filter(
+                    PaymentTransaction.objects.filter(
                         transaction_type='subscription',
                         related_subscription__plan=plan,
                         status='completed'
@@ -297,9 +297,9 @@ class AdminUserSubscriptionViewSet(viewsets.ModelViewSet):
         }, status=status.HTTP_201_CREATED)
 
 
-class AdminTransactionViewSet(viewsets.ReadOnlyModelViewSet):
+class AdminPaymentTransactionViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    Admin API for viewing and managing transactions
+    Admin API for viewing and managing payment transactions (NEW - No wallet system)
     
     Endpoints:
     - GET /admin/transactions/ - List all transactions (with filters)
@@ -309,10 +309,12 @@ class AdminTransactionViewSet(viewsets.ReadOnlyModelViewSet):
     - POST /admin/transactions/{id}/fail/ - Mark as failed
     - POST /admin/transactions/{id}/cancel/ - Cancel transaction
     - GET /admin/transactions/statistics/ - Get transaction statistics
+    
+    Note: Refunds now go back to payment method (AzamPay), not wallet
     """
     permission_classes = [IsAdminUser]
-    serializer_class = TransactionSerializer
-    queryset = Transaction.objects.all().select_related('wallet', 'wallet__user')
+    # serializer_class = PaymentTransactionSerializer  # TODO: Create in Phase 2
+    queryset = PaymentTransaction.objects.all().select_related('user')
     
     def get_queryset(self):
         """Filter transactions based on query parameters"""
@@ -331,12 +333,12 @@ class AdminTransactionViewSet(viewsets.ReadOnlyModelViewSet):
         # Filter by user
         user_id = self.request.query_params.get('user_id')
         if user_id:
-            queryset = queryset.filter(wallet__user_id=user_id)
+            queryset = queryset.filter(user_id=user_id)
         
         # Filter by email
         email = self.request.query_params.get('email')
         if email:
-            queryset = queryset.filter(wallet__user__email__icontains=email)
+            queryset = queryset.filter(user__email__icontains=email)
         
         # Filter by date range
         start_date = self.request.query_params.get('start_date')
@@ -355,13 +357,13 @@ class AdminTransactionViewSet(viewsets.ReadOnlyModelViewSet):
     
     @action(detail=False, methods=['get'])
     def statistics(self, request):
-        """Get transaction statistics"""
-        all_transactions = Transaction.objects.all()
+        """Get payment transaction statistics (NO wallet system)"""
+        all_transactions = PaymentTransaction.objects.all()
         completed = all_transactions.filter(status='completed')
         
         # Revenue by transaction type
         revenue_by_type = {}
-        for trans_type, _ in Transaction.TRANSACTION_TYPES:
+        for trans_type, _ in PaymentTransaction.TRANSACTION_TYPES:
             revenue = completed.filter(
                 transaction_type=trans_type
             ).aggregate(total=Sum('amount'))['total'] or 0
@@ -372,30 +374,44 @@ class AdminTransactionViewSet(viewsets.ReadOnlyModelViewSet):
             'completed_transactions': completed.count(),
             'pending_transactions': all_transactions.filter(status='pending').count(),
             'failed_transactions': all_transactions.filter(status='failed').count(),
-            'cancelled_transactions': all_transactions.filter(status='cancelled').count(),
+            'refunded_transactions': all_transactions.filter(status='refunded').count(),
             'total_revenue': float(
                 completed.filter(
-                    transaction_type__in=['subscription', 'consultation_purchase', 
-                                         'document_purchase', 'learning_material_purchase']
+                    transaction_type__in=['subscription', 'consultation', 
+                                         'document', 'material', 'call_credit']
                 ).aggregate(total=Sum('amount'))['total'] or 0
-            ),
-            'total_deposits': float(
-                completed.filter(transaction_type='deposit').aggregate(total=Sum('amount'))['total'] or 0
-            ),
-            'total_withdrawals': float(
-                completed.filter(transaction_type='withdrawal').aggregate(total=Sum('amount'))['total'] or 0
             ),
             'total_refunds': float(
                 completed.filter(transaction_type='refund').aggregate(total=Sum('amount'))['total'] or 0
             ),
             'revenue_by_type': revenue_by_type,
+            'payment_methods': self._get_payment_method_stats(completed),
         }
         
         return Response(stats)
     
+    def _get_payment_method_stats(self, completed_transactions):
+        """Get statistics by payment method"""
+        stats = {}
+        for method, _ in PaymentTransaction.PAYMENT_METHODS:
+            amount = completed_transactions.filter(
+                payment_method=method
+            ).aggregate(total=Sum('amount'))['total'] or 0
+            count = completed_transactions.filter(payment_method=method).count()
+            stats[method] = {
+                'total_amount': float(amount),
+                'transaction_count': count
+            }
+        return stats
+    
     @action(detail=True, methods=['post'])
     def refund(self, request, pk=None):
-        """Process a refund for a transaction"""
+        """
+        Process a refund for a transaction (NO wallet - refund to payment method)
+        
+        Note: This creates a refund transaction record. Actual refund processing
+        through AzamPay should be implemented in Phase 2.
+        """
         transaction = self.get_object()
         reason = request.data.get('reason', 'Admin refund')
         refund_amount = request.data.get('amount')
@@ -428,32 +444,39 @@ class AdminTransactionViewSet(viewsets.ReadOnlyModelViewSet):
             refund_amount = transaction.amount
         
         with db_transaction.atomic():
-            # Return money to wallet
-            wallet = transaction.wallet
-            wallet.balance += refund_amount
-            wallet.save()
-            
-            # Create refund transaction
-            refund_transaction = Transaction.objects.create(
-                wallet=wallet,
+            # Create refund transaction record
+            refund_transaction = PaymentTransaction.objects.create(
+                user=transaction.user,
                 transaction_type='refund',
                 amount=refund_amount,
+                currency=transaction.currency,
+                payment_method=transaction.payment_method,
+                payment_reference=f'REFUND-{transaction.payment_reference}',
+                gateway_reference=transaction.gateway_reference,
                 status='completed',
-                description=f'Refund for {transaction.reference}: {reason}',
-                payment_reference=transaction.reference
+                description=f'Refund for {transaction.payment_reference}: {reason}',
             )
             
             # Update original transaction status if full refund
             if refund_amount == transaction.amount:
-                transaction.status = 'cancelled'
+                transaction.status = 'refunded'
                 transaction.save()
         
         return Response({
             'message': f'Refund of {refund_amount} TZS processed successfully',
             'reason': reason,
-            'original_transaction': TransactionSerializer(transaction).data,
-            'refund_transaction': TransactionSerializer(refund_transaction).data,
-            'wallet_balance': float(wallet.balance)
+            'note': 'Refund will be processed through payment gateway (AzamPay)',
+            'original_transaction': {
+                'id': transaction.id,
+                'reference': transaction.payment_reference,
+                'amount': float(transaction.amount),
+                'status': transaction.status,
+            },
+            'refund_transaction': {
+                'id': refund_transaction.id,
+                'reference': refund_transaction.payment_reference,
+                'amount': float(refund_transaction.amount),
+            }
         })
     
     @action(detail=True, methods=['post'])
@@ -471,8 +494,13 @@ class AdminTransactionViewSet(viewsets.ReadOnlyModelViewSet):
         transaction.save()
         
         return Response({
-            'message': f'Transaction {transaction.reference} marked as completed',
-            'transaction': TransactionSerializer(transaction).data
+            'message': f'Transaction {transaction.payment_reference} marked as completed',
+            'transaction': {
+                'id': transaction.id,
+                'reference': transaction.payment_reference,
+                'amount': float(transaction.amount),
+                'status': transaction.status,
+            }
         })
     
     @action(detail=True, methods=['post'])
@@ -486,9 +514,14 @@ class AdminTransactionViewSet(viewsets.ReadOnlyModelViewSet):
         transaction.save()
         
         return Response({
-            'message': f'Transaction {transaction.reference} marked as failed',
+            'message': f'Transaction {transaction.payment_reference} marked as failed',
             'reason': reason,
-            'transaction': TransactionSerializer(transaction).data
+            'transaction': {
+                'id': transaction.id,
+                'reference': transaction.payment_reference,
+                'amount': float(transaction.amount),
+                'status': transaction.status,
+            }
         })
     
     @action(detail=True, methods=['post'])
@@ -508,153 +541,181 @@ class AdminTransactionViewSet(viewsets.ReadOnlyModelViewSet):
         transaction.save()
         
         return Response({
-            'message': f'Transaction {transaction.reference} cancelled',
+            'message': f'Transaction {transaction.payment_reference} cancelled',
             'reason': reason,
-            'transaction': TransactionSerializer(transaction).data
+            'transaction': {
+                'id': transaction.id,
+                'reference': transaction.payment_reference,
+                'amount': float(transaction.amount),
+                'status': transaction.status,
+            }
         })
 
 
-class AdminWalletViewSet(viewsets.ReadOnlyModelViewSet):
+class AdminEarningsViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    Admin API for viewing and managing wallets
+    Admin API for viewing consultant and uploader earnings (REPLACES AdminWalletViewSet)
     
     Endpoints:
-    - GET /admin/wallets/ - List all wallets
-    - GET /admin/wallets/{id}/ - Get wallet details
-    - POST /admin/wallets/{id}/adjust/ - Adjust wallet balance
-    - POST /admin/wallets/{id}/freeze/ - Freeze wallet
-    - POST /admin/wallets/{id}/unfreeze/ - Unfreeze wallet
-    - GET /admin/wallets/statistics/ - Get wallet statistics
+    - GET /admin/earnings/ - List all earnings (with filters)
+    - GET /admin/earnings/statistics/ - Get earnings statistics
+    - GET /admin/earnings/consultant/{id}/ - Get consultant earnings
+    - GET /admin/earnings/uploader/{id}/ - Get uploader earnings
+    - POST /admin/earnings/{id}/mark-paid/ - Mark earnings as paid out
     """
     permission_classes = [IsAdminUser]
-    serializer_class = WalletSerializer
-    queryset = Wallet.objects.all().select_related('user')
+    queryset = ConsultantEarnings.objects.none()  # Override in get_queryset
     
     def get_queryset(self):
-        """Filter wallets based on query parameters"""
-        queryset = super().get_queryset()
+        """Get earnings based on type filter"""
+        earnings_type = self.request.query_params.get('type', 'consultant')
+        
+        if earnings_type == 'uploader':
+            queryset = UploaderEarnings.objects.all().select_related('uploader', 'material')
+        else:
+            queryset = ConsultantEarnings.objects.all().select_related('consultant', 'booking')
+        
+        # Filter by paid status
+        paid_status = self.request.query_params.get('paid')
+        if paid_status == 'true':
+            queryset = queryset.filter(paid_out=True)
+        elif paid_status == 'false':
+            queryset = queryset.filter(paid_out=False)
         
         # Filter by user
         user_id = self.request.query_params.get('user_id')
         if user_id:
-            queryset = queryset.filter(user_id=user_id)
+            if earnings_type == 'uploader':
+                queryset = queryset.filter(uploader_id=user_id)
+            else:
+                queryset = queryset.filter(consultant_id=user_id)
         
         # Filter by email
         email = self.request.query_params.get('email')
         if email:
-            queryset = queryset.filter(user__email__icontains=email)
+            if earnings_type == 'uploader':
+                queryset = queryset.filter(uploader__email__icontains=email)
+            else:
+                queryset = queryset.filter(consultant__email__icontains=email)
         
-        # Filter by status
-        is_active = self.request.query_params.get('is_active')
-        if is_active == 'true':
-            queryset = queryset.filter(is_active=True)
-        elif is_active == 'false':
-            queryset = queryset.filter(is_active=False)
+        return queryset.order_by('-created_at')
+    
+    def list(self, request, *args, **kwargs):
+        """List earnings with basic serialization"""
+        queryset = self.get_queryset()
+        earnings_type = request.query_params.get('type', 'consultant')
         
-        # Filter by balance
-        min_balance = self.request.query_params.get('min_balance')
-        if min_balance:
-            queryset = queryset.filter(balance__gte=min_balance)
+        data = []
+        for earning in queryset[:100]:  # Limit to 100 for performance
+            if earnings_type == 'uploader':
+                data.append({
+                    'id': earning.id,
+                    'uploader': earning.uploader.email,
+                    'material': earning.material.title if earning.material else 'N/A',
+                    'service_type': earning.service_type,
+                    'gross_amount': float(earning.gross_amount),
+                    'platform_commission': float(earning.platform_commission),
+                    'net_earnings': float(earning.net_earnings),
+                    'paid_out': earning.paid_out,
+                    'payout_date': earning.payout_date.isoformat() if earning.payout_date else None,
+                    'created_at': earning.created_at.isoformat(),
+                })
+            else:
+                data.append({
+                    'id': earning.id,
+                    'consultant': earning.consultant.email,
+                    'booking_id': earning.booking.id if earning.booking else None,
+                    'service_type': earning.service_type,
+                    'gross_amount': float(earning.gross_amount),
+                    'platform_commission': float(earning.platform_commission),
+                    'net_earnings': float(earning.net_earnings),
+                    'paid_out': earning.paid_out,
+                    'payout_date': earning.payout_date.isoformat() if earning.payout_date else None,
+                    'created_at': earning.created_at.isoformat(),
+                })
         
-        return queryset.order_by('-balance')
+        return Response({
+            'count': queryset.count(),
+            'results': data
+        })
     
     @action(detail=False, methods=['get'])
     def statistics(self, request):
-        """Get wallet statistics"""
-        all_wallets = Wallet.objects.all()
+        """Get earnings statistics"""
+        consultant_earnings = ConsultantEarnings.objects.all()
+        uploader_earnings = UploaderEarnings.objects.all()
         
         stats = {
-            'total_wallets': all_wallets.count(),
-            'active_wallets': all_wallets.filter(is_active=True).count(),
-            'frozen_wallets': all_wallets.filter(is_active=False).count(),
-            'total_balance': float(
-                all_wallets.aggregate(total=Sum('balance'))['total'] or 0
-            ),
-            'total_earnings': float(
-                all_wallets.aggregate(total=Sum('total_earnings'))['total'] or 0
-            ),
-            'total_withdrawn': float(
-                all_wallets.aggregate(total=Sum('total_withdrawn'))['total'] or 0
-            ),
-            'wallets_with_balance': all_wallets.filter(balance__gt=0).count(),
+            'consultant_earnings': {
+                'total_earnings': float(
+                    consultant_earnings.aggregate(total=Sum('net_earnings'))['total'] or 0
+                ),
+                'total_paid_out': float(
+                    consultant_earnings.filter(paid_out=True).aggregate(total=Sum('net_earnings'))['total'] or 0
+                ),
+                'pending_payout': float(
+                    consultant_earnings.filter(paid_out=False).aggregate(total=Sum('net_earnings'))['total'] or 0
+                ),
+                'total_consultants': consultant_earnings.values('consultant').distinct().count(),
+            },
+            'uploader_earnings': {
+                'total_earnings': float(
+                    uploader_earnings.aggregate(total=Sum('net_earnings'))['total'] or 0
+                ),
+                'total_paid_out': float(
+                    uploader_earnings.filter(paid_out=True).aggregate(total=Sum('net_earnings'))['total'] or 0
+                ),
+                'pending_payout': float(
+                    uploader_earnings.filter(paid_out=False).aggregate(total=Sum('net_earnings'))['total'] or 0
+                ),
+                'total_uploaders': uploader_earnings.values('uploader').distinct().count(),
+            },
+            'platform_commission': {
+                'from_consultations': float(
+                    consultant_earnings.aggregate(total=Sum('platform_commission'))['total'] or 0
+                ),
+                'from_materials': float(
+                    uploader_earnings.aggregate(total=Sum('platform_commission'))['total'] or 0
+                ),
+                'total': float(
+                    (consultant_earnings.aggregate(total=Sum('platform_commission'))['total'] or 0) +
+                    (uploader_earnings.aggregate(total=Sum('platform_commission'))['total'] or 0)
+                ),
+            }
         }
         
         return Response(stats)
     
     @action(detail=True, methods=['post'])
-    def adjust(self, request, pk=None):
-        """Adjust wallet balance (admin adjustment)"""
-        wallet = self.get_object()
-        amount = request.data.get('amount')
-        reason = request.data.get('reason', 'Admin adjustment')
-        
-        if not amount:
-            return Response(
-                {'error': 'amount parameter is required'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+    def mark_paid(self, request, pk=None):
+        """Mark earnings as paid out"""
+        earnings_type = request.query_params.get('type', 'consultant')
         
         try:
-            amount = Decimal(str(amount))
-        except (ValueError, TypeError):
+            if earnings_type == 'uploader':
+                earning = UploaderEarnings.objects.get(id=pk)
+                user = earning.uploader
+            else:
+                earning = ConsultantEarnings.objects.get(id=pk)
+                user = earning.consultant
+        except (ConsultantEarnings.DoesNotExist, UploaderEarnings.DoesNotExist):
             return Response(
-                {'error': 'Invalid amount'},
+                {'error': 'Earning record not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        if earning.paid_out:
+            return Response(
+                {'error': 'This earning has already been paid out'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        old_balance = wallet.balance
-        
-        with db_transaction.atomic():
-            wallet.balance += amount
-            if wallet.balance < 0:
-                return Response(
-                    {'error': 'Adjustment would result in negative balance'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            wallet.save()
-            
-            # Create adjustment transaction
-            Transaction.objects.create(
-                wallet=wallet,
-                transaction_type='adjustment',
-                amount=abs(amount),
-                status='completed',
-                description=f'Admin adjustment: {reason}',
-            )
+        earning.paid_out = True
+        earning.payout_date = timezone.now()
+        earning.save()
         
         return Response({
-            'message': f'Wallet balance adjusted for {wallet.user.email}',
-            'reason': reason,
-            'old_balance': float(old_balance),
-            'new_balance': float(wallet.balance),
-            'adjustment': float(amount),
-            'wallet': WalletSerializer(wallet).data
-        })
-    
-    @action(detail=True, methods=['post'])
-    def freeze(self, request, pk=None):
-        """Freeze a wallet"""
-        wallet = self.get_object()
-        reason = request.data.get('reason', 'Admin freeze')
-        
-        wallet.is_active = False
-        wallet.save()
-        
-        return Response({
-            'message': f'Wallet frozen for {wallet.user.email}',
-            'reason': reason,
-            'wallet': WalletSerializer(wallet).data
-        })
-    
-    @action(detail=True, methods=['post'])
-    def unfreeze(self, request, pk=None):
-        """Unfreeze a wallet"""
-        wallet = self.get_object()
-        
-        wallet.is_active = True
-        wallet.save()
-        
-        return Response({
-            'message': f'Wallet unfrozen for {wallet.user.email}',
-            'wallet': WalletSerializer(wallet).data
+            'message': f'Earnings marked as paid for {user.email}',
+            'amount': float(earning.net_earnings),
+            'payout_date': earning.payout_date.isoformat()
         })

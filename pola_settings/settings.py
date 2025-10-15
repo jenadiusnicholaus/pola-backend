@@ -212,3 +212,64 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = "authentication.PolaUser"
 
+
+# ==============================================================================
+# AZAMPAY PAYMENT GATEWAY CONFIGURATION
+# ==============================================================================
+
+# AzamPay URLs
+AZAM_PAY_AUTH = config('AZAM_PAY_AUTH', default='https://authenticator-sandbox.azampay.co.tz')
+AZAM_PAY_CHECKOUT_URL = config('AZAM_PAY_CHECKOUT_URL', default='https://sandbox.azampay.co.tz')
+
+# AzamPay Credentials (get from .env file)
+AZAM_PAY_APP_NAME = config('AZAM_PAY_APP_NAME', default='eshop')
+AZAM_PAY_CLIENT_ID = config('AZAM_PAY_CLIENT_ID', default='')
+AZAM_PAY_CLIENT_SECRET = config('AZAM_PAY_CLIENT_SECRET', default='')
+AZAM_PAY_TOKEN = config('TOKEN', default='')  # API Token
+
+# Environment settings
+AZAM_PAY_PRODUCTION = config('AZAM_PAY_PRODUCTION', default=False, cast=bool)
+AZAM_PAY_MERCHANT_ACCOUNT = config('AZAM_PAY_MERCHANT_ACCOUNT', default='0000000000')
+
+# Webhook URL (will be called by AzamPay after payment)
+# Format: https://yourdomain.com/api/v1/subscriptions/webhooks/azampay/
+AZAM_PAY_WEBHOOK_URL = config('AZAM_PAY_WEBHOOK_URL', default='http://localhost:8000/api/v1/subscriptions/webhooks/azampay/')
+
+# ==============================================================================
+# LOGGING CONFIGURATION
+# ==============================================================================
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'azampay.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'subscriptions.azampay_integration': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'subscriptions.webhook_views': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
+

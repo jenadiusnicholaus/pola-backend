@@ -26,36 +26,110 @@ API_VERSION = settings.API_VERSION
 # Swagger/OpenAPI schema configuration
 schema_view = get_schema_view(
     openapi.Info(
-        title="Pola API",
+        title="Pola Legal Platform API",
         default_version=API_VERSION,
         description="""
-        # Pola Legal Platform API Documentation
-        
-        This API provides endpoints for the Pola legal platform, supporting multiple user roles:
-        - **Advocates**: Licensed legal practitioners with roll numbers
-        - **Lawyers/Paralegals**: Legal professionals working in various organizations
-        - **Law Firms**: Legal practice organizations
-        - **Law Students/Lecturers**: Academic users
-        - **Citizens**: General public users
-        
-        ## Authentication
-        This API uses JWT (JSON Web Token) authentication. To access protected endpoints:
-        1. Register a new user via `/api/v1/authentication/register/`
-        2. Login via `/api/v1/authentication/login/` to get access and refresh tokens
-        3. Include the access token in the Authorization header: `Bearer <token>`
-        4. Refresh the token when expired via `/api/v1/authentication/token/refresh/`
-        
-        ## User Registration
-        Registration requires role-specific fields. Use the lookup endpoints to get valid values for:
-        - User roles
-        - Regions and districts
-        - Specializations
-        - Place of work
-        - Academic roles
+# Pola Legal Platform API Documentation
+
+Welcome to the **Pola Legal Platform API** - A comprehensive legal services platform for Tanzania.
+
+---
+
+## 🎯 Platform Overview
+
+This API serves multiple user types with specialized legal services:
+
+### User Roles
+- **👨‍⚖️ Advocates** - Licensed legal practitioners with roll numbers
+- **⚖️ Lawyers & Paralegals** - Legal professionals in various organizations
+- **🏢 Law Firms** - Legal practice organizations
+- **🎓 Law Students & Lecturers** - Academic community members
+- **👥 Citizens** - General public users seeking legal assistance
+
+---
+
+## 🔐 Authentication
+
+This API uses **JWT (JSON Web Token)** authentication for secure access.
+
+### Getting Started:
+1. **Register** a new account: `POST /api/v1/authentication/register/`
+2. **Login** to get tokens: `POST /api/v1/authentication/login/`
+3. **Authorize** requests with header: `Authorization: Bearer <access_token>`
+4. **Refresh** expired tokens: `POST /api/v1/authentication/token/refresh/`
+
+---
+
+## 📝 User Registration
+
+Registration requires **role-specific information**. Use lookup endpoints to retrieve valid values:
+
+### Available Lookups:
+- 🏷️ User roles
+- 📍 Regions and districts
+- 🎯 Legal specializations
+- 🏛️ Place of work
+- 🎓 Academic roles
+- 📚 Institutions and organizations
+
+**Tip:** Query `/api/v1/lookups/` endpoints before registration to get valid dropdown values.
+
+---
+
+## 🚀 Key Features
+
+### For Consultants (Advocates/Lawyers):
+- Register and get verified by admins
+- Offer mobile & physical consultations
+- Track earnings and statistics
+- Manage consultation bookings
+
+### For Clients:
+- Purchase consultation vouchers (call credits)
+- Book mobile or physical consultations
+- Access legal knowledge library
+- Generate legal documents
+- Subscribe to monthly plans
+
+### For Students:
+- Access student hub
+- Share study materials
+- Earn from uploaded content
+- Connect with peers
+
+---
+
+## 💰 Payment Integration
+
+- **Provider:** AzamPay
+- **Currency:** TZS (Tanzanian Shillings)
+- **Methods:** Mobile Money (Tigo Pesa, Airtel Money, M-Pesa), Bank Transfer
+
+---
+
+## 📚 API Endpoints Categories
+
+1. **Authentication** - User registration, login, profile management
+2. **Consultations** - Book and manage legal consultations
+3. **Subscriptions** - Monthly platform access plans
+4. **Documents** - Generate legal documents
+5. **Materials** - Learning resources marketplace
+6. **Payments** - Transaction processing
+7. **Admin** - Platform management endpoints
+
+---
+
+## 📞 Support
+
+For API support and inquiries, contact: **support@pola.co.tz**
         """,
         terms_of_service="https://www.pola.co.tz/terms/",
-        contact=openapi.Contact(email="support@pola.co.tz"),
-        license=openapi.License(name="Proprietary"),
+        contact=openapi.Contact(
+            name="Pola Support Team",
+            email="support@pola.co.tz",
+            url="https://www.pola.co.tz"
+        ),
+        license=openapi.License(name="Proprietary License"),
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
@@ -70,7 +144,8 @@ urlpatterns = [
     
     # API endpoints
     path(f"api/{API_VERSION}/authentication/", include("authentication.urls")),
-    path(f"api/{API_VERSION}/admin/", include("authentication.admin_urls")),  # Admin APIs
+    path(f"api/{API_VERSION}/admin/auth/", include("authentication.admin_urls")),  # Admin Auth APIs
+    path(f"api/{API_VERSION}/admin/", include("subscriptions.admin_urls")),  # Admin Management APIs (NEW)
     path(f"api/{API_VERSION}/subscriptions/", include("subscriptions.urls")),  # Subscription APIs
     path(f"api/{API_VERSION}/lookups/", include("lookups.urls")),
     
