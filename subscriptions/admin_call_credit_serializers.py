@@ -19,9 +19,9 @@ class CallCreditBundleAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = CallCreditBundle
         fields = [
-            'id', 'name', 'minutes', 'price', 'validity_days', 'is_active',
-            'total_purchases', 'total_revenue', 'total_minutes_sold',
-            'total_minutes_used', 'created_at', 'updated_at'
+            'id', 'name', 'name_sw', 'description', 'description_sw', 'minutes', 'price', 
+            'validity_days', 'is_active', 'total_purchases', 'total_revenue', 
+            'total_minutes_sold', 'total_minutes_used', 'created_at', 'updated_at'
         ]
         read_only_fields = ['created_at', 'updated_at']
         ref_name = 'AdminCallCreditBundle'

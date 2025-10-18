@@ -76,6 +76,49 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
                 {'detail': 'No active subscription found'},
                 status=status.HTTP_404_NOT_FOUND
             )
+    
+    @action(detail=False, methods=['get'])
+    def benefits(self, request):
+        """Get all available benefits for all subscription plans"""
+        plan_id = request.query_params.get('plan_id')
+        language = request.query_params.get('language', 'en')  # 'en' or 'sw'
+        
+        if plan_id:
+            # Get benefits for specific plan
+            try:
+                plan = SubscriptionPlan.objects.get(id=plan_id)
+                benefits = plan.get_benefits_dict(language=language)
+                return Response({
+                    'plan_id': plan.id,
+                    'plan_name': plan.name,
+                    'plan_type': plan.plan_type,
+                    'benefits': benefits,
+                    'language': language
+                })
+            except SubscriptionPlan.DoesNotExist:
+                return Response(
+                    {'detail': 'Plan not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+        else:
+            # Get benefits for all active plans
+            plans = SubscriptionPlan.objects.filter(is_active=True)
+            all_benefits = []
+            
+            for plan in plans:
+                all_benefits.append({
+                    'plan_id': plan.id,
+                    'plan_name': plan.name,
+                    'plan_type': plan.plan_type,
+                    'price': plan.price,
+                    'duration_days': plan.duration_days,
+                    'benefits': plan.get_benefits_dict(language=language),
+                })
+            
+            return Response({
+                'language': language,
+                'plans': all_benefits
+            })
 
 
 class DocumentViewSet(viewsets.ViewSet):

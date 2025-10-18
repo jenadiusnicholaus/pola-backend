@@ -249,6 +249,8 @@ class VerificationViewSet(viewsets.ReadOnlyModelViewSet):
                 user__user_role__role_name__in=auto_verify_roles
             ).exclude(
                 user__is_staff=True  # Exclude admin/staff users
+            ).exclude(
+                user__is_superuser=True  # Exclude superuser accounts
             )
         return Verification.objects.filter(user=self.request.user)
 
@@ -779,10 +781,10 @@ class AdminVerificationDashboardViewSet(viewsets.ViewSet):
         auto_verify_roles = ['citizen', 'law_student', 'lecturer']
         
         # Total users (excluding admin/staff users)
-        total_users = PolaUser.objects.exclude(is_staff=True).count()
+        total_users = PolaUser.objects.exclude(is_staff=True).exclude(is_superuser=True).count()
         auto_verified_users = PolaUser.objects.filter(
             user_role__role_name__in=auto_verify_roles
-        ).exclude(is_staff=True).count()
+        ).exclude(is_staff=True).exclude(is_superuser=True).count()
         manual_verification_users = total_users - auto_verified_users
         
         # Manual verification statistics (excluding auto-verified roles and admin users)
@@ -792,6 +794,8 @@ class AdminVerificationDashboardViewSet(viewsets.ViewSet):
             user_role__role_name__in=auto_verify_roles
         ).exclude(
             is_staff=True
+        ).exclude(
+            is_superuser=True
         ).count()
         
         manual_pending = Verification.objects.filter(
@@ -800,6 +804,8 @@ class AdminVerificationDashboardViewSet(viewsets.ViewSet):
             user__user_role__role_name__in=auto_verify_roles
         ).exclude(
             user__is_staff=True
+        ).exclude(
+            user__is_superuser=True
         ).count()
         
         manual_rejected = Verification.objects.filter(
@@ -808,6 +814,8 @@ class AdminVerificationDashboardViewSet(viewsets.ViewSet):
             user__user_role__role_name__in=auto_verify_roles
         ).exclude(
             user__is_staff=True
+        ).exclude(
+            user__is_superuser=True
         ).count()
         
         # By role stats (excluding admin users)
@@ -816,15 +824,15 @@ class AdminVerificationDashboardViewSet(viewsets.ViewSet):
         for role in UserRole.objects.all():
             is_auto_verify = role.role_name in auto_verify_roles
             role_stats[role.role_name] = {
-                'total': PolaUser.objects.filter(user_role=role).exclude(is_staff=True).count(),
+                'total': PolaUser.objects.filter(user_role=role).exclude(is_staff=True).exclude(is_superuser=True).count(),
                 'verified': PolaUser.objects.filter(
                     user_role=role, 
                     verification__status='verified'
-                ).exclude(is_staff=True).count(),
+                ).exclude(is_staff=True).exclude(is_superuser=True).count(),
                 'pending': Verification.objects.filter(
                     user__user_role=role, 
                     status='pending'
-                ).exclude(user__is_staff=True).count(),
+                ).exclude(user__is_staff=True).exclude(user__is_superuser=True).count(),
                 'is_auto_verified': is_auto_verify,
                 'verification_type': 'auto' if is_auto_verify else 'manual'
             }

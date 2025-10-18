@@ -104,6 +104,34 @@ class ConsultantProfileAdminSerializer(serializers.ModelSerializer):
         return ConsultationBooking.objects.filter(
             consultant=obj.user, status='pending'
         ).count()
+    
+    def to_representation(self, instance):
+        """Ensure numeric fields are JSON-compliant"""
+        data = super().to_representation(instance)
+        
+        # Handle average_rating to prevent infinity
+        if 'average_rating' in data:
+            try:
+                rating = float(data['average_rating'])
+                # Check for infinity or NaN
+                if rating == float('inf') or rating == float('-inf') or rating != rating:
+                    data['average_rating'] = 0.0
+                else:
+                    # Clamp to valid range
+                    data['average_rating'] = max(0.0, min(5.0, rating))
+            except (ValueError, TypeError):
+                data['average_rating'] = 0.0
+        
+        # Handle total_earnings to prevent infinity
+        if 'total_earnings' in data:
+            try:
+                earnings = float(data['total_earnings'])
+                if earnings == float('inf') or earnings == float('-inf') or earnings != earnings:
+                    data['total_earnings'] = 0.0
+            except (ValueError, TypeError):
+                data['total_earnings'] = 0.0
+        
+        return data
 
 
 class ConsultationBookingAdminSerializer(serializers.ModelSerializer):
@@ -129,15 +157,22 @@ class ConsultationBookingAdminSerializer(serializers.ModelSerializer):
         """Get consultant profile details"""
         try:
             profile = obj.consultant.consultant_profile
+            # Ensure average_rating is a valid number
+            avg_rating = profile.average_rating
+            if avg_rating is None:
+                avg_rating = Decimal('0')
+            # Clamp to valid range
+            avg_rating = max(Decimal('0'), min(Decimal('5'), avg_rating))
+            
             return {
                 'id': profile.id,
                 'consultant_type': profile.consultant_type,
                 'specialization': profile.specialization,
                 'years_of_experience': profile.years_of_experience,
                 'is_available': profile.is_available,
-                'average_rating': profile.average_rating
+                'average_rating': float(avg_rating)
             }
-        except ConsultantProfile.DoesNotExist:
+        except (ConsultantProfile.DoesNotExist, AttributeError):
             return None
     
     def get_payment_details(self, obj):
@@ -145,7 +180,7 @@ class ConsultationBookingAdminSerializer(serializers.ModelSerializer):
         payment = PaymentTransaction.objects.filter(
             transaction_type='physical_consultation',
             user=obj.client
-        ).order_by('-timestamp').first()
+        ).order_by('-created_at').first()
         
         if not payment:
             return None
@@ -155,8 +190,8 @@ class ConsultationBookingAdminSerializer(serializers.ModelSerializer):
             'amount': payment.amount,
             'status': payment.status,
             'payment_method': payment.payment_method,
-            'transaction_id': payment.transaction_id,
-            'timestamp': payment.timestamp
+            'transaction_id': payment.payment_reference,
+            'timestamp': payment.created_at
         }
 
 

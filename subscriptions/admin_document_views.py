@@ -233,20 +233,20 @@ class LearningMaterialViewSet(viewsets.ModelViewSet):
         payments = PaymentTransaction.objects.filter(
             transaction_type='document_download',
             status='completed',
-            timestamp__gte=start_date
-        ).order_by('timestamp')
+            created_at__gte=start_date
+        ).order_by('created_at')
         
         # Group by period
         revenue_data = {}
         for payment in payments:
             if period == 'weekly':
-                key = f"{payment.timestamp.year}-W{payment.timestamp.isocalendar()[1]}"
+                key = f"{payment.created_at.year}-W{payment.created_at.isocalendar()[1]}"
             elif period == 'monthly':
-                key = payment.timestamp.strftime('%Y-%m')
+                key = payment.created_at.strftime('%Y-%m')
             elif period == 'yearly':
-                key = str(payment.timestamp.year)
+                key = str(payment.created_at.year)
             else:  # daily
-                key = payment.timestamp.strftime('%Y-%m-%d')
+                key = payment.created_at.strftime('%Y-%m-%d')
             
             if key not in revenue_data:
                 revenue_data[key] = {
@@ -295,7 +295,7 @@ class LearningMaterialViewSet(viewsets.ModelViewSet):
             transaction_type='document_download',
             related_material=material,
             status='completed'
-        ).order_by('-timestamp')
+        ).order_by('-created_at')
         
         # Pagination
         page = int(request.query_params.get('page', 1))
@@ -310,7 +310,7 @@ class LearningMaterialViewSet(viewsets.ModelViewSet):
                 'user_id': payment.user.id,
                 'user_email': payment.user.email,
                 'amount': payment.amount,
-                'timestamp': payment.timestamp,
+                'timestamp': payment.created_at,
                 'payment_method': payment.payment_method
             })
         

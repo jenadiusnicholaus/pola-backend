@@ -138,6 +138,12 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': 'utils.pagination.StandardResultsSetPagination',
     'PAGE_SIZE': 20,  # Default page size (can be overridden per endpoint)
+    
+    # Custom renderer to handle infinity and NaN values
+    'DEFAULT_RENDERER_CLASSES': [
+        'utils.json_encoder.SafeJSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
 }   
 
 API_VERSION = config('API_VERSION', default='v1')
@@ -201,7 +207,9 @@ STATIC_URL = "static/"
 # STATICFILES_DIRS = [
 #     BASE_DIR / "static",
 # ]
-MADIA_URL = "/media/"
+
+# Media files (User uploads)
+MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # Default primary key field type
@@ -271,5 +279,26 @@ LOGGING = {
             'propagate': False,
         },
     },
+}
+
+# ============================================================================
+# SWAGGER/OpenAPI Configuration
+# ============================================================================
+SWAGGER_SETTINGS = {
+    'DEFAULT_AUTO_SCHEMA_CLASS': 'drf_yasg.inspectors.SwaggerAutoSchema',
+    'USE_SESSION_AUTH': False,
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': 'Enter your JWT token in the format: Bearer <token>'
+        }
+    },
+    'TAGS_SORTER': 'alpha',  # Sort tags alphabetically
+    'OPERATIONS_SORTER': 'alpha',  # Sort operations alphabetically
+    'DOC_EXPANSION': 'list',  # Expand operations list by default
+    'DEEP_LINKING': True,
+    'SHOW_EXTENSIONS': False,
 }
 

@@ -15,6 +15,8 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
     total_subscribers = serializers.SerializerMethodField()
     active_subscribers = serializers.SerializerMethodField()
     total_revenue = serializers.SerializerMethodField()
+    benefits_en = serializers.SerializerMethodField()
+    benefits_sw = serializers.SerializerMethodField()
     
     class Meta:
         model = SubscriptionPlan
@@ -23,7 +25,8 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
             'price', 'currency', 'duration_days', 'is_active',
             'full_legal_library_access', 'monthly_questions_limit',
             'free_documents_per_month', 'legal_updates', 'forum_access',
-            'student_hub_access', 'total_subscribers', 'active_subscribers',
+            'student_hub_access', 'benefits_en', 'benefits_sw',
+            'total_subscribers', 'active_subscribers',
             'total_revenue', 'created_at', 'updated_at'
         ]
         read_only_fields = ['created_at', 'updated_at']
@@ -46,6 +49,14 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
         )
         total = sum(t.amount for t in completed_transactions)
         return float(total)
+    
+    def get_benefits_en(self, obj):
+        """Get benefits in English"""
+        return obj.get_benefits_dict(language='en')
+    
+    def get_benefits_sw(self, obj):
+        """Get benefits in Swahili"""
+        return obj.get_benefits_dict(language='sw')
 
 
 class UserSubscriptionAdminSerializer(serializers.ModelSerializer):

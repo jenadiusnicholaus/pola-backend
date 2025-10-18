@@ -372,11 +372,11 @@ def platform_health(request):
     if completed_disbursements.count() > 0:
         processing_times = []
         for d in completed_disbursements:
-            if d.completed_at and d.created_at:
-                delta = d.completed_at - d.created_at
+            if d.completed_at and d.initiated_at:
+                delta = d.completed_at - d.initiated_at
                 processing_times.append(delta.total_seconds() / 3600)  # hours
         
-        avg_processing_hours = sum(processing_times) / len(processing_times)
+        avg_processing_hours = sum(processing_times) / len(processing_times) if processing_times else 0
     else:
         avg_processing_hours = 0
     
@@ -387,12 +387,6 @@ def platform_health(request):
     cancelled_rate = (
         all_bookings_30d.filter(status='cancelled').count() / all_bookings_30d.count() * 100
     ) if all_bookings_30d.count() > 0 else 0
-    
-    # Average rating
-    avg_rating = ConsultationBooking.objects.filter(
-        status='completed',
-        rating__isnull=False
-    ).aggregate(avg=Avg('rating'))['avg'] or 0
     
     # Material approval backlog
     pending_approvals = LearningMaterial.objects.filter(is_approved=False).count()
@@ -418,8 +412,7 @@ def platform_health(request):
             'avg_processing_hours': round(Decimal(avg_processing_hours), 2)
         },
         'consultations': {
-            'cancellation_rate': round(Decimal(cancelled_rate), 2),
-            'average_rating': round(Decimal(avg_rating), 2)
+            'cancellation_rate': round(Decimal(cancelled_rate), 2)
         },
         'approvals': {
             'pending_count': pending_approvals,

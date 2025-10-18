@@ -17,7 +17,8 @@ from rest_framework.routers import DefaultRouter
 
 from .admin_subscription_views import (
     SubscriptionPlanViewSet,
-    UserSubscriptionViewSet
+    UserSubscriptionViewSet,
+    AdminPaymentTransactionViewSet
 )
 from .admin_call_credit_views import (
     CallCreditBundleViewSet,
@@ -52,6 +53,7 @@ router.register(r'users', AdminUserManagementViewSet, basename='admin-users')
 # ===== SUBSCRIPTION MANAGEMENT =====
 router.register(r'subscriptions/plans', SubscriptionPlanViewSet, basename='admin-subscription-plans')
 router.register(r'subscriptions/users', UserSubscriptionViewSet, basename='admin-user-subscriptions')
+router.register(r'subscriptions/transactions', AdminPaymentTransactionViewSet, basename='admin-transactions')
 
 # ===== CALL CREDIT MANAGEMENT =====
 router.register(r'call-credits/bundles', CallCreditBundleViewSet, basename='admin-call-bundles')

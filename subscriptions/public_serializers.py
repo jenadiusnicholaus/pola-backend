@@ -91,7 +91,7 @@ class CallCreditBundleSerializer(serializers.ModelSerializer):
     class Meta:
         model = CallCreditBundle
         fields = [
-            'id', 'name', 'minutes', 'price',
+            'id', 'name', 'name_sw', 'description', 'description_sw', 'minutes', 'price',
             'validity_days', 'formatted_price', 'per_minute_cost',
             'savings', 'is_active', 'created_at'
         ]

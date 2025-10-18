@@ -71,8 +71,23 @@ class AdminUserManagementViewSet(viewsets.ModelViewSet):
     permission_classes = [IsSuperAdminOrStaff]
     
     def get_queryset(self):
-        """Filter users based on query parameters"""
-        queryset = PolaUser.objects.all().order_by('-date_joined')
+        """Filter users based on query parameters - excludes staff and superusers by default"""
+        
+        # Check if explicitly filtering by staff status
+        is_staff_param = self.request.query_params.get('is_staff', None)
+        
+        if is_staff_param is not None:
+            # If explicitly requesting staff users, show them
+            queryset = PolaUser.objects.filter(
+                is_staff=is_staff_param.lower() == 'true'
+            ).order_by('-date_joined')
+        else:
+            # By default, exclude staff and superuser accounts
+            queryset = PolaUser.objects.exclude(
+                is_staff=True
+            ).exclude(
+                is_superuser=True
+            ).order_by('-date_joined')
         
         # Filter by role
         role = self.request.query_params.get('role', None)
@@ -91,11 +106,6 @@ class AdminUserManagementViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(verification__status='verified')
             else:
                 queryset = queryset.exclude(verification__status='verified')
-        
-        # Filter by staff status
-        is_staff = self.request.query_params.get('is_staff', None)
-        if is_staff is not None:
-            queryset = queryset.filter(is_staff=is_staff.lower() == 'true')
         
         # Search by email or name
         search = self.request.query_params.get('search', None)

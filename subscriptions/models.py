@@ -568,12 +568,15 @@ class CallCreditBundle(models.Model):
     """
     Call credit bundles for mobile consultations (Consultation Vouchers)
     
-    Pricing:
-    - 5 min = 3,000 TZS (3 days expiry; carry forward unused minutes within 3 days)
-    - 10 min = 5,000 TZS (5 days expiry; carry forward unused minutes within 5 days)
-    - 20 min = 9,000 TZS (7 days expiry; carry forward unused minutes within 7 days)
+    Pricing Tiers:
+    - BRONZE/SHABA: 5 min = 3,000 TZS (3 days expiry; carry forward unused minutes within 3 days)
+    - SILVER/FEDHA: 10 min = 5,000 TZS (5 days expiry; carry forward unused minutes within 5 days)
+    - GOLD/DHAHABU: 20 min = 9,000 TZS (7 days expiry; carry forward unused minutes within 7 days)
     """
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, help_text="English name")
+    name_sw = models.CharField(max_length=100, blank=True, help_text="Swahili name")
+    description = models.TextField(blank=True, help_text="English description of the bundle")
+    description_sw = models.TextField(blank=True, help_text="Swahili description of the bundle")
     minutes = models.IntegerField(help_text="Total minutes in bundle")
     price = models.DecimalField(max_digits=10, decimal_places=2)
     validity_days = models.IntegerField(help_text="Days until expiry after purchase (carry forward period)")

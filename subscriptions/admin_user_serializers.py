@@ -66,6 +66,22 @@ class UserListSerializer(serializers.ModelSerializer):
             return obj.contact.phone_is_verified if hasattr(obj, 'contact') else False
         except:
             return False
+    
+    def to_representation(self, instance):
+        """Ensure all numeric fields are JSON-compliant"""
+        data = super().to_representation(instance)
+        
+        # Sanitize all float/decimal fields to prevent infinity
+        for key, value in data.items():
+            if isinstance(value, (int, float)):
+                try:
+                    # Check for infinity or NaN
+                    if value == float('inf') or value == float('-inf') or value != value:
+                        data[key] = 0
+                except (ValueError, TypeError):
+                    pass
+        
+        return data
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
@@ -142,6 +158,26 @@ class UserDetailSerializer(serializers.ModelSerializer):
                 'completed': as_consultant.filter(status='completed').count(),
             }
         }
+    
+    def to_representation(self, instance):
+        """Ensure all numeric fields are JSON-compliant"""
+        data = super().to_representation(instance)
+        
+        # Sanitize all float/decimal fields to prevent infinity
+        def sanitize_dict(d):
+            for key, value in d.items():
+                if isinstance(value, dict):
+                    sanitize_dict(value)
+                elif isinstance(value, (int, float)):
+                    try:
+                        # Check for infinity or NaN
+                        if value == float('inf') or value == float('-inf') or value != value:
+                            d[key] = 0
+                    except (ValueError, TypeError):
+                        pass
+        
+        sanitize_dict(data)
+        return data
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
