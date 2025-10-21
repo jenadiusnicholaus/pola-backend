@@ -16,6 +16,7 @@ urlpatterns = [
     # Authentication endpoints
     path('register/', views.UserRegistrationView.as_view(), name='register'),
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('admin-login/', views.AdminLoginView.as_view(), name='admin-login'),
     path('refresh/', TokenRefreshView.as_view(), name='refresh_token'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),

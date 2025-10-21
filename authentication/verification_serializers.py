@@ -17,13 +17,21 @@ class DocumentSerializer(serializers.ModelSerializer):
     document_type_display = serializers.CharField(source='get_document_type_display', read_only=True)
     verification_status_display = serializers.CharField(source='get_verification_status_display', read_only=True)
     file_url = serializers.SerializerMethodField()
+    file_type = serializers.SerializerMethodField()
+    file_extension = serializers.SerializerMethodField()
+    file_size = serializers.SerializerMethodField()
+    is_image = serializers.SerializerMethodField()
+    is_pdf = serializers.SerializerMethodField()
+    preview_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Document
         fields = [
             'id', 'user', 'user_email', 'user_name', 'user_full_name',
             'document_type', 'document_type_display',
-            'file', 'file_url', 'title', 'description',
+            'file', 'file_url', 'file_type', 'file_extension', 'file_size',
+            'is_image', 'is_pdf', 'preview_url',
+            'title', 'description',
             'verification_status', 'verification_status_display',
             'verified_by', 'verified_by_name',
             'verification_date', 'verification_notes',
@@ -53,6 +61,53 @@ class DocumentSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(obj.file.url)
             return obj.file.url
         return None
+
+    def get_file_type(self, obj):
+        """Get the MIME type of the file"""
+        if obj.file:
+            import mimetypes
+            file_path = obj.file.name
+            mime_type, _ = mimetypes.guess_type(file_path)
+            return mime_type or 'application/octet-stream'
+        return None
+
+    def get_file_extension(self, obj):
+        """Get file extension (e.g., 'pdf', 'jpg', 'png')"""
+        if obj.file:
+            import os
+            _, ext = os.path.splitext(obj.file.name)
+            return ext.lower().lstrip('.')
+        return None
+
+    def get_file_size(self, obj):
+        """Get file size in bytes"""
+        if obj.file:
+            try:
+                return obj.file.size
+            except Exception:
+                return None
+        return None
+
+    def get_is_image(self, obj):
+        """Check if file is an image (jpg, jpeg, png, gif, etc.)"""
+        if obj.file:
+            import os
+            _, ext = os.path.splitext(obj.file.name)
+            image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg']
+            return ext.lower() in image_extensions
+        return False
+
+    def get_is_pdf(self, obj):
+        """Check if file is a PDF"""
+        if obj.file:
+            import os
+            _, ext = os.path.splitext(obj.file.name)
+            return ext.lower() == '.pdf'
+        return False
+
+    def get_preview_url(self, obj):
+        """Get preview URL (same as file_url for now, frontend can handle different viewers)"""
+        return self.get_file_url(obj)
 
 
 class DocumentUploadSerializer(serializers.ModelSerializer):
@@ -166,17 +221,16 @@ class VerificationSerializer(serializers.ModelSerializer):
             return None
 
     def get_user_address(self, obj):
-        """Get user's address information"""
+        """Get user's address information as structured object"""
         try:
             if hasattr(obj.user, 'address') and obj.user.address:
                 return {
-                    'street': obj.user.address.street,
-                    'city': obj.user.address.city,
-                    'region': obj.user.address.region.name if obj.user.address.region else None,
-                    'district': obj.user.address.district.name if obj.user.address.district else None,
-                    'postal_code': obj.user.address.postal_code
+                    'office_address': obj.user.address.office_address or None,
+                    'ward': obj.user.address.ward or None,
+                    'district': str(obj.user.address.district) if obj.user.address.district else None,
+                    'region': str(obj.user.address.region) if obj.user.address.region else None
                 }
-        except:
+        except Exception as e:
             pass
         return None
 
@@ -237,29 +291,47 @@ class VerificationSerializer(serializers.ModelSerializer):
             'documents': {
                 'status': 'incomplete',  # incomplete, pending_review, complete
                 'is_current': obj.current_step == 'documents',
-                'issues': []
+                'issues': [],
+                'required_fields': [],
+                'verified_fields': []
             },
             'identity': {
                 'status': 'incomplete',
                 'is_current': obj.current_step == 'identity',
-                'issues': []
+                'issues': [],
+                'required_fields': ['first_name', 'last_name', 'date_of_birth', 'gender'],
+                'verified_fields': []
             },
             'contact': {
                 'status': 'incomplete',
                 'is_current': obj.current_step == 'contact',
-                'issues': []
+                'issues': [],
+                'required_fields': ['phone_number', 'email', 'contact_address'],
+                'verified_fields': []
             },
             'role_specific': {
                 'status': 'incomplete',
                 'is_current': obj.current_step == 'role_specific',
-                'issues': []
+                'issues': [],
+                'required_fields': [],
+                'verified_fields': []
             },
             'final': {
                 'status': 'incomplete',
                 'is_current': obj.current_step == 'final',
-                'issues': []
+                'issues': [],
+                'required_fields': [],
+                'verified_fields': []
             }
         }
+        
+        # Set role-specific required_fields based on user role
+        if role_name == 'advocate':
+            by_step['role_specific']['required_fields'] = ['roll_number', 'regional_chapter', 'years_of_experience']
+        elif role_name in ['lawyer', 'paralegal']:
+            by_step['role_specific']['required_fields'] = ['place_of_work', 'years_of_experience']
+        elif role_name == 'law_firm':
+            by_step['role_specific']['required_fields'] = ['firm_name', 'managing_partner']
         
         # STEP 1: DOCUMENTS
         required_docs_info = self.get_required_documents(obj)
@@ -295,6 +367,15 @@ class VerificationSerializer(serializers.ModelSerializer):
                         'message': f"{doc_info['label']} was rejected - needs re-upload"
                     })
                     docs_complete = False
+                elif doc_info['status'] == 'approved':
+                    # Track approved documents
+                    by_step['documents']['verified_fields'].append({
+                        'field': doc_info['type'],
+                        'label': doc_info['label'],
+                        'value': f"Document #{doc_info['document_id']}",
+                        'status': 'verified',
+                        'document_id': doc_info['document_id']
+                    })
         
         # Set documents step status
         if docs_complete and not by_step['documents']['issues']:
@@ -305,21 +386,43 @@ class VerificationSerializer(serializers.ModelSerializer):
             by_step['documents']['status'] = 'incomplete'
         
         # STEP 2: IDENTITY
-        if not user.first_name or not user.last_name:
+        # Track what's verified
+        if user.first_name and user.last_name:
+            by_step['identity']['verified_fields'].append({
+                'field': 'full_name',
+                'label': 'Full Name',
+                'value': f"{user.first_name} {user.last_name}",
+                'status': 'verified'
+            })
+        else:
             by_step['identity']['issues'].append({
                 'type': 'missing_field',
                 'field': 'full_name',
                 'message': 'Full name is incomplete'
             })
         
-        if not user.date_of_birth:
+        if user.date_of_birth:
+            by_step['identity']['verified_fields'].append({
+                'field': 'date_of_birth',
+                'label': 'Date of Birth',
+                'value': str(user.date_of_birth),
+                'status': 'verified'
+            })
+        else:
             by_step['identity']['issues'].append({
                 'type': 'missing_field',
                 'field': 'date_of_birth',
                 'message': 'Date of birth is missing'
             })
         
-        if not user.gender:
+        if user.gender:
+            by_step['identity']['verified_fields'].append({
+                'field': 'gender',
+                'label': 'Gender',
+                'value': user.get_gender_display() if hasattr(user, 'get_gender_display') else user.gender,
+                'status': 'verified'
+            })
+        else:
             by_step['identity']['issues'].append({
                 'type': 'missing_field',
                 'field': 'gender',
@@ -330,17 +433,54 @@ class VerificationSerializer(serializers.ModelSerializer):
             by_step['identity']['status'] = 'complete'
         
         # STEP 3: CONTACT
-        if not hasattr(user, 'contact') or not user.contact or not user.contact.phone_number:
+        # Track phone number
+        if hasattr(user, 'contact') and user.contact and user.contact.phone_number:
+            by_step['contact']['verified_fields'].append({
+                'field': 'phone_number',
+                'label': 'Phone Number',
+                'value': user.contact.phone_number,
+                'status': 'verified'
+            })
+        else:
             by_step['contact']['issues'].append({
                 'type': 'missing_field',
                 'field': 'phone_number',
                 'message': 'Phone number is missing'
             })
         
-        if not hasattr(user, 'address') or not user.address:
+        # Track email (from user model)
+        if user.email:
+            by_step['contact']['verified_fields'].append({
+                'field': 'email',
+                'label': 'Email',
+                'value': user.email,
+                'status': 'verified'
+            })
+        else:
             by_step['contact']['issues'].append({
                 'type': 'missing_field',
-                'field': 'address',
+                'field': 'email',
+                'message': 'Email is missing'
+            })
+        
+        # Track address - MANDATORY, return as object
+        if hasattr(user, 'address') and user.address:
+            address_obj = {
+                'office_address': user.address.office_address or None,
+                'ward': user.address.ward or None,
+                'district': str(user.address.district) if user.address.district else None,
+                'region': str(user.address.region) if user.address.region else None
+            }
+            by_step['contact']['verified_fields'].append({
+                'field': 'contact_address',
+                'label': 'Contact Address',
+                'value': address_obj,
+                'status': 'verified'
+            })
+        else:
+            by_step['contact']['issues'].append({
+                'type': 'missing_field',
+                'field': 'contact_address',
                 'message': 'Address information is missing'
             })
         
@@ -349,13 +489,43 @@ class VerificationSerializer(serializers.ModelSerializer):
         
         # STEP 4: ROLE-SPECIFIC
         if role_name == 'advocate':
-            if not user.roll_number:
+            if user.roll_number:
+                by_step['role_specific']['verified_fields'].append({
+                    'field': 'roll_number',
+                    'label': 'Roll Number',
+                    'value': user.roll_number,
+                    'status': 'verified'
+                })
+            else:
                 by_step['role_specific']['issues'].append({
                     'type': 'missing_field',
                     'field': 'roll_number',
                     'message': 'Roll number is missing'
                 })
-            if not user.years_of_experience:
+            
+            # Regional chapter for advocates (TLS chapter)
+            if user.regional_chapter:
+                by_step['role_specific']['verified_fields'].append({
+                    'field': 'regional_chapter',
+                    'label': 'Regional Chapter',
+                    'value': str(user.regional_chapter),
+                    'status': 'verified'
+                })
+            else:
+                by_step['role_specific']['issues'].append({
+                    'type': 'missing_field',
+                    'field': 'regional_chapter',
+                    'message': 'Regional chapter not specified'
+                })
+            
+            if user.years_of_experience:
+                by_step['role_specific']['verified_fields'].append({
+                    'field': 'years_of_experience',
+                    'label': 'Years of Experience',
+                    'value': str(user.years_of_experience),
+                    'status': 'verified'
+                })
+            else:
                 by_step['role_specific']['issues'].append({
                     'type': 'missing_field',
                     'field': 'years_of_experience',
@@ -363,13 +533,28 @@ class VerificationSerializer(serializers.ModelSerializer):
                 })
         
         elif role_name in ['lawyer', 'paralegal']:
-            if not user.place_of_work:
+            if user.place_of_work:
+                by_step['role_specific']['verified_fields'].append({
+                    'field': 'place_of_work',
+                    'label': 'Place of Work',
+                    'value': str(user.place_of_work),
+                    'status': 'verified'
+                })
+            else:
                 by_step['role_specific']['issues'].append({
                     'type': 'missing_field',
                     'field': 'place_of_work',
                     'message': 'Place of work not specified'
                 })
-            if not user.years_of_experience:
+            
+            if user.years_of_experience:
+                by_step['role_specific']['verified_fields'].append({
+                    'field': 'years_of_experience',
+                    'label': 'Years of Experience',
+                    'value': str(user.years_of_experience),
+                    'status': 'verified'
+                })
+            else:
                 by_step['role_specific']['issues'].append({
                     'type': 'missing_field',
                     'field': 'years_of_experience',
@@ -377,13 +562,28 @@ class VerificationSerializer(serializers.ModelSerializer):
                 })
         
         elif role_name == 'law_firm':
-            if not user.firm_name:
+            if user.firm_name:
+                by_step['role_specific']['verified_fields'].append({
+                    'field': 'firm_name',
+                    'label': 'Firm Name',
+                    'value': user.firm_name,
+                    'status': 'verified'
+                })
+            else:
                 by_step['role_specific']['issues'].append({
                     'type': 'missing_field',
                     'field': 'firm_name',
                     'message': 'Firm name is missing'
                 })
-            if not user.managing_partner:
+            
+            if user.managing_partner:
+                by_step['role_specific']['verified_fields'].append({
+                    'field': 'managing_partner',
+                    'label': 'Managing Partner',
+                    'value': user.managing_partner,
+                    'status': 'verified'
+                })
+            else:
                 by_step['role_specific']['issues'].append({
                     'type': 'missing_field',
                     'field': 'managing_partner',

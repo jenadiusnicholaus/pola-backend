@@ -924,8 +924,10 @@ class Disbursement(models.Model):
         
         # Set recipient name if not provided
         if not self.recipient_name:
-            if hasattr(self.recipient, 'full_name'):
-                self.recipient_name = self.recipient.full_name
+            if hasattr(self.recipient, 'full_name') and callable(self.recipient.full_name):
+                full_name = self.recipient.full_name().strip()
+                # Use full name if available, otherwise use email
+                self.recipient_name = full_name if full_name else self.recipient.email
             else:
                 self.recipient_name = self.recipient.email
         

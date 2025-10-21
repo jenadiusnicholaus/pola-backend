@@ -89,7 +89,7 @@ class ConsultantProfileViewSet(viewsets.ModelViewSet):
         
         return queryset.order_by('-created_at')
     
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post'], url_path='toggle-availability')
     def toggle_availability(self, request, pk=None):
         """Toggle consultant availability"""
         consultant = self.get_object()

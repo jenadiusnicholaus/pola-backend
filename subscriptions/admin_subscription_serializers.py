@@ -41,12 +41,16 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
         return obj.subscriptions.filter(status='active', end_date__gt=timezone.now()).count()
     
     def get_total_revenue(self, obj):
-        """Calculate total revenue from this plan"""
+        """Calculate total revenue from this plan (excludes free trials)"""
+        # Free trial plans should never generate revenue
+        if obj.plan_type == 'free_trial' or obj.price == 0:
+            return 0.0
+        
         completed_transactions = PaymentTransaction.objects.filter(
             transaction_type='subscription',
             related_subscription__plan=obj,
             status='completed'
-        )
+        ).exclude(amount=0)  # Exclude free trial transactions with 0 amount
         total = sum(t.amount for t in completed_transactions)
         return float(total)
     

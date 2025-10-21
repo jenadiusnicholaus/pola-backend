@@ -95,3 +95,98 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     )
     def patch(self, request, *args, **kwargs):
         return super().patch(request, *args, **kwargs)
+
+
+class AdminLoginView(APIView):
+    """
+    API endpoint for admin login.
+    
+    Authenticates admin users and returns JWT tokens.
+    Only users with staff or superuser status can login through this endpoint.
+    """
+    permission_classes = [permissions.AllowAny]
+    
+    @swagger_auto_schema(
+        operation_description="Admin login - Returns JWT tokens for authenticated admin users",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['email', 'password'],
+            properties={
+                'email': openapi.Schema(type=openapi.TYPE_STRING, description='Admin email'),
+                'password': openapi.Schema(type=openapi.TYPE_STRING, description='Admin password'),
+            },
+        ),
+        responses={
+            200: openapi.Response(
+                description="Login successful",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'access': openapi.Schema(type=openapi.TYPE_STRING, description='JWT access token'),
+                        'refresh': openapi.Schema(type=openapi.TYPE_STRING, description='JWT refresh token'),
+                        'user': openapi.Schema(
+                            type=openapi.TYPE_OBJECT,
+                            properties={
+                                'id': openapi.Schema(type=openapi.TYPE_INTEGER),
+                                'email': openapi.Schema(type=openapi.TYPE_STRING),
+                                'first_name': openapi.Schema(type=openapi.TYPE_STRING),
+                                'last_name': openapi.Schema(type=openapi.TYPE_STRING),
+                                'is_staff': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                                'is_superuser': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                            }
+                        ),
+                    }
+                )
+            ),
+            400: "Bad Request - Invalid credentials",
+            403: "Forbidden - User is not an admin",
+        },
+        tags=['Authentication']
+    )
+    def post(self, request):
+        from django.contrib.auth import authenticate
+        from rest_framework_simplejwt.tokens import RefreshToken
+        
+        email = request.data.get('email')
+        password = request.data.get('password')
+        
+        if not email or not password:
+            return Response(
+                {'error': 'Please provide both email and password'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Authenticate user
+        user = authenticate(request, username=email, password=password)
+        
+        if user is None:
+            return Response(
+                {'error': 'Invalid email or password'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Check if user is admin (staff or superuser)
+        if not (user.is_staff or user.is_superuser):
+            return Response(
+                {'error': 'You do not have admin access'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        
+        return Response(
+            {
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+                'user': {
+                    'id': user.id,
+                    'email': user.email,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'is_staff': user.is_staff,
+                    'is_superuser': user.is_superuser,
+                }
+            },
+            status=status.HTTP_200_OK
+        )
