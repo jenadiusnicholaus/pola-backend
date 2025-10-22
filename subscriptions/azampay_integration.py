@@ -113,6 +113,79 @@ def detect_mobile_provider(phone_number: str) -> str:
     return 'unknown'
 
 
+def get_azampay_timeout() -> tuple:
+    """
+    Get appropriate timeout for AzamPay requests based on environment
+    
+    Sandbox environment can be very slow, so we use no timeout or very long timeout
+    Production should use reasonable timeouts
+    
+    Returns:
+        Tuple of (connection_timeout, read_timeout) or None for no timeout
+    """
+    is_production = getattr(settings, 'AZAM_PAY_PRODUCTION', False)
+    
+    if is_production:
+        # Production: Use reasonable timeouts
+        # (15 seconds to connect, 60 seconds to read response)
+        return (15, 60)
+    else:
+        # Sandbox: No timeout (sandbox can be very slow)
+        # Returning None means no timeout
+        return None
+
+
+def retry_on_connection_error(max_retries=3, initial_delay=2):
+    """
+    Decorator to retry AzamPay requests on connection errors
+    
+    Args:
+        max_retries: Maximum number of retry attempts (default: 3)
+        initial_delay: Initial delay in seconds, doubles with each retry (default: 2)
+    
+    Returns:
+        Decorated function that retries on connection errors
+    """
+    import time
+    import functools
+    
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            delay = initial_delay
+            last_exception = None
+            
+            for attempt in range(max_retries + 1):
+                try:
+                    return func(*args, **kwargs)
+                except (requests.exceptions.ConnectionError, 
+                        ConnectionResetError,
+                        requests.exceptions.ChunkedEncodingError) as e:
+                    last_exception = e
+                    
+                    if attempt < max_retries:
+                        logger.warning(
+                            f"Connection error on attempt {attempt + 1}/{max_retries + 1} "
+                            f"for {func.__name__}: {str(e)}. Retrying in {delay}s..."
+                        )
+                        time.sleep(delay)
+                        delay *= 2  # Exponential backoff
+                    else:
+                        logger.error(
+                            f"All {max_retries + 1} attempts failed for {func.__name__}: {str(e)}"
+                        )
+                        raise AzamPayError(
+                            f"Connection failed after {max_retries + 1} attempts: {str(e)}"
+                        )
+            
+            # Should never reach here, but just in case
+            if last_exception:
+                raise last_exception
+        
+        return wrapper
+    return decorator
+
+
 def format_phone_number(phone_number: str) -> str:
     """
     Format phone number to international format (255XXXXXXXXX)
@@ -201,7 +274,7 @@ class AzamPayAuth:
                 url, 
                 headers=headers, 
                 json=payload,
-                timeout=(15, 45)  # (connection timeout, read timeout)
+                timeout=get_azampay_timeout()  # No timeout for sandbox, reasonable timeout for production
             )
             
             response_data = response.json()
@@ -426,7 +499,7 @@ class AzamPayCheckout:
                 url, 
                 headers=headers, 
                 json=payload,
-                timeout=(15, 45)
+                timeout=get_azampay_timeout()
             )
             
             logger.info(f"AzamPay response status: {response.status_code}")
@@ -528,7 +601,7 @@ class AzamPayCheckout:
                 url,
                 headers=headers,
                 json=payload,
-                timeout=(15, 30)
+                timeout=get_azampay_timeout()
             )
             
             response_data = response.json()
@@ -611,7 +684,7 @@ class AzamPayCheckout:
         }
         
         try:
-            response = requests.post(url, headers=headers, json=payload, timeout=(15, 30))
+            response = requests.post(url, headers=headers, json=payload, timeout=get_azampay_timeout())
             response_data = response.json()
             
             if response.status_code == 200 and response_data.get("success"):
@@ -645,6 +718,7 @@ class AzamPayDisbursement:
         self.auth_service = AzamPayAuth()
         self.is_mock_mode = AzamPayCheckout()._is_mock_mode()
     
+    @retry_on_connection_error(max_retries=3, initial_delay=2)
     def initiate_disbursement(
         self,
         source_account: str,
@@ -708,7 +782,7 @@ class AzamPayDisbursement:
             logger.info(f"Initiating disbursement: {amount} {currency} to {destination_account}")
             logger.info(f"Disbursement payload: {payload}")
             
-            response = requests.post(url, headers=headers, json=payload, timeout=(15, 45))
+            response = requests.post(url, headers=headers, json=payload, timeout=get_azampay_timeout())
             response_data = response.json()
             
             logger.info(f"Disbursement response: {response_data}")
@@ -733,6 +807,7 @@ class AzamPayDisbursement:
             logger.error(f"Disbursement request failed: {e}")
             raise AzamPayError(f"Failed to initiate disbursement: {str(e)}")
     
+    @retry_on_connection_error(max_retries=3, initial_delay=2)
     def name_inquiry(
         self,
         account_number: str,
@@ -779,7 +854,7 @@ class AzamPayDisbursement:
         
         try:
             logger.info(f"Name inquiry for account: {account_number}")
-            response = requests.post(url, headers=headers, json=payload, timeout=(15, 30))
+            response = requests.post(url, headers=headers, json=payload, timeout=get_azampay_timeout())
             response_data = response.json()
             
             if response.status_code == 200 and response_data.get("success"):
@@ -885,7 +960,7 @@ class AzamPayDisbursement:
             logger.info(f"Initiating mobile money disbursement: {amount} {currency} to {normalized_phone} ({provider})")
             logger.info(f"Disbursement payload: {payload}")
             
-            response = requests.post(url, headers=headers, json=payload, timeout=(15, 45))
+            response = requests.post(url, headers=headers, json=payload, timeout=get_azampay_timeout())
             response_data = response.json()
             
             logger.info(f"Disbursement response: {response_data}")
@@ -993,7 +1068,7 @@ class AzamPayDisbursement:
             logger.info(f"Initiating bank disbursement: {amount} {currency} to {account_number} ({bank_code})")
             logger.info(f"Bank disbursement payload: {payload}")
             
-            response = requests.post(url, headers=headers, json=payload, timeout=(15, 45))
+            response = requests.post(url, headers=headers, json=payload, timeout=get_azampay_timeout())
             response_data = response.json()
             
             logger.info(f"Bank disbursement response: {response_data}")
@@ -1104,6 +1179,7 @@ class AzamPayDisbursement:
             'mock_mode': True
         }
     
+    @retry_on_connection_error(max_retries=3, initial_delay=2)
     def check_disbursement_status(self, transaction_id: str) -> Dict[str, Any]:
         """Check the status of a disbursement transaction"""
         if self.is_mock_mode:
@@ -1127,7 +1203,7 @@ class AzamPayDisbursement:
         
         try:
             logger.info(f"Checking disbursement status for: {transaction_id}")
-            response = requests.post(url, headers=headers, json=payload, timeout=(15, 30))
+            response = requests.post(url, headers=headers, json=payload, timeout=get_azampay_timeout())
             response_data = response.json()
             
             if response.status_code == 200:

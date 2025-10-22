@@ -54,8 +54,10 @@ INSTALLED_APPS = [
     'drf_yasg',  # Swagger/OpenAPI documentation
     'authentication',
     'subscriptions',  # Subscription and wallet system
+    'documents',  # Learning materials and document management
     'django_filters',
     'corsheaders',
+    'hubs'
 ]
 
 MIDDLEWARE = [

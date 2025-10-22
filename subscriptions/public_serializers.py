@@ -32,9 +32,9 @@ from .models import (
     PaymentTransaction,
     ConsultantEarnings,
     UploaderEarnings,
-    LearningMaterial,
     DocumentType,
 )
+from documents.models import LearningMaterial
 from authentication.models import PolaUser
 
 

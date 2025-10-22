@@ -33,10 +33,9 @@ from .models import (
     # Legacy Models (Keep for backward compatibility)
     ConsultationVoucher,
     DocumentType,
-    DocumentPurchase,
-    LearningMaterial,
-    LearningMaterialPurchase
+    DocumentPurchase
 )
+from documents.models import LearningMaterial, LearningMaterialPurchase
 
 
 # ============================================================================

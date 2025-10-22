@@ -14,9 +14,10 @@ from subscriptions.models import (
     SubscriptionPlan, UserSubscription,
     CallCreditBundle, UserCallCredit,
     ConsultationBooking, ConsultantEarnings,
-    LearningMaterial, UploaderEarnings,
+    UploaderEarnings,
     PaymentTransaction, Disbursement
 )
+from documents.models import LearningMaterial
 from authentication.models import PolaUser, UserRole, Contact
 
 

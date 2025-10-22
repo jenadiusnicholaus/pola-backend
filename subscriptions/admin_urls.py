@@ -4,6 +4,7 @@ All admin management endpoints for comprehensive admin panel
 Prefix: /api/v1/admin/
 
 Complete admin control for:
+- Hub Management (Topics & Subtopics)
 - Subscription Management
 - Call Credit Management  
 - Consultation Management
@@ -75,6 +76,9 @@ router.register(r'earnings', EarningsManagementViewSet, basename='admin-earnings
 urlpatterns = [
     # Router URLs
     path('', include(router.urls)),
+    
+    # ===== HUB MANAGEMENT =====
+    path('hubs/', include('hubs.admin_urls')),
     
     # ===== ANALYTICS & REPORTING =====
     path('analytics/dashboard/', dashboard_overview, name='admin-dashboard'),

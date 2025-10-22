@@ -12,7 +12,8 @@ from django.db.models import Sum, Count, Q
 from datetime import timedelta
 from decimal import Decimal
 
-from .models import LearningMaterial, PaymentTransaction, UploaderEarnings
+from documents.models import LearningMaterial
+from .models import PaymentTransaction, UploaderEarnings
 from .admin_document_serializers import (
     LearningMaterialAdminSerializer,
     ApproveMaterialSerializer,

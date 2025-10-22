@@ -38,7 +38,8 @@ class AdminDisbursementViewSet(viewsets.ModelViewSet):
     - GET /admin/disbursements/ - List all disbursements
     - POST /admin/disbursements/ - Initiate a new disbursement
     - GET /admin/disbursements/{id}/ - Get disbursement details
-    - POST /admin/disbursements/{id}/process/ - Process a pending disbursement
+    - POST /admin/disbursements/{id}/process/ - Process a pending or failed disbursement
+    - POST /admin/disbursements/{id}/retry/ - Retry a failed disbursement
     - POST /admin/disbursements/{id}/cancel/ - Cancel a pending disbursement
     - POST /admin/disbursements/{id}/check_status/ - Check AzamPay status
     - GET /admin/disbursements/pending/ - List pending disbursements
@@ -123,12 +124,13 @@ class AdminDisbursementViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'])
     def process(self, request, pk=None):
-        """Process/initiate a pending disbursement through AzamPay"""
+        """Process/initiate a pending or failed disbursement through AzamPay"""
         disbursement = self.get_object()
         
-        if disbursement.status != 'pending':
+        # Allow processing of pending or failed disbursements (to enable retries)
+        if disbursement.status not in ['pending', 'failed']:
             return Response(
-                {'error': f'Cannot process disbursement with status: {disbursement.status}'},
+                {'error': f'Cannot process disbursement with status: {disbursement.status}. Only pending or failed disbursements can be processed.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
@@ -202,6 +204,24 @@ class AdminDisbursementViewSet(viewsets.ModelViewSet):
                 {'error': f'Unexpected error: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+    
+    @action(detail=True, methods=['post'])
+    def retry(self, request, pk=None):
+        """Retry a failed disbursement - convenience endpoint that calls process"""
+        disbursement = self.get_object()
+        
+        if disbursement.status != 'failed':
+            return Response(
+                {'error': f'Can only retry failed disbursements. Current status: {disbursement.status}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Add retry note
+        disbursement.notes += f"\n[Retry initiated by {request.user.email} at {timezone.now().isoformat()}]"
+        disbursement.save()
+        
+        # Call the process method to retry
+        return self.process(request, pk)
     
     @action(detail=True, methods=['post'])
     def cancel(self, request, pk=None):

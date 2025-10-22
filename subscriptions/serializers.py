@@ -11,12 +11,11 @@ from .models import (
     # ConsultationSession,  # REMOVED - Replaced by ConsultationBooking + CallSession
     DocumentType,
     DocumentPurchase,
-    LearningMaterial,
-    LearningMaterialPurchase,
     ConsultantEarnings,
     UploaderEarnings,
     Disbursement
 )
+from documents.models import LearningMaterial, LearningMaterialPurchase
 from authentication.models import PolaUser
 
 

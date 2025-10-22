@@ -24,9 +24,8 @@ from .models import (
     ConsultationVoucher,
     DocumentType,
     DocumentPurchase,
-    LearningMaterial,
-    LearningMaterialPurchase,
 )
+from documents.models import LearningMaterial, LearningMaterialPurchase
 from .serializers import (
     SubscriptionPlanSerializer,
     UserSubscriptionSerializer,

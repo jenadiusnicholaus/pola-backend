@@ -817,7 +817,7 @@ class UploaderEarnings(models.Model):
     Track uploader earnings from materials/documents
     """
     uploader = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='uploader_earnings')
-    material = models.ForeignKey('LearningMaterial', on_delete=models.CASCADE, null=True, blank=True)
+    material = models.ForeignKey('documents.LearningMaterial', on_delete=models.CASCADE, null=True, blank=True)
     
     service_type = models.CharField(max_length=50)
     gross_amount = models.DecimalField(max_digits=10, decimal_places=2)
@@ -1022,7 +1022,7 @@ class MaterialPurchase(models.Model):
     Track study material purchases
     """
     buyer = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='material_purchases')
-    material = models.ForeignKey('LearningMaterial', on_delete=models.CASCADE, related_name='material_purchases')
+    material = models.ForeignKey('documents.LearningMaterial', on_delete=models.CASCADE, related_name='material_purchases')
     
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
     platform_commission = models.DecimalField(max_digits=10, decimal_places=2)
@@ -1277,128 +1277,8 @@ class DocumentPurchase(models.Model):
         self.save()
 
 
-class LearningMaterial(models.Model):
-    """
-    Learning materials uploaded by students, lecturers, or admins
-    """
-    UPLOADER_TYPES = [
-        ('student', 'Student'),
-        ('lecturer', 'Lecturer'),
-        ('admin', 'Admin'),
-    ]
-    
-    CATEGORY_CHOICES = [
-        ('notes', 'Study Notes'),
-        ('past_papers', 'Past Exam Papers'),
-        ('assignments', 'Assignments'),
-        ('tutorials', 'Tutorials'),
-        ('other', 'Other'),
-    ]
-    
-    uploader = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='uploaded_materials')
-    uploader_type = models.CharField(max_length=20, choices=UPLOADER_TYPES)
-    
-    # Material details
-    title = models.CharField(max_length=255)
-    description = models.TextField()
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
-    
-    # File
-    file = models.FileField(upload_to='learning_materials/')
-    file_size = models.BigIntegerField(help_text="File size in bytes")
-    
-    # Pricing
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    
-    # Stats
-    downloads_count = models.IntegerField(default=0)
-    total_revenue = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0'))
-    uploader_earnings = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0'))
-    
-    is_approved = models.BooleanField(default=False, help_text="Admin approval required")
-    is_active = models.BooleanField(default=True)
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        ordering = ['-created_at']
-        verbose_name = 'Learning Material'
-        verbose_name_plural = 'Learning Materials'
-    
-    def __str__(self):
-        return f"{self.title} by {self.uploader.email}"
-    
-    def get_revenue_split(self):
-        """
-        Calculate revenue split based on uploader type
-        
-        Student uploads: 50/50 (App/Uploader)
-        Lecturer uploads: 40/60 (App/Uploader) - Lecturer gets 60%
-        Admin uploads: 100/0 (App/Uploader) - All to platform
-        """
-        splits = {
-            'student': {'uploader': 0.50, 'app': 0.50},   # 50/50
-            'lecturer': {'uploader': 0.60, 'app': 0.40},  # 60% uploader, 40% app
-            'admin': {'uploader': 0.00, 'app': 1.00},     # 100% to app
-        }
-        return splits.get(self.uploader_type, {'uploader': 0.50, 'app': 0.50})
-    
-    def record_purchase(self, buyer):
-        """Record a purchase and distribute revenue"""
-        self.downloads_count += 1
-        self.total_revenue += self.price
-        
-        # Calculate revenue split
-        split = self.get_revenue_split()
-        uploader_share = self.price * Decimal(str(split['uploader']))
-        app_share = self.price * Decimal(str(split['app']))
-        
-        self.uploader_earnings += uploader_share
-        self.save()
-        
-        # Record in UploaderEarnings
-        if uploader_share > 0:
-            UploaderEarnings.objects.create(
-                uploader=self.uploader,
-                material=self,
-                service_type='learning_material',
-                gross_amount=self.price,
-                platform_commission=app_share,
-                net_earnings=uploader_share
-            )
-        
-        return {
-            'uploader_share': uploader_share,
-            'app_share': app_share
-        }
-
-
-class LearningMaterialPurchase(models.Model):
-    """
-    Record of learning material purchases
-    """
-    buyer = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='learning_purchases')
-    material = models.ForeignKey(LearningMaterial, on_delete=models.CASCADE, related_name='purchases')
-    
-    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
-    purchase_date = models.DateTimeField(auto_now_add=True)
-    
-    # Download tracking
-    download_count = models.IntegerField(default=0)
-    last_downloaded = models.DateTimeField(null=True, blank=True)
-    
-    class Meta:
-        ordering = ['-purchase_date']
-        verbose_name = 'Learning Material Purchase'
-        verbose_name_plural = 'Learning Material Purchases'
-        unique_together = ['buyer', 'material']
-    
-    def __str__(self):
-        return f"{self.buyer.email} - {self.material.title}"
-    
-    def increment_download(self):
-        """Increment download count"""
-        self.download_count += 1
-        self.last_downloaded = timezone.now()
-        self.save()
+# ============================================================================
+# NOTE: LearningMaterial and LearningMaterialPurchase have been moved to
+# the 'documents' app for better separation of concerns.
+# Import them from documents.models if needed.
+# ============================================================================

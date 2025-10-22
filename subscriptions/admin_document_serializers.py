@@ -4,7 +4,8 @@ Handles learning materials and document pricing
 """
 
 from rest_framework import serializers
-from .models import LearningMaterial, PaymentTransaction, UploaderEarnings
+from documents.models import LearningMaterial
+from .models import PaymentTransaction, UploaderEarnings
 from authentication.models import PolaUser
 from django.db.models import Sum, Count, Q, Avg
 from decimal import Decimal

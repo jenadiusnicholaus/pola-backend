@@ -148,6 +148,7 @@ urlpatterns = [
     path(f"api/{API_VERSION}/admin/", include("subscriptions.admin_urls")),  # Admin Management APIs (NEW)
     path(f"api/{API_VERSION}/subscriptions/", include("subscriptions.urls")),  # Subscription APIs
     path(f"api/{API_VERSION}/lookups/", include("lookups.urls")),
+    path(f"api/{API_VERSION}/hubs/", include("hubs.urls")),  # Hubs APIs
     
     # API Documentation
     path('swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
