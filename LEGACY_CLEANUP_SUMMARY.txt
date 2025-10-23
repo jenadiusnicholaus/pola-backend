@@ -1,0 +1,61 @@
+# Legacy API Cleanup - Completed ✅
+
+## Deleted Files (October 22, 2025)
+
+The following legacy files for separate hub APIs have been removed:
+
+1. **hubs/advocate_urls.py** - Legacy Advocates Hub URL routing
+   - Routes: /api/v1/hubs/advocates/posts/, /comments/, /messages/
+   
+2. **hubs/advocate_views.py** - Legacy Advocates Hub ViewSets
+   - AdvocatePostViewSet
+   - AdvocateCommentViewSet
+   - AdvocateMessageViewSet
+   
+3. **hubs/advocate_serializers.py** - Legacy Advocates Hub serializers
+   
+4. **hubs/advocate_permissions.py** - Legacy Advocates Hub permissions
+   - IsAdvocateOrAdmin
+   - IsAdvocate
+
+## Updated Files
+
+**hubs/urls.py**
+- Removed: `path('advocates/', include('hubs.advocate_urls'))`
+- Now using only unified API endpoints
+
+## Current API Structure
+
+All hub features now use the **unified API**:
+
+### Unified Endpoints (Active):
+- `/api/v1/hubs/content/` - All hub content (filter by `?hub_type=advocates|students|forum`)
+- `/api/v1/hubs/comments/` - All comments
+- `/api/v1/hubs/lecturer-follows/` - Follow system
+- `/api/v1/hubs/questions/` - Q&A system
+- `/api/v1/hubs/messages/` - Private messaging
+
+### Legacy Endpoints (Removed):
+- ❌ `/api/v1/hubs/advocates/posts/`
+- ❌ `/api/v1/hubs/students/materials/`
+- ❌ `/api/v1/hubs/forum/discussions/`
+
+## Validation
+
+✅ System check passed: No errors
+✅ No broken imports
+✅ Unified API fully functional
+
+## Benefits
+
+- **Code Reduction**: 4 files deleted (~500+ lines removed)
+- **Simplified Routing**: Single endpoint set instead of multiple
+- **Easier Maintenance**: One codebase to maintain
+- **Better Consistency**: Unified behavior across all hubs
+
+## Next Steps
+
+Frontend teams should migrate to the unified API:
+- Replace hub-specific endpoints with unified ones
+- Add `hub_type` query parameter for filtering
+- See docs/FRONTEND_QUICKSTART.md for migration guide

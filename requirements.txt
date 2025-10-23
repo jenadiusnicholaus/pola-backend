@@ -15,3 +15,5 @@ PyYAML==6.0.3
 sqlparse==0.5.3
 uritemplate==4.2.0
 requests==2.32.5
+openpyxl==3.1.5
+Faker==37.11.0

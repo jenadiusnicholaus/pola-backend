@@ -5,9 +5,10 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
     LegalEdTopic, LegalEdSubTopic,
-    AdvocatePost, AdvocateDocument, AdvocateComment,
-    StudentHubDownload, StudentHubComment
+    HubComment, ContentLike, HubCommentLike, ContentBookmark, HubMessage,
+    StudentHubDownload, StudentHubComment  # These are deprecated
 )
+from documents.models import LearningMaterial  # Unified content model
 
 
 @admin.register(LegalEdTopic)
@@ -77,42 +78,69 @@ class LegalEdSubTopicAdmin(admin.ModelAdmin):
 
 
 # ============================================================================
-# ADVOCATES HUB ADMIN
+# SHARED HUB ADMIN (Advocates, Students, Forums)
 # ============================================================================
 
-@admin.register(AdvocatePost)
-class AdvocatePostAdmin(admin.ModelAdmin):
-    """Admin interface for Advocate Posts"""
-    list_display = ['title_display', 'author', 'post_type', 'likes_count', 'comments_count', 'is_pinned', 'created_at']
-    list_filter = ['post_type', 'is_pinned', 'is_active', 'created_at']
-    search_fields = ['title', 'content', 'author__email', 'author__first_name', 'author__last_name']
-    ordering = ['-is_pinned', '-created_at']
+# HubPost has been replaced by LearningMaterial (documents.models)
+# Register LearningMaterial admin in documents/admin.py or subscriptions/admin.py
+
+
+@admin.register(HubComment)
+class HubCommentAdmin(admin.ModelAdmin):
+    """Admin interface for Hub Comments (all hubs)"""
+    list_display = ['author', 'hub_type', 'content_display', 'likes_count_display', 'is_reply', 'created_at']
+    list_filter = ['hub_type', 'is_active', 'created_at']
+    search_fields = ['comment_text', 'author__email']
+    ordering = ['-created_at']
     
-    def title_display(self, obj):
-        return obj.title or obj.content[:50] + "..."
-    title_display.short_description = 'Post'
-
-
-@admin.register(AdvocateDocument)
-class AdvocateDocumentAdmin(admin.ModelAdmin):
-    """Admin interface for Advocate Documents"""
-    list_display = ['title', 'uploader', 'file_type', 'file_size', 'created_at']
-    list_filter = ['file_type', 'is_standalone', 'created_at']
-    search_fields = ['title', 'description', 'uploader__email']
-    ordering = ['-created_at']
-
-
-@admin.register(AdvocateComment)
-class AdvocateCommentAdmin(admin.ModelAdmin):
-    """Admin interface for Advocate Comments"""
-    list_display = ['author', 'post', 'likes_count', 'is_reply', 'created_at']
-    list_filter = ['is_active', 'created_at']
-    search_fields = ['content', 'author__email']
-    ordering = ['-created_at']
+    def content_display(self, obj):
+        """Display the content/material title"""
+        return obj.content.title if obj.content else "N/A"
+    content_display.short_description = 'Content'
     
     def is_reply(self, obj):
         return obj.parent_comment is not None
     is_reply.boolean = True
+    
+    def likes_count_display(self, obj):
+        return obj.get_likes_count()
+    likes_count_display.short_description = 'Likes'
+
+
+@admin.register(ContentLike)
+class ContentLikeAdmin(admin.ModelAdmin):
+    """Admin interface for Content Likes (unified for all hubs)"""
+    list_display = ['user', 'content', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['user__email', 'content__title']
+    ordering = ['-created_at']
+
+
+@admin.register(HubCommentLike)
+class HubCommentLikeAdmin(admin.ModelAdmin):
+    """Admin interface for Comment Likes"""
+    list_display = ['user', 'comment', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['user__email']
+    ordering = ['-created_at']
+
+
+@admin.register(ContentBookmark)
+class ContentBookmarkAdmin(admin.ModelAdmin):
+    """Admin interface for Content Bookmarks (unified for all hubs)"""
+    list_display = ['user', 'content', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['user__email', 'content__title']
+    ordering = ['-created_at']
+
+
+@admin.register(HubMessage)
+class HubMessageAdmin(admin.ModelAdmin):
+    """Admin interface for Private Messages"""
+    list_display = ['sender', 'recipient', 'hub_type', 'subject', 'is_read', 'created_at']
+    list_filter = ['hub_type', 'is_read', 'created_at']
+    search_fields = ['sender__email', 'recipient__email', 'subject', 'message']
+    ordering = ['-created_at']
 
 
 # ============================================================================
@@ -135,10 +163,14 @@ class StudentHubDownloadAdmin(admin.ModelAdmin):
 @admin.register(StudentHubComment)
 class StudentHubCommentAdmin(admin.ModelAdmin):
     """Admin interface for Student Hub Comments"""
-    list_display = ['author', 'material', 'likes_count', 'is_reply', 'created_at']
+    list_display = ['author', 'material', 'likes_count_display', 'is_reply', 'created_at']
     list_filter = ['is_active', 'created_at']
     search_fields = ['content', 'author__email', 'material__title']
     ordering = ['-created_at']
+    
+    def likes_count_display(self, obj):
+        return obj.get_likes_count()
+    likes_count_display.short_description = 'Likes'
     
     def is_reply(self, obj):
         return obj.parent_comment is not None

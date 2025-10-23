@@ -3,7 +3,7 @@ from .models import (
     AcademicRole, LegalSpecialization, PlaceOfWork, UserRole, RolePermission,
     Contact, Address, Verification, VerificationDocument, Document, PolaUser,
     Region, District, OperatingRegion, OperatingDistrict, Specialization,
-    ProfessionalSpecialization, RegionalChapter
+    ProfessionalSpecialization, RegionalChapter, DeviceToken, NotificationPreference
 )
 
 @admin.register(PolaUser)
@@ -168,3 +168,58 @@ class PlaceOfWorkAdmin(admin.ModelAdmin):
     search_fields = ('code', 'name_en', 'name_sw')
     list_filter = ('created_at', 'updated_at')
     ordering = ('code',)
+
+@admin.register(DeviceToken)
+class DeviceTokenAdmin(admin.ModelAdmin):
+    list_display = ('user', 'device_type', 'token_snippet', 'is_active', 'created_at', 'updated_at')
+    search_fields = ('user__email', 'user__first_name', 'user__last_name', 'token', 'device_id')
+    list_filter = ('device_type', 'is_active', 'created_at')
+    ordering = ('-created_at',)
+    readonly_fields = ('created_at', 'updated_at')
+    
+    def token_snippet(self, obj):
+        """Display first 20 characters of token for security"""
+        return f"{obj.token[:20]}..." if len(obj.token) > 20 else obj.token
+    token_snippet.short_description = 'Token (snippet)'
+
+@admin.register(NotificationPreference)
+class NotificationPreferenceAdmin(admin.ModelAdmin):
+    list_display = (
+        'user', 'push_enabled', 'email_enabled', 'sms_enabled',
+        'enable_reply_notifications', 'enable_like_notifications',
+        'enable_comment_notifications', 'enable_message_notifications',
+        'quiet_hours_enabled'
+    )
+    search_fields = ('user__email', 'user__first_name', 'user__last_name')
+    list_filter = (
+        'push_enabled', 'email_enabled', 'sms_enabled',
+        'enable_reply_notifications', 'enable_like_notifications',
+        'enable_comment_notifications', 'enable_message_notifications',
+        'quiet_hours_enabled', 'created_at'
+    )
+    ordering = ('-created_at',)
+    readonly_fields = ('created_at', 'updated_at')
+    
+    fieldsets = (
+        ('User', {
+            'fields': ('user',)
+        }),
+        ('Notification Types', {
+            'fields': (
+                'enable_reply_notifications',
+                'enable_like_notifications',
+                'enable_comment_notifications',
+                'enable_message_notifications',
+                'enable_document_download_notifications'
+            )
+        }),
+        ('Channels', {
+            'fields': ('push_enabled', 'email_enabled', 'sms_enabled')
+        }),
+        ('Quiet Hours', {
+            'fields': ('quiet_hours_enabled', 'quiet_hours_start', 'quiet_hours_end')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )

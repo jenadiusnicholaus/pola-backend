@@ -1,22 +1,31 @@
 """
-Hub URLs - Educational Content & Social Hubs
+Hub URLs - Unified API for all hubs (Advocates, Students, Forum)
 """
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import TopicViewSet, SubtopicViewSet
+from .unified_views import (
+    HubContentViewSet, HubCommentViewSet, LecturerFollowViewSet,
+    MaterialQuestionViewSet, HubMessageViewSet
+)
 
-router = DefaultRouter()
+# Legacy router for Legal Education Hub
+legacy_router = DefaultRouter()
+legacy_router.register(r'legal-education/topics', TopicViewSet, basename='legal-education-topic')
+legacy_router.register(r'legal-education/subtopics', SubtopicViewSet, basename='legal-education-subtopic')
 
-# Legal Education Hub - Topics & Subtopics
-router.register(r'legal-education/topics', TopicViewSet, basename='legal-education-topic')
-router.register(r'legal-education/subtopics', SubtopicViewSet, basename='legal-education-subtopic')
-
-# Advocates Hub - To be implemented (posts, documents, messages)
-# router.register(r'advocates/posts', AdvocatePostViewSet, basename='advocate-post')
-
-# Students Hub - To be implemented (documents, downloads)
-# router.register(r'students/documents', StudentHubDocumentViewSet, basename='student-document')
+# Unified router for all hubs
+unified_router = DefaultRouter()
+unified_router.register(r'content', HubContentViewSet, basename='hub-content')
+unified_router.register(r'comments', HubCommentViewSet, basename='hub-comment')
+unified_router.register(r'lecturer-follows', LecturerFollowViewSet, basename='lecturer-follow')
+unified_router.register(r'questions', MaterialQuestionViewSet, basename='material-question')
+unified_router.register(r'messages', HubMessageViewSet, basename='hub-message')
 
 urlpatterns = [
-    path('', include(router.urls)),
+    # Unified Hub API - Single endpoint for all hubs
+    path('', include(unified_router.urls)),
+    
+    # Legal Education Hub (specialized content)
+    path('', include(legacy_router.urls)),
 ]

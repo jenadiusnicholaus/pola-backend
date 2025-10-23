@@ -1100,3 +1100,122 @@ class AcademicRole(models.Model):
             'sw': self.name_sw
         }
 
+
+
+# ============================================================================
+# FIREBASE NOTIFICATION SYSTEM
+# ============================================================================
+
+class DeviceToken(models.Model):
+    """
+    Store Firebase Cloud Messaging (FCM) device tokens for push notifications
+    """
+    DEVICE_TYPES = [
+        ('ios', 'iOS'),
+        ('android', 'Android'),
+        ('web', 'Web'),
+    ]
+    
+    user = models.ForeignKey(
+        PolaUser,
+        on_delete=models.CASCADE,
+        related_name='device_tokens'
+    )
+    token = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="FCM device registration token"
+    )
+    device_type = models.CharField(
+        max_length=10,
+        choices=DEVICE_TYPES,
+        help_text="Type of device (iOS, Android, Web)"
+    )
+    device_id = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="Unique device identifier"
+    )
+    is_active = models.BooleanField(
+        default=True,
+        help_text="Whether this token is currently active"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Device Token"
+        verbose_name_plural = "Device Tokens"
+        ordering = ['-updated_at']
+        indexes = [
+            models.Index(fields=['user', 'is_active']),
+            models.Index(fields=['token']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.email} - {self.device_type} - {self.token[:20]}..."
+
+
+class NotificationPreference(models.Model):
+    """
+    User preferences for receiving different types of notifications
+    """
+    user = models.OneToOneField(
+        PolaUser,
+        on_delete=models.CASCADE,
+        related_name='notification_preferences'
+    )
+    
+    # Notification type preferences
+    enable_reply_notifications = models.BooleanField(
+        default=True,
+        help_text="Notify when someone replies to your comment"
+    )
+    enable_like_notifications = models.BooleanField(
+        default=True,
+        help_text="Notify when someone likes your content"
+    )
+    enable_comment_notifications = models.BooleanField(
+        default=True,
+        help_text="Notify when someone comments on your content"
+    )
+    enable_message_notifications = models.BooleanField(
+        default=True,
+        help_text="Notify when you receive a private message"
+    )
+    enable_document_download_notifications = models.BooleanField(
+        default=True,
+        help_text="Notify when someone downloads your document"
+    )
+    
+    # Channel preferences
+    push_enabled = models.BooleanField(default=True)
+    email_enabled = models.BooleanField(default=True)
+    sms_enabled = models.BooleanField(default=False)
+    
+    # Quiet hours
+    quiet_hours_enabled = models.BooleanField(
+        default=False,
+        help_text="Enable Do Not Disturb mode during specified hours"
+    )
+    quiet_hours_start = models.TimeField(
+        null=True,
+        blank=True,
+        help_text="Start time for quiet hours (e.g., 22:00)"
+    )
+    quiet_hours_end = models.TimeField(
+        null=True,
+        blank=True,
+        help_text="End time for quiet hours (e.g., 08:00)"
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Notification Preference"
+        verbose_name_plural = "Notification Preferences"
+    
+    def __str__(self):
+        return f"Notification preferences for {self.user.email}"

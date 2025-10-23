@@ -44,6 +44,37 @@ class LearningMaterialViewSet(viewsets.ModelViewSet):
     serializer_class = LearningMaterialAdminSerializer
     permission_classes = [IsAdminUser]
     
+    def perform_create(self, serializer):
+        """
+        Set uploader to current admin user and auto-detect uploader_type
+        from user's role if not provided
+        """
+        user = self.request.user
+        uploader_type = serializer.validated_data.get('uploader_type')
+        
+        # Auto-detect uploader_type from user role if not provided
+        if not uploader_type:
+            try:
+                # Check user role to determine uploader type
+                if hasattr(user, 'user_role') and user.user_role:
+                    role_name = user.user_role.role_name.lower()
+                    
+                    if 'admin' in role_name or 'staff' in role_name:
+                        uploader_type = 'admin'
+                    elif 'lecturer' in role_name or 'teacher' in role_name:
+                        uploader_type = 'lecturer'
+                    elif 'student' in role_name:
+                        uploader_type = 'student'
+                    else:
+                        uploader_type = 'admin'  # Default to admin for other roles
+                else:
+                    # If no role, check if user is staff/superuser
+                    uploader_type = 'admin' if (user.is_staff or user.is_superuser) else 'student'
+            except Exception:
+                uploader_type = 'admin'  # Fallback to admin
+        
+        serializer.save(uploader=user, uploader_type=uploader_type)
+    
     def get_queryset(self):
         """Filter queryset based on query params"""
         queryset = super().get_queryset()

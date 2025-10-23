@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django import forms
 from .models import (
     # Subscription Models
     SubscriptionPlan,
@@ -36,6 +37,63 @@ from .models import (
     DocumentPurchase
 )
 from documents.models import LearningMaterial, LearningMaterialPurchase
+
+
+# ============================================================================
+# LEARNING MATERIAL ADMIN FORM
+# ============================================================================
+
+class LearningMaterialAdminForm(forms.ModelForm):
+    """
+    Custom form for creating news topics, discussions, and other content
+    """
+    class Meta:
+        model = LearningMaterial
+        fields = '__all__'
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'placeholder': 'e.g., New Legal Reform on Contract Law',
+                'style': 'width: 100%;'
+            }),
+            'description': forms.Textarea(attrs={
+                'placeholder': 'Brief summary of the news/topic (shown in previews)',
+                'rows': 3,
+                'style': 'width: 100%;'
+            }),
+            'content': forms.Textarea(attrs={
+                'placeholder': 'Full content/article. You can use HTML or Markdown formatting.',
+                'rows': 15,
+                'style': 'width: 100%; font-family: monospace;'
+            }),
+        }
+        help_texts = {
+            'hub_type': '🎯 Select where to post: Advocates (news/discussions), Forum (community), Legal Ed (education)',
+            'content_type': '📝 News/Announcement for important updates, Discussion for topics to debate',
+            'price': '💰 Leave as 0 for free content (news/discussions). Only set price for downloadable documents.',
+            'is_pinned': '📌 Pin to keep at top of the feed',
+            'is_approved': '✅ Auto-approved for admin-created content',
+            'is_active': '🟢 Make visible to users immediately',
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Set helpful defaults for new content
+        if not self.instance.pk:
+            self.fields['price'].initial = 0
+            self.fields['is_approved'].initial = True
+            self.fields['is_active'].initial = True
+            self.fields['is_downloadable'].initial = False
+            self.fields['language'].initial = 'en'
+        
+        # Make some fields not required for news/discussions
+        self.fields['file'].required = False
+        self.fields['subtopic'].required = False
+        
+        # Add CSS classes for better UI
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.Textarea, forms.Select)):
+                field.widget.attrs['class'] = field.widget.attrs.get('class', '') + ' vTextField'
 
 
 # ============================================================================
@@ -512,13 +570,221 @@ class DocumentPurchaseAdmin(admin.ModelAdmin):
 
 @admin.register(LearningMaterial)
 class LearningMaterialAdmin(admin.ModelAdmin):
-    list_display = ['title', 'uploader', 'uploader_type', 'category', 'price', 
-                    'downloads_count', 'total_revenue', 'is_approved', 'is_active']
-    list_filter = ['uploader_type', 'category', 'is_approved', 'is_active']
-    search_fields = ['title', 'uploader__email']
-    readonly_fields = ['downloads_count', 'total_revenue', 'uploader_earnings', 
-                       'created_at', 'updated_at']
+    """
+    Admin for unified content model (posts + documents across all hubs)
+    
+    Admins can create:
+    - News topics for Advocates Hub
+    - Discussion topics for Forum
+    - Announcements for all hubs
+    - Articles and educational content
+    """
+    form = LearningMaterialAdminForm
+    
+    list_display = ['title', 'hub_type', 'content_type', 'uploader', 'uploader_type', 
+                    'price', 'downloads_count', 'views_count', 'total_revenue', 
+                    'is_pinned', 'is_approved', 'is_active', 'created_at']
+    list_filter = ['hub_type', 'content_type', 'uploader_type', 'is_approved', 
+                   'is_active', 'is_pinned', 'is_downloadable', 'language', 'created_at']
+    search_fields = ['title', 'description', 'content', 'uploader__email', 
+                     'uploader__first_name', 'uploader__last_name']
+    readonly_fields = ['downloads_count', 'views_count', 'total_revenue', 'uploader_earnings', 
+                       'platform_earnings', 'created_at', 'updated_at', 'engagement_stats', 'admin_guide']
     date_hierarchy = 'created_at'
+    ordering = ['-is_pinned', '-created_at']
+    list_per_page = 50
+    save_on_top = True
+    
+    # Allow filtering by multiple fields in admin
+    list_filter = (
+        'hub_type',
+        'content_type',
+        'uploader_type',
+        'is_approved',
+        'is_active',
+        'is_pinned',
+        'is_downloadable',
+        'language',
+        ('created_at', admin.DateFieldListFilter),
+    )
+    
+    fieldsets = (
+        ('📖 Quick Guide', {
+            'fields': ('admin_guide',),
+            'classes': ('collapse',),
+            'description': 'Instructions for creating news topics and discussions'
+        }),
+        ('🎯 Hub & Content Type', {
+            'fields': ('hub_type', 'content_type', 'uploader', 'uploader_type'),
+            'description': 'Select the hub and content type. For news/discussions, choose "news", "discussion", or "announcement".'
+        }),
+        ('📝 Content Information', {
+            'fields': ('title', 'description', 'content'),
+            'description': 'Main content. Use the content field for rich text (HTML/Markdown supported).'
+        }),
+        ('📎 Attachments (Optional)', {
+            'fields': ('file', 'file_size', 'video_url'),
+            'classes': ('collapse',),
+            'description': 'Optional: Attach files or add video links to your news/discussion topic.'
+        }),
+        ('🏷️ Categorization', {
+            'fields': ('subtopic', 'language'),
+            'classes': ('collapse',),
+            'description': 'Optional: Link to Legal Education subtopic if relevant.'
+        }),
+        ('💰 Pricing & Revenue (For Documents)', {
+            'fields': ('price', 'is_downloadable', 'downloads_count', 'views_count',
+                      'total_revenue', 'uploader_earnings', 'platform_earnings'),
+            'classes': ('collapse',),
+            'description': 'Pricing only applies to downloadable documents (Students Hub). News/discussions are always free.'
+        }),
+        ('⚙️ Settings & Moderation', {
+            'fields': ('is_approved', 'is_active', 'is_pinned'),
+            'description': 'Pin important news/announcements to keep them at the top.'
+        }),
+        ('📊 Engagement Statistics', {
+            'fields': ('engagement_stats',),
+            'classes': ('collapse',),
+            'description': 'View comments, likes, and bookmarks for this content.'
+        }),
+        ('🕐 Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def admin_guide(self, obj):
+        """Display quick guide for admins"""
+        guide_html = """
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                    color: white; padding: 20px; border-radius: 10px; margin: 10px 0;">
+            <h2 style="margin-top: 0; color: white;">📰 Quick Guide: Creating News & Discussion Topics</h2>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 5px; margin: 15px 0;">
+                <h3 style="color: #ffd700;">🗞️ Creating News (Advocates Hub)</h3>
+                <ol style="line-height: 2;">
+                    <li><strong>Hub Type:</strong> Select "Advocates Hub"</li>
+                    <li><strong>Content Type:</strong> Choose "News" or "Announcement"</li>
+                    <li><strong>Title:</strong> Eye-catching headline (e.g., "Supreme Court Rules on New Evidence Act")</li>
+                    <li><strong>Description:</strong> Brief summary (shown in feed previews)</li>
+                    <li><strong>Content:</strong> Full article with details</li>
+                    <li><strong>Pin It:</strong> Check "is_pinned" for important breaking news</li>
+                </ol>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 5px; margin: 15px 0;">
+                <h3 style="color: #98fb98;">💬 Creating Discussion Topics (Forum)</h3>
+                <ol style="line-height: 2;">
+                    <li><strong>Hub Type:</strong> Select "Community Forum"</li>
+                    <li><strong>Content Type:</strong> Choose "Discussion" or "Question"</li>
+                    <li><strong>Title:</strong> Question or topic to debate (e.g., "Should contract law be reformed?")</li>
+                    <li><strong>Description:</strong> Context for the discussion</li>
+                    <li><strong>Content:</strong> Detailed explanation or opening statement</li>
+                    <li><strong>Engage:</strong> Users will comment and discuss below</li>
+                </ol>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 5px; margin: 15px 0;">
+                <h3 style="color: #87ceeb;">📢 Creating Announcements (All Hubs)</h3>
+                <ol style="line-height: 2;">
+                    <li><strong>Hub Type:</strong> Select any hub (Advocates/Students/Forum/Legal Ed)</li>
+                    <li><strong>Content Type:</strong> Choose "Announcement"</li>
+                    <li><strong>Title:</strong> Clear announcement (e.g., "Platform Maintenance on Friday")</li>
+                    <li><strong>Pin It:</strong> Always pin important announcements</li>
+                    <li><strong>Active:</strong> Uncheck "is_active" when announcement is no longer relevant</li>
+                </ol>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 5px; margin: 15px 0;">
+                <h3 style="color: white;">💡 Pro Tips</h3>
+                <ul style="line-height: 2;">
+                    <li>✅ News/discussions are <strong>always FREE</strong> (price = 0)</li>
+                    <li>📌 Pin urgent/important content to keep at top</li>
+                    <li>🎯 Use clear, engaging titles to attract readers</li>
+                    <li>📝 Add rich content with HTML formatting for better readability</li>
+                    <li>🔗 Optionally attach files or add video links for multimedia content</li>
+                    <li>📊 Check engagement stats to see how users interact</li>
+                    <li>🟢 Content is auto-approved and active for admin-created posts</li>
+                </ul>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px; margin-top: 15px;">
+                <strong>📋 Common Content Types:</strong><br>
+                <span style="display: inline-block; margin: 5px; padding: 5px 10px; background: #28a745; border-radius: 3px;">News</span>
+                <span style="display: inline-block; margin: 5px; padding: 5px 10px; background: #17a2b8; border-radius: 3px;">Discussion</span>
+                <span style="display: inline-block; margin: 5px; padding: 5px 10px; background: #ffc107; border-radius: 3px;">Announcement</span>
+                <span style="display: inline-block; margin: 5px; padding: 5px 10px; background: #6f42c1; border-radius: 3px;">Article</span>
+                <span style="display: inline-block; margin: 5px; padding: 5px 10px; background: #e83e8c; border-radius: 3px;">Question</span>
+            </div>
+        </div>
+        """
+        return format_html(guide_html)
+    admin_guide.short_description = 'Admin Guide'
+    
+    def engagement_stats(self, obj):
+        """Display engagement statistics"""
+        if obj.pk:
+            from django.db.models import Count
+            stats = {
+                'comments': obj.hubcomment_set.count(),
+                'likes': obj.contentlike_set.count(),
+                'bookmarks': obj.contentbookmark_set.count(),
+            }
+            html = f"""
+            <div style="line-height: 2; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                <strong style="color: #007bff;">💬 Comments:</strong> {stats['comments']}<br>
+                <strong style="color: #dc3545;">❤️ Likes:</strong> {stats['likes']}<br>
+                <strong style="color: #28a745;">🔖 Bookmarks:</strong> {stats['bookmarks']}<br>
+                <strong style="color: #6c757d;">👁️ Views:</strong> {obj.views_count}<br>
+                <hr style="margin: 10px 0;">
+                <strong>Engagement Score:</strong> {(stats['likes'] * 2) + (stats['comments'] * 3) + (stats['bookmarks'] * 4)}
+            </div>
+            """
+            return format_html(html)
+        return format_html('<em>Save to see engagement statistics</em>')
+    engagement_stats.short_description = 'Engagement'
+    
+    def save_model(self, request, obj, form, change):
+        """Auto-set uploader to current admin user if not set"""
+        if not change:  # Only on creation
+            if not obj.uploader:
+                obj.uploader = request.user
+            if not obj.uploader_type:
+                obj.uploader_type = 'admin'
+        super().save_model(request, obj, form, change)
+    
+    # Admin Actions
+    actions = ['pin_content', 'unpin_content', 'approve_content', 'activate_content', 'deactivate_content']
+    
+    def pin_content(self, request, queryset):
+        """Pin selected content to top of feed"""
+        updated = queryset.update(is_pinned=True)
+        self.message_user(request, f'{updated} item(s) pinned successfully.')
+    pin_content.short_description = '📌 Pin selected content'
+    
+    def unpin_content(self, request, queryset):
+        """Unpin selected content"""
+        updated = queryset.update(is_pinned=False)
+        self.message_user(request, f'{updated} item(s) unpinned.')
+    unpin_content.short_description = '📍 Unpin selected content'
+    
+    def approve_content(self, request, queryset):
+        """Approve selected content"""
+        updated = queryset.update(is_approved=True)
+        self.message_user(request, f'{updated} item(s) approved.')
+    approve_content.short_description = '✅ Approve selected content'
+    
+    def activate_content(self, request, queryset):
+        """Activate selected content"""
+        updated = queryset.update(is_active=True)
+        self.message_user(request, f'{updated} item(s) activated.')
+    activate_content.short_description = '🟢 Activate selected content'
+    
+    def deactivate_content(self, request, queryset):
+        """Deactivate selected content"""
+        updated = queryset.update(is_active=False)
+        self.message_user(request, f'{updated} item(s) deactivated.')
+    deactivate_content.short_description = '🔴 Deactivate selected content'
 
 
 @admin.register(LearningMaterialPurchase)

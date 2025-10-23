@@ -1,0 +1,781 @@
+from django.db import models
+from authentication.models import PolaUser
+from django.utils import timezone
+
+
+# ============================================================================
+# SHARED HUB MODELS - Used across Advocates Hub, Students Hub, Forums, etc.
+# ============================================================================
+# These models are generic and can be filtered by hub_type to separate content
+# between different hubs while maintaining a unified codebase.
+# ============================================================================
+
+class HubPost(models.Model):
+    """
+    Generic post model that can be used across all hubs
+    Filter by hub_type to separate content:
+    - hub_type='advocates': Advocates Hub posts
+    - hub_type='students': Students Hub posts
+    - hub_type='forum': Forum posts
+    """
+    POST_TYPES = [
+        ('discussion', 'Discussion'),
+        ('article', 'Article'),
+        ('news', 'News'),
+        ('announcement', 'Announcement'),
+        ('question', 'Question'),
+    ]
+    
+    HUB_TYPES = [
+        ('advocates', 'Advocates Hub'),
+        ('students', 'Students Hub'),
+        ('forum', 'Forum'),
+    ]
+    
+    # Post metadata
+    hub_type = models.CharField(max_length=20, choices=HUB_TYPES, db_index=True)
+    post_type = models.CharField(max_length=20, choices=POST_TYPES, default='discussion')
+    author = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='hub_posts')
+    
+    # Content
+    title = models.CharField(max_length=500, blank=True)
+    content = models.TextField()
+    
+    # Media attachments
+    documents = models.ManyToManyField(
+        'documents.LearningMaterial',
+        blank=True,
+        related_name='hub_posts'
+    )
+    video_url = models.URLField(blank=True, null=True, help_text="Embedded video link")
+    
+    # Moderation
+    is_pinned = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-is_pinned', '-created_at']
+        verbose_name = 'Hub Post'
+        verbose_name_plural = 'Hub Posts'
+        indexes = [
+            models.Index(fields=['hub_type', '-created_at']),
+            models.Index(fields=['author', '-created_at']),
+            models.Index(fields=['post_type', '-created_at']),
+        ]
+    
+    def __str__(self):
+        return f"[{self.hub_type}] {self.title or self.content[:50]}"
+    
+    def get_likes_count(self):
+        return self.likes.count()
+    
+    def get_comments_count(self):
+        return self.comments.count()
+    
+    def get_bookmarks_count(self):
+        return self.bookmarks.count()
+
+
+class HubComment(models.Model):
+    """
+    Generic comment model that can be used across all hubs
+    Supports nested replies and document attachments
+    """
+    HUB_TYPES = [
+        ('advocates', 'Advocates Hub'),
+        ('students', 'Students Hub'),
+        ('forum', 'Forum'),
+    ]
+    
+    # Comment metadata
+    hub_type = models.CharField(max_length=20, choices=HUB_TYPES, db_index=True)
+    post = models.ForeignKey(HubPost, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='hub_comments')
+    
+    # Nested replies
+    parent_comment = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='replies'
+    )
+    
+    # Content
+    content = models.TextField()
+    
+    # Optional document attachments
+    documents = models.ManyToManyField(
+        'documents.LearningMaterial',
+        blank=True,
+        related_name='hub_comments'
+    )
+    
+    # Status
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['created_at']
+        verbose_name = 'Hub Comment'
+        verbose_name_plural = 'Hub Comments'
+        indexes = [
+            models.Index(fields=['hub_type', 'post', 'created_at']),
+            models.Index(fields=['author', '-created_at']),
+        ]
+    
+    def __str__(self):
+        return f"[{self.hub_type}] Comment by {self.author.get_full_name()}"
+    
+    def get_likes_count(self):
+        return self.likes.count()
+    
+    def get_replies_count(self):
+        return self.replies.count()
+
+
+class HubPostLike(models.Model):
+    """Track who liked which post across all hubs"""
+    user = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='hub_post_likes')
+    post = models.ForeignKey(HubPost, on_delete=models.CASCADE, related_name='likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['user', 'post']
+        verbose_name = 'Post Like'
+        verbose_name_plural = 'Post Likes'
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.get_full_name()} liked post"
+
+
+class HubCommentLike(models.Model):
+    """Track who liked which comment across all hubs"""
+    user = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='hub_comment_likes')
+    comment = models.ForeignKey(HubComment, on_delete=models.CASCADE, related_name='likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['user', 'comment']
+        verbose_name = 'Comment Like'
+        verbose_name_plural = 'Comment Likes'
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.get_full_name()} liked comment"
+
+
+class HubPostBookmark(models.Model):
+    """Track bookmarked posts across all hubs"""
+    user = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='hub_bookmarks')
+    post = models.ForeignKey(HubPost, on_delete=models.CASCADE, related_name='bookmarks')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['user', 'post']
+        verbose_name = 'Post Bookmark'
+        verbose_name_plural = 'Post Bookmarks'
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.get_full_name()} bookmarked post"
+
+
+class HubMessage(models.Model):
+    """
+    Private messages between users across all hubs
+    Can be hub-specific or general messages
+    """
+    HUB_TYPES = [
+        ('advocates', 'Advocates Hub'),
+        ('students', 'Students Hub'),
+        ('forum', 'Forum'),
+        ('general', 'General'),
+    ]
+    
+    hub_type = models.CharField(max_length=20, choices=HUB_TYPES, default='general', db_index=True)
+    sender = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='sent_hub_messages')
+    recipient = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='received_hub_messages')
+    
+    subject = models.CharField(max_length=255, blank=True)
+    message = models.TextField()
+    
+    is_read = models.BooleanField(default=False)
+    read_at = models.DateTimeField(null=True, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Private Message'
+        verbose_name_plural = 'Private Messages'
+        indexes = [
+            models.Index(fields=['hub_type', 'recipient', '-created_at']),
+            models.Index(fields=['hub_type', 'sender', '-created_at']),
+        ]
+    
+    def __str__(self):
+        return f"[{self.hub_type}] {self.sender.get_full_name()} → {self.recipient.get_full_name()}"
+
+
+# ============================================================================
+# LEGACY MODELS (DEPRECATED - Use HubPost, HubComment, etc. instead)
+# ============================================================================
+# These models are kept for backward compatibility with existing Advocates Hub API
+# New code should use the shared Hub* models above with hub_type filters
+# ============================================================================
+
+class AdvocatePost(models.Model):
+    """
+    DEPRECATED: Use HubPost with hub_type='advocates' instead
+    Posts in Advocates Hub - Only advocates can create posts
+    Admins can also post articles, news, attachments
+    """
+    POST_TYPES = [
+        ('discussion', 'Discussion Post'),
+        ('article', 'Article (Admin)'),
+        ('news', 'News (Admin)'),
+        ('announcement', 'Announcement'),
+    ]
+    
+    author = models.ForeignKey(
+        PolaUser, 
+        on_delete=models.CASCADE, 
+        related_name='advocate_posts',
+        help_text="Post author (must be advocate or admin)"
+    )
+    post_type = models.CharField(max_length=20, choices=POST_TYPES, default='discussion')
+    
+    # Content
+    title = models.CharField(max_length=500, blank=True, help_text="Post title (optional)")
+    content = models.TextField(help_text="Post text content")
+    
+    # Media attachments
+    documents = models.ManyToManyField(
+        'documents.LearningMaterial', 
+        blank=True, 
+        related_name='advocate_posts',
+        help_text="Attached learning materials/documents"
+    )
+    video_url = models.URLField(blank=True, null=True, help_text="Video link (YouTube, etc) - playable on screen")
+    
+    # Moderation
+    is_pinned = models.BooleanField(default=False, help_text="Pin post to top")
+    is_active = models.BooleanField(default=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-is_pinned', '-created_at']
+        verbose_name = 'Advocate Post (Legacy)'
+        verbose_name_plural = 'Advocate Posts (Legacy)'
+        indexes = [
+            models.Index(fields=['-created_at']),
+            models.Index(fields=['author', '-created_at']),
+        ]
+    
+    def __str__(self):
+        return f"{self.author.get_full_name()} - {self.title or self.content[:50]}"
+    
+    def get_likes_count(self):
+        """Get total likes count"""
+        return self.likes.count()
+    
+    def get_comments_count(self):
+        """Get total comments count"""
+        return self.comments.count()
+    
+    def get_bookmarks_count(self):
+        """Get total bookmarks count"""
+        return self.bookmarks.count()
+
+
+class AdvocateComment(models.Model):
+    """
+    DEPRECATED: Use HubComment with hub_type='advocates' instead
+    Comments on advocate posts
+    Supports replies (nested comments) with optional document attachments
+    """
+    post = models.ForeignKey(AdvocatePost, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='advocate_comments')
+    parent_comment = models.ForeignKey(
+        'self', 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True, 
+        related_name='replies',
+        help_text="Parent comment if this is a reply"
+    )
+    
+    content = models.TextField()
+    
+    # Optional document attachments in comments/replies
+    documents = models.ManyToManyField(
+        'documents.LearningMaterial',
+        blank=True,
+        related_name='advocate_comments',
+        help_text="Documents attached to this comment/reply"
+    )
+    
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['created_at']
+        verbose_name = 'Advocate Comment (Legacy)'
+        verbose_name_plural = 'Advocate Comments (Legacy)'
+    
+    def __str__(self):
+        return f"Comment by {self.author.get_full_name()} on {self.post}"
+    
+    def get_likes_count(self):
+        """Get total likes count"""
+        return self.likes.count()
+    
+    def get_replies_count(self):
+        """Get total replies count"""
+        return self.replies.count()
+
+
+class AdvocatePostLike(models.Model):
+    """DEPRECATED: Use HubPostLike instead - Track who liked which post"""
+    user = models.ForeignKey(PolaUser, on_delete=models.CASCADE)
+    post = models.ForeignKey(AdvocatePost, on_delete=models.CASCADE, related_name='likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['user', 'post']
+        verbose_name = 'Post Like (Legacy)'
+        verbose_name_plural = 'Post Likes (Legacy)'
+
+
+class AdvocateCommentLike(models.Model):
+    """DEPRECATED: Use HubCommentLike instead - Track who liked which comment"""
+    user = models.ForeignKey(PolaUser, on_delete=models.CASCADE)
+    comment = models.ForeignKey(AdvocateComment, on_delete=models.CASCADE, related_name='likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['user', 'comment']
+        verbose_name = 'Comment Like (Legacy)'
+        verbose_name_plural = 'Comment Likes (Legacy)'
+
+
+class AdvocatePostBookmark(models.Model):
+    """DEPRECATED: Use HubPostBookmark instead - Track bookmarked posts"""
+    user = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='advocate_bookmarks')
+    post = models.ForeignKey(AdvocatePost, on_delete=models.CASCADE, related_name='bookmarks')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['user', 'post']
+        verbose_name = 'Post Bookmark (Legacy)'
+        verbose_name_plural = 'Post Bookmarks (Legacy)'
+
+
+class AdvocateMessage(models.Model):
+    """
+    DEPRECATED: Use HubMessage with hub_type='advocates' instead
+    Private messages between advocates
+    """
+    sender = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='sent_advocate_messages')
+    recipient = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='received_advocate_messages')
+    
+    subject = models.CharField(max_length=255, blank=True)
+    message = models.TextField()
+    
+    is_read = models.BooleanField(default=False)
+    read_at = models.DateTimeField(null=True, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Private Message (Legacy)'
+        verbose_name_plural = 'Private Messages (Legacy)'
+        indexes = [
+            models.Index(fields=['recipient', '-created_at']),
+            models.Index(fields=['sender', '-created_at']),
+        ]
+    
+    def __str__(self):
+        return f"Message from {self.sender.get_full_name()} to {self.recipient.get_full_name()}"
+
+
+# ============================================================================
+# LEGAL EDUCATION HUB - Topics & Subtopics (Educational Content)
+# ============================================================================
+
+class LegalEdTopic(models.Model):
+    """
+    Topic for Legal Education Hub only
+    Main category (e.g., Constitutional Law, Criminal Law, etc.)
+    """
+    name = models.CharField(max_length=255, help_text="Topic name in English")
+    name_sw = models.CharField(max_length=255, blank=True, null=True, help_text="Topic name in Swahili")
+    slug = models.SlugField(max_length=255, unique=True, blank=True, help_text="URL-friendly identifier")
+    
+    description = models.TextField(blank=True, null=True, help_text="Topic description in English")
+    description_sw = models.TextField(blank=True, null=True, help_text="Topic description in Swahili")
+    
+    icon = models.CharField(max_length=100, blank=True, help_text="Icon for this topic")
+    display_order = models.IntegerField(default=0, help_text="Display order")
+    
+    is_active = models.BooleanField(default=True)
+    
+    last_updated = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)    
+
+    class Meta:
+        verbose_name = "Legal Education Topic"
+        verbose_name_plural = "Legal Education Topics"
+        ordering = ['display_order', 'name']
+
+    def __str__(self):
+        return self.name
+    
+    def get_subtopics_count(self):
+        """Get number of subtopics"""
+        return self.subtopics.count()
+    
+    def get_materials_count(self):
+        """Count total materials in all subtopics under this topic"""
+        from documents.models import LearningMaterial
+        
+        subtopic_ids = self.subtopics.values_list('id', flat=True)
+        return LearningMaterial.objects.filter(subtopic_id__in=subtopic_ids).count()
+    
+class LegalEdSubTopic(models.Model):
+    """
+    Subtopic - Specific subject within a topic (e.g., Fundamental Rights, Bill of Rights, etc.)
+    Each subtopic contains learning materials
+    """
+    topic = models.ForeignKey(LegalEdTopic, on_delete=models.CASCADE, related_name='subtopics')
+    
+    name = models.CharField(max_length=255, help_text="Subtopic name in English")
+    name_sw = models.CharField(max_length=255, blank=True, null=True, help_text="Subtopic name in Swahili")
+    slug = models.SlugField(max_length=255, blank=True, help_text="URL-friendly identifier")
+    
+    description = models.TextField(blank=True, null=True, help_text="Subtopic description in English")
+    description_sw = models.TextField(blank=True, null=True, help_text="Subtopic description in Swahili")
+    
+    display_order = models.IntegerField(default=0, help_text="Display order within topic")
+    
+    is_active = models.BooleanField(default=True)
+    
+    last_updated = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)    
+
+    class Meta:
+        verbose_name = "SubTopic"
+        verbose_name_plural = "SubTopics"
+        ordering = ['topic', 'display_order', 'name']
+        unique_together = ['topic', 'slug']
+
+    def __str__(self):
+        return f"{self.topic.name} - {self.name}"
+    
+    def get_materials_count(self):
+        """Get number of materials in this subtopic"""
+        return self.materials.count()
+    
+    def get_materials_by_language(self, language='en'):
+        """Get materials filtered by language"""
+        return self.materials.filter(language=language, is_active=True, is_approved=True)
+
+
+# ============================================================================
+# ADVOCATES HUB - Social Feed for Advocates Only
+# ============================================================================
+
+class AdvocatePost(models.Model):
+    """
+    Posts in Advocates Hub - Only advocates can create posts
+    Admins can also post articles, news, attachments
+    """
+    POST_TYPES = [
+        ('discussion', 'Discussion Post'),
+        ('article', 'Article (Admin)'),
+        ('news', 'News (Admin)'),
+        ('announcement', 'Announcement'),
+    ]
+    
+    author = models.ForeignKey(
+        PolaUser, 
+        on_delete=models.CASCADE, 
+        related_name='advocate_posts',
+        help_text="Post author (must be advocate or admin)"
+    )
+    post_type = models.CharField(max_length=20, choices=POST_TYPES, default='discussion')
+    
+    # Content
+    title = models.CharField(max_length=500, blank=True, help_text="Post title (optional)")
+    content = models.TextField(help_text="Post text content")
+    
+    # Media attachments
+    documents = models.ManyToManyField(
+        'documents.LearningMaterial', 
+        blank=True, 
+        related_name='advocate_posts',
+        help_text="Attached learning materials/documents"
+    )
+    video_url = models.URLField(blank=True, null=True, help_text="Video link (YouTube, etc) - playable on screen")
+    
+    # Moderation
+    is_pinned = models.BooleanField(default=False, help_text="Pin post to top")
+    is_active = models.BooleanField(default=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-is_pinned', '-created_at']
+        verbose_name = 'Advocate Post'
+        verbose_name_plural = 'Advocate Posts'
+        indexes = [
+            models.Index(fields=['-created_at']),
+            models.Index(fields=['author', '-created_at']),
+        ]
+    
+    def __str__(self):
+        return f"{self.author.get_full_name()} - {self.title or self.content[:50]}"
+    
+    def get_likes_count(self):
+        """Get total likes count"""
+        return self.likes.count()
+    
+    def get_comments_count(self):
+        """Get total comments count"""
+        return self.comments.count()
+    
+    def get_bookmarks_count(self):
+        """Get total bookmarks count"""
+        return self.bookmarks.count()
+
+
+class AdvocateComment(models.Model):
+    """
+    Comments on advocate posts
+    Supports replies (nested comments) with optional document attachments
+    """
+    post = models.ForeignKey(AdvocatePost, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='advocate_comments')
+    parent_comment = models.ForeignKey(
+        'self', 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True, 
+        related_name='replies',
+        help_text="Parent comment if this is a reply"
+    )
+    
+    content = models.TextField()
+    
+    # Optional document attachments in comments/replies
+    documents = models.ManyToManyField(
+        'documents.LearningMaterial',
+        blank=True,
+        related_name='advocate_comments',
+        help_text="Documents attached to this comment/reply"
+    )
+    
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['created_at']
+        verbose_name = 'Advocate Comment'
+        verbose_name_plural = 'Advocate Comments'
+    
+    def __str__(self):
+        return f"Comment by {self.author.get_full_name()} on {self.post}"
+    
+    def get_likes_count(self):
+        """Get total likes count"""
+        return self.likes.count()
+    
+    def get_replies_count(self):
+        """Get total replies count"""
+        return self.replies.count()
+
+
+class AdvocatePostLike(models.Model):
+    """Track who liked which post"""
+    user = models.ForeignKey(PolaUser, on_delete=models.CASCADE)
+    post = models.ForeignKey(AdvocatePost, on_delete=models.CASCADE, related_name='likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['user', 'post']
+        verbose_name = 'Post Like'
+        verbose_name_plural = 'Post Likes'
+
+
+class AdvocateCommentLike(models.Model):
+    """Track who liked which comment"""
+    user = models.ForeignKey(PolaUser, on_delete=models.CASCADE)
+    comment = models.ForeignKey(AdvocateComment, on_delete=models.CASCADE, related_name='likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['user', 'comment']
+        verbose_name = 'Comment Like'
+        verbose_name_plural = 'Comment Likes'
+
+
+class AdvocatePostBookmark(models.Model):
+    """Track bookmarked posts"""
+    user = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='advocate_bookmarks')
+    post = models.ForeignKey(AdvocatePost, on_delete=models.CASCADE, related_name='bookmarks')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['user', 'post']
+        verbose_name = 'Post Bookmark'
+        verbose_name_plural = 'Post Bookmarks'
+
+
+class AdvocateMessage(models.Model):
+    """
+    Private messages between advocates
+    """
+    sender = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='sent_advocate_messages')
+    recipient = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='received_advocate_messages')
+    
+    subject = models.CharField(max_length=255, blank=True)
+    message = models.TextField()
+    
+    is_read = models.BooleanField(default=False)
+    read_at = models.DateTimeField(null=True, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Private Message'
+        verbose_name_plural = 'Private Messages'
+        indexes = [
+            models.Index(fields=['recipient', '-created_at']),
+            models.Index(fields=['sender', '-created_at']),
+        ]
+    
+    def __str__(self):
+        return f"Message from {self.sender.get_full_name()} to {self.recipient.get_full_name()}"
+
+
+# ============================================================================
+# STUDENTS & LECTURERS HUB - Comments & Downloads Tracking
+# ============================================================================
+# NOTE: We use LearningMaterial from documents app for document storage.
+# LearningMaterial already handles:
+# - Student/Lecturer/Admin uploads
+# - Pricing (student: 1500, lecturer: 5000, admin: 3000)
+# - Revenue splits (50/50 for students, 60/40 for lecturers)
+# - File storage and downloads tracking
+# - Categorization and search
+#
+# These models only track Students Hub-specific UI interactions:
+# - Download history (who downloaded what)
+# - Comments on materials
+
+class StudentHubDownload(models.Model):
+    """
+    Track who downloaded what in Students Hub
+    Links to LearningMaterial from documents app
+    """
+    material = models.ForeignKey(
+        'documents.LearningMaterial', 
+        on_delete=models.CASCADE, 
+        related_name='student_hub_downloads'
+    )
+    downloader = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='student_hub_downloads')
+    price_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    download_count = models.IntegerField(default=0, help_text="Number of times re-downloaded")
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_downloaded_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ['material', 'downloader']
+        ordering = ['-created_at']
+        verbose_name = 'Student Hub Download'
+        verbose_name_plural = 'Student Hub Downloads'
+    
+    def __str__(self):
+        return f"{self.downloader.get_full_name()} downloaded {self.material.title}"
+    
+    def increment_download(self):
+        """Track re-downloads"""
+        self.download_count += 1
+        self.last_downloaded_at = timezone.now()
+        self.save()
+
+
+class StudentHubComment(models.Model):
+    """
+    Comments on learning materials in Students Hub
+    Supports replies (nested comments)
+    Links to LearningMaterial from documents app
+    """
+    material = models.ForeignKey(
+        'documents.LearningMaterial',
+        on_delete=models.CASCADE,
+        related_name='student_hub_comments'
+    )
+    author = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='student_hub_comments')
+    parent_comment = models.ForeignKey(
+        'self', 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True, 
+        related_name='replies',
+        help_text="Parent comment if this is a reply"
+    )
+    
+    content = models.TextField()
+    
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['created_at']
+        verbose_name = 'Document Comment'
+        verbose_name_plural = 'Document Comments'
+    
+    def __str__(self):
+        return f"Comment by {self.author.get_full_name()} on {self.material.title}"
+    
+    def get_likes_count(self):
+        """Get total likes count"""
+        return self.likes.count()
+    
+    def get_replies_count(self):
+        """Get total replies count"""
+        return self.replies.count()
+
+
+class StudentHubCommentLike(models.Model):
+    """Track who liked which comment/reply"""
+    user = models.ForeignKey(PolaUser, on_delete=models.CASCADE)
+    comment = models.ForeignKey(StudentHubComment, on_delete=models.CASCADE, related_name='likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['user', 'comment']
+        verbose_name = 'Comment Like'
+        verbose_name_plural = 'Comment Likes'
