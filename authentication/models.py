@@ -94,7 +94,8 @@ class UserRole(models.Model):
         ('lawyer', {'en': 'Lawyer', 'sw': 'Mwanasheria'}),
         ('advocate', {'en': 'Advocate', 'sw': 'Wakili'}),
         ('paralegal', {'en': 'Paralegal', 'sw': 'Msaidizi wa Kisheria'}),
-        ('law_student', {'en': 'Law Student', 'sw': 'Mwanafunzi wa Sheria/Mhadhiri'}),
+        ('law_student', {'en': 'Law Student', 'sw': 'Mwanafunzi wa Sheria'}),
+        ('lecturer', {'en': 'Lecturer', 'sw': 'Mhadhiri'}),
         ('law_firm', {'en': 'Law Firm', 'sw': 'Ofisi ya Mawakili'}),
         ('citizen', {'en': 'Citizen', 'sw': 'Mwananchi'}),
     ]
@@ -400,13 +401,13 @@ class PolaUser(AbstractUser):
      1. roll_number
      2. gender
      3. regional_chapter (TLS chapter - e.g., Dar es Salaam Chapter, Arusha Chapter)
-     4. year of admission
-     5. practice_status (active/inactive)
-     6. law_firm (name of the law firm)
+     4. year_of_admission_to_bar (year when admitted to the bar)
+     5. place_of_work (current workplace/office)
+     6. practice_status (active/inactive)
      7. specialization/Practice Area (list of legal fields)
-     7. contact_information (phone number, email)
-     8. office_address (physical address of the office)
-     9. gender
+     8. contact_information (phone number, email)
+     9. office_address (physical address of the office)
+     10. years_of_experience
 
      lawyer/paralegal
      place_of_work (where they work: Law Firm, Legal Aid Organization, Government Agency, Private Company, NGO etc.)
@@ -494,6 +495,12 @@ class PolaUser(AbstractUser):
     roll_number = models.CharField(max_length=50, unique=True, null=True)  # For advocates
     bar_membership_number = models.CharField(max_length=50, null=True, blank=True)  # For lawyers
     years_of_experience = models.PositiveIntegerField(null=True)
+    year_of_admission_to_bar = models.IntegerField(
+        null=True,
+        blank=True,
+        verbose_name=_("Year of Admission to Bar"),
+        help_text=_("Year when the advocate was admitted to the bar (for advocates)")
+    )
     
     # Operation Areas (where the professional practices)
     regions = models.ManyToManyField(
@@ -520,7 +527,15 @@ class PolaUser(AbstractUser):
         verbose_name=_("Regional Chapter"),
         help_text=_("TLS regional chapter where the advocate is registered (e.g., Dar es Salaam Chapter, Arusha Chapter)")
     )
-    place_of_work = models.ForeignKey('PlaceOfWork', on_delete=models.SET_NULL, null=True, related_name='professionals')
+    place_of_work = models.ForeignKey(
+        'PlaceOfWork', 
+        on_delete=models.SET_NULL, 
+        null=True,
+        blank=True,
+        related_name='professionals',
+        verbose_name=_("Place of Work/Office"),
+        help_text=_("Current workplace/office where the professional is working (Law Firm, Legal Aid, Government Agency, etc.)")
+    )
     associated_law_firm = models.ForeignKey(
         'self', 
         on_delete=models.SET_NULL, 

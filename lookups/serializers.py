@@ -6,7 +6,7 @@ Serializers for lookup/reference data
 from rest_framework import serializers
 from authentication.models import (
     UserRole, Region, District, Specialization,
-    PlaceOfWork, AcademicRole
+    PlaceOfWork, AcademicRole, RegionalChapter, PolaUser
 )
 
 
@@ -58,3 +58,24 @@ class AcademicRoleSerializer(serializers.ModelSerializer):
         model = AcademicRole
         fields = ['id', 'code', 'name_en', 'name_sw']
         ref_name = 'LookupAcademicRole'
+
+
+class RegionalChapterSerializer(serializers.ModelSerializer):
+    """Serializer for RegionalChapter model (TLS Chapters)"""
+    region_name = serializers.CharField(source='region.name', read_only=True)
+    
+    class Meta:
+        model = RegionalChapter
+        fields = ['id', 'name', 'code', 'region', 'region_name', 'is_active', 'description']
+        ref_name = 'LookupRegionalChapter'
+
+
+class AdvocateSerializer(serializers.ModelSerializer):
+    """Serializer for Advocate users (for managing partner selection)"""
+    full_name = serializers.CharField(source='get_full_name', read_only=True)
+    regional_chapter_name = serializers.CharField(source='regional_chapter.name', read_only=True)
+    
+    class Meta:
+        model = PolaUser
+        fields = ['id', 'full_name', 'email', 'roll_number', 'regional_chapter_name']
+        ref_name = 'LookupAdvocate'

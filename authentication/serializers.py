@@ -140,8 +140,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             
             # Professional fields (Advocate/Lawyer)
             'roll_number', 'bar_membership_number', 'practice_status', 'years_of_experience',
-            'year_established', 'regional_chapter', 'place_of_work', 'associated_law_firm',
-            'operating_regions', 'operating_districts', 'specializations',
+            'year_of_admission_to_bar', 'year_established', 'regional_chapter', 'place_of_work', 
+            'associated_law_firm', 'operating_regions', 'operating_districts', 'specializations',
             
             # Law Firm fields
             'firm_name', 'managing_partner', 'number_of_lawyers',
@@ -248,22 +248,29 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         for specialization in specializations:
             ProfessionalSpecialization.objects.create(user=user, specialization=specialization)
         
+        return user
+
+    def save(self, **kwargs):
+        """Override save to apply auto-verification after user creation"""
+        # Create the user first
+        user = super().save(**kwargs)
+        
         # Auto-verify certain user roles (no admin confirmation needed)
         user_role = user.user_role
         auto_verify_roles = ['citizen', 'law_student', 'lecturer']
         
         if user_role and user_role.role_name in auto_verify_roles:
-            # Set user as verified
-            user.is_verified = True
-            user.save()
-            
-            # Update or create verification record
-            verification, created = Verification.objects.get_or_create(user=user)
+            # Update verification record
+            verification = user.verification
             verification.status = 'verified'
             verification.verification_date = timezone.now()
             verification.current_step = 'final'
             verification.verification_notes = f'Auto-verified upon registration ({user_role.role_name})'
             verification.save()
+            
+            # Activate the user account for auto-verified roles
+            user.is_active = True
+            user.save()
         
         return user
 
@@ -386,8 +393,8 @@ class UserDetailSerializer(serializers.ModelSerializer):
             
             # Professional fields
             'roll_number', 'bar_membership_number', 'practice_status',
-            'years_of_experience', 'year_established', 'regional_chapter',
-            'place_of_work', 'associated_law_firm', 'operating_regions',
+            'years_of_experience', 'year_of_admission_to_bar', 'year_established', 
+            'regional_chapter', 'place_of_work', 'associated_law_firm', 'operating_regions',
             'operating_districts', 'specializations',
             
             # Law Firm fields

@@ -29,13 +29,21 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-ezv65d)pgf)_85(l()5=#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
+# ALLOWED_HOSTS configuration
+# In development, allow local network IPs for mobile testing
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,192.168.1.181').split(',')
 
 # CORS Settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "http://192.168.1.181:8000",
+    "http://192.168.1.181:8081",  # Expo default port
+    "http://192.168.1.181:19000",  # Expo alternate port
+    "http://192.168.1.181:19006",  # Expo web
 ]
 CORS_ALLOW_CREDENTIALS = True
+# Allow all origins in development for mobile testing
+CORS_ALLOW_ALL_ORIGINS = config('DEBUG', default=False, cast=bool)
 
 
 # Application definition
