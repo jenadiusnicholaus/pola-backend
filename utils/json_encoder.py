@@ -20,11 +20,21 @@ class SafeJSONEncoder(DRFJSONEncoder):
         return super().encode(sanitized)
     
     def _sanitize(self, obj):
-        """Recursively sanitize data to remove infinity and NaN values"""
+        """Recursively sanitize data to remove infinity and NaN values and handle Django models"""
+        from authentication.models import PolaUser
+        
         if isinstance(obj, dict):
             return {key: self._sanitize(value) for key, value in obj.items()}
         elif isinstance(obj, (list, tuple)):
             return [self._sanitize(item) for item in obj]
+        elif isinstance(obj, PolaUser):
+            # Convert PolaUser objects to a safe representation
+            return {
+                'id': obj.id,
+                'email': obj.email,
+                'first_name': obj.first_name or '',
+                'last_name': obj.last_name or '',
+            }
         elif isinstance(obj, float):
             # Check for infinity or NaN
             if math.isinf(obj) or math.isnan(obj):

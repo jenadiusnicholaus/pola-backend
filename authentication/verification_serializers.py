@@ -10,9 +10,11 @@ from utils.base64_fields import Base64AnyFileField
 
 class DocumentSerializer(serializers.ModelSerializer):
     """Serializer for Document model"""
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
     user_email = serializers.EmailField(source='user.email', read_only=True)
     user_name = serializers.SerializerMethodField()
     user_full_name = serializers.SerializerMethodField()
+    verified_by_id = serializers.IntegerField(source='verified_by.id', read_only=True, allow_null=True)
     verified_by_name = serializers.SerializerMethodField()
     document_type_display = serializers.CharField(source='get_document_type_display', read_only=True)
     verification_status_display = serializers.CharField(source='get_verification_status_display', read_only=True)
@@ -27,18 +29,18 @@ class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
         fields = [
-            'id', 'user', 'user_email', 'user_name', 'user_full_name',
+            'id', 'user_id', 'user_email', 'user_name', 'user_full_name',
             'document_type', 'document_type_display',
             'file', 'file_url', 'file_type', 'file_extension', 'file_size',
             'is_image', 'is_pdf', 'preview_url',
             'title', 'description',
             'verification_status', 'verification_status_display',
-            'verified_by', 'verified_by_name',
+            'verified_by_id', 'verified_by_name',
             'verification_date', 'verification_notes',
             'is_active', 'created_at', 'updated_at'
         ]
         read_only_fields = [
-            'id', 'user', 'verification_status', 'verified_by',
+            'id', 'user_id', 'verification_status', 'verified_by_id',
             'verification_date', 'verification_notes', 'created_at', 'updated_at'
         ]
 
@@ -152,6 +154,7 @@ class DocumentUploadSerializer(serializers.ModelSerializer):
 
 class VerificationSerializer(serializers.ModelSerializer):
     """Serializer for Verification model"""
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
     user_email = serializers.EmailField(source='user.email', read_only=True)
     user_name = serializers.SerializerMethodField()
     user_full_name = serializers.SerializerMethodField()
@@ -163,6 +166,7 @@ class VerificationSerializer(serializers.ModelSerializer):
     user_nationality = serializers.CharField(source='user.nationality', read_only=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     current_step_display = serializers.CharField(source='get_current_step_display', read_only=True)
+    verified_by_id = serializers.IntegerField(source='verified_by.id', read_only=True, allow_null=True)
     verified_by_name = serializers.SerializerMethodField()
     progress = serializers.FloatField(source='verification_progress', read_only=True)
     documents = serializers.SerializerMethodField()
@@ -174,12 +178,12 @@ class VerificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Verification
         fields = [
-            'id', 'user', 'user_email', 'user_name', 'user_full_name', 'user_role',
+            'id', 'user_id', 'user_email', 'user_name', 'user_full_name', 'user_role',
             'user_phone', 'user_address', 'user_date_of_birth', 
             'user_gender', 'user_nationality',
             'status', 'status_display',
             'current_step', 'current_step_display',
-            'verified_by', 'verified_by_name',
+            'verified_by_id', 'verified_by_name',
             'verification_date', 'rejection_reason',
             'verification_notes', 'progress',
             'documents', 'required_documents', 'documents_summary',
@@ -188,7 +192,7 @@ class VerificationSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
         read_only_fields = [
-            'id', 'user', 'verified_by', 'verification_date',
+            'id', 'user_id', 'verified_by_id', 'verification_date',
             'created_at', 'updated_at'
         ]
 
@@ -299,7 +303,7 @@ class VerificationSerializer(serializers.ModelSerializer):
                 'status': 'incomplete',
                 'is_current': obj.current_step == 'identity',
                 'issues': [],
-                'required_fields': ['first_name', 'last_name', 'date_of_birth', 'gender'],
+                'required_fields': [] if role_name == 'law_firm' else ['first_name', 'last_name', 'date_of_birth', 'gender'],
                 'verified_fields': []
             },
             'contact': {
@@ -386,51 +390,61 @@ class VerificationSerializer(serializers.ModelSerializer):
             by_step['documents']['status'] = 'incomplete'
         
         # STEP 2: IDENTITY
-        # Track what's verified
-        if user.first_name and user.last_name:
-            by_step['identity']['verified_fields'].append({
-                'field': 'full_name',
-                'label': 'Full Name',
-                'value': f"{user.first_name} {user.last_name}",
-                'status': 'verified'
-            })
-        else:
-            by_step['identity']['issues'].append({
-                'type': 'missing_field',
-                'field': 'full_name',
-                'message': 'Full name is incomplete'
-            })
-        
-        if user.date_of_birth:
-            by_step['identity']['verified_fields'].append({
-                'field': 'date_of_birth',
-                'label': 'Date of Birth',
-                'value': str(user.date_of_birth),
-                'status': 'verified'
-            })
-        else:
-            by_step['identity']['issues'].append({
-                'type': 'missing_field',
-                'field': 'date_of_birth',
-                'message': 'Date of birth is missing'
-            })
-        
-        if user.gender:
-            by_step['identity']['verified_fields'].append({
-                'field': 'gender',
-                'label': 'Gender',
-                'value': user.get_gender_display() if hasattr(user, 'get_gender_display') else user.gender,
-                'status': 'verified'
-            })
-        else:
-            by_step['identity']['issues'].append({
-                'type': 'missing_field',
-                'field': 'gender',
-                'message': 'Gender is not specified'
-            })
-        
-        if not by_step['identity']['issues']:
+        # Law firms skip individual identity verification as they are organizations
+        if role_name == 'law_firm':
             by_step['identity']['status'] = 'complete'
+            by_step['identity']['verified_fields'].append({
+                'field': 'organization_type',
+                'label': 'Organization Type',
+                'value': 'Law Firm',
+                'status': 'verified'
+            })
+        else:
+            # Track what's verified for individual users
+            if user.first_name and user.last_name:
+                by_step['identity']['verified_fields'].append({
+                    'field': 'full_name',
+                    'label': 'Full Name',
+                    'value': f"{user.first_name} {user.last_name}",
+                    'status': 'verified'
+                })
+            else:
+                by_step['identity']['issues'].append({
+                    'type': 'missing_field',
+                    'field': 'full_name',
+                    'message': 'Full name is incomplete'
+                })
+            
+            if user.date_of_birth:
+                by_step['identity']['verified_fields'].append({
+                    'field': 'date_of_birth',
+                    'label': 'Date of Birth',
+                    'value': str(user.date_of_birth),
+                    'status': 'verified'
+                })
+            else:
+                by_step['identity']['issues'].append({
+                    'type': 'missing_field',
+                    'field': 'date_of_birth',
+                    'message': 'Date of birth is missing'
+                })
+            
+            if user.gender:
+                by_step['identity']['verified_fields'].append({
+                    'field': 'gender',
+                    'label': 'Gender',
+                    'value': user.get_gender_display() if hasattr(user, 'get_gender_display') else user.gender,
+                    'status': 'verified'
+                })
+            else:
+                by_step['identity']['issues'].append({
+                    'type': 'missing_field',
+                    'field': 'gender',
+                    'message': 'Gender is not specified'
+                })
+            
+            if not by_step['identity']['issues']:
+                by_step['identity']['status'] = 'complete'
         
         # STEP 3: CONTACT
         # Track phone number
