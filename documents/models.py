@@ -101,7 +101,15 @@ class LearningMaterial(models.Model):
         null=True, 
         blank=True, 
         related_name='materials',
-        help_text="Link to Legal Ed subtopic (for legal_ed hub only)"
+        help_text="Link to Legal Ed subtopic (for legal_ed hub only) - DEPRECATED: Use topic instead"
+    )
+    topic = models.ForeignKey(
+        'hubs.LegalEdTopic',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='materials',
+        help_text="Direct link to Legal Ed topic (NEW: recommended over subtopic)"
     )
     
     # Content
@@ -208,6 +216,8 @@ class LearningMaterial(models.Model):
             models.Index(fields=['uploader', '-created_at']),
             models.Index(fields=['price']),
             models.Index(fields=['is_approved', 'is_active']),
+            models.Index(fields=['topic', '-created_at']),
+            models.Index(fields=['subtopic', '-created_at']),
         ]
     
     def __str__(self):
@@ -239,6 +249,24 @@ class LearningMaterial(models.Model):
     def get_bookmarks_count(self):
         """Get total bookmarks"""
         return self.bookmarks.count()
+    
+    def get_effective_topic(self):
+        """
+        Get the effective topic for this material
+        Returns direct topic if available, otherwise topic through subtopic
+        """
+        if self.topic:
+            return self.topic
+        elif self.subtopic:
+            return self.subtopic.topic
+        return None
+    
+    def get_effective_topic_name(self, language='en'):
+        """Get the effective topic name in specified language"""
+        topic = self.get_effective_topic()
+        if not topic:
+            return None
+        return topic.name_sw if language == 'sw' and topic.name_sw else topic.name
     
     def get_revenue_split(self):
         """

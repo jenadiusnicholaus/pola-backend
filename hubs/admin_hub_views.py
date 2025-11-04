@@ -13,9 +13,10 @@ from django.http import HttpResponse
 from datetime import timedelta
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-import csv
-from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill, Alignment
+# import csv  # Export functionality disabled
+# Excel export functionality removed for simplification
+# from openpyxl import Workbook
+# from openpyxl.styles import Font, PatternFill, Alignment
 
 from documents.models import LearningMaterial, LearningMaterialPurchase, LecturerFollow, MaterialQuestion, MaterialRating
 from .models import (
@@ -1019,298 +1020,301 @@ class AdminHubContentViewSet(viewsets.ModelViewSet):
             'recent_likes': likes_data,
         })
 
-    @swagger_auto_schema(
-        operation_summary="Export content data",
-        operation_description="Export content data to CSV or Excel format",
-        manual_parameters=[
-            openapi.Parameter(
-                'format',
-                openapi.IN_QUERY,
-                description="Export format: csv or excel",
-                type=openapi.TYPE_STRING,
-                enum=['csv', 'excel'],
-                required=False,
-                default='csv'
-            ),
-            openapi.Parameter(
-                'hub_type',
-                openapi.IN_QUERY,
-                description="Filter by hub type",
-                type=openapi.TYPE_STRING,
-                required=False
-            ),
-        ]
-    )
-    @action(detail=False, methods=['get'])
-    def export(self, request):
-        """Export content data to CSV or Excel"""
-        export_format = request.query_params.get('format', 'csv')
-        queryset = self.filter_queryset(self.get_queryset())
-        
-        if export_format == 'excel':
-            return self._export_excel(queryset)
-        else:
-            return self._export_csv(queryset)
+    # Export functionality disabled for simplification
+    # @swagger_auto_schema(
+    #     operation_summary="Export content data",
+    #     operation_description="Export content data to CSV or Excel format",
+    #     manual_parameters=[
+    #         openapi.Parameter(
+    #             'format',
+    #             openapi.IN_QUERY,
+    #             description="Export format: csv or excel",
+    #             type=openapi.TYPE_STRING,
+    #             enum=['csv', 'excel'],
+    #             required=False,
+    #             default='csv'
+    #         ),
+    #         openapi.Parameter(
+    #             'hub_type',
+    #             openapi.IN_QUERY,
+    #             description="Filter by hub type",
+    #             type=openapi.TYPE_STRING,
+    #             required=False
+    #         ),
+    #     ]
+    # )
+    # @action(detail=False, methods=['get'])
+    # def export(self, request):
+    #     """Export content data to CSV or Excel"""
+    #     export_format = request.query_params.get('format', 'csv')
+    #     queryset = self.filter_queryset(self.get_queryset())
+    #     
+    #     if export_format == 'excel':
+    #         return self._export_excel(queryset)
+    #     else:
+    #         return self._export_csv(queryset)
 
-    def _export_csv(self, queryset):
-        """Export to CSV format"""
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename="hub_content_{timezone.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+    # Export functionality removed for simplification (no openpyxl dependency needed)
+    pass
+    #     # \"\"\"Export to CSV format\"\"\"
+    #     response = HttpResponse(content_type='text/csv')
+    #     response['Content-Disposition'] = f'attachment; filename="hub_content_{timezone.now().strftime("%Y%m%d_%H%M%S")}.csv"'
         
-        writer = csv.writer(response)
-        # Header
-        writer.writerow([
-            'ID', 'Title', 'Hub Type', 'Content Type', 'Uploader', 'Uploader Email',
-            'Views', 'Downloads', 'Likes', 'Comments', 'Bookmarks', 'Price',
-            'Is Active', 'Is Pinned', 'Created At', 'Updated At'
-        ])
+    #     writer = csv.writer(response)
+    #     # Header
+    #     writer.writerow([
+    #         'ID', 'Title', 'Hub Type', 'Content Type', 'Uploader', 'Uploader Email',
+    #         'Views', 'Downloads', 'Likes', 'Comments', 'Bookmarks', 'Price',
+    #         'Is Active', 'Is Pinned', 'Created At', 'Updated At'
+    #     ])
         
-        # Data rows
-        for content in queryset:
-            writer.writerow([
-                content.id,
-                content.title or 'N/A',
-                content.get_hub_type_display(),
-                content.get_content_type_display(),
-                content.uploader.get_full_name() or content.uploader.email,
-                content.uploader.email,
-                content.views_count or 0,
-                content.downloads_count or 0,
-                content.likes_count or 0,
-                content.comments.count(),
-                content.bookmarks.count(),
-                content.price or 0,
-                'Yes' if content.is_active else 'No',
-                'Yes' if content.is_pinned else 'No',
-                content.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-                content.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
-            ])
+    #     # Data rows
+    #     for content in queryset:
+    #         writer.writerow([
+    #             content.id,
+    #             content.title or 'N/A',
+    #             content.get_hub_type_display(),
+    #             content.get_content_type_display(),
+    #             content.uploader.get_full_name() or content.uploader.email,
+    #             content.uploader.email,
+    #             content.views_count or 0,
+    #             content.downloads_count or 0,
+    #             content.likes_count or 0,
+    #             content.comments.count(),
+    #             content.bookmarks.count(),
+    #             content.price or 0,
+    #             'Yes' if content.is_active else 'No',
+    #             'Yes' if content.is_pinned else 'No',
+    #             content.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+    #             content.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
+    #         ])
         
-        return response
+    #     return response
 
-    def _export_excel(self, queryset):
-        """Export to Excel format"""
-        wb = Workbook()
-        ws = wb.active
-        ws.title = "Hub Content"
+    # def _export_excel(self, queryset):
+    #     """Export to Excel format"""
+    #     wb = Workbook()
+    #     ws = wb.active
+    #     ws.title = "Hub Content"
         
-        # Styling
-        header_font = Font(bold=True, color="FFFFFF")
-        header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
-        header_alignment = Alignment(horizontal="center", vertical="center")
+    #     # Styling
+    #     header_font = Font(bold=True, color="FFFFFF")
+    #     header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+    #     header_alignment = Alignment(horizontal="center", vertical="center")
         
-        # Headers
-        headers = [
-            'ID', 'Title', 'Hub Type', 'Content Type', 'Uploader', 'Uploader Email',
-            'Views', 'Downloads', 'Likes', 'Comments', 'Bookmarks', 'Price',
-            'Is Active', 'Is Pinned', 'Created At', 'Updated At'
-        ]
+    #     # Headers
+    #     headers = [
+    #         'ID', 'Title', 'Hub Type', 'Content Type', 'Uploader', 'Uploader Email',
+    #         'Views', 'Downloads', 'Likes', 'Comments', 'Bookmarks', 'Price',
+    #         'Is Active', 'Is Pinned', 'Created At', 'Updated At'
+    #     ]
         
-        for col_num, header in enumerate(headers, 1):
-            cell = ws.cell(row=1, column=col_num, value=header)
-            cell.font = header_font
-            cell.fill = header_fill
-            cell.alignment = header_alignment
+    #     for col_num, header in enumerate(headers, 1):
+    #         cell = ws.cell(row=1, column=col_num, value=header)
+    #         cell.font = header_font
+    #         cell.fill = header_fill
+    #         cell.alignment = header_alignment
         
-        # Data rows
-        for row_num, content in enumerate(queryset, 2):
-            ws.cell(row=row_num, column=1, value=content.id)
-            ws.cell(row=row_num, column=2, value=content.title or 'N/A')
-            ws.cell(row=row_num, column=3, value=content.get_hub_type_display())
-            ws.cell(row=row_num, column=4, value=content.get_content_type_display())
-            ws.cell(row=row_num, column=5, value=content.uploader.get_full_name() or content.uploader.email)
-            ws.cell(row=row_num, column=6, value=content.uploader.email)
-            ws.cell(row=row_num, column=7, value=content.views_count or 0)
-            ws.cell(row=row_num, column=8, value=content.downloads_count or 0)
-            ws.cell(row=row_num, column=9, value=content.likes_count or 0)
-            ws.cell(row=row_num, column=10, value=content.comments.count())
-            ws.cell(row=row_num, column=11, value=content.bookmarks.count())
-            ws.cell(row=row_num, column=12, value=float(content.price or 0))
-            ws.cell(row=row_num, column=13, value='Yes' if content.is_active else 'No')
-            ws.cell(row=row_num, column=14, value='Yes' if content.is_pinned else 'No')
-            ws.cell(row=row_num, column=15, value=content.created_at.strftime('%Y-%m-%d %H:%M:%S'))
-            ws.cell(row=row_num, column=16, value=content.updated_at.strftime('%Y-%m-%d %H:%M:%S'))
+    #     # Data rows
+    #     for row_num, content in enumerate(queryset, 2):
+    #         ws.cell(row=row_num, column=1, value=content.id)
+    #         ws.cell(row=row_num, column=2, value=content.title or 'N/A')
+    #         ws.cell(row=row_num, column=3, value=content.get_hub_type_display())
+    #         ws.cell(row=row_num, column=4, value=content.get_content_type_display())
+    #         ws.cell(row=row_num, column=5, value=content.uploader.get_full_name() or content.uploader.email)
+    #         ws.cell(row=row_num, column=6, value=content.uploader.email)
+    #         ws.cell(row=row_num, column=7, value=content.views_count or 0)
+    #         ws.cell(row=row_num, column=8, value=content.downloads_count or 0)
+    #         ws.cell(row=row_num, column=9, value=content.likes_count or 0)
+    #         ws.cell(row=row_num, column=10, value=content.comments.count())
+    #         ws.cell(row=row_num, column=11, value=content.bookmarks.count())
+    #         ws.cell(row=row_num, column=12, value=float(content.price or 0))
+    #         ws.cell(row=row_num, column=13, value='Yes' if content.is_active else 'No')
+    #         ws.cell(row=row_num, column=14, value='Yes' if content.is_pinned else 'No')
+    #         ws.cell(row=row_num, column=15, value=content.created_at.strftime('%Y-%m-%d %H:%M:%S'))
+    #         ws.cell(row=row_num, column=16, value=content.updated_at.strftime('%Y-%m-%d %H:%M:%S'))
         
-        # Adjust column widths
-        for col in ws.columns:
-            max_length = 0
-            column = col[0].column_letter
-            for cell in col:
-                try:
-                    if len(str(cell.value)) > max_length:
-                        max_length = len(str(cell.value))
-                except:
-                    pass
-            adjusted_width = min(max_length + 2, 50)
-            ws.column_dimensions[column].width = adjusted_width
+    #     # Adjust column widths
+    #     for col in ws.columns:
+    #         max_length = 0
+    #         column = col[0].column_letter
+    #         for cell in col:
+    #             try:
+    #                 if len(str(cell.value)) > max_length:
+    #                     max_length = len(str(cell.value))
+    #             except:
+    #                 pass
+    #         adjusted_width = min(max_length + 2, 50)
+    #         ws.column_dimensions[column].width = adjusted_width
         
-        # Save to response
-        response = HttpResponse(
-            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        )
-        response['Content-Disposition'] = f'attachment; filename="hub_content_{timezone.now().strftime("%Y%m%d_%H%M%S")}.xlsx"'
-        wb.save(response)
+    #     # Save to response
+    #     response = HttpResponse(
+    #         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    #     )
+    #     response['Content-Disposition'] = f'attachment; filename="hub_content_{timezone.now().strftime("%Y%m%d_%H%M%S")}.xlsx"'
+    #     wb.save(response)
         
-        return response
+    #     return response
 
-    @swagger_auto_schema(
-        operation_summary="Export engagement data for content",
-        operation_description="Export comments, likes, and bookmarks data",
-        manual_parameters=[
-            openapi.Parameter(
-                'format',
-                openapi.IN_QUERY,
-                description="Export format: csv or excel",
-                type=openapi.TYPE_STRING,
-                enum=['csv', 'excel'],
-                required=False,
-                default='csv'
-            ),
-        ]
-    )
-    @action(detail=True, methods=['get'])
-    def export_engagement(self, request, pk=None):
-        """Export engagement data for specific content"""
-        content = self.get_object()
-        export_format = request.query_params.get('format', 'csv')
+    # @swagger_auto_schema(
+    #     operation_summary="Export engagement data for content",
+    #     operation_description="Export comments, likes, and bookmarks data",
+    #     manual_parameters=[
+    #         openapi.Parameter(
+    #             'format',
+    #             openapi.IN_QUERY,
+    #             description="Export format: csv or excel",
+    #             type=openapi.TYPE_STRING,
+    #             enum=['csv', 'excel'],
+    #             required=False,
+    #             default='csv'
+    #         ),
+    #     ]
+    # )
+    # @action(detail=True, methods=['get'])
+    # def export_engagement(self, request, pk=None):
+    #     """Export engagement data for specific content"""
+    #     content = self.get_object()
+    #     export_format = request.query_params.get('format', 'csv')
         
-        if export_format == 'excel':
-            return self._export_engagement_excel(content)
-        else:
-            return self._export_engagement_csv(content)
+    #     if export_format == 'excel':
+    #         return self._export_engagement_excel(content)
+    #     else:
+    #         return self._export_engagement_csv(content)
 
-    def _export_engagement_csv(self, content):
-        """Export engagement to CSV"""
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename="engagement_content_{content.id}_{timezone.now().strftime("%Y%m%d")}.csv"'
+    # def _export_engagement_csv(self, content):
+    #     """Export engagement to CSV"""
+    #     response = HttpResponse(content_type='text/csv')
+    #     response['Content-Disposition'] = f'attachment; filename="engagement_content_{content.id}_{timezone.now().strftime("%Y%m%d")}.csv"'
         
-        writer = csv.writer(response)
+    #     writer = csv.writer(response)
         
-        # Comments section
-        writer.writerow(['COMMENTS'])
-        writer.writerow(['ID', 'Author', 'Email', 'Comment', 'Likes', 'Created At'])
-        comments = HubComment.objects.filter(content=content).select_related('author')
-        for comment in comments:
-            writer.writerow([
-                comment.id,
-                comment.author.get_full_name() or comment.author.email,
-                comment.author.email,
-                comment.comment_text,
-                comment.likes_count or 0,
-                comment.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-            ])
+    #     # Comments section
+    #     writer.writerow(['COMMENTS'])
+    #     writer.writerow(['ID', 'Author', 'Email', 'Comment', 'Likes', 'Created At'])
+    #     comments = HubComment.objects.filter(content=content).select_related('author')
+    #     for comment in comments:
+    #         writer.writerow([
+    #             comment.id,
+    #             comment.author.get_full_name() or comment.author.email,
+    #             comment.author.email,
+    #             comment.comment_text,
+    #             comment.likes_count or 0,
+    #             comment.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+    #         ])
         
-        writer.writerow([])  # Empty row
+    #     writer.writerow([])  # Empty row
         
-        # Likes section
-        writer.writerow(['LIKES'])
-        writer.writerow(['ID', 'User', 'Email', 'Created At'])
-        likes = ContentLike.objects.filter(content=content).select_related('user')
-        for like in likes:
-            writer.writerow([
-                like.id,
-                like.user.get_full_name() or like.user.email,
-                like.user.email,
-                like.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-            ])
+    #     # Likes section
+    #     writer.writerow(['LIKES'])
+    #     writer.writerow(['ID', 'User', 'Email', 'Created At'])
+    #     likes = ContentLike.objects.filter(content=content).select_related('user')
+    #     for like in likes:
+    #         writer.writerow([
+    #             like.id,
+    #             like.user.get_full_name() or like.user.email,
+    #             like.user.email,
+    #             like.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+    #         ])
         
-        writer.writerow([])  # Empty row
+    #     writer.writerow([])  # Empty row
         
-        # Bookmarks section
-        writer.writerow(['BOOKMARKS'])
-        writer.writerow(['ID', 'User', 'Email', 'Created At'])
-        bookmarks = ContentBookmark.objects.filter(content=content).select_related('user')
-        for bookmark in bookmarks:
-            writer.writerow([
-                bookmark.id,
-                bookmark.user.get_full_name() or bookmark.user.email,
-                bookmark.user.email,
-                bookmark.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-            ])
+    #     # Bookmarks section
+    #     writer.writerow(['BOOKMARKS'])
+    #     writer.writerow(['ID', 'User', 'Email', 'Created At'])
+    #     bookmarks = ContentBookmark.objects.filter(content=content).select_related('user')
+    #     for bookmark in bookmarks:
+    #         writer.writerow([
+    #             bookmark.id,
+    #             bookmark.user.get_full_name() or bookmark.user.email,
+    #             bookmark.user.email,
+    #             bookmark.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+    #         ])
         
-        return response
+    #     return response
 
-    def _export_engagement_excel(self, content):
-        """Export engagement to Excel with multiple sheets"""
-        wb = Workbook()
+    # def _export_engagement_excel(self, content):
+    #     """Export engagement to Excel with multiple sheets"""
+    #     wb = Workbook()
         
-        # Styling
-        header_font = Font(bold=True, color="FFFFFF")
-        header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+    #     # Styling
+    #     header_font = Font(bold=True, color="FFFFFF")
+    #     header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
         
-        # Comments sheet
-        ws_comments = wb.active
-        ws_comments.title = "Comments"
-        ws_comments.append(['ID', 'Author', 'Email', 'Comment', 'Likes', 'Created At'])
-        for cell in ws_comments[1]:
-            cell.font = header_font
-            cell.fill = header_fill
+    #     # Comments sheet
+    #     ws_comments = wb.active
+    #     ws_comments.title = "Comments"
+    #     ws_comments.append(['ID', 'Author', 'Email', 'Comment', 'Likes', 'Created At'])
+    #     for cell in ws_comments[1]:
+    #         cell.font = header_font
+    #         cell.fill = header_fill
         
-        comments = HubComment.objects.filter(content=content).select_related('author')
-        for comment in comments:
-            ws_comments.append([
-                comment.id,
-                comment.author.get_full_name() or comment.author.email,
-                comment.author.email,
-                comment.comment_text,
-                comment.likes_count or 0,
-                comment.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-            ])
+    #     comments = HubComment.objects.filter(content=content).select_related('author')
+    #     for comment in comments:
+    #         ws_comments.append([
+    #             comment.id,
+    #             comment.author.get_full_name() or comment.author.email,
+    #             comment.author.email,
+    #             comment.comment_text,
+    #             comment.likes_count or 0,
+    #             comment.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+    #         ])
         
-        # Likes sheet
-        ws_likes = wb.create_sheet("Likes")
-        ws_likes.append(['ID', 'User', 'Email', 'Created At'])
-        for cell in ws_likes[1]:
-            cell.font = header_font
-            cell.fill = header_fill
+    #     # Likes sheet
+    #     ws_likes = wb.create_sheet("Likes")
+    #     ws_likes.append(['ID', 'User', 'Email', 'Created At'])
+    #     for cell in ws_likes[1]:
+    #         cell.font = header_font
+    #         cell.fill = header_fill
         
-        likes = ContentLike.objects.filter(content=content).select_related('user')
-        for like in likes:
-            ws_likes.append([
-                like.id,
-                like.user.get_full_name() or like.user.email,
-                like.user.email,
-                like.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-            ])
+    #     likes = ContentLike.objects.filter(content=content).select_related('user')
+    #     for like in likes:
+    #         ws_likes.append([
+    #             like.id,
+    #             like.user.get_full_name() or like.user.email,
+    #             like.user.email,
+    #             like.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+    #         ])
         
-        # Bookmarks sheet
-        ws_bookmarks = wb.create_sheet("Bookmarks")
-        ws_bookmarks.append(['ID', 'User', 'Email', 'Created At'])
-        for cell in ws_bookmarks[1]:
-            cell.font = header_font
-            cell.fill = header_fill
+    #     # Bookmarks sheet
+    #     ws_bookmarks = wb.create_sheet("Bookmarks")
+    #     ws_bookmarks.append(['ID', 'User', 'Email', 'Created At'])
+    #     for cell in ws_bookmarks[1]:
+    #         cell.font = header_font
+    #         cell.fill = header_fill
         
-        bookmarks = ContentBookmark.objects.filter(content=content).select_related('user')
-        for bookmark in bookmarks:
-            ws_bookmarks.append([
-                bookmark.id,
-                bookmark.user.get_full_name() or bookmark.user.email,
-                bookmark.user.email,
-                bookmark.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-            ])
+    #     bookmarks = ContentBookmark.objects.filter(content=content).select_related('user')
+    #     for bookmark in bookmarks:
+    #         ws_bookmarks.append([
+    #             bookmark.id,
+    #             bookmark.user.get_full_name() or bookmark.user.email,
+    #             bookmark.user.email,
+    #             bookmark.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+    #         ])
         
-        # Adjust column widths for all sheets
-        for ws in [ws_comments, ws_likes, ws_bookmarks]:
-            for column in ws.columns:
-                max_length = 0
-                column_letter = column[0].column_letter
-                for cell in column:
-                    try:
-                        if len(str(cell.value)) > max_length:
-                            max_length = len(str(cell.value))
-                    except:
-                        pass
-                adjusted_width = min(max_length + 2, 50)
-                ws.column_dimensions[column_letter].width = adjusted_width
+    #     # Adjust column widths for all sheets
+    #     for ws in [ws_comments, ws_likes, ws_bookmarks]:
+    #         for column in ws.columns:
+    #             max_length = 0
+    #             column_letter = column[0].column_letter
+    #             for cell in column:
+    #                 try:
+    #                     if len(str(cell.value)) > max_length:
+    #                         max_length = len(str(cell.value))
+    #                 except:
+    #                     pass
+    #             adjusted_width = min(max_length + 2, 50)
+    #             ws.column_dimensions[column_letter].width = adjusted_width
         
-        # Save to response
-        response = HttpResponse(
-            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        )
-        response['Content-Disposition'] = f'attachment; filename="engagement_content_{content.id}_{timezone.now().strftime("%Y%m%d")}.xlsx"'
-        wb.save(response)
+    #     # Save to response
+    #     response = HttpResponse(
+    #         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    #     )
+    #     response['Content-Disposition'] = f'attachment; filename="engagement_content_{content.id}_{timezone.now().strftime("%Y%m%d")}.xlsx"'
+    #     wb.save(response)
         
-        return response
+    #     return response
+
 
 
 class AdminHubCommentViewSet(viewsets.ModelViewSet):

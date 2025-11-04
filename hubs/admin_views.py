@@ -258,6 +258,99 @@ class TopicAdminViewSet(viewsets.ModelViewSet):
         
         serializer = TopicStatsSerializer(stats)
         return Response(serializer.data)
+    
+    @swagger_auto_schema(
+        operation_description="Get all materials in this topic (both direct and from subtopics)",
+        manual_parameters=[
+            openapi.Parameter('is_approved', openapi.IN_QUERY, description="Filter by approval status", type=openapi.TYPE_BOOLEAN),
+            openapi.Parameter('is_active', openapi.IN_QUERY, description="Filter by active status", type=openapi.TYPE_BOOLEAN),
+            openapi.Parameter('include_subtopic_materials', openapi.IN_QUERY, description="Include materials from subtopics", type=openapi.TYPE_BOOLEAN, default=True),
+            openapi.Parameter('content_type', openapi.IN_QUERY, description="Filter by content type", type=openapi.TYPE_STRING),
+            openapi.Parameter('uploader_type', openapi.IN_QUERY, description="Filter by uploader type", type=openapi.TYPE_STRING),
+            openapi.Parameter('language', openapi.IN_QUERY, description="Filter by language (en/sw)", type=openapi.TYPE_STRING),
+            openapi.Parameter('search', openapi.IN_QUERY, description="Search in title and description", type=openapi.TYPE_STRING),
+        ],
+        responses={200: 'List of materials in topic'}
+    )
+    @action(detail=True, methods=['get'])
+    def materials(self, request, pk=None):
+        """Get all materials in this topic (NEW: Direct topic-to-materials + subtopic materials)"""
+        topic = self.get_object()
+        
+        # Get parameters
+        include_subtopic_materials = request.query_params.get('include_subtopic_materials', 'true').lower() == 'true'
+        is_approved = request.query_params.get('is_approved')
+        is_active = request.query_params.get('is_active')
+        content_type = request.query_params.get('content_type')
+        uploader_type = request.query_params.get('uploader_type')
+        language = request.query_params.get('language')
+        search = request.query_params.get('search')
+        
+        # Get direct materials (NEW feature)
+        direct_materials = LearningMaterial.objects.filter(topic=topic).select_related('uploader')
+        
+        # Get subtopic materials (backward compatibility)
+        subtopic_materials = LearningMaterial.objects.filter(
+            subtopic__topic=topic
+        ).select_related('uploader', 'subtopic')
+        
+        # Combine querysets based on preference
+        if include_subtopic_materials:
+            materials = direct_materials.union(subtopic_materials)
+        else:
+            materials = direct_materials
+        
+        # Apply filters
+        if is_approved is not None:
+            materials = materials.filter(is_approved=is_approved.lower() == 'true')
+        
+        if is_active is not None:
+            materials = materials.filter(is_active=is_active.lower() == 'true')
+        
+        if content_type:
+            materials = materials.filter(content_type=content_type)
+        
+        if uploader_type:
+            materials = materials.filter(uploader_type=uploader_type)
+        
+        if language and language in ['en', 'sw']:
+            materials = materials.filter(language=language)
+        
+        if search:
+            materials = materials.filter(
+                Q(title__icontains=search) |
+                Q(description__icontains=search)
+            )
+        
+        # Order materials
+        materials = materials.order_by('-created_at')
+        
+        # Import serializer to avoid circular import
+        from subscriptions.admin_document_serializers import LearningMaterialAdminSerializer
+        serializer = LearningMaterialAdminSerializer(materials, many=True)
+        
+        # Get counts for response
+        direct_count = direct_materials.count()
+        subtopic_count = subtopic_materials.count()
+        
+        return Response({
+            'topic_id': topic.id,
+            'topic_name': topic.name,
+            'topic_name_sw': topic.name_sw,
+            'materials_count': materials.count(),
+            'direct_materials_count': direct_count,
+            'subtopic_materials_count': subtopic_count,
+            'include_subtopic_materials': include_subtopic_materials,
+            'applied_filters': {
+                'is_approved': is_approved,
+                'is_active': is_active,
+                'content_type': content_type,
+                'uploader_type': uploader_type,
+                'language': language,
+                'search': search,
+            },
+            'materials': serializer.data
+        })
 
 
 class SubtopicAdminViewSet(viewsets.ModelViewSet):

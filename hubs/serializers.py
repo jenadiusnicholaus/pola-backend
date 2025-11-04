@@ -22,7 +22,7 @@ class LearningMaterialMinimalSerializer(serializers.ModelSerializer):
     class Meta:
         model = LearningMaterial
         fields = [
-            'id', 'title', 'description', 'category', 'price',
+            'id', 'title', 'description', 'content_type', 'price',
             'file_size', 'downloads_count', 'uploader_name',
             'is_approved', 'is_active', 'created_at'
         ]
@@ -48,7 +48,7 @@ class SubtopicMinimalSerializer(serializers.ModelSerializer):
 
 
 class TopicListSerializer(serializers.ModelSerializer):
-    """Serializer for topic listing with subtopics count"""
+    """Simple serializer for topic listing"""
     subtopics_count = serializers.SerializerMethodField()
     materials_count = serializers.SerializerMethodField()
     

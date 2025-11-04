@@ -195,14 +195,22 @@ class LearningMaterialSerializer(serializers.ModelSerializer):
     uploader_name = serializers.SerializerMethodField()
     revenue_split_info = serializers.SerializerMethodField()
     
+    # Enhanced fields for frontend display
+    price_display = serializers.SerializerMethodField()
+    is_free = serializers.SerializerMethodField()
+    downloads_count_display = serializers.SerializerMethodField()
+    file = serializers.SerializerMethodField()  # Override to return absolute URL
+    
     class Meta:
         model = LearningMaterial
         fields = [
             'id', 'uploader', 'uploader_email', 'uploader_name', 'uploader_type',
-            'title', 'description', 'category', 'file', 'file_size', 'price',
+            'title', 'description', 'content_type', 'file', 'file_size', 'price',
             'downloads_count', 'total_revenue', 'uploader_earnings',
             'revenue_split_info', 'is_approved', 'is_active',
-            'created_at', 'updated_at'
+            'created_at', 'updated_at',
+            # Enhanced display fields
+            'price_display', 'is_free', 'downloads_count_display'
         ]
         read_only_fields = [
             'uploader', 'downloads_count', 'total_revenue', 'uploader_earnings',
@@ -212,6 +220,18 @@ class LearningMaterialSerializer(serializers.ModelSerializer):
     def get_uploader_name(self, obj):
         return f"{obj.uploader.first_name} {obj.uploader.last_name}"
     
+    def get_file(self, obj):
+        """Return absolute URL for file field"""
+        if obj.file:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.file.url)
+            else:
+                # Fallback if no request context available
+                from django.conf import settings
+                return f"http://localhost:8000{obj.file.url}"
+        return None
+    
     def get_revenue_split_info(self, obj):
         split = obj.get_revenue_split()
         return {
@@ -220,6 +240,31 @@ class LearningMaterialSerializer(serializers.ModelSerializer):
             'uploader_gets': float(obj.price * Decimal(str(split['uploader']))),
             'app_gets': float(obj.price * Decimal(str(split['app'])))
         }
+    
+    def get_price_display(self, obj):
+        """Format price for display"""
+        if obj.price == 0:
+            return "FREE"
+        else:
+            return f"TSH {obj.price:,.0f}"
+    
+    def get_is_free(self, obj):
+        """Boolean flag for free content"""
+        return obj.price == 0
+    
+    def get_downloads_count_display(self, obj):
+        """Format download count for display"""
+        count = obj.downloads_count
+        if count == 0:
+            return "No downloads"
+        elif count == 1:
+            return "1 download"
+        elif count < 1000:
+            return f"{count} downloads"
+        elif count < 1000000:
+            return f"{count/1000:.1f}K downloads"
+        else:
+            return f"{count/1000000:.1f}M downloads"
 
 
 class LearningMaterialPurchaseSerializer(serializers.ModelSerializer):

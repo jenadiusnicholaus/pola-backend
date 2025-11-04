@@ -331,9 +331,9 @@ class VerificationSerializer(serializers.ModelSerializer):
         
         # Set role-specific required_fields based on user role
         if role_name == 'advocate':
-            by_step['role_specific']['required_fields'] = ['roll_number', 'regional_chapter', 'years_of_experience']
+            by_step['role_specific']['required_fields'] = ['roll_number', 'regional_chapter']
         elif role_name in ['lawyer', 'paralegal']:
-            by_step['role_specific']['required_fields'] = ['place_of_work', 'years_of_experience']
+            by_step['role_specific']['required_fields'] = ['place_of_work']
         elif role_name == 'law_firm':
             by_step['role_specific']['required_fields'] = ['firm_name', 'managing_partner']
         
@@ -532,18 +532,13 @@ class VerificationSerializer(serializers.ModelSerializer):
                     'message': 'Regional chapter not specified'
                 })
             
+            # Years of experience is optional for advocates - only add if provided
             if user.years_of_experience:
                 by_step['role_specific']['verified_fields'].append({
                     'field': 'years_of_experience',
-                    'label': 'Years of Experience',
+                    'label': 'Years of Experience (Optional)',
                     'value': str(user.years_of_experience),
                     'status': 'verified'
-                })
-            else:
-                by_step['role_specific']['issues'].append({
-                    'type': 'missing_field',
-                    'field': 'years_of_experience',
-                    'message': 'Years of experience not specified'
                 })
         
         elif role_name in ['lawyer', 'paralegal']:
@@ -561,18 +556,13 @@ class VerificationSerializer(serializers.ModelSerializer):
                     'message': 'Place of work not specified'
                 })
             
+            # Years of experience is optional for lawyers/paralegals - only add if provided
             if user.years_of_experience:
                 by_step['role_specific']['verified_fields'].append({
                     'field': 'years_of_experience',
-                    'label': 'Years of Experience',
+                    'label': 'Years of Experience (Optional)',
                     'value': str(user.years_of_experience),
                     'status': 'verified'
-                })
-            else:
-                by_step['role_specific']['issues'].append({
-                    'type': 'missing_field',
-                    'field': 'years_of_experience',
-                    'message': 'Years of experience not specified'
                 })
         
         elif role_name == 'law_firm':

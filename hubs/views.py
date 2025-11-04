@@ -24,7 +24,7 @@ class TopicViewSet(viewsets.ReadOnlyModelViewSet):
     - GET /topics/{id}/ - Get topic details with subtopics
     - GET /topics/{id}/subtopics/ - Get all subtopics in a topic
     """
-    queryset = LegalEdTopic.objects.filter(is_active=True).select_related('hub').prefetch_related('subtopics')
+    queryset = LegalEdTopic.objects.filter(is_active=True).prefetch_related('subtopics')
     permission_classes = [IsAuthenticated]
     lookup_field = 'slug'
     
@@ -61,6 +61,54 @@ class TopicViewSet(viewsets.ReadOnlyModelViewSet):
             'subtopics_count': subtopics.count(),
             'subtopics': serializer.data
         })
+    
+    @action(detail=True, methods=['get'])
+    def materials(self, request, slug=None):
+        """Get all materials in a topic"""
+        topic = self.get_object()
+        
+        # Get all materials from subtopics
+        from documents.models import LearningMaterial
+        materials = LearningMaterial.objects.filter(
+            subtopic__topic=topic,
+            subtopic__is_active=True,
+            is_active=True,
+            is_approved=True
+        ).select_related('uploader', 'subtopic').order_by('-created_at')
+        
+        # Basic search if provided
+        search = request.query_params.get('search')
+        if search:
+            from django.db.models import Q
+            materials = materials.filter(
+                Q(title__icontains=search) |
+                Q(description__icontains=search)
+            )
+        
+        # Pagination
+        page = self.paginate_queryset(materials)
+        if page is not None:
+            from subscriptions.serializers import LearningMaterialSerializer
+            serializer = LearningMaterialSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response({
+                'topic_id': topic.id,
+                'topic_name': topic.name,
+                'topic_name_sw': topic.name_sw,
+                'materials_count': materials.count(),
+                'materials': serializer.data
+            })
+        
+        # No pagination
+        from subscriptions.serializers import LearningMaterialSerializer
+        serializer = LearningMaterialSerializer(materials, many=True, context={'request': request})
+        
+        return Response({
+            'topic_id': topic.id,
+            'topic_name': topic.name,
+            'topic_name_sw': topic.name_sw,
+            'materials_count': materials.count(),
+            'materials': serializer.data
+        })
 
 
 class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
@@ -72,7 +120,7 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
     - GET /subtopics/{id}/ - Get subtopic details
     - GET /subtopics/{id}/materials/ - Get all materials in a subtopic
     """
-    queryset = LegalEdSubTopic.objects.filter(is_active=True).select_related('topic', 'topic__hub')
+    queryset = LegalEdSubTopic.objects.filter(is_active=True).select_related('topic')
     permission_classes = [IsAuthenticated]
     lookup_field = 'slug'
     
@@ -109,30 +157,32 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
         """Get all materials in a subtopic"""
         subtopic = self.get_object()
         
-        # Get language preference
-        language = request.query_params.get('language', 'en')
-        
-        # Get materials
+        # Get materials with basic filtering
         materials = LearningMaterial.objects.filter(
             subtopic=subtopic,
             is_active=True,
             is_approved=True
-        ).select_related('uploader')
+        ).select_related('uploader').order_by('-created_at')
         
-        # Filter by language if specified
-        if language in ['en', 'sw']:
-            materials = materials.filter(language=language)
+        # Basic search if provided
+        search = request.query_params.get('search')
+        if search:
+            from django.db.models import Q
+            materials = materials.filter(
+                Q(title__icontains=search) |
+                Q(description__icontains=search)
+            )
         
         # Import serializer here to avoid circular import
         from subscriptions.serializers import LearningMaterialSerializer
-        serializer = LearningMaterialSerializer(materials, many=True)
+        serializer = LearningMaterialSerializer(materials, many=True, context={'request': request})
         
         return Response({
             'subtopic_id': subtopic.id,
             'subtopic_name': subtopic.name,
             'subtopic_name_sw': subtopic.name_sw,
             'topic_name': subtopic.topic.name,
-            'language': language,
+            'topic_name_sw': subtopic.topic.name_sw,
             'materials_count': materials.count(),
             'materials': serializer.data
         })

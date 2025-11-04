@@ -42,6 +42,7 @@ class LearningMaterialAdminSerializer(serializers.ModelSerializer):
     language_display = serializers.CharField(source='get_language_display', read_only=True)
     content_type_display = serializers.CharField(source='get_content_type_display', read_only=True)
     file_size_mb = serializers.SerializerMethodField()
+    file_url = serializers.SerializerMethodField()  # Add absolute URL field
     
     # Support Base64 file uploads
     file = Base64AnyFileField(
@@ -57,7 +58,7 @@ class LearningMaterialAdminSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'description', 'uploader', 'uploader_type', 'uploader_type_display',
             'subtopic', 'hub_type', 'hub_type_display', 'language', 'language_display',
-            'content_type', 'content_type_display', 'file', 'file_size', 'file_size_mb',
+            'content_type', 'content_type_display', 'file', 'file_url', 'file_size', 'file_size_mb',
             'content', 'is_downloadable', 'price',
             'downloads_count', 'views_count', 'is_lecture_material', 'is_verified_quality',
             'is_active', 'is_pinned', 'created_at', 'updated_at'
@@ -73,6 +74,18 @@ class LearningMaterialAdminSerializer(serializers.ModelSerializer):
         if obj.file_size:
             return round(obj.file_size / (1024 * 1024), 2)
         return 0
+    
+    def get_file_url(self, obj):
+        """Return absolute URL for file field"""
+        if obj.file:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.file.url)
+            else:
+                # Fallback if no request context available
+                from django.conf import settings
+                return f"http://localhost:8000{obj.file.url}"
+        return None
     
     def validate(self, data):
         """Validate that either file or content is provided based on content_type"""
