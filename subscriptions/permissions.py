@@ -49,6 +49,10 @@ def check_subscription_permission(user, permission_name):
     Returns:
         bool: True if user has the permission, False otherwise
     """
+    # Django admin users (staff/superuser) have all permissions
+    if user.is_staff or user.is_superuser:
+        return True
+    
     permissions = get_user_subscription_permissions(user)
     return permissions.get(permission_name, False)
 
@@ -64,8 +68,12 @@ def require_active_subscription(user):
         PermissionDenied: If user doesn't have an active subscription
         
     Returns:
-        UserSubscription: The active subscription
+        UserSubscription: The active subscription or None for admin users
     """
+    # Django admin users (staff/superuser) bypass subscription requirements
+    if user.is_staff or user.is_superuser:
+        return None  # Admin users don't need a subscription
+    
     try:
         subscription = user.subscription
         if not subscription.is_active():
@@ -97,6 +105,10 @@ def require_subscription_permission(user, permission_name, custom_message=None):
     Raises:
         PermissionDenied: If user doesn't have the required permission
     """
+    # Django admin users (staff/superuser) have all permissions
+    if user.is_staff or user.is_superuser:
+        return  # Admin users have all permissions
+    
     subscription = require_active_subscription(user)
     permissions = subscription.get_permissions()
     
@@ -121,6 +133,10 @@ def check_questions_limit(user):
     Returns:
         tuple: (can_ask: bool, remaining: int)
     """
+    # Django admin users (staff/superuser) have unlimited questions
+    if user.is_staff or user.is_superuser:
+        return (True, float('inf'))
+    
     subscription = require_active_subscription(user)
     can_ask = subscription.can_ask_question()
     
@@ -141,6 +157,10 @@ def check_documents_limit(user):
     Returns:
         tuple: (can_generate: bool, remaining: int)
     """
+    # Django admin users (staff/superuser) have unlimited document generation
+    if user.is_staff or user.is_superuser:
+        return (True, float('inf'))
+    
     subscription = require_active_subscription(user)
     can_generate = subscription.can_generate_free_document()
     
@@ -164,6 +184,10 @@ class HasActiveSubscription(BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
         
+        # Django admin users (staff/superuser) bypass subscription requirements
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        
         try:
             subscription = request.user.subscription
             return subscription.is_active()
@@ -185,6 +209,10 @@ class CanAccessLegalLibrary(BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
         
+        # Django admin users (staff/superuser) have access to all features
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        
         return check_subscription_permission(request.user, 'can_access_legal_library')
 
 
@@ -201,6 +229,10 @@ class CanAskQuestions(BasePermission):
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
             return False
+        
+        # Django admin users (staff/superuser) can ask unlimited questions
+        if request.user.is_staff or request.user.is_superuser:
+            return True
         
         try:
             subscription = request.user.subscription
@@ -226,6 +258,10 @@ class CanAccessForum(BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
         
+        # Django admin users (staff/superuser) have forum access
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        
         return check_subscription_permission(request.user, 'can_access_forum')
 
 
@@ -242,6 +278,10 @@ class CanAccessStudentHub(BasePermission):
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
             return False
+        
+        # Django admin users (staff/superuser) have student hub access
+        if request.user.is_staff or request.user.is_superuser:
+            return True
         
         return check_subscription_permission(request.user, 'can_access_student_hub')
 

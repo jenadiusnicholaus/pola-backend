@@ -15,7 +15,7 @@ from documents.models import (
 )
 from .models import HubComment, ContentLike, ContentBookmark, HubCommentLike, HubMessage
 from .serializers import (
-    HubContentSerializer, HubCommentSerializer, ContentLikeSerializer,
+    HubContentSerializer, HubContentCreateSerializer, HubCommentSerializer, ContentLikeSerializer,
     ContentBookmarkSerializer, LecturerFollowSerializer,
     MaterialQuestionSerializer, MaterialRatingSerializer, HubMessageSerializer
 )
@@ -44,8 +44,14 @@ class HubContentViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['hub_type', 'content_type', 'uploader_type', 'is_pinned', 'is_lecture_material']
     search_fields = ['title', 'description', 'content']
-    ordering_fields = ['created_at', 'views_count', 'downloads_count', 'price']
-    ordering = ['-is_pinned', '-created_at']
+    ordering_fields = ['created_at', 'views_count', 'downloads_count', 'price', 'is_pinned']
+    ordering = ['-created_at']  # Latest content first, regardless of pinned status
+    
+    def get_serializer_class(self):
+        """Use different serializers for different actions"""
+        if self.action in ['create', 'update', 'partial_update']:
+            return HubContentCreateSerializer
+        return HubContentSerializer
     
     def get_queryset(self):
         """Filter queryset based on permissions and query params"""
@@ -225,18 +231,29 @@ class HubCommentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-        """Filter comments based on hub_type"""
+        """Filter comments based on hub_type and content_id"""
         queryset = super().get_queryset()
         
         hub_type = self.request.query_params.get('hub_type')
         if hub_type:
             queryset = queryset.filter(hub_type=hub_type)
         
+        content_id = self.request.query_params.get('content_id')
+        if content_id:
+            queryset = queryset.filter(content_id=content_id)
+        
         return queryset.select_related('author', 'content').prefetch_related('replies')
     
     def perform_create(self, serializer):
-        """Set author to current user"""
-        serializer.save(author=self.request.user)
+        """Set author to current user and ensure hub_type matches content"""
+        # Get the content being commented on
+        content = serializer.validated_data.get('content')
+        hub_type = content.hub_type if content else None
+        
+        serializer.save(
+            author=self.request.user,
+            hub_type=hub_type
+        )
     
     @action(detail=True, methods=['post'])
     def like(self, request, pk=None):

@@ -226,11 +226,17 @@ class LegalEdTopic(models.Model):
         return self.subtopics.count()
     
     def get_materials_count(self):
-        """Count total materials in all subtopics under this topic"""
+        """Count total materials: direct topic materials + all subtopic materials"""
         from documents.models import LearningMaterial
         
+        # Count direct materials linked to this topic
+        direct_materials_count = LearningMaterial.objects.filter(topic=self).count()
+        
+        # Count materials in subtopics (for backward compatibility)
         subtopic_ids = self.subtopics.values_list('id', flat=True)
-        return LearningMaterial.objects.filter(subtopic_id__in=subtopic_ids).count()
+        subtopic_materials_count = LearningMaterial.objects.filter(subtopic_id__in=subtopic_ids).count()
+        
+        return direct_materials_count + subtopic_materials_count
     
 class LegalEdSubTopic(models.Model):
     """

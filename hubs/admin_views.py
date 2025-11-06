@@ -222,6 +222,59 @@ class TopicAdminViewSet(viewsets.ModelViewSet):
         })
     
     @swagger_auto_schema(
+        operation_description="Quick create topic by name for content creation",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'name': openapi.Schema(type=openapi.TYPE_STRING, description='Topic name'),
+                'description': openapi.Schema(type=openapi.TYPE_STRING, description='Topic description (optional)')
+            },
+            required=['name']
+        ),
+        responses={201: TopicAdminDetailSerializer, 200: TopicAdminDetailSerializer}
+    )
+    @action(detail=False, methods=['post'])
+    def quick_create(self, request):
+        """Create topic by name if it doesn't exist, return existing if it does"""
+        name = request.data.get('name', '').strip()
+        description = request.data.get('description', '').strip()
+        
+        if not name:
+            return Response({'error': 'Topic name is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if topic already exists (case-insensitive)
+        existing_topic = LegalEdTopic.objects.filter(name__iexact=name).first()
+        if existing_topic:
+            serializer = TopicAdminDetailSerializer(existing_topic)
+            return Response({
+                'topic': serializer.data,
+                'created': False,
+                'message': f'Topic "{name}" already exists'
+            }, status=status.HTTP_200_OK)
+        
+        # Create new topic
+        from django.utils.text import slugify
+        new_topic_data = {
+            'name': name,
+            'slug': slugify(name),
+            'description': description or f'Auto-created topic: {name}',
+            'display_order': LegalEdTopic.objects.count() + 1,
+            'is_active': True
+        }
+        
+        serializer = TopicAdminCreateUpdateSerializer(data=new_topic_data)
+        if serializer.is_valid():
+            topic = serializer.save()
+            detail_serializer = TopicAdminDetailSerializer(topic)
+            return Response({
+                'topic': detail_serializer.data,
+                'created': True,
+                'message': f'Topic "{name}" created successfully'
+            }, status=status.HTTP_201_CREATED)
+        
+        return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    @swagger_auto_schema(
         operation_description="Get comprehensive statistics about topics, subtopics, and materials",
         responses={200: TopicStatsSerializer}
     )

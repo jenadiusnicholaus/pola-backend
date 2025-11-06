@@ -67,14 +67,16 @@ class TopicViewSet(viewsets.ReadOnlyModelViewSet):
         """Get all materials in a topic"""
         topic = self.get_object()
         
-        # Get all materials from subtopics
+        # Get all materials: direct topic materials + subtopic materials
         from documents.models import LearningMaterial
+        from django.db.models import Q
+        
         materials = LearningMaterial.objects.filter(
-            subtopic__topic=topic,
-            subtopic__is_active=True,
+            Q(topic=topic) |  # Direct topic materials (NEW)
+            Q(subtopic__topic=topic, subtopic__is_active=True),  # Subtopic materials (legacy)
             is_active=True,
             is_approved=True
-        ).select_related('uploader', 'subtopic').order_by('-created_at')
+        ).select_related('uploader', 'subtopic', 'topic').order_by('-created_at')
         
         # Basic search if provided
         search = request.query_params.get('search')

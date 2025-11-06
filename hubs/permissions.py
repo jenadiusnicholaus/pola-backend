@@ -21,6 +21,8 @@ class CanAccessHub(BasePermission):
     - Students Hub: Students, lecturers, and admins  
     - Forum: Everyone (public)
     - Legal Education: Everyone (public)
+    
+    Note: Django staff/superuser accounts have access to ALL hubs regardless of user_role
     """
     message = "You don't have permission to access this hub"
     
@@ -41,21 +43,27 @@ class CanAccessHub(BasePermission):
             self.message = f"Authentication required to access {hub_type} hub"
             return False
         
+        # Django admin users (staff/superuser) have access to ALL hubs
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        
         # Advocates Hub - only advocates and admins
         if hub_type == 'advocates':
-            if request.user.user_role not in ['advocate', 'admin']:
+            user_role_name = request.user.user_role.role_name if request.user.user_role else None
+            if user_role_name not in ['advocate', 'admin']:
                 self.message = "Only advocates can access the Advocates Hub"
                 return False
             
             # Check verification for advocates
-            if request.user.user_role == 'advocate':
+            if user_role_name == 'advocate':
                 if not hasattr(request.user, 'verification') or request.user.verification.status != 'verified':
                     self.message = "You must be a verified advocate to access this hub"
                     return False
         
         # Students Hub - students, lecturers, admins
         elif hub_type == 'students':
-            if request.user.user_role not in ['student', 'lecturer', 'admin']:
+            user_role_name = request.user.user_role.role_name if request.user.user_role else None
+            if user_role_name not in ['student', 'lecturer', 'admin']:
                 self.message = "Only students, lecturers, and admins can access the Students Hub"
                 return False
         
@@ -76,11 +84,17 @@ class CanAccessHub(BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
         
+        # Django admin users (staff/superuser) have access to ALL objects
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        
         if hub_type == 'advocates':
-            return request.user.user_role in ['advocate', 'admin']
+            user_role_name = request.user.user_role.role_name if request.user.user_role else None
+            return user_role_name in ['advocate', 'admin']
         
         if hub_type == 'students':
-            return request.user.user_role in ['student', 'lecturer', 'admin']
+            user_role_name = request.user.user_role.role_name if request.user.user_role else None
+            return user_role_name in ['student', 'lecturer', 'admin']
         
         return True
 
@@ -94,8 +108,12 @@ class IsOwnerOrReadOnly(BasePermission):
         if request.method in SAFE_METHODS:
             return True
         
-        # Write permissions only for owner or admin
-        if request.user.user_role == 'admin':
+        # Django admin users (staff/superuser) have full access to ALL objects
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        
+        # Write permissions for admin role users
+        if hasattr(request.user, 'user_role') and request.user.user_role and request.user.user_role.role_name == 'admin':
             return True
         
         # Check if object has uploader or author field
@@ -118,6 +136,10 @@ class CanCreateContent(BasePermission):
             self.message = "Authentication required to create content"
             return False
         
+        # Django admin users (staff/superuser) can create content in ALL hubs
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        
         # Get hub_type from request data
         hub_type = request.data.get('hub_type')
         
@@ -131,25 +153,28 @@ class CanCreateContent(BasePermission):
         
         if hub_type == 'legal_ed':
             # Only admins can create legal education content
-            if request.user.user_role != 'admin':
+            user_role_name = request.user.user_role.role_name if request.user.user_role else None
+            if user_role_name != 'admin':
                 self.message = "Only admins can create legal education content"
                 return False
         
         # Advocates Hub - only advocates and admins
         if hub_type == 'advocates':
-            if request.user.user_role not in ['advocate', 'admin']:
+            user_role_name = request.user.user_role.role_name if request.user.user_role else None
+            if user_role_name not in ['advocate', 'admin']:
                 self.message = "Only advocates and admins can post in Advocates Hub"
                 return False
             
             # Check verification
-            if request.user.user_role == 'advocate':
+            if user_role_name == 'advocate':
                 if not hasattr(request.user, 'verification') or request.user.verification.status != 'verified':
                     self.message = "You must be a verified advocate"
                     return False
         
         # Students Hub - students, lecturers, admins
         if hub_type == 'students':
-            if request.user.user_role not in ['student', 'lecturer', 'admin']:
+            user_role_name = request.user.user_role.role_name if request.user.user_role else None
+            if user_role_name not in ['student', 'lecturer', 'admin']:
                 self.message = "Only students, lecturers, and admins can post in Students Hub"
                 return False
         

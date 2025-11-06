@@ -13,22 +13,32 @@ from documents.models import (
 )
 from authentication.models import PolaUser
 from decimal import Decimal
+from utils.base64_fields import Base64AnyFileField
 
 
 class LearningMaterialMinimalSerializer(serializers.ModelSerializer):
     """Minimal learning material info for subtopic listing"""
     uploader_name = serializers.SerializerMethodField()
+    file = serializers.SerializerMethodField()
     
     class Meta:
         model = LearningMaterial
         fields = [
             'id', 'title', 'description', 'content_type', 'price',
-            'file_size', 'downloads_count', 'uploader_name',
+            'file', 'file_size', 'downloads_count', 'uploader_name',
             'is_approved', 'is_active', 'created_at'
         ]
     
     def get_uploader_name(self, obj):
         return f"{obj.uploader.first_name} {obj.uploader.last_name}"
+    
+    def get_file(self, obj):
+        """Get file URL if available"""
+        if obj.file:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.file.url)
+        return None
 
 
 class SubtopicMinimalSerializer(serializers.ModelSerializer):
@@ -171,13 +181,13 @@ class HubContentSerializer(serializers.ModelSerializer):
     can_download = serializers.SerializerMethodField()
     average_rating = serializers.SerializerMethodField()
     ratings_count = serializers.SerializerMethodField()
-    file_url = serializers.SerializerMethodField()
+    file = serializers.SerializerMethodField()
     
     class Meta:
         model = LearningMaterial
         fields = [
             'id', 'hub_type', 'content_type', 'uploader_info', 'uploader_type',
-            'title', 'description', 'content', 'file_url', 'file_size',
+            'title', 'description', 'content', 'file', 'file_size',
             'video_url', 'language', 'price', 'is_downloadable',
             'is_lecture_material', 'is_verified_quality', 'is_pinned',
             'views_count', 'downloads_count', 
@@ -190,7 +200,7 @@ class HubContentSerializer(serializers.ModelSerializer):
             'id', 'uploader_info', 'downloads_count', 'views_count',
             'likes_count', 'comments_count', 'bookmarks_count',
             'is_liked', 'is_bookmarked', 'has_purchased', 'can_download',
-            'average_rating', 'ratings_count', 'file_url', 'created_at', 'updated_at'
+            'average_rating', 'ratings_count', 'file', 'created_at', 'updated_at'
         ]
     
     def get_likes_count(self, obj):
@@ -222,6 +232,10 @@ class HubContentSerializer(serializers.ModelSerializer):
         if not request or not request.user.is_authenticated:
             return False
         
+        # Django admin users (staff/superuser) have access to all content
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        
         # Free content is always accessible
         if obj.price == 0:
             return True
@@ -237,6 +251,10 @@ class HubContentSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if not request or not request.user.is_authenticated:
             return False
+        
+        # Django admin users (staff/superuser) can download all content if it's downloadable
+        if (request.user.is_staff or request.user.is_superuser) and obj.is_downloadable:
+            return True
         
         # Must be downloadable
         if not obj.is_downloadable:
@@ -255,13 +273,22 @@ class HubContentSerializer(serializers.ModelSerializer):
         """Get total number of ratings"""
         return obj.ratings.count()
     
-    def get_file_url(self, obj):
-        """Get file URL if user has access"""
-        # Only return URL if user can download
-        if self.get_can_download(obj) and obj.file:
-            request = self.context.get('request')
+    def get_file(self, obj):
+        """Get file URL if user has access - UNIFIED logic for all hubs"""
+        if not obj.file:
+            return None
+        
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return None
+        
+        # UNIFIED LOGIC: Show files for all hubs if user has access
+        # This covers both free content (images, attachments) and paid downloadable content
+        if self.get_has_purchased(obj):
             if request:
                 return request.build_absolute_uri(obj.file.url)
+            return obj.file.url
+        
         return None
     
     def validate(self, data):
@@ -289,6 +316,135 @@ class HubContentSerializer(serializers.ModelSerializer):
                 })
         
         return data
+
+
+class HubContentCreateSerializer(serializers.ModelSerializer):
+    """
+    Content creation serializer with Base64 file upload support
+    Used for creating content/posts/materials across all hubs
+    """
+    file = Base64AnyFileField(
+        required=False, 
+        allow_null=True,
+        max_file_size=50 * 1024 * 1024,  # 50MB limit
+        allowed_types=['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'ppt', 'pptx', 'xls', 'xlsx'],
+        document_type=None  # Will be set based on content_type if needed
+    )
+    
+    class Meta:
+        model = LearningMaterial
+        fields = [
+            'hub_type', 'content_type', 'title', 'description', 'content',
+            'file', 'video_url', 'language', 'price', 'is_downloadable',
+            'is_lecture_material', 'is_pinned', 'topic', 'subtopic'
+        ]
+        
+    def validate(self, data):
+        """Validate content creation with hub-specific rules"""
+        hub_type = data.get('hub_type')
+        content_type = data.get('content_type')
+        request = self.context.get('request')
+        user = request.user if request else None
+        
+        # Validate user permissions for each hub
+        if hub_type == 'advocates':
+            # Only verified advocates and admins
+            if not user or not user.is_authenticated:
+                raise serializers.ValidationError({'detail': 'Authentication required'})
+            
+            user_role = getattr(user, 'user_role', None)
+            role_name = user_role.role_name if user_role else None
+            
+            if role_name not in ['advocate', 'lawyer'] and not user.is_staff:
+                raise serializers.ValidationError({
+                    'hub_type': 'Only advocates, lawyers, and admins can post in Advocates Hub'
+                })
+            
+            # Check verification for advocates
+            if role_name in ['advocate', 'lawyer'] and not getattr(user, 'is_verified', False):
+                raise serializers.ValidationError({
+                    'detail': 'Only verified advocates can post in Advocates Hub'
+                })
+            
+            data['uploader_type'] = 'advocate' if role_name in ['advocate', 'lawyer'] else 'admin'
+            
+        elif hub_type == 'students':
+            # Students, lecturers, admins
+            if not user or not user.is_authenticated:
+                raise serializers.ValidationError({'detail': 'Authentication required'})
+            
+            user_role = getattr(user, 'user_role', None) 
+            role_name = user_role.role_name if user_role else None
+            
+            if role_name not in ['student', 'lecturer'] and not user.is_staff:
+                raise serializers.ValidationError({
+                    'hub_type': 'Only students, lecturers, and admins can post in Students Hub'
+                })
+            
+            data['uploader_type'] = role_name if role_name in ['student', 'lecturer'] else 'admin'
+            
+        elif hub_type == 'forum':
+            # Everyone can post in forum
+            if not user or not user.is_authenticated:
+                raise serializers.ValidationError({'detail': 'Authentication required'})
+            
+            user_role = getattr(user, 'user_role', None)
+            role_name = user_role.role_name if user_role else 'citizen'
+            data['uploader_type'] = 'admin' if user.is_staff else role_name
+            
+        elif hub_type == 'legal_ed':
+            # Only admins can post in legal education
+            if not user or not user.is_staff:
+                raise serializers.ValidationError({
+                    'detail': 'Only admins can create legal education content'
+                })
+            data['uploader_type'] = 'admin'
+        
+        # Validate content type for hub
+        valid_content_types = {
+            'advocates': ['discussion', 'article', 'news', 'case_study', 'legal_update'],
+            'students': ['notes', 'past_papers', 'assignment', 'discussion', 'question', 'tutorial'],
+            'forum': ['discussion', 'question', 'news', 'general'],
+            'legal_ed': ['lecture', 'article', 'tutorial', 'case_study', 'legal_update']
+        }
+        
+        if content_type not in valid_content_types.get(hub_type, []):
+            raise serializers.ValidationError({
+                'content_type': f'Invalid content type for {hub_type} hub. Allowed: {", ".join(valid_content_types.get(hub_type, []))}'
+            })
+        
+        # Set pricing rules
+        if content_type in ['news', 'discussion', 'announcement', 'question', 'article', 'general']:
+            # These content types should be free
+            data['price'] = Decimal('0.00')
+            data['is_downloadable'] = False
+        else:
+            # Set default price if not provided
+            if 'price' not in data:
+                data['price'] = Decimal('0.00')
+        
+        # Legal education content should link to topics (subtopics are deprecated)
+        if hub_type == 'legal_ed':
+            if not data.get('topic') and not data.get('subtopic'):
+                raise serializers.ValidationError({
+                    'topic': 'Legal education content must be linked to a topic'
+                })
+        
+        return data
+    
+    def create(self, validated_data):
+        """Create content with current user as uploader"""
+        request = self.context.get('request')
+        validated_data['uploader'] = request.user
+        
+        # Auto-approve admin content
+        if request.user.is_staff:
+            validated_data['is_approved'] = True
+        
+        # Set default values
+        validated_data['is_active'] = True
+        
+        return super().create(validated_data)
 
 
 class HubCommentSerializer(serializers.ModelSerializer):
@@ -452,14 +608,29 @@ class AdminContentCreateSerializer(serializers.ModelSerializer):
     - Auto-fills admin user as uploader
     - Auto-approves content
     - Sets sensible defaults for price, active status
+    - Supports topic creation if not exists
     """
+    file = Base64AnyFileField(
+        required=False, 
+        allow_null=True,
+        max_file_size=50 * 1024 * 1024,  # 50MB limit
+        allowed_types=['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'ppt', 'pptx', 'xls', 'xlsx'],
+        document_type=None
+    )
+    
+    # Allow creating new topic by name if it doesn't exist
+    topic_name = serializers.CharField(
+        required=False, 
+        allow_blank=True,
+        help_text="Create new topic by name if topic ID not provided"
+    )
     
     class Meta:
         model = LearningMaterial
         fields = [
             'hub_type', 'content_type', 'title', 'description', 'content',
             'file', 'video_url', 'language', 'price', 'is_downloadable',
-            'is_pinned', 'is_active', 'is_approved', 'subtopic'
+            'is_pinned', 'is_active', 'is_approved', 'topic', 'topic_name'
         ]
     
     def validate(self, data):
@@ -476,6 +647,36 @@ class AdminContentCreateSerializer(serializers.ModelSerializer):
         if data.get('content_type') in ['news', 'discussion', 'announcement', 'question', 'article']:
             data['price'] = Decimal('0.00')
             data['is_downloadable'] = False
+        
+        # Handle topic creation for legal_ed hub
+        if data.get('hub_type') == 'legal_ed':
+            topic_name = data.pop('topic_name', None)
+            topic = data.get('topic')
+            
+            if not topic and topic_name:
+                # Create new topic if it doesn't exist
+                from .models import LegalEdTopic
+                from django.utils.text import slugify
+                
+                # Check if topic already exists
+                existing_topic = LegalEdTopic.objects.filter(name__iexact=topic_name).first()
+                if existing_topic:
+                    data['topic'] = existing_topic
+                else:
+                    # Create new topic
+                    new_topic = LegalEdTopic.objects.create(
+                        name=topic_name,
+                        slug=slugify(topic_name),
+                        description=f"Auto-created topic: {topic_name}",
+                        display_order=LegalEdTopic.objects.count() + 1,
+                        is_active=True
+                    )
+                    data['topic'] = new_topic
+            
+            elif not topic and not topic_name:
+                raise serializers.ValidationError({
+                    'topic': 'Legal education content must have a topic. Provide topic ID or topic_name to create new topic.'
+                })
         
         return data
     
@@ -500,6 +701,13 @@ class AdminContentUpdateSerializer(serializers.ModelSerializer):
     
     Allows updating all fields including moderation status
     """
+    file = Base64AnyFileField(
+        required=False, 
+        allow_null=True,
+        max_file_size=50 * 1024 * 1024,  # 50MB limit
+        allowed_types=['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'ppt', 'pptx', 'xls', 'xlsx'],
+        document_type=None
+    )
     
     class Meta:
         model = LearningMaterial
