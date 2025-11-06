@@ -31,7 +31,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 # ALLOWED_HOSTS configuration
 # In development, allow local network IPs for mobile testing
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,192.168.1.181').split(',')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,192.168.1.181,185.237.253.223').split(',')
 
 # CORS Settings
 CORS_ALLOWED_ORIGINS = [
@@ -40,6 +40,10 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.1.181:8081",  # Expo default port
     "http://192.168.1.181:19000",  # Expo alternate port
     "http://192.168.1.181:19006",  # Expo web
+    "http://185.237.253.223:8000",  # Production server
+    "https://185.237.253.223:8000",  # Production server with SSL
+    "http://185.237.253.223",  # Production server (port 80)
+    "https://185.237.253.223",  # Production server with SSL (port 443)
 ]
 CORS_ALLOW_CREDENTIALS = True
 # Allow all origins in development for mobile testing
@@ -198,8 +202,7 @@ SIMPLE_JWT = {
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
+TIME_ZONE = config('DB_TIMEZONE', default='Africa/Dar_es_Salaam')
 
 USE_I18N = True
 
