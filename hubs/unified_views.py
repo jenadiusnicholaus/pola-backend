@@ -146,6 +146,191 @@ class HubContentViewSet(viewsets.ModelViewSet):
             return Response({'message': 'Bookmark removed'}, status=status.HTTP_204_NO_CONTENT)
         return Response({'message': 'Not bookmarked'}, status=status.HTTP_404_NOT_FOUND)
     
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def bookmarked(self, request):
+        """Get all bookmarked content for the authenticated user"""
+        from documents.models import LearningMaterial
+        
+        # Get bookmarked content IDs for this user
+        bookmarked_content_ids = ContentBookmark.objects.filter(
+            user=request.user
+        ).values_list('content_id', flat=True)
+        
+        # Get the actual content with filtering support
+        queryset = LearningMaterial.objects.filter(
+            id__in=bookmarked_content_ids,
+            is_active=True,
+            is_approved=True
+        ).select_related('uploader').prefetch_related('likes', 'comments', 'bookmarks')
+        
+        # Apply manual filters using the same logic as main viewset
+        hub_type = request.query_params.get('hub_type')
+        if hub_type:
+            queryset = queryset.filter(hub_type=hub_type)
+        
+        content_type = request.query_params.get('content_type')
+        if content_type:
+            queryset = queryset.filter(content_type=content_type)
+        
+        is_downloadable = request.query_params.get('is_downloadable')
+        if is_downloadable is not None:
+            is_downloadable_bool = is_downloadable.lower() in ['true', '1']
+            queryset = queryset.filter(is_downloadable=is_downloadable_bool)
+        
+        # Apply search
+        search = request.query_params.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) |
+                Q(description__icontains=search) |
+                Q(content__icontains=search)
+            )
+        
+        # Apply ordering
+        ordering = request.query_params.get('ordering', '-created_at')
+        if ordering:
+            queryset = queryset.order_by(ordering)
+        
+        # Pagination
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = HubContentSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = HubContentSerializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def liked(self, request):
+        """Get all liked content for the authenticated user"""
+        from documents.models import LearningMaterial
+        
+        # Get liked content IDs for this user
+        liked_content_ids = ContentLike.objects.filter(
+            user=request.user
+        ).values_list('content_id', flat=True)
+        
+        # Get the actual content with filtering support
+        queryset = LearningMaterial.objects.filter(
+            id__in=liked_content_ids,
+            is_active=True,
+            is_approved=True
+        ).select_related('uploader').prefetch_related('likes', 'comments', 'bookmarks')
+        
+        # Apply manual filters (same as bookmarked)
+        hub_type = request.query_params.get('hub_type')
+        if hub_type:
+            queryset = queryset.filter(hub_type=hub_type)
+        
+        content_type = request.query_params.get('content_type')
+        if content_type:
+            queryset = queryset.filter(content_type=content_type)
+        
+        is_downloadable = request.query_params.get('is_downloadable')
+        if is_downloadable is not None:
+            is_downloadable_bool = is_downloadable.lower() in ['true', '1']
+            queryset = queryset.filter(is_downloadable=is_downloadable_bool)
+        
+        # Apply search
+        search = request.query_params.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) |
+                Q(description__icontains=search) |
+                Q(content__icontains=search)
+            )
+        
+        # Apply ordering
+        ordering = request.query_params.get('ordering', '-created_at')
+        if ordering:
+            queryset = queryset.order_by(ordering)
+        
+        # Pagination
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = HubContentSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = HubContentSerializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def trending(self, request):
+        """Get trending content based on engagement (views, likes, comments)"""
+        from documents.models import LearningMaterial
+        from datetime import datetime, timedelta
+        
+        # Get content from the last 30 days
+        thirty_days_ago = datetime.now() - timedelta(days=30)
+        
+        queryset = LearningMaterial.objects.filter(
+            is_active=True,
+            is_approved=True,
+            created_at__gte=thirty_days_ago
+        ).select_related('uploader').prefetch_related('likes', 'comments', 'bookmarks')
+        
+        # Apply hub type filter
+        hub_type = request.query_params.get('hub_type')
+        if hub_type:
+            queryset = queryset.filter(hub_type=hub_type)
+        
+        # Calculate trending score: (views * 0.1) + (likes * 2) + (comments * 3) + (bookmarks * 1.5)
+        from django.db.models import F, FloatField
+        from django.db.models.functions import Cast
+        
+        queryset = queryset.annotate(
+            likes_count=Count('likes', distinct=True),
+            comments_count=Count('comments', distinct=True), 
+            bookmarks_count=Count('bookmarks', distinct=True),
+            trending_score=(
+                Cast(F('views_count'), FloatField()) * 0.1 +
+                Cast(Count('likes', distinct=True), FloatField()) * 2.0 +
+                Cast(Count('comments', distinct=True), FloatField()) * 3.0 +
+                Cast(Count('bookmarks', distinct=True), FloatField()) * 1.5
+            )
+        ).order_by('-trending_score', '-created_at')
+        
+        # Pagination
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = HubContentSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = HubContentSerializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def recent(self, request):
+        """Get most recent content"""
+        from documents.models import LearningMaterial
+        
+        queryset = LearningMaterial.objects.filter(
+            is_active=True,
+            is_approved=True
+        ).select_related('uploader').prefetch_related('likes', 'comments', 'bookmarks')
+        
+        # Apply hub type filter
+        hub_type = request.query_params.get('hub_type')
+        if hub_type:
+            queryset = queryset.filter(hub_type=hub_type)
+        
+        # Apply content type filter  
+        content_type = request.query_params.get('content_type')
+        if content_type:
+            queryset = queryset.filter(content_type=content_type)
+        
+        # Order by most recent first
+        queryset = queryset.order_by('-created_at')
+        
+        # Pagination
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = HubContentSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = HubContentSerializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data)
+    
     @action(detail=True, methods=['get'])
     def comments(self, request, pk=None):
         """Get comments for this content"""
@@ -158,6 +343,57 @@ class HubContentViewSet(viewsets.ModelViewSet):
         
         serializer = HubCommentSerializer(comments, many=True, context={'request': request})
         return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'], permission_classes=[])
+    def view(self, request, pk=None):
+        """Track content view - increment view count"""
+        try:
+            content = self.get_object()
+            
+            # Increment view count
+            content.views_count += 1
+            content.save(update_fields=['views_count'])
+            
+            return Response({
+                'message': 'View tracked successfully',
+                'views_count': content.views_count
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            # If content not accessible, still return success to avoid breaking frontend
+            return Response({
+                'message': 'View tracking skipped',
+                'views_count': 0
+            }, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['get'])
+    def analytics(self, request, pk=None):
+        """Get content analytics and statistics"""
+        content = self.get_object()
+        
+        # Calculate engagement rate (likes + bookmarks + comments) / views
+        total_engagement = (
+            content.likes.count() + 
+            content.bookmarks.count() + 
+            content.comments.count()
+        )
+        engagement_rate = total_engagement / max(content.views_count, 1)
+        
+        # Get average rating
+        average_rating = content.ratings.aggregate(Avg('rating'))['rating__avg'] or 0
+        
+        analytics_data = {
+            'views_count': content.views_count,
+            'downloads_count': content.downloads_count,
+            'likes_count': content.likes.count(),
+            'bookmarks_count': content.bookmarks.count(),
+            'comments_count': content.comments.count(),
+            'ratings_count': content.ratings.count(),
+            'average_rating': round(average_rating, 2),
+            'engagement_rate': round(engagement_rate, 3),
+            'purchase_count': content.purchases.count() if hasattr(content, 'purchases') else 0,
+        }
+        
+        return Response(analytics_data)
     
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated, CanPurchaseContent])
     def purchase(self, request, pk=None):
