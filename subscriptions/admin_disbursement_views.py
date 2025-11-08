@@ -357,8 +357,13 @@ class AdminEarningsManagementViewSet(viewsets.ReadOnlyModelViewSet):
     - POST /admin/earnings/bulk_payout/ - Create bulk disbursement
     """
     permission_classes = [IsAdminUser]
+    queryset = ConsultantEarnings.objects.none()  # Placeholder for schema
+    serializer_class = ConsultantEarningsSerializer
     
     def get_queryset(self):
+        # Handle Swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return ConsultantEarnings.objects.none()
         return ConsultantEarnings.objects.none()  # Override in actions
     
     @action(detail=False, methods=['get'])

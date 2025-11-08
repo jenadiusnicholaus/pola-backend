@@ -415,23 +415,27 @@ class ConsultationBookingViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Return bookings for current user (as client or consultant)"""
+        # Handle Swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return ConsultationBooking.objects.none()
+        
         user = self.request.user
         
         # Check if user is a consultant
         try:
-            consultant_profile = ConsultantProfile.objects.get(consultant=user)
+            consultant_profile = ConsultantProfile.objects.get(user=user)
             # Return bookings where user is either client or consultant
             return ConsultationBooking.objects.filter(
                 Q(client=user) | Q(consultant_profile=consultant_profile)
             ).select_related(
-                'client', 'consultant_profile__consultant', 'payment_transaction', 'call_session'
+                'client', 'consultant_profile__user', 'payment_transaction', 'call_session'
             ).order_by('-created_at')
         except ConsultantProfile.DoesNotExist:
             # User is not a consultant, return only their client bookings
             return ConsultationBooking.objects.filter(
                 client=user
             ).select_related(
-                'consultant_profile__consultant', 'payment_transaction', 'call_session'
+                'consultant_profile__user', 'payment_transaction', 'call_session'
             ).order_by('-created_at')
     
     @action(detail=False, methods=['post'])
@@ -737,6 +741,10 @@ class PaymentTransactionViewSet(viewsets.ReadOnlyModelViewSet):
     
     def get_queryset(self):
         """Return transactions for current user"""
+        # Handle Swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return PaymentTransaction.objects.none()
+        
         return PaymentTransaction.objects.filter(
             user=self.request.user
         ).select_related(
@@ -836,6 +844,14 @@ class EarningsViewSet(viewsets.ReadOnlyModelViewSet):
     - GET /api/v1/earnings/summary/ - Get earnings summary
     """
     permission_classes = [IsAuthenticated]
+    queryset = ConsultantEarnings.objects.none()  # Placeholder for schema
+    serializer_class = ConsultantEarningsSerializer
+    
+    def get_queryset(self):
+        # Handle Swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return ConsultantEarnings.objects.none()
+        return ConsultantEarnings.objects.filter(consultant=self.request.user)
     
     @action(detail=False, methods=['get'])
     def consultant(self, request):

@@ -44,6 +44,10 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
+        # Handle Swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return UserSubscription.objects.none()
+        
         if self.action == 'plans':
             return SubscriptionPlan.objects.filter(is_active=True)
         return UserSubscription.objects.filter(user=self.request.user)

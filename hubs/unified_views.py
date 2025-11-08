@@ -537,6 +537,10 @@ class LecturerFollowViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Get user's followed lecturers"""
+        # Handle Swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return self.queryset.none()
+        
         return self.queryset.filter(student=self.request.user).select_related('lecturer')
     
     @action(detail=False, methods=['post'])
@@ -646,6 +650,10 @@ class HubMessageViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Get user's messages"""
+        # Handle Swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return self.queryset.none()
+        
         return self.queryset.filter(
             Q(sender=self.request.user) | Q(recipient=self.request.user)
         ).select_related('sender', 'recipient')
