@@ -78,6 +78,11 @@ class TopicViewSet(viewsets.ReadOnlyModelViewSet):
             is_approved=True
         ).select_related('uploader', 'subtopic', 'topic').order_by('-created_at')
         
+        # Language filter
+        language = request.query_params.get('language')
+        if language:
+            materials = materials.filter(language=language)
+        
         # Basic search if provided
         search = request.query_params.get('search')
         if search:
@@ -165,6 +170,11 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
             is_active=True,
             is_approved=True
         ).select_related('uploader').order_by('-created_at')
+        
+        # Language filter
+        language = request.query_params.get('language')
+        if language:
+            materials = materials.filter(language=language)
         
         # Basic search if provided
         search = request.query_params.get('search')
