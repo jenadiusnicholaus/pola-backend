@@ -1,6 +1,7 @@
 #!/bin/bash
-# Database Restore Script for VPS Production/Test Environment
+# Database Import Script for VPS Production/Test Environment
 # Usage: ./db_restore_vps.sh [backup_file]
+# This script imports a backup file into a fresh database on VPS
 
 set -e  # Exit on error
 
@@ -110,26 +111,33 @@ EOF
     fi
 }
 
-# Function to backup existing database (if it exists)
-backup_existing_database() {
-    print_info "Creating backup of existing database (if any)..."
-    
-    TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-    BACKUP_FILE="./pola_db_backup_before_restore_${TIMESTAMP}.backup"
+# Function to check if database has data
+check_database_empty() {
+    print_info "Checking if database is empty..."
     
     export PGPASSWORD="$DB_PASSWORD"
     
-    if pg_dump -h "$DB_HOST" -U "$DB_USER" -Fc -f "$BACKUP_FILE" "$DB_NAME" 2>/dev/null; then
-        SIZE=$(ls -lh "$BACKUP_FILE" | awk '{print $5}')
-        print_success "Existing database backed up: $BACKUP_FILE ($SIZE)"
+    TABLE_COUNT=$(psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE';" 2>/dev/null || echo "0")
+    
+    if [ "$TABLE_COUNT" -gt 0 ]; then
+        print_warning "Database already has $TABLE_COUNT tables"
+        echo ""
+        read -p "$(echo -e ${YELLOW}Do you want to DROP all existing data and import fresh? [y/N]:${NC} )" -n 1 -r
+        echo ""
+        
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            print_error "Import cancelled. Database has existing data."
+            exit 1
+        fi
+        return 1
     else
-        print_warning "No existing database to backup or backup failed"
-        rm -f "$BACKUP_FILE" 2>/dev/null
+        print_success "Database is empty and ready for import"
+        return 0
     fi
 }
 
-# Function to restore database
-restore_database() {
+# Function to import database from backup
+import_database() {
     local BACKUP_FILE=$1
     
     # Verify backup file exists
@@ -146,28 +154,18 @@ restore_database() {
     pg_restore -l "$BACKUP_FILE" | grep "TABLE\|SEQUENCE\|INDEX" | head -10
     echo "..."
     
-    # Confirm restore
-    echo ""
-    read -p "$(echo -e ${YELLOW}Do you want to restore this backup to '$DB_NAME'? This will DROP existing data! [y/N]:${NC} )" -n 1 -r
-    echo ""
-    
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        print_warning "Restore cancelled"
-        exit 0
-    fi
-    
-    # Set password for restore
+    # Set password for import
     export PGPASSWORD="$DB_PASSWORD"
     
-    print_info "Restoring database..."
+    print_info "Importing database from backup..."
     echo ""
     
-    # Restore with clean option (drops existing objects)
-    pg_restore -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" --clean --if-exists --no-owner --no-acl "$BACKUP_FILE" 2>&1 | tee /tmp/restore.log
+    # Import with clean option to handle existing objects
+    pg_restore -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" --clean --if-exists --no-owner --no-acl "$BACKUP_FILE" 2>&1 | tee /tmp/import.log
     
-    # Check if restore was successful (pg_restore returns 0 even with warnings)
-    if grep -q "ERROR" /tmp/restore.log; then
-        print_error "Restore completed with errors. Check /tmp/restore.log"
+    # Check if import was successful (pg_restore returns 0 even with warnings)
+    if grep -q "ERROR" /tmp/import.log; then
+        print_error "Import completed with errors. Check /tmp/import.log"
         echo ""
         read -p "Do you want to continue anyway? [y/N]: " -n 1 -r
         echo ""
@@ -176,13 +174,13 @@ restore_database() {
         fi
     fi
     
-    print_success "Database restore completed!"
+    print_success "Database import completed!"
     
-    # Verify restore
-    print_info "Verifying restore..."
+    # Verify import
+    print_info "Verifying import..."
     TABLE_COUNT=$(PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE';")
     
-    print_success "Restored $TABLE_COUNT tables"
+    print_success "Imported $TABLE_COUNT tables"
 }
 
 # Function to update database permissions
@@ -233,7 +231,7 @@ show_database_info() {
 main() {
     echo ""
     echo "╔════════════════════════════════════════════════════════╗"
-    echo "║     Pola Database Restore Script - VPS Production     ║"
+    echo "║     Pola Database Import Script - VPS Production      ║"
     echo "╚════════════════════════════════════════════════════════╝"
     echo ""
     
@@ -272,13 +270,13 @@ main() {
     
     echo ""
     
-    # Backup existing database
-    backup_existing_database
+    # Check if database is empty
+    check_database_empty
     
     echo ""
     
-    # Restore database
-    restore_database "$BACKUP_FILE"
+    # Import database from backup
+    import_database "$BACKUP_FILE"
     
     echo ""
     
@@ -291,7 +289,7 @@ main() {
     show_database_info
     
     echo ""
-    print_success "All done! Database '$DB_NAME' is ready."
+    print_success "All done! Database '$DB_NAME' has been imported successfully."
     echo ""
     print_info "Connection details:"
     echo "  Host: $DB_HOST"
@@ -299,12 +297,18 @@ main() {
     echo "  Database: $DB_NAME"
     echo "  User: $DB_USER"
     echo ""
-    print_info "Update your Django .env file with:"
+    print_info "Update your Django .env file on VPS with:"
     echo "  DB_NAME=$DB_NAME"
     echo "  DB_USER=$DB_USER"
     echo "  DB_PASSWORD=$DB_PASSWORD"
     echo "  DB_HOST=$DB_HOST"
     echo "  DB_PORT=$DB_PORT"
+    echo ""
+    print_info "Next steps:"
+    echo "  1. Update .env file with database credentials"
+    echo "  2. Run: python manage.py migrate"
+    echo "  3. Run: python manage.py collectstatic"
+    echo "  4. Restart your Django application"
     echo ""
 }
 
