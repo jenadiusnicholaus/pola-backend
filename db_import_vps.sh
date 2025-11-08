@@ -1,6 +1,6 @@
 #!/bin/bash
 # Database Import Script for VPS Production/Test Environment
-# Usage: ./db_restore_vps.sh [backup_file]
+# Usage: ./db_import_vps.sh [backup_file]
 # This script imports a backup file into a fresh database on VPS
 
 set -e  # Exit on error

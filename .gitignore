@@ -78,7 +78,7 @@ docs/*.md
 *.sh
 # Keep backup scripts tracked in Git
 !db_backup.sh
-!db_restore_vps.sh
+!db_import_vps.sh
 *.drawio
 
 
