@@ -91,16 +91,29 @@ END
 SELECT 'CREATE DATABASE $DB_NAME OWNER $DB_USER'
 WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$DB_NAME')\gexec
 
--- Grant privileges
+-- Grant privileges on database
 GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;
 
--- Grant schema privileges
+-- Connect to the database and grant schema privileges
 \c $DB_NAME
+
+-- Grant all privileges on public schema
 GRANT ALL ON SCHEMA public TO $DB_USER;
+GRANT CREATE ON SCHEMA public TO $DB_USER;
+GRANT USAGE ON SCHEMA public TO $DB_USER;
+
+-- Make user owner of public schema (PostgreSQL 15+ security change)
+ALTER SCHEMA public OWNER TO $DB_USER;
+
+-- Grant privileges on existing objects (if any)
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO $DB_USER;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO $DB_USER;
+GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO $DB_USER;
+
+-- Grant default privileges for future objects
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO $DB_USER;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO $DB_USER;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO $DB_USER;
 EOF
 
     if [ $? -eq 0 ]; then
