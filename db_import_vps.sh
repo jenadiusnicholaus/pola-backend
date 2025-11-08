@@ -149,6 +149,38 @@ check_database_empty() {
     fi
 }
 
+# Function to prepare schema permissions before restore
+prepare_schema_permissions() {
+    print_info "Setting up schema permissions (PostgreSQL 15+ requirement)..."
+    
+    sudo -u postgres psql -d "$DB_NAME" <<EOF
+-- Make user owner of public schema (critical for PostgreSQL 15+)
+ALTER SCHEMA public OWNER TO $DB_USER;
+
+-- Grant all necessary privileges
+GRANT ALL ON SCHEMA public TO $DB_USER;
+GRANT CREATE ON SCHEMA public TO $DB_USER;
+GRANT USAGE ON SCHEMA public TO $DB_USER;
+
+-- Grant privileges on existing objects (if any)
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO $DB_USER;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO $DB_USER;
+GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO $DB_USER;
+
+-- Set default privileges for objects created during restore
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO $DB_USER;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO $DB_USER;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO $DB_USER;
+EOF
+
+    if [ $? -eq 0 ]; then
+        print_success "Schema permissions configured"
+    else
+        print_error "Failed to set schema permissions"
+        exit 1
+    fi
+}
+
 # Function to import database from backup
 import_database() {
     local BACKUP_FILE=$1
@@ -170,6 +202,10 @@ import_database() {
     # Set password for import
     export PGPASSWORD="$DB_PASSWORD"
     
+    # CRITICAL: Set schema permissions BEFORE attempting restore
+    prepare_schema_permissions
+    
+    echo ""
     print_info "Importing database from backup..."
     echo ""
     
