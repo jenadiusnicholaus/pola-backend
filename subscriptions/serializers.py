@@ -363,6 +363,7 @@ class ConsultantEarningsSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = ConsultantEarnings
+        ref_name = 'AdminConsultantEarnings'
         fields = [
             'id', 'consultant', 'consultant_email', 'consultant_name',
             'booking', 'booking_reference', 'service_type',
