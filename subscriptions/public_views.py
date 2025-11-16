@@ -335,60 +335,125 @@ class ConsultantViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
     
-    @action(detail=False, methods=['post'])
-    def register(self, request):
-        """Apply to become a consultant"""
-        serializer = ConsultantRegistrationCreateSerializer(data=request.data)
+    @action(detail=False, methods=['post'], url_path='apply')
+    def apply_to_consult(self, request):
+        """
+        Apply to become a consultant (advocates, lawyers, paralegals)
+        
+        Requirements:
+        - User must be verified (advocate, lawyer, paralegal, or law_firm)
+        - Must accept terms and conditions
+        - Must provide required documents
+        - Only law firms can offer physical consultations
+        """
+        # Check if user is eligible
+        eligible_types = ['advocate', 'lawyer', 'paralegal', 'law_firm']
+        if request.user.account_type not in eligible_types:
+            return Response({
+                'error': 'Only verified advocates, lawyers, paralegals, and law firms can apply to become consultants'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        # Check if user is verified
+        if not request.user.is_verified:
+            return Response({
+                'error': 'Your account must be verified before applying to become a consultant'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        # Check if user already has a pending or approved application
+        existing = ConsultantRegistrationRequest.objects.filter(
+            user=request.user,
+            status__in=['pending', 'approved']
+        ).first()
+        
+        if existing:
+            return Response({
+                'error': f'You already have a {existing.status} consultant application',
+                'application': ConsultantRegistrationRequestSerializer(existing, context={'request': request}).data
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if user already has a consultant profile
+        if hasattr(request.user, 'consultant_profile'):
+            return Response({
+                'error': 'You are already a registered consultant'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer = ConsultantRegistrationCreateSerializer(
+            data=request.data,
+            context={'request': request}
+        )
         
         if serializer.is_valid():
-            # Check if user already has a pending or approved application
-            existing = ConsultantRegistrationRequest.objects.filter(
-                applicant=request.user,
-                status__in=['pending', 'approved']
-            ).exists()
-            
-            if existing:
-                return Response(
-                    {'error': 'You already have a pending or approved consultant application'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            
             # Create registration request
+            validated_data = serializer.validated_data
+            validated_data.pop('terms_accepted')  # Remove write-only field
+            
             registration = ConsultantRegistrationRequest.objects.create(
-                applicant=request.user,
-                **serializer.validated_data
+                user=request.user,
+                **validated_data
             )
             
             return Response({
-                'message': 'Consultant registration submitted successfully',
-                'registration': ConsultantRegistrationRequestSerializer(registration).data,
-                'next_step': 'Your application will be reviewed by our admin team'
+                'success': True,
+                'message': 'Consultant application submitted successfully',
+                'registration': ConsultantRegistrationRequestSerializer(registration, context={'request': request}).data,
+                'next_steps': [
+                    'Your application will be reviewed by our admin team',
+                    'You will be notified via email once reviewed',
+                    'If approved, you can start accepting consultation requests'
+                ]
             }, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    @action(detail=False, methods=['get'], url_path='application-status')
+    def check_application_status(self, request):
+        """
+        Check current consultant application status
+        """
+        # Check if user has a consultant profile
+        if hasattr(request.user, 'consultant_profile'):
+            profile = request.user.consultant_profile
+            return Response({
+                'is_consultant': True,
+                'status': 'approved',
+                'profile_id': profile.id,
+                'consultant_type': profile.consultant_type,
+                'is_available': profile.is_available
+            })
+        
+        # Check for pending/rejected applications
+        application = ConsultantRegistrationRequest.objects.filter(
+            user=request.user
+        ).order_by('-created_at').first()
+        
+        if application:
+            return Response({
+                'is_consultant': False,
+                'status': application.status,
+                'application': ConsultantRegistrationRequestSerializer(application, context={'request': request}).data
+            })
+        
+        # Check if user is eligible
+        eligible_types = ['advocate', 'lawyer', 'paralegal', 'law_firm']
+        can_apply = request.user.account_type in eligible_types and request.user.is_verified
+        
+        return Response({
+            'is_consultant': False,
+            'status': 'not_applied',
+            'can_apply': can_apply,
+            'message': 'No consultant application found' if can_apply else 'You are not eligible to apply as a consultant'
+        })
+    
     @action(detail=False, methods=['get'], url_path='my-profile')
-    def my_profile(self, request):
+    def my_consultant_profile(self, request):
         """Get current user's consultant profile"""
         try:
-            profile = ConsultantProfile.objects.get(consultant=request.user)
-            serializer = self.get_serializer(profile)
+            profile = ConsultantProfile.objects.get(user=request.user)
+            serializer = ConsultantProfileSerializer(profile, context={'request': request})
             return Response(serializer.data)
         except ConsultantProfile.DoesNotExist:
-            # Check if user has a pending application
-            pending = ConsultantRegistrationRequest.objects.filter(
-                applicant=request.user,
-                status='pending'
-            ).exists()
-            
-            if pending:
-                return Response(
-                    {'message': 'Your consultant application is pending review'},
-                    status=status.HTTP_200_OK
-                )
-            
             return Response(
-                {'error': 'You are not registered as a consultant'},
+                {'error': 'You do not have an active consultant profile'},
                 status=status.HTTP_404_NOT_FOUND
             )
 

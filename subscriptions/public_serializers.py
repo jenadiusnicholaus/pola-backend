@@ -204,58 +204,105 @@ class ConsultantProfileSerializer(serializers.ModelSerializer):
 
 class ConsultantRegistrationRequestSerializer(serializers.ModelSerializer):
     """Serializer for consultant registration requests"""
-    applicant_details = serializers.SerializerMethodField()
-    professional_details = serializers.SerializerMethodField()
+    user_details = serializers.SerializerMethodField()
+    professional_info = serializers.SerializerMethodField()
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    consultant_type_display = serializers.CharField(source='get_consultant_type_display', read_only=True)
+    
+    class Meta:
+        model = ConsultantRegistrationRequest
+        ref_name = 'PublicConsultantRegistrationRequest'
+        fields = [
+            'id', 'user', 'user_details', 'consultant_type', 'consultant_type_display',
+            'license_document', 'id_document', 'cv_document', 'additional_documents',
+            'offers_mobile_consultations', 'offers_physical_consultations',
+            'preferred_consultation_city', 'professional_info',
+            'status', 'status_display', 'admin_notes',
+            'reviewed_by', 'reviewed_at', 'created_at', 'updated_at'
+        ]
+        read_only_fields = [
+            'user', 'status', 'admin_notes', 'reviewed_by',
+            'reviewed_at', 'created_at', 'updated_at'
+        ]
+    
+    def get_user_details(self, obj):
+        """Get user details"""
+        return {
+            'id': obj.user.id,
+            'email': obj.user.email,
+            'full_name': obj.user.get_full_name(),
+            'phone': obj.user.contact.phone_number if hasattr(obj.user, 'contact') else None,
+            'profile_picture': obj.user.profile_picture.url if obj.user.profile_picture else None
+        }
+    
+    def get_professional_info(self, obj):
+        """Get professional information from user profile"""
+        return obj.get_professional_info()
+
+
+class ConsultantRegistrationCreateSerializer(serializers.ModelSerializer):
+    """Serializer for creating consultant registration requests"""
+    terms_accepted = serializers.BooleanField(write_only=True, required=True)
     
     class Meta:
         model = ConsultantRegistrationRequest
         fields = [
-            'id', 'applicant', 'applicant_details', 'consultant_type',
-            'specialization', 'years_of_experience', 'roll_number',
-            'law_firm', 'bio', 'qualification_document', 'id_document',
-            'professional_details', 'status', 'admin_notes',
-            'reviewed_by', 'reviewed_at', 'created_at', 'updated_at'
-        ]
-        read_only_fields = [
-            'applicant', 'status', 'admin_notes', 'reviewed_by',
-            'reviewed_at', 'created_at', 'updated_at'
+            'consultant_type', 'license_document', 'id_document',
+            'cv_document', 'additional_documents',
+            'offers_mobile_consultations', 'offers_physical_consultations',
+            'preferred_consultation_city', 'terms_accepted'
         ]
     
-    def get_applicant_details(self, obj):
-        """Get applicant user details"""
-        user = obj.applicant
-        return {
-            'id': user.id,
-            'email': user.email,
-            'full_name': f"{user.first_name} {user.last_name}",
-            'phone': user.phone_number if hasattr(user, 'phone_number') else None
-        }
+    def validate_terms_accepted(self, value):
+        """Ensure terms are accepted"""
+        if not value:
+            raise serializers.ValidationError("You must accept the terms and conditions")
+        return value
     
-    def get_professional_details(self, obj):
-        """Get professional details"""
-        return {
-            'type': obj.get_consultant_type_display(),
-            'specialization': obj.get_specialization_display() if obj.specialization else None,
-            'experience_years': obj.years_of_experience,
-            'roll_number': obj.roll_number,
-            'law_firm': obj.law_firm,
-        }
+    def validate_id_document(self, value):
+        """Validate ID document is provided"""
+        if not value:
+            raise serializers.ValidationError("ID document is required")
+        return value
     
     def validate_consultant_type(self, value):
-        """Validate consultant type"""
-        valid_types = ['advocate', 'lawyer', 'paralegal']
-        if value not in valid_types:
+        """Validate consultant type matches user's account type"""
+        user = self.context['request'].user
+        
+        # Map account types to consultant types
+        type_mapping = {
+            'advocate': ['advocate'],
+            'lawyer': ['lawyer'],
+            'paralegal': ['paralegal'],
+            'law_firm': ['advocate', 'lawyer']  # Law firms can register as advocate or lawyer
+        }
+        
+        allowed_types = type_mapping.get(user.account_type, [])
+        
+        if value not in allowed_types:
             raise serializers.ValidationError(
-                f"Invalid consultant type. Must be one of: {', '.join(valid_types)}"
+                f"Your account type ({user.get_account_type_display()}) cannot register as {value}"
             )
+        
         return value
     
-    def validate_roll_number(self, value):
-        """Validate roll number for advocates"""
-        if self.initial_data.get('consultant_type') == 'advocate':
-            if not value:
-                raise serializers.ValidationError("Roll number is required for advocates")
-        return value
+    def validate(self, attrs):
+        """Validate physical consultations eligibility"""
+        user = self.context['request'].user
+        
+        # Only law firms can offer physical consultations
+        if attrs.get('offers_physical_consultations', False) and user.account_type != 'law_firm':
+            raise serializers.ValidationError({
+                'offers_physical_consultations': 'Only registered law firms can offer physical consultations'
+            })
+        
+        # If offering physical consultations, city is required
+        if attrs.get('offers_physical_consultations') and not attrs.get('preferred_consultation_city'):
+            raise serializers.ValidationError({
+                'preferred_consultation_city': 'City is required for physical consultations'
+            })
+        
+        return attrs
 
 
 class ConsultantRegistrationCreateSerializer(serializers.Serializer):
