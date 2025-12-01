@@ -30,6 +30,10 @@ from .admin_consultation_views import (
     ConsultantProfileViewSet,
     ConsultationBookingViewSet
 )
+from .admin_consultant_views import (
+    AdminConsultantRegistrationViewSet,
+    AdminConsultantProfileViewSet
+)
 from .admin_document_views import (
     LearningMaterialViewSet
 )
@@ -64,6 +68,10 @@ router.register(r'call-credits/users', UserCallCreditViewSet, basename='admin-us
 router.register(r'consultations/pricing', PricingConfigurationViewSet, basename='admin-pricing')
 router.register(r'consultations/consultants', ConsultantProfileViewSet, basename='admin-consultants')
 router.register(r'consultations/bookings', ConsultationBookingViewSet, basename='admin-bookings')
+
+# ===== CONSULTANT REGISTRATION MANAGEMENT =====
+router.register(r'consultant-requests', AdminConsultantRegistrationViewSet, basename='admin-consultant-requests')
+router.register(r'consultants', AdminConsultantProfileViewSet, basename='admin-consultant-profiles')
 
 # ===== DOCUMENT MANAGEMENT =====
 router.register(r'documents/materials', LearningMaterialViewSet, basename='admin-materials')

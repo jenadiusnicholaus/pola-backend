@@ -27,6 +27,7 @@ from .models import (
     ConsultantProfile,
     ConsultantRegistrationRequest,
     ConsultationBooking,
+    ConsultantReview,
     CallSession,
     PaymentTransaction,
     ConsultantEarnings,
@@ -340,17 +341,27 @@ class ConsultantViewSet(viewsets.ReadOnlyModelViewSet):
         """
         Apply to become a consultant (advocates, lawyers, paralegals)
         
+        Simplified process - most data is already collected during registration:
+        - consultant_type: Comes from user.user_role.role_name
+        - Documents: Already uploaded during verification
+        - Personal info: Already in user profile
+        
         Requirements:
-        - User must be verified (advocate, lawyer, paralegal, or law_firm)
+        - User must be verified (advocate, lawyer, or paralegal)
         - Must accept terms and conditions
-        - Must provide required documents
-        - Only law firms can offer physical consultations
+        - Physical consultations require law firm association
         """
-        # Check if user is eligible
-        eligible_types = ['advocate', 'lawyer', 'paralegal', 'law_firm']
-        if request.user.account_type not in eligible_types:
+        # Check if user has a role
+        if not request.user.user_role:
             return Response({
-                'error': 'Only verified advocates, lawyers, paralegals, and law firms can apply to become consultants'
+                'error': 'User role not found'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if user is eligible
+        eligible_types = ['advocate', 'lawyer', 'paralegal']
+        if request.user.user_role.role_name not in eligible_types:
+            return Response({
+                'error': 'Only verified advocates, lawyers, and paralegals can apply to become consultants'
             }, status=status.HTTP_403_FORBIDDEN)
         
         # Check if user is verified
@@ -383,13 +394,30 @@ class ConsultantViewSet(viewsets.ReadOnlyModelViewSet):
         )
         
         if serializer.is_valid():
-            # Create registration request
-            validated_data = serializer.validated_data
+            # Get validated data
+            validated_data = serializer.validated_data.copy()
             validated_data.pop('terms_accepted')  # Remove write-only field
+            
+            # Use user's role_name as consultant_type
+            consultant_type = request.user.user_role.role_name
+            
+            # Create registration request with data from user profile
+            # Get city from law firm or user's address
+            city = ''
+            if request.user.associated_law_firm:
+                city = getattr(request.user.associated_law_firm, 'city', '')
+            elif hasattr(request.user, 'address') and request.user.address:
+                city = getattr(request.user.address.district, 'name', '') if request.user.address.district else ''
             
             registration = ConsultantRegistrationRequest.objects.create(
                 user=request.user,
-                **validated_data
+                consultant_type=consultant_type,
+                # Consultation preferences from request
+                offers_physical_consultations=validated_data.get('offers_physical_consultations', False),
+                # Mobile consultations always offered by default
+                offers_mobile_consultations=True,
+                # Use law firm city, user district, or empty string
+                preferred_consultation_city=city,
             )
             
             return Response({
@@ -405,10 +433,11 @@ class ConsultantViewSet(viewsets.ReadOnlyModelViewSet):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    @action(detail=False, methods=['get'], url_path='application-status')
+    @action(detail=False, methods=['get'], url_path='application-status', permission_classes=[IsAuthenticated])
     def check_application_status(self, request):
         """
         Check current consultant application status
+        Requires authentication
         """
         # Check if user has a consultant profile
         if hasattr(request.user, 'consultant_profile'):
@@ -435,7 +464,9 @@ class ConsultantViewSet(viewsets.ReadOnlyModelViewSet):
         
         # Check if user is eligible
         eligible_types = ['advocate', 'lawyer', 'paralegal', 'law_firm']
-        can_apply = request.user.account_type in eligible_types and request.user.is_verified
+        can_apply = (request.user.user_role and 
+                    request.user.user_role.role_name in eligible_types and 
+                    request.user.is_verified)
         
         return Response({
             'is_consultant': False,
@@ -444,18 +475,295 @@ class ConsultantViewSet(viewsets.ReadOnlyModelViewSet):
             'message': 'No consultant application found' if can_apply else 'You are not eligible to apply as a consultant'
         })
     
-    @action(detail=False, methods=['get'], url_path='my-profile')
+    @action(detail=False, methods=['get', 'patch'], url_path='my-profile')
     def my_consultant_profile(self, request):
-        """Get current user's consultant profile"""
+        """
+        Get or update current user's consultant profile with comprehensive statistics
+        
+        GET: Returns consultant profile with:
+            - User details (name, email, phone, profile picture, bio)
+            - Consultation statistics (total, by type, by status)
+            - Earnings breakdown (total, pending, paid out, by type)
+            - Performance metrics (ratings, reviews)
+            - Service offerings and availability
+        
+        PATCH: Update consultant profile fields and user information
+        Updatable fields:
+        - User fields: bio, profile_picture, first_name, last_name, phone_number
+        - Profile fields: specialization, years_of_experience, city, is_available
+        - Service offerings: offers_mobile_consultations, offers_physical_consultations
+        """
         try:
             profile = ConsultantProfile.objects.get(user=request.user)
-            serializer = ConsultantProfileSerializer(profile, context={'request': request})
-            return Response(serializer.data)
+            
+            if request.method == 'GET':
+                # Get consultation statistics
+                from django.db.models import Count, Sum, Q, Avg
+                from datetime import datetime, timedelta
+                
+                consultations = ConsultationBooking.objects.filter(consultant=request.user)
+                
+                # Consultation stats by type and status
+                consultation_stats = {
+                    'total': consultations.count(),
+                    'by_type': {
+                        'mobile': consultations.filter(booking_type='mobile').count(),
+                        'physical': consultations.filter(booking_type='physical').count(),
+                    },
+                    'by_status': {
+                        'completed': consultations.filter(status='completed').count(),
+                        'in_progress': consultations.filter(status='in_progress').count(),
+                        'confirmed': consultations.filter(status='confirmed').count(),
+                        'pending': consultations.filter(status='pending').count(),
+                        'cancelled': consultations.filter(status='cancelled').count(),
+                    },
+                    'this_month': consultations.filter(
+                        created_at__gte=datetime.now().replace(day=1)
+                    ).count(),
+                    'this_week': consultations.filter(
+                        created_at__gte=datetime.now() - timedelta(days=7)
+                    ).count(),
+                }
+                
+                # Earnings statistics
+                earnings_records = ConsultantEarnings.objects.filter(consultant=request.user)
+                
+                earnings_stats = {
+                    'total_gross': float(earnings_records.aggregate(
+                        total=Sum('gross_amount')
+                    )['total'] or 0),
+                    'total_net': float(earnings_records.aggregate(
+                        total=Sum('net_earnings')
+                    )['total'] or 0),
+                    'pending': float(earnings_records.filter(paid_out=False).aggregate(
+                        total=Sum('net_earnings')
+                    )['total'] or 0),
+                    'paid_out': float(earnings_records.filter(paid_out=True).aggregate(
+                        total=Sum('net_earnings')
+                    )['total'] or 0),
+                    'by_type': {
+                        'mobile': float(earnings_records.filter(
+                            service_type__icontains='MOBILE'
+                        ).aggregate(total=Sum('net_earnings'))['total'] or 0),
+                        'physical': float(earnings_records.filter(
+                            service_type__icontains='PHYSICAL'
+                        ).aggregate(total=Sum('net_earnings'))['total'] or 0),
+                    },
+                    'this_month': float(earnings_records.filter(
+                        created_at__gte=datetime.now().replace(day=1)
+                    ).aggregate(total=Sum('net_earnings'))['total'] or 0),
+                    'count': earnings_records.count(),
+                }
+                
+                # Performance metrics with reviews
+                reviews = ConsultantReview.objects.filter(consultant=request.user, is_visible=True)
+                
+                performance = {
+                    'average_rating': float(profile.average_rating),
+                    'total_reviews': profile.total_reviews,
+                    'completion_rate': round(
+                        (consultation_stats['by_status']['completed'] / consultation_stats['total'] * 100) 
+                        if consultation_stats['total'] > 0 else 0, 
+                        2
+                    ),
+                    'rating_breakdown': {
+                        '5_stars': reviews.filter(rating=5).count(),
+                        '4_stars': reviews.filter(rating=4).count(),
+                        '3_stars': reviews.filter(rating=3).count(),
+                        '2_stars': reviews.filter(rating=2).count(),
+                        '1_star': reviews.filter(rating=1).count(),
+                    },
+                    'average_professionalism': float(reviews.exclude(
+                        professionalism_rating__isnull=True
+                    ).aggregate(avg=Avg('professionalism_rating'))['avg'] or 0),
+                    'average_communication': float(reviews.exclude(
+                        communication_rating__isnull=True
+                    ).aggregate(avg=Avg('communication_rating'))['avg'] or 0),
+                    'average_expertise': float(reviews.exclude(
+                        expertise_rating__isnull=True
+                    ).aggregate(avg=Avg('expertise_rating'))['avg'] or 0),
+                }
+                
+                # Add recent reviews (last 5)
+                recent_reviews = reviews.order_by('-created_at')[:5].values(
+                    'id', 'rating', 'review_text', 'created_at',
+                    'professionalism_rating', 'communication_rating', 'expertise_rating',
+                    'consultant_response', 'response_date'
+                )
+                
+                performance['recent_reviews'] = list(recent_reviews)
+                
+                # Serialize profile data
+                serializer = ConsultantProfileSerializer(profile, context={'request': request})
+                profile_data = serializer.data
+                
+                # Add comprehensive statistics
+                profile_data['statistics'] = {
+                    'consultations': consultation_stats,
+                    'earnings': earnings_stats,
+                    'performance': performance,
+                }
+                
+                return Response(profile_data)
+            
+            elif request.method == 'PATCH':
+                # Update consultant profile fields
+                profile_fields = [
+                    'specialization', 'years_of_experience',
+                    'offers_mobile_consultations', 'offers_physical_consultations',
+                    'city', 'is_available'
+                ]
+                
+                updated_fields = []
+                
+                # Update ConsultantProfile fields
+                for field in profile_fields:
+                    if field in request.data:
+                        setattr(profile, field, request.data[field])
+                        updated_fields.append(field)
+                
+                if updated_fields:
+                    profile.save()
+                
+                # Update user profile fields (bio, profile_picture, name, phone)
+                user_fields = ['bio', 'profile_picture', 'first_name', 'last_name', 'phone_number']
+                user_updated = []
+                
+                for field in user_fields:
+                    if field in request.data or field in request.FILES:
+                        value = request.FILES.get(field) if field == 'profile_picture' else request.data.get(field)
+                        if value is not None:
+                            setattr(request.user, field, value)
+                            user_updated.append(field)
+                
+                if user_updated:
+                    request.user.save()
+                
+                # Return updated profile with stats
+                serializer = ConsultantProfileSerializer(profile, context={'request': request})
+                
+                return Response({
+                    'success': True,
+                    'message': 'Profile updated successfully',
+                    'updated_fields': {
+                        'profile': updated_fields,
+                        'user': user_updated
+                    },
+                    'profile': serializer.data
+                })
+        
         except ConsultantProfile.DoesNotExist:
             return Response(
                 {'error': 'You do not have an active consultant profile'},
                 status=status.HTTP_404_NOT_FOUND
             )
+    
+    @action(detail=False, methods=['get'], url_path='my-reviews')
+    def my_consultant_reviews(self, request):
+        """
+        Get all reviews for the authenticated consultant
+        
+        Query params:
+        - page: Page number for pagination
+        - page_size: Number of reviews per page (default 10)
+        - rating: Filter by specific rating (1-5)
+        - responded: Filter by whether consultant has responded (true/false)
+        """
+        try:
+            profile = ConsultantProfile.objects.get(user=request.user)
+        except ConsultantProfile.DoesNotExist:
+            return Response(
+                {'error': 'You do not have a consultant profile'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        reviews = ConsultantReview.objects.filter(
+            consultant=request.user,
+            is_visible=True
+        ).select_related('client', 'booking')
+        
+        # Apply filters
+        rating_filter = request.query_params.get('rating')
+        if rating_filter:
+            reviews = reviews.filter(rating=int(rating_filter))
+        
+        responded_filter = request.query_params.get('responded')
+        if responded_filter:
+            if responded_filter.lower() == 'true':
+                reviews = reviews.exclude(consultant_response='')
+            elif responded_filter.lower() == 'false':
+                reviews = reviews.filter(consultant_response='')
+        
+        # Prepare response data
+        reviews_data = []
+        for review in reviews:
+            reviews_data.append({
+                'id': review.id,
+                'client': {
+                    'name': review.client.get_full_name(),
+                    'email': review.client.email if request.user.is_staff else None,
+                },
+                'booking_id': review.booking.id,
+                'booking_type': review.booking.booking_type,
+                'booking_date': review.booking.scheduled_date,
+                'rating': review.rating,
+                'review_text': review.review_text,
+                'professionalism_rating': review.professionalism_rating,
+                'communication_rating': review.communication_rating,
+                'expertise_rating': review.expertise_rating,
+                'consultant_response': review.consultant_response,
+                'response_date': review.response_date,
+                'created_at': review.created_at,
+            })
+        
+        return Response({
+            'count': len(reviews_data),
+            'reviews': reviews_data,
+            'summary': {
+                'average_rating': float(profile.average_rating),
+                'total_reviews': profile.total_reviews,
+            }
+        })
+    
+    @action(detail=True, methods=['post'], url_path='respond-to-review')
+    def respond_to_review(self, request, pk=None):
+        """
+        Consultant responds to a review
+        
+        Body:
+        - response: Response text
+        """
+        try:
+            review = ConsultantReview.objects.get(
+                id=pk,
+                consultant=request.user
+            )
+        except ConsultantReview.DoesNotExist:
+            return Response(
+                {'error': 'Review not found or you do not have permission'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        response_text = request.data.get('response', '').strip()
+        if not response_text:
+            return Response(
+                {'error': 'Response text is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        review.consultant_response = response_text
+        review.response_date = timezone.now()
+        review.save()
+        
+        return Response({
+            'success': True,
+            'message': 'Response submitted successfully',
+            'review': {
+                'id': review.id,
+                'response': review.consultant_response,
+                'response_date': review.response_date,
+            }
+        })
 
 
 # ==============================================================================
@@ -731,7 +1039,16 @@ class ConsultationBookingViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'])
     def rate(self, request, pk=None):
-        """Rate a completed consultation"""
+        """
+        Submit a review for a completed consultation
+        
+        Body:
+        - rating: Overall rating (1-5 stars) [required]
+        - review_text: Written review [optional]
+        - professionalism_rating: Professionalism rating (1-5) [optional]
+        - communication_rating: Communication rating (1-5) [optional]
+        - expertise_rating: Legal expertise rating (1-5) [optional]
+        """
         booking = self.get_object()
         
         # Check if user is the client
@@ -748,9 +1065,15 @@ class ConsultationBookingViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        rating = request.data.get('rating')
-        feedback = request.data.get('feedback', '')
+        # Check if already reviewed
+        if hasattr(booking, 'review'):
+            return Response(
+                {'error': 'You have already reviewed this consultation'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
+        # Validate rating
+        rating = request.data.get('rating')
         if not rating:
             return Response(
                 {'error': 'Rating is required'},
@@ -767,22 +1090,61 @@ class ConsultationBookingViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        booking.client_rating = rating
-        booking.client_feedback = feedback
-        booking.save()
+        # Get optional ratings
+        review_text = request.data.get('review_text', '').strip()
+        professionalism_rating = request.data.get('professionalism_rating')
+        communication_rating = request.data.get('communication_rating')
+        expertise_rating = request.data.get('expertise_rating')
         
-        # Update consultant's average rating
-        consultant_profile = booking.consultant_profile
-        avg_rating = ConsultationBooking.objects.filter(
-            consultant_profile=consultant_profile,
-            client_rating__isnull=False
-        ).aggregate(avg=Avg('client_rating'))['avg']
+        # Validate optional ratings
+        for field_name, field_value in [
+            ('professionalism_rating', professionalism_rating),
+            ('communication_rating', communication_rating),
+            ('expertise_rating', expertise_rating)
+        ]:
+            if field_value is not None:
+                try:
+                    field_value = int(field_value)
+                    if field_value < 1 or field_value > 5:
+                        raise ValueError
+                except (ValueError, TypeError):
+                    return Response(
+                        {'error': f'{field_name} must be an integer between 1 and 5'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
         
-        consultant_profile.rating = avg_rating or 0
+        # Create review
+        review = ConsultantReview.objects.create(
+            consultant=booking.consultant,
+            client=booking.client,
+            booking=booking,
+            rating=rating,
+            review_text=review_text,
+            professionalism_rating=int(professionalism_rating) if professionalism_rating else None,
+            communication_rating=int(communication_rating) if communication_rating else None,
+            expertise_rating=int(expertise_rating) if expertise_rating else None,
+        )
+        
+        # Update consultant's profile statistics
+        consultant_profile = booking.consultant.consultant_profile
+        reviews = ConsultantReview.objects.filter(consultant=booking.consultant, is_visible=True)
+        
+        consultant_profile.average_rating = reviews.aggregate(avg=Avg('rating'))['avg'] or 0
+        consultant_profile.total_reviews = reviews.count()
         consultant_profile.save()
         
         return Response({
-            'message': 'Rating submitted successfully',
+            'success': True,
+            'message': 'Review submitted successfully',
+            'review': {
+                'id': review.id,
+                'rating': review.rating,
+                'review_text': review.review_text,
+                'professionalism_rating': review.professionalism_rating,
+                'communication_rating': review.communication_rating,
+                'expertise_rating': review.expertise_rating,
+                'created_at': review.created_at,
+            },
             'booking': self.get_serializer(booking).data
         })
 

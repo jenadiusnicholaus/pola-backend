@@ -72,6 +72,12 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
     
+    def get_serializer_context(self):
+        """Ensure request is passed to serializer context"""
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+    
     @swagger_auto_schema(
         operation_description="Get current user profile",
         responses={200: UserDetailSerializer},
@@ -187,6 +193,91 @@ class AdminLoginView(APIView):
                     'is_staff': user.is_staff,
                     'is_superuser': user.is_superuser,
                 }
+            },
+            status=status.HTTP_200_OK
+        )
+
+
+class UpdateProfilePictureView(APIView):
+    """
+    API endpoint for updating user profile picture.
+    
+    Allows any authenticated user to update their profile picture.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    @swagger_auto_schema(
+        operation_description="Update user profile picture",
+        manual_parameters=[
+            openapi.Parameter(
+                'profile_picture',
+                openapi.IN_FORM,
+                description="Profile picture image file (JPEG/PNG, max 5MB)",
+                type=openapi.TYPE_FILE,
+                required=True
+            )
+        ],
+        responses={
+            200: openapi.Response(
+                description="Profile picture updated successfully",
+                examples={
+                    "application/json": {
+                        "success": True,
+                        "message": "Profile picture updated successfully",
+                        "profile_picture_url": "https://api.pola.co.tz/media/profile_pictures/user_123.jpg"
+                    }
+                }
+            ),
+            400: "Bad Request - Invalid file or file too large",
+            401: "Unauthorized - Authentication required"
+        },
+        tags=['Authentication']
+    )
+    def patch(self, request):
+        user = request.user
+        profile_picture = request.FILES.get('profile_picture')
+        
+        if not profile_picture:
+            return Response(
+                {'error': 'No profile picture provided'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Validate file type
+        allowed_types = ['image/jpeg', 'image/jpg', 'image/png']
+        if profile_picture.content_type not in allowed_types:
+            return Response(
+                {'error': 'Invalid file type. Only JPEG and PNG images are allowed'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Validate file size (5MB max)
+        max_size = 5 * 1024 * 1024  # 5MB in bytes
+        if profile_picture.size > max_size:
+            return Response(
+                {'error': 'File too large. Maximum size is 5MB'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Delete old profile picture if exists
+        if user.profile_picture:
+            try:
+                user.profile_picture.delete(save=False)
+            except Exception:
+                pass  # Ignore errors when deleting old file
+        
+        # Update profile picture
+        user.profile_picture = profile_picture
+        user.save()
+        
+        # Build full URL for profile picture
+        profile_picture_url = request.build_absolute_uri(user.profile_picture.url) if user.profile_picture else None
+        
+        return Response(
+            {
+                'success': True,
+                'message': 'Profile picture updated successfully',
+                'profile_picture_url': profile_picture_url
             },
             status=status.HTTP_200_OK
         )

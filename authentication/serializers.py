@@ -283,6 +283,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
     verification_status = serializers.ReadOnlyField()
     permissions = serializers.SerializerMethodField()
     subscription = serializers.SerializerMethodField()
+    profile_picture_url = serializers.SerializerMethodField()
     
     # Related fields
     regional_chapter = RegionalChapterSerializer(read_only=True)
@@ -291,6 +292,15 @@ class UserDetailSerializer(serializers.ModelSerializer):
     specializations = serializers.SerializerMethodField()
     place_of_work = PlaceOfWorkSerializer(read_only=True)
     academic_role = AcademicRoleSerializer(read_only=True)
+    
+    def get_profile_picture_url(self, obj):
+        """Get full URL for profile picture"""
+        if obj.profile_picture:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.profile_picture.url)
+            return obj.profile_picture.url
+        return None
     
     def get_permissions(self, obj):
         """Get user permissions for frontend access control"""
@@ -387,7 +397,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'email', 'first_name', 'last_name', 'date_of_birth',
-            'user_role', 'gender', 'profile_picture', 'is_active', 'is_verified',
+            'user_role', 'gender', 'profile_picture', 'profile_picture_url', 'is_active', 'is_verified',
             'is_staff', 'is_superuser',  # Admin flags for frontend
             'contact', 'address', 'verification_status', 'permissions', 'subscription',
             
@@ -423,13 +433,13 @@ class UserDetailSerializer(serializers.ModelSerializer):
         role_fields = {
             'citizen': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
-                'user_role', 'gender', 'profile_picture', 'is_active', 'is_verified',
+                'user_role', 'gender', 'profile_picture', 'profile_picture_url', 'is_active', 'is_verified',
                 'contact', 'address', 'verification_status', 'permissions', 'subscription', 'id_number',
                 'date_joined', 'last_login'
             ],
             'advocate': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
-                'user_role', 'gender', 'profile_picture', 'is_active', 'is_verified',
+                'user_role', 'gender', 'profile_picture', 'profile_picture_url', 'is_active', 'is_verified',
                 'contact', 'address', 'verification_status', 'permissions', 'subscription',
                 'roll_number', 'practice_status', 'year_established', 'regional_chapter',
                 'operating_regions', 'specializations', 'associated_law_firm',
@@ -437,7 +447,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             ],
             'lawyer': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
-                'user_role', 'gender', 'profile_picture', 'is_active', 'is_verified',
+                'user_role', 'gender', 'profile_picture', 'profile_picture_url', 'is_active', 'is_verified',
                 'contact', 'address', 'verification_status', 'permissions', 'subscription',
                 'bar_membership_number', 'years_of_experience', 'place_of_work',
                 'operating_regions', 'operating_districts', 'specializations',
@@ -445,21 +455,21 @@ class UserDetailSerializer(serializers.ModelSerializer):
             ],
             'paralegal': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
-                'user_role', 'gender', 'profile_picture', 'is_active', 'is_verified',
+                'user_role', 'gender', 'profile_picture', 'profile_picture_url', 'is_active', 'is_verified',
                 'contact', 'address', 'verification_status', 'permissions', 'subscription',
                 'years_of_experience', 'place_of_work', 'operating_regions',
                 'operating_districts', 'associated_law_firm',
                 'date_joined', 'last_login'
             ],
             'law_firm': [
-                'id', 'email', 'user_role', 'profile_picture', 'is_active', 'is_verified',
+                'id', 'email', 'user_role', 'profile_picture', 'profile_picture_url', 'is_active', 'is_verified',
                 'contact', 'address', 'verification_status', 'permissions', 'subscription',
                 'firm_name', 'managing_partner', 'number_of_lawyers', 'year_established',
                 'specializations', 'date_joined', 'last_login'
             ],
             'law_student': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
-                'user_role', 'gender', 'profile_picture', 'is_active', 'is_verified',
+                'user_role', 'gender', 'profile_picture', 'profile_picture_url', 'is_active', 'is_verified',
                 'contact', 'verification_status', 'permissions', 'subscription',
                 'university_name', 'academic_role', 'year_of_study', 'academic_qualification',
                 'date_joined', 'last_login'
@@ -477,7 +487,8 @@ class UserDetailSerializer(serializers.ModelSerializer):
         for key, value in filtered_data.items():
             # Keep these fields even if null/empty
             if key in ['id', 'email', 'user_role', 'is_active', 'is_verified', 
-                      'verification_status', 'permissions', 'date_joined', 'last_login']:
+                      'verification_status', 'permissions', 'profile_picture', 'profile_picture_url', 
+                      'date_joined', 'last_login']:
                 cleaned_data[key] = value
             # Remove null values
             elif value is None:

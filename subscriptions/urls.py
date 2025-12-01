@@ -25,7 +25,9 @@ from .webhook_views import azampay_webhook, webhook_health
 router = DefaultRouter()
 
 # Old endpoints (backward compatibility)
-router.register(r'subscriptions', SubscriptionViewSet, basename='subscription')
+# Empty string '' registers the ViewSet directly at /api/v1/subscriptions/
+# This makes actions available at: /api/v1/subscriptions/plans/, /api/v1/subscriptions/subscribe/, etc.
+router.register(r'', SubscriptionViewSet, basename='subscription')
 router.register(r'documents', DocumentViewSet, basename='document')
 router.register(r'learning', LearningMaterialViewSet, basename='learning')
 

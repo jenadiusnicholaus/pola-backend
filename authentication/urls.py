@@ -23,6 +23,7 @@ urlpatterns = [
     
     # User profile
     path('profile/', views.UserProfileView.as_view(), name='user-profile'),
+    path('profile-picture/', views.UpdateProfilePictureView.as_view(), name='update-profile-picture'),
     
     # Verification endpoints (from router)
     path('', include(router.urls)),

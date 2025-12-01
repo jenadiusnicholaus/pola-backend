@@ -164,6 +164,8 @@ class VerificationSerializer(serializers.ModelSerializer):
     user_date_of_birth = serializers.DateField(source='user.date_of_birth', read_only=True)
     user_gender = serializers.CharField(source='user.gender', read_only=True)
     user_nationality = serializers.CharField(source='user.nationality', read_only=True)
+    profile_picture = serializers.SerializerMethodField()
+    profile_picture_url = serializers.SerializerMethodField()
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     current_step_display = serializers.CharField(source='get_current_step_display', read_only=True)
     verified_by_id = serializers.IntegerField(source='verified_by.id', read_only=True, allow_null=True)
@@ -174,13 +176,28 @@ class VerificationSerializer(serializers.ModelSerializer):
     documents_summary = serializers.SerializerMethodField()
     missing_information = serializers.SerializerMethodField()
     days_since_registration = serializers.SerializerMethodField()
+    
+    def get_profile_picture(self, obj):
+        """Get user's profile picture relative path"""
+        if obj.user.profile_picture:
+            return obj.user.profile_picture.name
+        return None
+    
+    def get_profile_picture_url(self, obj):
+        """Get full URL for user's profile picture"""
+        if obj.user.profile_picture:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.user.profile_picture.url)
+            return obj.user.profile_picture.url
+        return None
 
     class Meta:
         model = Verification
         fields = [
             'id', 'user_id', 'user_email', 'user_name', 'user_full_name', 'user_role',
             'user_phone', 'user_address', 'user_date_of_birth', 
-            'user_gender', 'user_nationality',
+            'user_gender', 'user_nationality', 'profile_picture', 'profile_picture_url',
             'status', 'status_display',
             'current_step', 'current_step_display',
             'verified_by_id', 'verified_by_name',

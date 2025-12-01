@@ -47,17 +47,17 @@ class CanAccessHub(BasePermission):
         if request.user.is_staff or request.user.is_superuser:
             return True
         
-        # Advocates Hub - only advocates and admins
+        # Advocates Hub - advocates, lawyers, and admins
         if hub_type == 'advocates':
             user_role_name = request.user.user_role.role_name if request.user.user_role else None
-            if user_role_name not in ['advocate', 'admin']:
-                self.message = "Only advocates can access the Advocates Hub"
+            if user_role_name not in ['advocate', 'lawyer', 'admin']:
+                self.message = "Only advocates and lawyers can access the Advocates Hub"
                 return False
             
-            # Check verification for advocates
-            if user_role_name == 'advocate':
+            # Check verification for advocates and lawyers
+            if user_role_name in ['advocate', 'lawyer']:
                 if not hasattr(request.user, 'verification') or request.user.verification.status != 'verified':
-                    self.message = "You must be a verified advocate to access this hub"
+                    self.message = "You must be verified to access this hub"
                     return False
         
         # Students Hub - students, lecturers, admins
@@ -90,7 +90,7 @@ class CanAccessHub(BasePermission):
         
         if hub_type == 'advocates':
             user_role_name = request.user.user_role.role_name if request.user.user_role else None
-            return user_role_name in ['advocate', 'admin']
+            return user_role_name in ['advocate', 'lawyer', 'admin']
         
         if hub_type == 'students':
             user_role_name = request.user.user_role.role_name if request.user.user_role else None
@@ -158,17 +158,17 @@ class CanCreateContent(BasePermission):
                 self.message = "Only admins can create legal education content"
                 return False
         
-        # Advocates Hub - only advocates and admins
+        # Advocates Hub - advocates, lawyers, and admins
         if hub_type == 'advocates':
             user_role_name = request.user.user_role.role_name if request.user.user_role else None
-            if user_role_name not in ['advocate', 'admin']:
-                self.message = "Only advocates and admins can post in Advocates Hub"
+            if user_role_name not in ['advocate', 'lawyer', 'admin']:
+                self.message = "Only advocates, lawyers, and admins can post in Advocates Hub"
                 return False
             
             # Check verification
-            if user_role_name == 'advocate':
+            if user_role_name in ['advocate', 'lawyer']:
                 if not hasattr(request.user, 'verification') or request.user.verification.status != 'verified':
-                    self.message = "You must be a verified advocate"
+                    self.message = "You must be verified"
                     return False
         
         # Students Hub - students, lecturers, admins

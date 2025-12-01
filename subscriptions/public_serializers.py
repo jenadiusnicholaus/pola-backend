@@ -154,6 +154,16 @@ class ConsultantProfileSerializer(serializers.ModelSerializer):
     def get_user_details(self, obj):
         """Get consultant user details"""
         user = obj.user
+        request = self.context.get('request')
+        
+        # Build profile picture URL
+        profile_picture_url = None
+        if user.profile_picture:
+            if request:
+                profile_picture_url = request.build_absolute_uri(user.profile_picture.url)
+            else:
+                profile_picture_url = user.profile_picture.url
+        
         return {
             'id': user.id,
             'email': user.email,
@@ -161,25 +171,38 @@ class ConsultantProfileSerializer(serializers.ModelSerializer):
             'last_name': user.last_name,
             'full_name': f"{user.first_name} {user.last_name}",
             'phone_number': user.phone_number if hasattr(user, 'phone_number') else None,
+            'bio': user.bio if hasattr(user, 'bio') else None,
+            'profile_picture': profile_picture_url,
         }
     
     def get_pricing_info(self, obj):
         """Get pricing information for this consultant"""
         pricing = obj.get_pricing()
-        return {
-            'mobile': {
+        result = {}
+        
+        if 'mobile' in pricing:
+            result['mobile'] = {
                 'price': float(pricing['mobile']['price']),
                 'formatted': f"{float(pricing['mobile']['price']):,.0f} TZS" if pricing['mobile']['price'] > 0 else "FREE",
                 'requires_credits': pricing['mobile']['price'] == 0,
-                'revenue_split': pricing['mobile']['split'],
+                'revenue_split': {
+                    'consultant': f"{pricing['mobile']['consultant_share']}%",
+                    'platform': f"{pricing['mobile']['platform_share']}%"
+                },
                 'note': 'Requires call credits' if pricing['mobile']['price'] == 0 else None
-            },
-            'physical': {
+            }
+        
+        if 'physical' in pricing:
+            result['physical'] = {
                 'price': float(pricing['physical']['price']),
                 'formatted': f"{float(pricing['physical']['price']):,.0f} TZS",
-                'revenue_split': pricing['physical']['split'],
+                'revenue_split': {
+                    'consultant': f"{pricing['physical']['consultant_share']}%",
+                    'platform': f"{pricing['physical']['platform_share']}%"
+                }
             }
-        }
+        
+        return result
     
     def get_statistics(self, obj):
         """Get consultant statistics"""
@@ -266,10 +289,13 @@ class ConsultantRegistrationCreateSerializer(serializers.ModelSerializer):
         return value
     
     def validate_consultant_type(self, value):
-        """Validate consultant type matches user's account type"""
+        """Validate consultant type matches user's role"""
         user = self.context['request'].user
         
-        # Map account types to consultant types
+        if not user.user_role:
+            raise serializers.ValidationError("User role not found")
+        
+        # Map user roles to consultant types
         type_mapping = {
             'advocate': ['advocate'],
             'lawyer': ['lawyer'],
@@ -277,11 +303,11 @@ class ConsultantRegistrationCreateSerializer(serializers.ModelSerializer):
             'law_firm': ['advocate', 'lawyer']  # Law firms can register as advocate or lawyer
         }
         
-        allowed_types = type_mapping.get(user.account_type, [])
+        allowed_types = type_mapping.get(user.user_role.role_name, [])
         
         if value not in allowed_types:
             raise serializers.ValidationError(
-                f"Your account type ({user.get_account_type_display()}) cannot register as {value}"
+                f"Your role ({user.user_role.role_name}) cannot register as {value}"
             )
         
         return value
@@ -290,8 +316,11 @@ class ConsultantRegistrationCreateSerializer(serializers.ModelSerializer):
         """Validate physical consultations eligibility"""
         user = self.context['request'].user
         
+        if not user.user_role:
+            raise serializers.ValidationError("User role not found")
+        
         # Only law firms can offer physical consultations
-        if attrs.get('offers_physical_consultations', False) and user.account_type != 'law_firm':
+        if attrs.get('offers_physical_consultations', False) and user.user_role.role_name != 'law_firm':
             raise serializers.ValidationError({
                 'offers_physical_consultations': 'Only registered law firms can offer physical consultations'
             })
@@ -306,25 +335,51 @@ class ConsultantRegistrationCreateSerializer(serializers.ModelSerializer):
 
 
 class ConsultantRegistrationCreateSerializer(serializers.Serializer):
-    """Serializer for creating consultant registration requests"""
-    consultant_type = serializers.ChoiceField(
-        choices=['advocate', 'lawyer', 'paralegal'],
-        required=True
-    )
-    specialization = serializers.CharField(max_length=100, required=False, allow_blank=True)
-    years_of_experience = serializers.IntegerField(min_value=0, required=True)
-    roll_number = serializers.CharField(max_length=50, required=False, allow_blank=True)
-    law_firm = serializers.CharField(max_length=255, required=False, allow_blank=True)
-    bio = serializers.CharField(required=False, allow_blank=True)
-    qualification_document = serializers.FileField(required=True)
-    id_document = serializers.FileField(required=True)
+    """
+    Simplified serializer for creating consultant registration requests.
+    Most information (consultant_type, documents, personal info) is already collected
+    during user registration and verification, so we only need consultation preferences.
+    """
+    offers_physical_consultations = serializers.BooleanField(default=False)
+    terms_accepted = serializers.BooleanField(required=True, write_only=True)
+    
+    def validate_terms_accepted(self, value):
+        """Ensure terms are accepted"""
+        if not value:
+            raise serializers.ValidationError("You must accept the terms and conditions")
+        return value
     
     def validate(self, data):
-        """Cross-field validation"""
-        if data.get('consultant_type') == 'advocate' and not data.get('roll_number'):
-            raise serializers.ValidationError({
-                'roll_number': 'Roll number is required for advocates'
-            })
+        """
+        Validate based on user's role and firm association.
+        Physical consultations require advocate/lawyer role AND law firm association.
+        """
+        request = self.context.get('request')
+        if not request or not request.user:
+            raise serializers.ValidationError("Authentication required")
+        
+        user = request.user
+        
+        # Check if user has a role
+        if not user.user_role:
+            raise serializers.ValidationError("User role not found")
+        
+        # Physical consultations validation
+        if data.get('offers_physical_consultations'):
+            # Must be advocate or lawyer
+            if user.user_role.role_name not in ['advocate', 'lawyer']:
+                raise serializers.ValidationError({
+                    'offers_physical_consultations': 
+                    'Only advocates and lawyers can offer physical consultations'
+                })
+            
+            # Must be associated with a law firm
+            if not user.associated_law_firm:
+                raise serializers.ValidationError({
+                    'offers_physical_consultations': 
+                    'You must be associated with a law firm to offer physical consultations'
+                })
+        
         return data
 
 

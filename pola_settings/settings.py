@@ -31,7 +31,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 # ALLOWED_HOSTS configuration
 # In development, allow local network IPs for mobile testing
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,192.168.1.181,185.237.253.223').split(',')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,192.168.1.181,185.237.253.223,192.168.1.132,192.168.100.187').split(',')
 
 # CORS Settings
 CORS_ALLOWED_ORIGINS = [

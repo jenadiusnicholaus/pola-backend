@@ -81,6 +81,16 @@ docs/*.md
 !db_import_vps.sh
 *.drawio
 
+# Backup files
+*.backup
+*.bak
+*~
+*.swp
+*.swo
+backups/
+*.dump
+*.sql.dump
+
 
 
 logs/*.log

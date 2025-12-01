@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
 from datetime import timedelta
 from authentication.models import PolaUser
@@ -360,7 +360,7 @@ class ConsultantRegistrationRequest(models.Model):
             'email': self.user.email,
             'phone': self.user.contact.phone_number if hasattr(self.user, 'contact') else None,
             'years_of_experience': self.user.years_of_experience,
-            'specializations': list(self.user.specializations.values_list('name', flat=True)),
+            'specializations': list(self.user.specializations.values_list('name_en', flat=True)),
             'roll_number': self.user.roll_number,
             'bar_membership_number': self.user.bar_membership_number,
         }
@@ -373,7 +373,7 @@ class ConsultantRegistrationRequest(models.Model):
         self.save()
         
         # Get specializations as comma-separated string
-        specializations = ', '.join(self.user.specializations.values_list('name', flat=True))
+        specializations = ', '.join(self.user.specializations.values_list('name_en', flat=True))
         
         # Create ConsultantProfile (using data from PolaUser + request preferences)
         ConsultantProfile.objects.create(
@@ -744,6 +744,84 @@ class ConsultationBooking(models.Model):
             profile = self.consultant.consultant_profile
             profile.total_consultations += 1
             profile.total_earnings += self.consultant_earnings
+            profile.save()
+
+
+class ConsultantReview(models.Model):
+    """
+    Client reviews and ratings for consultants after completed consultations
+    """
+    consultant = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='consultant_reviews')
+    client = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='client_reviews')
+    booking = models.OneToOneField(ConsultationBooking, on_delete=models.CASCADE, related_name='review')
+    
+    # Rating (1-5 stars)
+    rating = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        help_text="Rating from 1 to 5 stars"
+    )
+    
+    # Review details
+    review_text = models.TextField(blank=True, help_text="Client's written review")
+    
+    # Specific ratings (optional, for detailed feedback)
+    professionalism_rating = models.IntegerField(
+        null=True, blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        help_text="Professionalism rating"
+    )
+    communication_rating = models.IntegerField(
+        null=True, blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        help_text="Communication clarity rating"
+    )
+    expertise_rating = models.IntegerField(
+        null=True, blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        help_text="Legal expertise rating"
+    )
+    
+    # Response from consultant (optional)
+    consultant_response = models.TextField(blank=True, help_text="Consultant's response to review")
+    response_date = models.DateTimeField(null=True, blank=True)
+    
+    # Moderation
+    is_visible = models.BooleanField(default=True, help_text="Show/hide review")
+    flagged = models.BooleanField(default=False, help_text="Flagged for moderation")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Consultant Review'
+        verbose_name_plural = 'Consultant Reviews'
+        unique_together = ['booking', 'client']  # One review per booking per client
+    
+    def __str__(self):
+        return f"{self.client.email} reviewed {self.consultant.email} - {self.rating} stars"
+    
+    def save(self, *args, **kwargs):
+        """Update consultant's average rating when review is saved"""
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        
+        # Update consultant profile ratings
+        if hasattr(self.consultant, 'consultant_profile'):
+            profile = self.consultant.consultant_profile
+            
+            # Recalculate average rating
+            from django.db.models import Avg, Count
+            stats = ConsultantReview.objects.filter(
+                consultant=self.consultant,
+                is_visible=True
+            ).aggregate(
+                avg_rating=Avg('rating'),
+                total_reviews=Count('id')
+            )
+            
+            profile.average_rating = stats['avg_rating'] or Decimal('0')
+            profile.total_reviews = stats['total_reviews'] or 0
             profile.save()
 
 
