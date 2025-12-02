@@ -612,22 +612,16 @@ class MaterialQuestionViewSet(viewsets.ModelViewSet):
         if material_id:
             queryset = queryset.filter(material_id=material_id)
         
+        # Filter by asker
+        asker_id = self.request.query_params.get('asker_id')
+        if asker_id:
+            queryset = queryset.filter(asker_id=asker_id)
+        
         return queryset.select_related('asker', 'answered_by', 'material')
     
-    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
-    def answer(self, request, pk=None):
-        """Answer a question"""
-        question = self.get_object()
-        answer_text = request.data.get('answer_text')
-        
-        if not answer_text:
-            return Response({'error': 'answer_text required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Mark as answered
-        question.mark_as_answered(answerer=request.user, answer_text=answer_text)
-        
-        serializer = self.get_serializer(question)
-        return Response(serializer.data)
+    def perform_create(self, serializer):
+        """Set asker to current user when creating a question"""
+        serializer.save(asker=self.request.user)
     
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def mark_helpful(self, request, pk=None):

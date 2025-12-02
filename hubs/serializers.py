@@ -541,10 +541,10 @@ class LecturerFollowSerializer(serializers.ModelSerializer):
 
 
 class MaterialQuestionSerializer(serializers.ModelSerializer):
-    """Serializer for Q&A on materials"""
+    """Serializer for general legal questions (material optional)"""
     asker_info = UserMinimalSerializer(source='asker', read_only=True)
     answerer_info = UserMinimalSerializer(source='answered_by', read_only=True)
-    material_title = serializers.CharField(source='material.title', read_only=True)
+    material_title = serializers.CharField(source='material.title', read_only=True, allow_null=True)
     
     class Meta:
         model = MaterialQuestion
@@ -558,6 +558,9 @@ class MaterialQuestionSerializer(serializers.ModelSerializer):
             'id', 'material_title', 'asker_info', 'answerer_info', 'answered_at',
             'is_answered_by_uploader', 'helpful_count', 'created_at', 'updated_at'
         ]
+        extra_kwargs = {
+            'material': {'required': False, 'allow_null': True}
+        }
 
 
 class MaterialRatingSerializer(serializers.ModelSerializer):

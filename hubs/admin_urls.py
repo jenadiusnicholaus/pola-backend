@@ -8,7 +8,8 @@ from .admin_views import TopicAdminViewSet, SubtopicAdminViewSet
 from .admin_hub_views import (
     AdminHubContentViewSet,
     AdminHubCommentViewSet,
-    AdminHubUserActivityViewSet
+    AdminHubUserActivityViewSet,
+    AdminQuestionManagementViewSet
 )
 
 # Create router
@@ -22,6 +23,9 @@ router.register(r'subtopics', SubtopicAdminViewSet, basename='admin-hub-subtopic
 router.register(r'hub-content', AdminHubContentViewSet, basename='admin-hub-content')
 router.register(r'hub-comments', AdminHubCommentViewSet, basename='admin-hub-comments')
 router.register(r'user-activity', AdminHubUserActivityViewSet, basename='admin-user-activity')
+
+# Legal Question Management (Admin only)
+router.register(r'questions', AdminQuestionManagementViewSet, basename='admin-questions')
 
 urlpatterns = [
     path('', include(router.urls)),

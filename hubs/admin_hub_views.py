@@ -1559,3 +1559,153 @@ class AdminHubUserActivityViewSet(viewsets.ViewSet):
             top_users = []
         
         return Response(list(top_users))
+
+
+class AdminQuestionManagementViewSet(viewsets.ModelViewSet):
+    """
+    Admin API for managing legal questions
+    
+    Provides admin-only endpoints for:
+    - Answering legal questions
+    - Closing inappropriate or duplicate questions
+    - Managing question lifecycle
+    
+    All endpoints require admin privileges (is_staff or is_superuser)
+    """
+    queryset = MaterialQuestion.objects.all()
+    serializer_class = MaterialQuestionSerializer
+    permission_classes = [IsAdminUser]
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['created_at', 'helpful_count', 'answered_at']
+    ordering = ['-created_at']
+    
+    def get_queryset(self):
+        """Filter questions with admin-specific filters"""
+        queryset = super().get_queryset()
+        
+        # Filter by status
+        status_filter = self.request.query_params.get('status')
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+        
+        # Filter by material
+        material_id = self.request.query_params.get('material_id')
+        if material_id:
+            queryset = queryset.filter(material_id=material_id)
+        
+        # Filter unanswered questions
+        unanswered = self.request.query_params.get('unanswered')
+        if unanswered and unanswered.lower() == 'true':
+            queryset = queryset.filter(status='open', answer_text='')
+        
+        return queryset.select_related('asker', 'answered_by', 'material')
+    
+    @swagger_auto_schema(
+        operation_description="Answer a legal question (Admin only)",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['answer_text'],
+            properties={
+                'answer_text': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description='The answer to the question'
+                )
+            }
+        ),
+        responses={
+            200: MaterialQuestionSerializer(),
+            400: 'Bad Request - answer_text required',
+            404: 'Question not found'
+        }
+    )
+    @action(detail=True, methods=['post'])
+    def answer(self, request, pk=None):
+        """Answer a legal question - Admin only"""
+        question = self.get_object()
+        answer_text = request.data.get('answer_text')
+        
+        if not answer_text:
+            return Response(
+                {'error': 'answer_text is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Mark as answered
+        question.mark_as_answered(answerer=request.user, answer_text=answer_text)
+        
+        serializer = self.get_serializer(question)
+        return Response({
+            'message': 'Question answered successfully',
+            'question': serializer.data
+        })
+    
+    @swagger_auto_schema(
+        operation_description="Close a question (Admin only) - Use for inappropriate or duplicate questions",
+        responses={
+            200: MaterialQuestionSerializer(),
+            404: 'Question not found'
+        }
+    )
+    @action(detail=True, methods=['post'])
+    def close(self, request, pk=None):
+        """Close a question - Admin only"""
+        question = self.get_object()
+        question.close_question()
+        
+        serializer = self.get_serializer(question)
+        return Response({
+            'message': 'Question closed successfully',
+            'question': serializer.data
+        })
+    
+    @swagger_auto_schema(
+        operation_description="Reopen a closed question (Admin only)",
+        responses={
+            200: MaterialQuestionSerializer(),
+            404: 'Question not found'
+        }
+    )
+    @action(detail=True, methods=['post'])
+    def reopen(self, request, pk=None):
+        """Reopen a closed question - Admin only"""
+        question = self.get_object()
+        question.status = 'open'
+        question.save()
+        
+        serializer = self.get_serializer(question)
+        return Response({
+            'message': 'Question reopened successfully',
+            'question': serializer.data
+        })
+    
+    @swagger_auto_schema(
+        operation_description="Get statistics about questions",
+        responses={
+            200: openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'total': openapi.Schema(type=openapi.TYPE_INTEGER),
+                    'open': openapi.Schema(type=openapi.TYPE_INTEGER),
+                    'answered': openapi.Schema(type=openapi.TYPE_INTEGER),
+                    'closed': openapi.Schema(type=openapi.TYPE_INTEGER),
+                    'avg_helpful_count': openapi.Schema(type=openapi.TYPE_NUMBER),
+                }
+            )
+        }
+    )
+    @action(detail=False, methods=['get'])
+    def stats(self, request):
+        """Get question statistics - Admin only"""
+        total = self.queryset.count()
+        open_count = self.queryset.filter(status='open').count()
+        answered_count = self.queryset.filter(status='answered').count()
+        closed_count = self.queryset.filter(status='closed').count()
+        avg_helpful = self.queryset.aggregate(Avg('helpful_count'))['helpful_count__avg'] or 0
+        
+        return Response({
+            'total': total,
+            'open': open_count,
+            'answered': answered_count,
+            'closed': closed_count,
+            'avg_helpful_count': round(avg_helpful, 2)
+        })

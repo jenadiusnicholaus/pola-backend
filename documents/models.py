@@ -421,9 +421,9 @@ class LecturerFollow(models.Model):
 
 class MaterialQuestion(models.Model):
     """
-    Students can ask questions about specific materials
-    Lecturers (or other students) can answer
-    Creates direct student-lecturer Q&A interaction
+    Legal questions that can be asked by any user
+    Can be general legal questions or specific to learning materials
+    Only admins can answer (quality control)
     """
     QUESTION_STATUS = [
         ('open', 'Open'),
@@ -435,7 +435,9 @@ class MaterialQuestion(models.Model):
         LearningMaterial,
         on_delete=models.CASCADE,
         related_name='questions',
-        help_text="The material this question is about"
+        null=True,
+        blank=True,
+        help_text="Optional: The material this question is about (if material-specific)"
     )
     asker = models.ForeignKey(
         PolaUser,
@@ -491,7 +493,8 @@ class MaterialQuestion(models.Model):
         ]
     
     def __str__(self):
-        return f"Q: {self.question_text[:50]}... on {self.material.title}"
+        material_title = self.material.title if self.material else "General Legal Question"
+        return f"Q: {self.question_text[:50]}... on {material_title}"
     
     def mark_as_answered(self, answerer, answer_text):
         """Mark question as answered"""
@@ -500,10 +503,20 @@ class MaterialQuestion(models.Model):
         self.answered_at = timezone.now()
         self.status = 'answered'
         
-        # Check if answered by material uploader (lecturer)
-        self.is_answered_by_uploader = (answerer == self.material.uploader)
+        # Check if answered by material uploader (lecturer) - only for material-specific questions
+        if self.material:
+            self.is_answered_by_uploader = (answerer == self.material.uploader)
+        else:
+            self.is_answered_by_uploader = False
+        
         self.save()
         
+        return self
+    
+    def close_question(self):
+        """Close question (admin action)"""
+        self.status = 'closed'
+        self.save()
         return self
 
 
