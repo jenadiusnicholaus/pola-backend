@@ -1,0 +1,1350 @@
+{
+  "filename": "iv. Questionnaire (English).docx",
+  "content": [
+    {
+      "text": "FILL OUT THE FORM ACCURATELY",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "FILL OUT THE FORM ACCURATELY",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "1. DATE OF CONTRACT CREATION",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "1. DATE OF CONTRACT CREATION",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "a. Date……………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "a. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Date",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "……………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "b. Month…………….",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "b. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Month",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "…………….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "c. Year …………….",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "c. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Year",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " …………….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "2. EMPLOYER INFORMATION",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "2. EMPLOYER INFORMATION",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "a. Full name of Employer: ______________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "a. Full name of Employer: ______________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "b. Address: (i) P.O. Box ………………….  (ii) Region......................",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "b. Address: ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "(i) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "P.O. Box ………………….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "  (ii) Region",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "......................",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "c. Phone Number: ______________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "c. Phone Number: ______________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "d. Email: ______________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "d. Email: ______________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "3. EMPLOYEE INFORMATION",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "3. EMPLOYEE INFORMATION",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "a. Full name of Employee: ____________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "a. Full name of Employee: ____________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "b. Address:  (i)P.O. Box______________  (ii) Region________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "b. Address: ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " (i)P.O. Box______________  (ii) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Region________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "c. Phone Number: ______________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "c. Phone Number: ______________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "d. Identification used by the Employee: ___________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "d. Identification used by the Employee: ___________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "e. Identification Number (NIDA/Driver’s License etc.): ___________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "e. Identification Number (NIDA/Driver’s License etc.): ___________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "f. Email: ______________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "f. Email: ______________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "4. DATE OF COMMENCEMENT OF EMPLOYMENT",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "4. DATE OF COMMENCEMENT OF EMPLOYMENT",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "a. Date of starting work:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "a. Date of starting work:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "i. Date ________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "i. Date ________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "ii. Month of___________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "ii. Month of___________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "iii. Year _________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "iii. Year _________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "b. If No, specify the date when the contract will officially terminate.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "b",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". If No, specify the date when the contract will officially terminate.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "i. Date……………..",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "i. Date……………..",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "ii. Month……………..",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "ii. Month……………..",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "iii. Year………………..",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "iii. Year………………..",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "5. PLACE OF EMPLOYMENT",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "5. PLACE OF EMPLOYMENT",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "a. Region of employment: ____________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "a. Region of employment: ____________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "b. Work location:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "b. Work location:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "i. Region _________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "i. Region _________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "ii. District__________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "ii. District__________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "iii. Ward________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "iii. Ward________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "6. POSITION / JOB DESCRIPTION",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "6. POSITION / JOB DESCRIPTION",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "a. Job title/position: ____________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "a. Job title/position: ____________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "b. Duties/Responsibilities:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "b. Duties/Responsibilities:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "i. _________________________________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "i. _________________________________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "ii. _________________________________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "ii. _________________________________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "iii. _________________________________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "iii. _________________________________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "iv. _________________________________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "iv. _________________________________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "v. _________________________________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "v. _________________________________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "vi. _________________________________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "vi. _________________________________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "vii. _________________________________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "vii. _________________________________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "viii. _________________________________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "viii. _________________________________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "ix. _________________________________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "ix. _________________________________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "x. _________________________________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "x. _________________________________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "7. PROBATION PERIOD",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "7. PROBATION PERIOD",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "a. Duration of probation period: ________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "a. Duration of probation period: ________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "8. WORKING HOURS",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "8. WORKING HOURS",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "a. Working hours per day: (number of hours)_",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "a. Working hours per day: (number of hours)_",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "b. Working days per week: (number of days)_",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "b. Working days per week: (number of days)_",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "c. (i) From: ________ (ii) To: ________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "c. (i) From: ________ (ii) To: ________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "9. SALARY AND PAYMENT",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "9. SALARY AND PAYMENT",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "a. Amount of salary: Tsh ______________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "a. Amount of salary: Tsh ______________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "b. Payment period: (i) ☐ Monthly (ii) ☐ Weekly (iii)☐ Daily",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "b. Payment period: (i) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "☐",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Segoe UI Symbol"
+        },
+        {
+          "text": " Monthly (ii) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "☐",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Segoe UI Symbol"
+        },
+        {
+          "text": " Weekly (iii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "☐",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Segoe UI Symbol"
+        },
+        {
+          "text": " Daily",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "c. Payment date if payments are monthly: ___________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "c. Payment date if payments are monthly: ___________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "d. Mode of payment: (i) ☐ Bank (ii)☐ Cash (iii) ☐ Mobile (iv) ☐ Other method: specify_",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "d. Mode of payment: (i) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "☐",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Segoe UI Symbol"
+        },
+        {
+          "text": " Bank (ii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "☐",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Segoe UI Symbol"
+        },
+        {
+          "text": " Cash (iii) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "☐",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Segoe UI Symbol"
+        },
+        {
+          "text": " Mobile (iv) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "☐",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Segoe UI Symbol"
+        },
+        {
+          "text": " Other method: specify_",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "e. If by bank: (For Developer: The 'Bank Details' section will appear in the contract only if the user selects bank payment)",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "e. If by bank:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "(For Developer: The 'Bank Details' section will appear in the contract only if the user selects bank payment)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": " i. Bank Name……………………………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": " i. Bank Name……………………………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": " ii. Bank Branch…………………………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": " ii. Bank Branch…………………………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": " iii. Account Name………………………..",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": " iii. Account Name………………………..",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": " iv. Account Number…………………...",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": " iv. Account Number…………………...",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "10. ALLOWANCES AND BENEFITS",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "10. ALLOWANCES AND BENEFITS",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "a. Tick the allowances to be provided and indicate their amounts",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "a. Tick the allowances to be provided and indicate their amounts",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "i. Transport allowance: ☐ Tsh __________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "i. Transport allowance: ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "☐",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Segoe UI Symbol"
+        },
+        {
+          "text": " Tsh __________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "ii. Meal allowance: ☐ Tsh __________\t\t\t (to appear as written in full )",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "ii. Meal allowance: ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "☐",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Segoe UI Symbol"
+        },
+        {
+          "text": " Tsh __________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\t",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\t",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\t ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "(to appear as written in full",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ")",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "iii. Accommodation: ☐   Tsh………….",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "iii. Accommodation: ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "☐",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Segoe UI Symbol"
+        },
+        {
+          "text": "   Tsh………….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "iv. Health insurance: ☐  Tsh…………….\t \t\t(and mount)",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "iv. Health insurance: ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "☐",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Segoe UI Symbol"
+        },
+        {
+          "text": "  Tsh…………….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\t ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\t",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\t",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "(and ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "mount)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "b. Others: specify___",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "b. Others: specify___",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    }
+  ],
+  "fields": []
+}

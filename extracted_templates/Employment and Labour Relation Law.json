@@ -1,0 +1,5136 @@
+{
+  "filename": "Employment and Labour Relation Law.docx",
+  "content": [
+    {
+      "text": "\"Full Document title\": \"Employment and Labour Relations Law\",",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "\"",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Full ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Document ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "title",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\": \"Employment and Labour Relations Law",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\",",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "“App Topic  title”:  “Labour Law”",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "“",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "App Topic  title",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "”:  “Labour Law”",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "\"language\": \"ENGLISH\",",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "\"",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "language",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\": \"ENGLISH",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\",",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "\"sections\": blue = subtitle ,  black = content of subtitle.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "\"",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "sections",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\":",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " blue = subtitle ,  black = content of subtitle.",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "1. What Is Employment?",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "1.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "What Is Employment?",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Employment is a work relationship between two people ( an employer and an employee) where the employee agrees to perform work or services under control and direction of the employer, in exchange for an agreed salary /wages  and/or other compensations from the employer.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "Employment is a ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "work ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "relationsh",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "ip between two ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "people ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "( an employer and an employee) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "where the employee ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "agrees to perform work",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " or services ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "under control and direction of the employer, ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "in exchange for ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "an agreed salary /wages  ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "and/",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "or other compensations from the employer.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "2. Who is an  Employer?",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "2. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Who is an  Employer?",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "An employer is a person or organization that hires another person to do work or service, and usually pays a salary/wages or other compensation for that work. In simple language: An employer is someone who gives out work to be done and then pays for the work that is done for them.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "An employer is a person or organization that hires another person to do work",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " or service, and usually pays a salary/",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "wages",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " or other compensation",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " for that work. In simple language: An employer is someone who gives out work to be done and then pays for the work that is done for them.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "3. Who is an Employee?",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "3. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Who is an Employee?",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "An employee is a person who agrees to work for another person (employer) under specific terms, in exchange for a salary or other forms of payments and compensation. In simple language: An employee is a person who works for someone or an organization and is paid for the work they do.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "An employee is a person who agrees to work for an",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "other person (",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "employer",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ")",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " under specific terms, in exchange for a salary or other forms of payment",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "s and compensation",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". In simple language: An employee is a person who works for someone or an organization and is paid for the work they do.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "4. Employees Rights ",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "4. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Employees Rights ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "The following are the rights of an employee according to the Employment and Labor Relations Law;",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "The following are the rights of an employee according to the Employment and Labor Relations Law;",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "i. The right to Obtain an Employment Contract",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "i. The right to Obtain an Employment Contract",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "It is the right of every employee to have an employment contract.  The contract will be considered as a legal agreement between an employer and an employee, which provides directions regarding the particular employment, taking into account all rights and responsibilities of both parties.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "It is the right of every employee to have an empl",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "oyment contract.  The contract will be considered as",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " a legal agreement between an employer and an employee, which provides directions regarding the particular employment, taking into account all rights and responsibilities of both parties.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "ii. The Right to  Written Particulars of Employment ",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "i",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "i",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " The",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " Right to ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Written ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Particulars of Employment ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "At the start of employment, an employee is entitled to a written statement of particulars, either separately or within the contract. This should include your name, age, address, sex, job description, place and date of commencement, contract type/duration, workplace, work hours, remuneration, benefits, disciplinary and grievance procedures and other prescribed details. If the contract covers all of these, then the employer is not required to prepare written Employment Instructions. Employers must retain these records for at least five years after termination. ",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "At the start of employment, an employee is entitled to a written statement of particulars, either separately or within the contract. This should include your name, age, address, sex, job description, place ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "and date of commencement, contract type/duration, workplace, work hours, remuneration, benefits, ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "disciplinary and grievance procedures ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "and other prescribed details. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "If the contract covers all of these, then the employer is not required to prepare written Employment Instructions",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Employers must retain these records for at least five years after termination. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "iii. The Right to Know Your Rights",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "i",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "i",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "i",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "The ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Right to Know Your Rights",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Employers are required to display a notice of employee rights in a visible place at the workplace. These rights includes, but is not limited to freedom of association, leave entitlements, overtime pay, rest periods, certificate of service upon termination, subsistence allowances, and more.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "Employers are required to display a notice of employee rights in a visible place at the workplace. These rights include",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "s, but is not limited to",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " freedom of association, leave entitlements, overtime pay, rest periods, certificate of service upon termination, subsistence allowances, and more.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "iv. Freedom of Association",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "iv",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". Freedom of Association",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Employees  have the right to form, join, and participate in trade unions. Discrimination for union activities is prohibited. Similarly, unions and employer associations enjoy rights to organize and affiliate.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "Employees  have the right to form, join, and participate in trade unions. Discrimination for union activities is prohibited. Similarly, unions and employer associations enjoy r",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "ights to organize and affiliate",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "v. Leave Entitlements",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "v",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". Leave Entitlements",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "An employee has the right to paid Annual leave, Sick Leave, Maternity Leave, Partenity Leave, Public Holidays and  Rest days.  Unpaid leave of up to 30 days with employer’s written consent has also been added to employees leave according to 2025 Labour Law (Amendments) Act No4.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "An employee has the right to paid Annual leave, Sick Leave, Maternity Leave, Parte",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "nity Leave, Public Holidays and ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Rest",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " days",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Unpaid leave of up to 30 days with employer’s written consent",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " has also been added to employees leave according to 2025 Labour Law (Amendments) Act No4",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "vi. Fair Remuneration & Overtime Pay",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "v",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "i",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". Fair Remuneration & Overtime Pay",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "An employee has the right to be paid wages and overtime  as required  by law.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "An employee has the right t",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "o be paid wages and overtime  as required  by law",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "vii. Health & Safety Rights",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "v",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "i",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "i",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". Health & Safety Rights",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Under the Occupational Health and Safety Act , and the Employment Act, an employee has the right to;",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "Under the Occupation",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "al Health and Safety Act , and the Employment Act, an employee has the right to;",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "A safe working environment free of hazards.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "A safe working environment free of hazards.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Risk assessments, PPE, training, emergency procedures, and first-aid.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "Risk assessments, PPE, training, emer",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "gency procedures, and first",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "-aid.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "The right to refuse unsafe work and report unhealthy conditions without fear of reprisal.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "The right to refuse unsafe work and report unhealthy cond",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "itions without fear of reprisal.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Employers must be registered with OSHA, and work injury or disease coverage is provided through Workers Compensation Fund. ",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "Employers must be registered with OSHA, and work injury or disease coverage is provided th",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "rough Workers Compensation Fund. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "viii. Protection Against Discrimination & Harassment",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "vi",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "i",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "i",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". Protection Against Discrimination & Harassment",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "It's illegal to discriminate based on race, ethnicity, sex, gender, pregnancy, marital/family status, religion, political opinion, disability, HIV/AIDS status, age, or social origin. Harassment is also prohibited. ",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "It's illegal to discriminate based on race, ethnicity, sex, gender, pregnancy, marital/family status, religion, political opinion, disability, HIV/AIDS status, age, or social origin. Harassment is also proh",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "ibited. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "viii. Fair Termination",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "viii. Fair Termination",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "An employee has the right to a fair termination. An employer must abide with the law in terminating his/her employee, such as; reasons for termination must be fair and acceptable before the law, giving notice before termination,  severance pay e.t.c. ",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "An employee has the right to a fair termination. An employer must abide with the law in terminating his/her employee, such as; reasons for termination must be fair and acceptable before the law, giving notice before termination,  severance pay e.t.c. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "5. What is a Contract?",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "5",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "What is a Contract?",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "A contract is a mutual agreement between two parties  or more, where each party  agrees to do something in return for something else from the other party. Parties to contract can be individuals, companies, Organizations or any other entities legally capable of entering into a contract. ",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "A contract is a mutual agreement between two",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " parties  or more, where each party ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " agrees to do something in return for something else",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " from the other party",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " Parties to contract can be individuals, companies, Organizations or any other entities legally capable of entering into a contract. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "6. What is a Contract of Employment?",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "6",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "What is ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "a ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Contract of Employment",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "?",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "A contract of employment is an agreement between an employer and an employee that sets out the terms and conditions under which the employee will work and the employer will pay for the work.  In employment contract,  an employee agrees to work for the employer, and the employer agrees to pay the employee for their work. Contract of employment ought to be written, outlining terms such as duties, pay, and conditions. Every employer has a duty to provide an employment contract to their employee.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "A contract of employment is an agreement between an employer and an employee that sets out the terms and conditions under which the employee will work and the employer will pay for the work.  In ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "employment contract",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ",  an ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "employee agrees to work for the employer, and the employer agrees to pay the employee for their work.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Contract of employment ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "ought to be",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "written",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ", outlining terms such as duties, pay, and conditions.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Every employer has a duty to provide an employment contract to their employee.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "7. Types of employment Contract",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "7",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Types of employment Contract",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "There are three types of employment contract:",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "There are three types of employment contract:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Contract for an Unspecified Period (Permanent/Indefinite Contract)",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "Contract for an Unspecified Period",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " (Permanent/Indefinite Contract)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "This is open-ended employment with no fixed end date.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "This is open-ended employment with no fixed end date.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Commonly referred to as permanent employment.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "Commonly referred to as permanent employment.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "It continues until either the employer or employee terminates it, following proper procedures.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "It continues until either the employer or employee terminates it, following proper procedures.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": " Fixed-Term Contract ",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": " Fixed-Term Contract",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "The contract has a clearly defined start and end date.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "The contract has a clearly defined start and end date.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Often used for employees with specific skills or professional expertise, or in administrative positions.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "Often used for employees with specific skills or professional expertise, or in administrative positions.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "It automatically terminates at the end of the period unless renewed.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "It automatically terminates at the end of the period unless renewed.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Contract for a Specific Task (Contract for a Specific Piece of Work)",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "Contract for a Specific Task",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " (Contract for a Specific Piece of Work)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "The employee is hired to perform a particular task or project.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "The employee is hired to perform a particular task or project.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "The contract ends once the task is completed, regardless of the time it takes.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "The contract ends once the task is completed, regardless of the time it takes.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Often used in sectors like construction, consultancy, or project-based roles.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "Often used in sectors like construction, consultancy, or project-based roles.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "8. Written Contract Requirements",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "8",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Written Contract Requirements",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": " The employment contract should ensure the following matters:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "The employment contract should ensure the following matters:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Voluntary consent without coercion",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Voluntary consent without coercion",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Terms are legal and understandable",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Terms are legal and understandable",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "9. What Essentials Must Appear in a Written  Contract?",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "9.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "What Essentials Must Appear in a",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " Written ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " Contract?",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "i. Name, age, gender, and permanent address.\nii. Place of employment.\niii. Position employed for and a description of the work.\niv. Start date of the contract.\nv. Workplace/location of work.\nvi. Working hours.\nvii. Type and duration of the contract.\nviii. Wages and calculation of such wages, and details of any other payments.\nix. Any other essential matter that must legally be disclosed.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "i. Name, age, gender, and permanent address",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\nii. Place of employment",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\niii. Position employed for and a description of the work",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\niv. Start date of the contract",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\nv. Workplace/location of work",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\nvi. Working hours",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\nvii. Type and duration of the contract",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\nviii. Wages and calculation of such wages, and details of any other payments",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\nix. Any other essential matter that must legally be disclosed",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "10. Legal Protections of Oral Employment Contract",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "10",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Legal Protections of Oral Employment Contract",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Even without a written contract, but the employer and the employee have agreed verbally only, the employee is still protected under the law in terms of: ",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Even without a written contract,",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "but the employer and the employee have agreed verbally only,",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " the employee is still protected under the law in terms of:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "  Minimum wage",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 11.0,
+          "font_name": null
+        },
+        {
+          "text": "  Minimum wage",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 11.0,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "  Leave entitlements",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 11.0,
+          "font_name": null
+        },
+        {
+          "text": "  Leave entitlements",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 11.0,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "  Termination procedures",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 11.0,
+          "font_name": null
+        },
+        {
+          "text": "  Termination procedures",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 11.0,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "  Protection against unfair dismissal",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 11.0,
+          "font_name": null
+        },
+        {
+          "text": "  Protection against unfair dismissal",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 11.0,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "  Overtime compensation",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 11.0,
+          "font_name": null
+        },
+        {
+          "text": "  Overtime compensation",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 11.0,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "  Health and safety",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 11.0,
+          "font_name": null
+        },
+        {
+          "text": "  Health and safety",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 11.0,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "11. How to Prove an Oral Employment Contract",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "11",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "How to Prove an Oral Employment Contract",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Because there's no written document, evidence becomes key. Here are ways to prove the existence and terms of an oral contract:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Because there's no written document, evidence becomes key. Here are ways to prove the existence and terms of an oral contract:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "cceptable Proof Includes:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "cceptable Proof Includes:",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Payslips or mobile money payment records.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Payslips or mobile money payment records",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Witness testimony (e.g. co-workers or supervisors).",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Witness testimony (e.g. co-workers or supervisors)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Work schedules or attendance records.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Work schedules or attendance records",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Employer communications (texts, emails, WhatsApp, etc.).",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Employer communications (texts, emails, WhatsApp, etc.)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Uniforms, ID cards, or any company property issued to the worker.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Uniforms, ID cards, or any company property issued to the worker",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Public records such as NSSF/Workers Compensation Fund registration.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Public records such as NSSF/Workers Compensation Fund registration",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Photographic or video evidence of work being performed.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Photographic or video evidence of work being performed",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "12. Legal Working Hours",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "12",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Legal Working Hours",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "The law clearly outlines the number of days and hours an employee is required to work. According to the law, an employee should not work for more than:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "The law clearly outlines the number of days and hours an employee is required to work. According to the law, an employee should not work for more than:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "i. 6 days per week\nii. 45 hours per week\niii. 9 hours per day",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "i. 6 days per week",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\nii. 45 hours per week",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\niii. 9 hours per day",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "NOTE: If an employee is required to work overtime, this must be clearly stated in the employment contract. Overtime must not exceed 50 hours over a four-week cycle. The employer is required to pay the employee for overtime at a rate of not less than 1½  of  the employee’s salary  for each hour of overtime worked.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "NOTE: If an employee is required to work overtime, this must be clearly stated in the employment contract.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Overtime must not exceed 50 hours over a four-week cycle.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "The employer is required to pay the employee for overtime at a rate of not les",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "s than 1½  of ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " th",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "e employee’s salary ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " for each hour of overtime worked.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "13. Leave, Holidays & Time Off",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "13",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Leave, Holidays & Time Off",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": " In matters of Leave, Holidays and time off, the law provides as follows :",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": " In matters of Leave, Holidays and time off, the law provides as follows ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ":",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Annual Leave: At least 28 consecutive days per 12-month leave cycle, including public holidays. Paid as if you were working. Pro rata payable upon termination. ",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Annual Leave",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ": ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "At least ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "28 consecutive days per 12-month leave cycle",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ", including public holidays. Paid as if you were working. Pro rata payable upon termination",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Sick Leave: Up to 126 days per leave cycle. First 63 paid at full wage, next 63 at half wage — with a condition to submit a medical certificate. ",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Sick Leave",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ": ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Up to ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "126 days per leave cycle",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". First 63 paid at full wage, next 63 at half wage — with ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "a condition to submit a ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "medical certificate. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Maternity Leave:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Maternity Leave",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ":",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "84 days (12 weeks) standard, 100 days for multiple birth.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "84 days",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " (12 weeks)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " standard, 100 days for multiple birth.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Must notify employer 3 months in advance with medical certificate.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Must notify employer 3 months in advance with medical certificate.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Extra 84 days of maternity leave within her leave cycle, if child dies within one year of birth,  and if the employee becomes pregnant and delivered prematurely. ",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Extra 84 days ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "of maternity leave within her leave cycle, if child dies within one",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " year",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " of birth",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ", ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " and if the employee ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "becomes pregnant and delivered prematurely. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Employers must not assign hazardous work and must allow up to 2 hours/day for breastfeeding. ",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Employers must not assign hazardous work and must allow up to 2 hours/day for breastfeeding. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Paternity  Leave:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Paternity ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " Leave",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ":",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "3 days paid paternity leave (within 7 days of child birth).",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "3 days paid paternity leave",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " (within 7 days of child birth).",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "7 days paid paternity if born premature birth.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "7 days",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " paid paternity",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " if born premature birth.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Other Leave:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Other Leave",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ":",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "4 days paid leave for death/sickness of close family members. ",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "4 days paid leave",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " for death/sickness of close family members.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "14.  Termination of Employment Contract",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "14",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " Termination of Employment Contract",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "An employment contract can  only be terminated for the following lawful reasons:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "An employment contract can ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " only ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "be terminated for the following ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "lawful reasons",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ":",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "a. Misconduct: Theft, insubordination, violence, dishonesty, absenteeism, etc.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "a. Misconduct",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ": ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Theft, insubordination, violence, dishonesty, absenteeism, etc.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "b. Poor Performance: After being given support and opportunity to improve.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "b. Poor Performance",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ": ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "After being given ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "support and opportunity to improve",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "c. Incapacity: Due to illness, injury, or inability to perform the job.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "c. Incapacity",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ": ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Due to ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "illness",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ", ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "injury",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ", or ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "inability to perform the job",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "d. Operational Requirements (Redundancy/Retrenchment): Based on economic, technological, or structural reasons.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "d. Operational Requirements (Redundancy/Retrenc",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "hment): ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Based on ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "economic, technological, or structural reasons",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "e. Mutual Agreement or Expiry of Contract: Fixed-term contracts naturally expire, or both parties agree to end the contract.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "e. Mutual Agreement or Expiry of Contract",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ": ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Fixed-term contracts naturally expire, or both parties agree to end the contract.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": " 15. Rules and Procedures for Termination of Emploment Contract",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": " 15",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Rules and Procedures for Termination",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " of Emploment Contract",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "The law requires fair and lawful termination, which must meet two conditions:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "The law requires fair and lawful termination, which must meet two conditions:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "i. Substantive Fairness",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "i. Substantive Fairness",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "There must be a valid and fair reason for terminating employment.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "There must be a ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "valid and fair reason",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " for terminating employment.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "ii. Procedural Fairness",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "ii. Procedural Fairness",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "The employer must follow due process, including:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "The employer ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "must follow due process",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ", including:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Notice of allegations (in writing)",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Notice of allegations",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " (in writing)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Opportunity to respond",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Opportunity to respond",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Disciplinary hearing (for misconduct)",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Disciplinary hearing",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " (for misconduct)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Right to representation",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Right to representation",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Fair and unbiased decision-making process",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Fair and unbiased decision-making process",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "16. Notice Periods Before Termination",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "16",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Notice Periods Before Termination",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "According to the law,  Notice period depends on the duration of the contract as follows;",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "According to the law,  Notice period depends on the duration of the contract as follows;",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "  Seven (7) days if the notice is given within the first month of employment.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "  ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Seven (7) days",
+          "bold": false,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " if the notice is given within the first month of employment.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "  Four (4) days if the employee is employed on a day-to-day or week-to-week basis.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "  ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Four (4) days",
+          "bold": false,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " if the employee is employed on a day-to-day or week-to-week basis.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "  Twenty-eight (28) days if the employee is employed on a monthly basis.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "  ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Twenty-eight (28) days",
+          "bold": false,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " if the employee is employed on a monthly basis.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "NOTE: Payment in lieu (as altenative) of notice is allowed. For example, if the employee was supposed to be given a seven-day notice, instead of that notice, the employer may pay the employee seven days’ salary as a substitute for the notice.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "NOTE: Payment in lieu",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " (as altenative)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " of notice is allowed. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "For example, if the employee was supposed to be given a seven-day notice, instead of that notice, the employer may pay the employee seven days’ salary as a substitute for the notice.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "17. Payments and Compensation Upon Termination",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "17",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Payments and Compensation Upon Termination",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Upon lawful termination, the employee is entitled to the following (depending on the situation):",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Upon lawful termination, the employee is entitled to the following (depending on the situation):",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "a. Payment in Lieu of Notice",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "a. Payment in Lieu of Notice",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "If proper notice is not given, employer must pay wages equal to the notice period.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "If proper notice is not given, employer must pay wages ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "equal to the notice period",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "b. Severance Pay",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "b. Severance Pay",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "• These payments are made to an employee who has been in employment for a period of 12 months or more.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "• These payments are made to an employee who has been in employment for a period of 12 months or more.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "• For a person to be paid these benefits, the reasons for termination must be economic, such as staff reductions to cut employer costs or the employee no longer being needed in their position (Retrenchment or Redundancy).",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "• For a person to be paid these benefits, the reasons for termination must be economic, such as staff reductions to cut employer costs or the employee no longer",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " being needed in their position (Retrenchment or Redundancy).",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "• This  payment is not made to those dismissed for misconduct or poor performance, nor to an employee who has reached retirement age or an employee whose employment contract has expired or ended due to the passage/expiry of time.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "• This  payment is",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " not made to those dismissed for misconduct or poor performance, nor to an employee who has reached retirement age or an employee whose employment contract has expi",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "red or ended due to the passage/expiry ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "of time.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "• This payment is equivalent to 7 days of basic salary for each full year of work.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "• This payment is",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " equivalent to 7 days of basic salary for each full year of work.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "c. Accrued Leave Pay",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "c. Accrued Leave Pay",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Employee must be paid for any unused annual leave days.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Employee must be paid for ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "any unused annual leave",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " days.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "d. Repatriation Costs",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "d. Repatriation Costs",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "If the employee was recruited from a different location, the employer must cover transportation and relocation costs to their place of recruitment .",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "If the employee was ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "recruited from a different location",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ", the employer must cover ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "transportation and relocation costs",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " to their place of recruitment .",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "e. Terminal Benefits",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "e. Terminal Benefits",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Includes pension, gratuity, NSSF contributions, and any other contractual entitlements.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Includes ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "pension",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ", ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "gratuity",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ", ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "NSSF contributions",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ", and ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "any other contractual entitlements",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "18.  Unfair Termination",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "18",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Unfair Termination",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Under the Employment and Labour Relations Act, termination is considered unfair if:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Under the ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Employment and Labour Relations Act, ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "termination is considered ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "unfair",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " if:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "i.The reason given is not valid or fair, meaning it’s not grounded in:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "i.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "The ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "reason",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " given is ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "not valid or fair",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ", meaning it’s not grounded in:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "the employee’s conduct, capacity, or compatibility; or",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "the employee’s conduct, capacity, or compatibility; or",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "the employer’s operational requirements ",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "the employer’s operational requirements ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "ii. The termination didn’t follow a fair and proper procedure; such as investigation, disciplinary hearing, opportunity for defense, and adherence to notice requirements .",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "ii.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "The termination didn’t follow a ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "fair and proper procedure",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ";",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " such as investigation, disciplinary hearing, opportunity for defense, and adherence to notice requirements ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Additionally, specific circumstances—such as exercising workplace rights, trade union involvement, pregnancy, or disability cannot serve as lawful reasons for termination.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Additionally, specific circumstances—such as exercising workplace rights, trade union involv",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "ement, pregnancy, or disability ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "cannot serve as lawful reasons for termination",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "19. What an Employee Should Do if They Suspect Unfair Termination ?",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "19",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "What an Employee Should Do if They Suspect Unfair Termination ?",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "a. Act Quickly",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "a",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". A",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "ct Quickly",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "File a complaint with the Commission for Mediation and Arbitration (CMA) within 30 days of termination.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "File a complaint with the ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Commission for Mediation and Arbitration (CMA)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " within ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "30 days of termination",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "b. Gather and Organize Evidence",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "b",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". Gather and Organize Evidence",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Secure any documentation: termination letter, notices, pay slips, correspondence.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Secure any documentation: termination letter, notices, pay slips, correspondence.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Prepare records of hearings, investigations, or disciplinary actions.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Prepare records of hearings, investigations, or disciplinary actions.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Witness statements can be powerful—be sure to collect their names and contact details . ",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Witness statements can be powerful—be sure to collect their names and contact details ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "c. Pursue Dispute Resolution",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "c",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". Pursue Dispute Resolution",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Mediation: Commision for Mediation and Arbitration (CMA) first attempts to mediate a resolution.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Mediation",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ": ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Commision for Mediation and Arbitration (",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "CMA",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ")",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " first attempts to mediate a resolution.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Arbitration: If mediation fails,  then it will proceed to arbitration—also at the CMA. Their decision may include remedies like reinstatement or compensation. ",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Arbitration",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ": If mediation fails, ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " then it will ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "proceed to arbitration—also at the CMA. Their decision may include remedies like reinstatement or compensation",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "d. Escalate to Labour Court if Needed",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "d",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". Escalate to Labour Court if Needed",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "If unsatisfied with the CMA’s ruling, you may take the matter to the Labour Division of the High Court, and later to the Court of Appeal if necessary",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "If unsatisfied with the CMA’s ruling, you may take the matter to the ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Labour Division of the High Court",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ", and later to the ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Court of Appeal",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " if necessary",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "20. Remedies for Unfair Termination",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "20",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Remedies for Unfair Termination",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "If an arbitrator or court, the Commission for Mediation and Arbitration (CMA) or other Labour Court finds termination unfair, they may order:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "If a",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "n arbitrator or court, ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "the Commission ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "for Mediation and Arbitration (",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "CMA",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ") ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "or ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "other Labour Court ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "finds termination unfair, they may order:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Reinstatement without loss of pay.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Reinstatement",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " without loss of pay.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Re-engagement on terms the tribunal decides.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Re",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "-engagement",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " on terms the tribunal decides.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Compensation Payment. ",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Compensation",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Payment. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "21. Compensation to Unfair  Termination",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "21",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Compensation to Unfair ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " Termination",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "According to the Labour Laws amendments Act No. 4 of 2025, which amends the employment and Labour Relations Act ,  compensation scales have been refined as follows;",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "According to ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "the Labour Laws amendments Act No. 4 of 2025, which amends the employment and Labour Relations Act , ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " compensation scal",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "es have been refined as follows;",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "in case of termination based on unfair procedure, not less than six (6) months' remuneration but not exceeding 12 months' remuneration;",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "in case of termination based on ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "unfair procedure",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ", not less than six (6) months' remuneration but not exceeding 12 months' remuneration;",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "in case of termination based on unfair reason, not less than 12 months' remuneration but not exceeding 18 months' remuneration;",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "in case of termination based on ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "unfair reason",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ", not less than 12 months' remuneration but not exceeding 18 months' remuneration;",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "in case of termination based on both unfair procedure and unfair reason, not less than 12 months’ remuneration but not exceeding 24 months’ remuneration; and ",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "in case of termination based on both ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "unfair procedure and unfair reason",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ", not less than 12 months’ remuneration but not exceeding 24 months’ remuneration; and ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "in case of termination based on discrimination or harassment, not less than 12 months’ remuneration but not exceeding 24 months’ remuneration.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "in case of termination based on ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "discrimination or harassment",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ", not less than 12 months’ remuneration but not exceeding 24 months’ remuneration.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    }
+  ],
+  "fields": []
+}

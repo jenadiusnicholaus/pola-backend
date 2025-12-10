@@ -1,0 +1,862 @@
+{
+  "filename": "iii. Notice (English).docx",
+  "content": [
+    {
+      "text": "………..1(a)……………\nP.O. Box ….1(b)(i)…………\n ……….1(b)(ii)………..\nPhone: ………..1(c)____\nEmail:……… 1(d)______\nDATE: …1(e)(i)..|..1(e)(ii)…|..1(e)(iii)_",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "…",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……..",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "1(a)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\nP.O. Box ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "1(b)(i)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\n ……….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "1(b)(ii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "………..",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\nPhone: ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "………..",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "1(c)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "____",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\nEmail:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "1(d)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "______",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\n",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "DATE",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ":",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "1(e)(i)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "..|..",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "1(e)(ii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "|.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "1(e)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "(iii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "_",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "To:\n………… 2(a)………………\nP.O Box :……. 2(b)(i)…….. ,\n……..2(b)(ii)……….",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "To:",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\n",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "2(a)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\nP.O Box :……. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "2(b)(i)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…….. ,",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\n",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…..",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "2(b)(ii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "RE: NOTICE OF TERMINATION OF EMPLOYMENT\n",
+      "alignment": "CENTER (1)",
+      "runs": [
+        {
+          "text": "RE: NOTICE OF TERMINATION OF EMPLOYMENT",
+          "bold": true,
+          "italic": null,
+          "underline": true,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\n",
+          "bold": null,
+          "italic": null,
+          "underline": true,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Dear  _2(a)__,",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Dear ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " _",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "2(a)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "__,",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Pursuant to the terms and conditions of the employment contract between you and ….1(a)….. signed on ……3(a)….., and in accordance with the Employment and Labour Relations Act, 2004, we hereby inform you that your employment shall be terminated effective from ________3(b)_____.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "Pursuant to the terms and conditions of the emplo",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "yment contract between you and ….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "1(a)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…..",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " signed on ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "3(a)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…..",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ", and in accordance with the Employment and Labour Relations Act, 2004, ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "we hereby inform you that your employment shall be terminated effective from ________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "3(b)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "_____.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "The reasons for the termination of your employment are as follows:\n4(a), 4(b), 4(c), 4(d) ________________________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "The reasons for the termination of your employment are as follows:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\n",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "4(a), 4(b), 4(c), 4(d)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "________________________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Considering the duration of your employment, you are entitled to a notice period of …..5(a)……days, which shall commence from the date of this letter. If you do not serve this notice period, an amount equivalent to the respective salary period shall be deducted or paid in accordance with the applicable procedures.",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "Considering the duration of your employment, you are entitled to a notice period of ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…..",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "5(a)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "days, which shall commence from the date of this letter. If you do not serve this notice period, an amount equivalent to the respective salary period shall be deducted or paid in accordance with the applicable procedures.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Your entitlements payable upon termination of employment include:\n• Outstanding salary arrears (if any)\n• Annual leave (if not taken)\n• Any other allowances or benefits due for payment\n• Service certificate",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Your entitlements payable upon termination of employment include:",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\n",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "• Outstanding salary arrears (if any)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\n• Annual leave (if not taken)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\n• Any other allowances or benefits due for payment",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\n• Service certificate",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "We thank you for your contribution during your period of service with this institution and wish you success in your future endeavors.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "We thank you for your contribution during your period of service with this institution and wish you success in your future endeavors.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "For further clarification or final exit procedures, please contact the Human Resources Department.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "For further clarification or final exit procedures, please contact the Human Resources Department.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Yours sincerely,",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Yours sincerely,",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Name of Employer / Representative: ……………6(a)……\nPosition: ……..6(b)……….\nSignature: ____________________\nDate: ___________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Name of Employer / Representative: ……………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "6(a)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\nPosition: ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……..",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "6(b)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\nSignature: ____________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\nDate: ___________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    }
+  ],
+  "fields": []
+}

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+
+        @page {
+            size: A4;
+            margin: 2.5cm;
+        }
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            line-height: 1.8;
+            color: #000;
+        }
+        .center { text-align: center; }
+        .left { text-align: left; }
+        .right { text-align: right; }
+        .justify { text-align: justify; }
+        .bold { font-weight: bold; }
+        .italic { font-style: italic; }
+        .underline { text-decoration: underline; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        td, th {
+            border: 1px solid #000;
+            padding: 5px;
+        }
+    
+</style>
+</head>
+<body>
+<p class="left">
+<span class="bold" style="font-size: 12.0pt">………</span>
+<span class="bold" style="font-size: 12.0pt">…….</span>
+<span class="bold" style="font-size: 12.0pt">{{date_day}}</span>
+<span class="bold" style="font-size: 12.0pt">……</span>
+<span class="bold" style="font-size: 12.0pt">…..</span>
+<span class="bold" style="font-size: 12.0pt">....</span>
+<span style="font-size: 12.0pt">
+</span>
+<span style="font-size: 12.0pt">P.O Box</span>
+<span style="font-size: 12.0pt"> </span>
+<span style="font-size: 12.0pt">___</span>
+<span style="font-size: 12.0pt">_</span>
+<span style="font-size: 12.0pt">{{date_month}}</span>
+<span style="font-size: 12.0pt">(i)</span>
+<span style="font-size: 12.0pt">___</span>
+<span style="font-size: 12.0pt">_</span>
+<span style="font-size: 12.0pt">_</span>
+<span style="font-size: 12.0pt">,</span>
+</p>
+<p class="left">
+<span style="font-size: 12.0pt">____</span>
+<span style="font-size: 12.0pt">___</span>
+<span style="font-size: 12.0pt">{{date_month}}(ii)</span>
+<span> </span>
+<span style="font-size: 12.0pt">_________,</span>
+<span style="font-size: 12.0pt">
+Phone Number: _______</span>
+<span style="font-size: 12.0pt">{{date_year}}</span>
+<span style="font-size: 12.0pt">__</span>
+<span style="font-size: 12.0pt">__,</span>
+<span style="font-size: 12.0pt">
+Email: ____________</span>
+<span style="font-size: 12.0pt">1(d)</span>
+<span style="font-size: 12.0pt">_______</span>
+</p>
+<p class="left">
+<span style="font-size: 12.0pt">Date: ___</span>
+<span style="font-size: 12.0pt">1(e)(i)</span>
+<span style="font-size: 12.0pt">_</span>
+<span style="font-size: 12.0pt">|</span>
+<span style="font-size: 12.0pt">_</span>
+<span style="font-size: 12.0pt">1(e)</span>
+<span style="font-size: 12.0pt">___</span>
+<span style="font-size: 12.0pt">|_</span>
+<span style="font-size: 12.0pt">1(e)(iii)</span>
+<span style="font-size: 12.0pt">__</span>
+<span style="font-size: 12.0pt">_</span>
+<span style="font-size: 12.0pt"> .</span>
+</p>
+<p class="left">
+<span style="font-size: 12.0pt">To:</span>
+<span style="font-size: 12.0pt">
+</span>
+<span class="bold" style="font-size: 12.0pt">…</span>
+<span class="bold" style="font-size: 12.0pt">……..</span>
+<span class="bold" style="font-size: 12.0pt">……</span>
+<span class="bold" style="font-size: 12.0pt">{{employer_name}}</span>
+<span class="bold" style="font-size: 12.0pt">…</span>
+<span class="bold" style="font-size: 12.0pt">…..</span>
+<span class="bold" style="font-size: 12.0pt">…</span>
+<span style="font-size: 12.0pt">
+P.O Box</span>
+<span style="font-size: 12.0pt"> _</span>
+<span style="font-size: 12.0pt">_____</span>
+<span style="font-size: 12.0pt">{{employer_address}}</span>
+<span style="font-size: 12.0pt">(i)</span>
+<span style="font-size: 12.0pt">___</span>
+<span style="font-size: 12.0pt">_____</span>
+<span style="font-size: 12.0pt">,</span>
+</p>
+<p class="left">
+<span style="font-size: 12.0pt">______</span>
+<span style="font-size: 12.0pt">{{employer_address}}(ii)</span>
+<span style="font-size: 12.0pt">______</span>
+<span style="font-size: 12.0pt"> .</span>
+</p>
+<p class="center">
+<span class="bold underline" style="font-size: 13.5pt">RE: NOTICE OF RESIGNATION</span>
+</p>
+<p class="left">
+<span style="font-size: 12.0pt">Dear </span>
+<span style="font-size: 12.0pt"> __________</span>
+<span style="font-size: 12.0pt">{{employer_name}}</span>
+<span style="font-size: 12.0pt">________</span>
+<span style="font-size: 12.0pt">,</span>
+</p>
+<p class="justify">
+<span style="font-size: 12.0pt">With respect and professionalism, I hereby formally notify you of my intention to resign from my position as ____________</span>
+<span style="font-size: 12.0pt">{{employee_name}}</span>
+<span style="font-size: 12.0pt">_________ , ____</span>
+<span style="font-size: 12.0pt">____</span>
+<span style="font-size: 12.0pt">{{employee_position}}</span>
+<span style="font-size: 12.0pt">(ii)</span>
+<span style="font-size: 12.0pt">____</span>
+<span style="font-size: 12.0pt">/ </span>
+<span style="font-size: 12.0pt">3(c)</span>
+<span style="font-size: 12.0pt">____</span>
+<span style="font-size: 12.0pt">___ comp</span>
+<span style="font-size: 12.0pt">any/organization, which </span>
+<span style="font-size: 12.0pt"> is effective on</span>
+<span style="font-size: 12.0pt">____</span>
+<span style="font-size: 12.0pt">3(d)(i)</span>
+<span style="font-size: 12.0pt">__</span>
+<span style="font-size: 12.0pt">|</span>
+<span style="font-size: 12.0pt">_</span>
+<span style="font-size: 12.0pt">3(d</span>
+<span style="font-size: 12.0pt">)</span>
+<span style="font-size: 12.0pt">(ii)</span>
+<span style="font-size: 12.0pt">__</span>
+<span style="font-size: 12.0pt">|</span>
+<span style="font-size: 12.0pt">___</span>
+<span style="font-size: 12.0pt">3(d)(iii)</span>
+<span style="font-size: 12.0pt">___.</span>
+</p>
+<p class="left">
+<span style="font-size: 12.0pt">I am making this decision for </span>
+<span style="font-size: 12.0pt">………</span>
+<span style="font-size: 12.0pt">4</span>
+<span style="font-size: 12.0pt">(a)</span>
+<span style="font-size: 12.0pt">…</span>
+<span style="font-size: 12.0pt">/ ..</span>
+<span style="font-size: 12.0pt">{{resignation_date_month}}</span>
+<span style="font-size: 12.0pt">…/</span>
+<span style="font-size: 12.0pt">..</span>
+<span style="font-size: 12.0pt">{{resignation_date_year}}</span>
+<span style="font-size: 12.0pt">…/…</span>
+<span style="font-size: 12.0pt">4(d)</span>
+<span style="font-size: 12.0pt">…./…</span>
+<span style="font-size: 12.0pt">4(e)</span>
+<span style="font-size: 12.0pt">…</span>
+<span style="font-size: 12.0pt">..</span>
+</p>
+<p class="justify">
+<span style="font-size: 12.0pt">P</span>
+<span style="font-size: 12.0pt">lease consider this letter as my formal notice</span>
+<span style="font-size: 12.0pt">.</span>
+<span style="font-size: 12.0pt"> I am willing to discuss the terms of early termination, including handing over duties and the notice period.</span>
+</p>
+<p class="justify">
+<span style="font-size: 12.0pt">In accordance with the contract and applicable laws, I kindly ask that we find an amicable agreement to facilitate this transition with fairness and respect to both parties.</span>
+</p>
+<p class="left">
+<span style="font-size: 12.0pt">I am very grateful for the opportunity to contribute and be part of your office, and for the cooperation we had throughout my period of service. I wish you great success in your future endeavors.</span>
+</p>
+<p class="left">
+<span style="font-size: 12.0pt">Yours faithfully,</span>
+</p>
+<p class="left">
+<span style="font-size: 12.0pt">……</span>
+<span style="font-size: 12.0pt">…………..</span>
+<span style="font-size: 12.0pt">……</span>
+</p>
+<p class="left">
+<span style="font-size: 12.0pt">
+</span>
+<span class="bold" style="font-size: 12.0pt">{{date_day}}</span>
+<span class="bold" style="font-size: 12.0pt">.</span>
+</p>
+</body>
+</html>

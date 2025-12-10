@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'authentication',
     'subscriptions',  # Subscription and wallet system
     'documents',  # Learning materials and document management
+    'document_templates',  # Dynamic document template generation system
     'django_filters',
     'corsheaders',
     'hubs'

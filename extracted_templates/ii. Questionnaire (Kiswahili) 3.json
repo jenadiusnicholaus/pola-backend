@@ -1,0 +1,1058 @@
+{
+  "filename": "ii. Questionnaire (Kiswahili) 3.docx",
+  "content": [
+    {
+      "text": "JAZA TAARIFA KWA USAHIHI",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "JAZA TAARIFA KWA USAHIHI",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "TAARIFA ZA MFANYAKAZI (MWAJIRIWA) ",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "TAARIFA ZA MFANYAKAZI (MWAJIRIWA) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Jina kamili la Mfanyakazi………………………………….",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Jina kamili la Mfanyakazi………………………………….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Anuani:  (i) S.L.P……………… (ii) Mkoa ….…………….",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Anuani:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "  (i) S.L.P……………… (ii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " Mkoa ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "…………….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Namba ya Simu:……………………………………………….",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Namba ya Simu:……………………………………………….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Barua pepe………………………………………………………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Barua pepe………………………………………………………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Tarehe ambayo barua inaandikwa; (i)Tarehe…………… (ii)Mwezi ……... (iii) Mwaka………..",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Tarehe ambayo barua inaandikwa",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "; (i)Tarehe",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "……………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " (ii)Mwezi ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "……...",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " (iii) Mwaka………..",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "TAARIFA ZA MWAJIRI",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "TAARIFA ZA MWAJIRI",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Jina kamili la Mwajiri (Kama Mwajiri wako ni kampuni/Taasisi /Biashara andika jina husika la hiyo kampuni/Taasisi/Biashara,  na kama ni mtu binafsi andika jina lake kamili)……………………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Jina kamili la Mwajiri",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "(Kama Mwajiri wako ni kampuni/Taasisi /Biashara andika jina husika la hiyo kampuni/Taasisi/Biashara,  na kama n",
+          "bold": null,
+          "italic": true,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "i mtu binafsi andika jina lake ",
+          "bold": null,
+          "italic": true,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "kamili",
+          "bold": null,
+          "italic": true,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ")",
+          "bold": null,
+          "italic": true,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "……………………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Anuani:  (i) S.L.P………………………(ii) Mkoa………………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Anuani:  (i) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "S.L.P",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "………………………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "(ii) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Mkoa",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "…",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "……………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "TAARIFA ZA AJIRA",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "TAARIFA ZA AJIRA",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Nini cheo chako / nafasi yako kazini? …………………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Nini cheo chako / nafasi yako kazini? …………………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Je Mwajiri wako ni kampuni/taasisi au mtu binafsi?(chagua moja)",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Je Mwajiri wako ni kampuni/taasisi au mtu binafsi?",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "(chagua moja)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "i. Kampuni / taasisi / Biashara □",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "i. Kampuni / taasisi",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " / Biashara",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "□",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "ii. Mtu Binafsi □",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "ii. Mtu Binafsi ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "□",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Note (for developer): Kama amechagua Mtu binafsi a itatokea maneno ( “ndani ya ofisi yako”)  tu kwenye gap ya 3(b)(ii).",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Note (for developer): Kama amechagua Mtu binafsi a itatokea maneno ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "( “ndani ya ofisi yako”)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "tu ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "kwenye gap ya ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "3(b)(ii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Na kama amechagua kampuni/taasisi au biashara gap 3(c) itaanza na maneno (“ndani ya”) ndipo kufuatiwa na jina la kampuni/taasisi/biashara.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Na kama amechagua kampuni/taasisi au biashara gap ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "3(c)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " itaanza na maneno ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "(“ndani ya”) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "ndipo kufuatiwa na jina la kampuni/taasisi/biashara.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Ni jibu moja tu litakaa kwenye barua, kati ya 3(b)(ii) au (3(c), litakapochaguliwa moja, lingine litajiondoa automatic. ",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Ni jibu moja tu litakaa kwenye barua, kati ya ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "3(b)(ii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " au ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "(3(c)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ", litakapochaguliwa moja, lingine litajiondoa automatic. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Kama ni kampuni/  taasisi au Biashara  andika jina lake kamili……………………...",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "K",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "ama ni kampuni/ ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " taasisi",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " au Biashara ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " andika jina lake kamili",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "……………………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Tarehe rasmi ya kujiuzulu (tarehe unayotarajia kusitisha kazi rasmi)",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Tarehe ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "rasmi ya kujiuzulu",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " (tarehe unayotarajia kusitisha",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " kazi rasmi)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "i.Tarehe…………………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "i.Tarehe",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "……………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "……",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "ii.Mwezi………………….",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "ii.Mwezi………………….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "iii.Mwaka………………..",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "iii.Mwaka………………..",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "SABABU ZA KUJIUZULU",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "SABABU ZA KUJIUZULU",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Kwanini umeamua kujiuzulu? Chagua sababu hapo chini; (for developer: sababu moja itakayochaguliwa ndio itajitokeza kwenye barua) ",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Kwanini umeamua kujiuzulu? Chagua sababu hapo chini;",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " (",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "for developer: sababu moja itakayochaguliwa ndio itajitokeza kwenye barua",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ") ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "a.\tbinafsi □",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "a.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\t",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "binafsi",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "□",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "b.\tya Fursa nyingine ya kazi  □",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "b.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\t",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "ya ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Fursa nyingine ya kazi",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "  ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "□",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "c.\tza kiafya  □",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "c.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\t",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "za kiafya",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "  ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "□",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "d.\tya Majukumu ya kifamilia  □",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "d.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\t",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "ya ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "Majukumu ya kifamilia",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "  ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "□",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "e.\tSababu nyinginezo: (elezea)______",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "e.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\tSababu nyinginezo: (",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "elezea",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ")",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "______",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    }
+  ],
+  "fields": []
+}

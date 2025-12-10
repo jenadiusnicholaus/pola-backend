@@ -1,0 +1,274 @@
+#!/usr/bin/env python
+"""Create clean, professional Swahili Employment Contract template matching English format"""
+
+template_html = '''<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+@page {
+    size: A4;
+    margin: 2.5cm;
+}
+body {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12pt;
+    line-height: 2.0;
+    color: #000;
+}
+.center { text-align: center; }
+.left { text-align: left; }
+.right { text-align: right; }
+.justify { text-align: justify; }
+.bold { font-weight: bold; }
+.italic { font-style: italic; }
+.underline { text-decoration: underline; }
+.data-field { 
+    font-weight: bold;
+    border-bottom: 1px solid #000;
+    padding: 0 5px;
+    display: inline-block;
+    min-width: 100px;
+}
+p { margin: 10px 0; }
+.signature-section {
+    margin-top: 30px;
+}
+.signature-line {
+    border-bottom: 1px solid #000;
+    width: 250px;
+    display: inline-block;
+    margin: 10px 0;
+}
+</style>
+</head>
+<body>
+
+<p class="center">
+    <span class="bold underline" style="font-size: 14pt">MKATABA WA AJIRA</span>
+</p>
+
+<p class="center">
+    Mkataba huu umefanyika leo tarehe <span class="data-field">{{contract_date_day}}</span> Mwezi wa <span class="data-field">{{contract_date_month}}</span> Mwaka <span class="data-field">{{contract_date_year}}</span>
+</p>
+
+<p class="center">
+    <span class="bold">KATI YA:</span>
+</p>
+
+<p class="center">
+    <span class="data-field">{{employer_name}}</span> Wa Anuani: <span class="data-field">{{employer_address_street}}</span>, <span class="data-field">{{employer_address_city}}</span> Namba ya Simu: <span class="data-field">{{employer_phone}}</span> Barua Pepe: <span class="data-field">{{employer_email}}</span>
+</p>
+
+<p class="center">
+    (Ambaye katika mkataba huu anatajwa kama '<span class="bold">MWAJIRI</span>' kwa upande mmoja)
+</p>
+
+<p class="center">
+    <span class="bold">NA</span>
+</p>
+
+<p class="center">
+    <span class="data-field">{{employee_name}}</span> Wa Anuani: <span class="data-field">{{employee_address_street}}</span>, <span class="data-field">{{employee_address_city}}</span> Namba ya Simu: <span class="data-field">{{employee_phone}}</span> Aina ya Kitambulisho: <span class="data-field">{{employee_id_type}}</span>, Namba ya Kitambulisho <span class="data-field">{{employee_id_number}}</span> Barua Pepe: <span class="data-field">{{employee_email}}</span>
+</p>
+
+<p class="center">
+    (Ambaye katika mkataba huu anatajwa kama '<span class="bold">MWAJIRIWA</span>' kwa upande mwingine)
+</p>
+
+<p class="justify">
+    <span class="bold">AMBAPO;</span> Mwajiri ana nia ya kumpa kazi/ajira mwajiriwa, na Mwajiriwa ana nia na ameridhia kufanya kazi ya Mwajiri kwa masharti na makubaliano kama yafuatayo.
+</p>
+
+<p class="left">
+    <span class="bold">1. TAREHE YA KUANZA KAZI</span>
+</p>
+<p class="left">
+    Mkataba huu wa Ajira utaanza tarehe <span class="data-field">{{employment_start_day}}</span> Mwezi wa <span class="data-field">{{employment_start_month}}</span> Mwaka <span class="data-field">{{employment_start_year}}</span> na kuendelea kisheria mpaka tarehe <span class="data-field">{{employment_end_day}}</span> Mwezi wa <span class="data-field">{{employment_end_month}}</span> Mwaka <span class="data-field">{{employment_end_year}}</span>.
+</p>
+
+<p class="left">
+    <span class="bold">2. MAHALI ALIPOAJIRIWA</span>
+</p>
+<p class="left">
+    Mwajiriwa ameajiriwa mkoa wa <span class="data-field">{{workplace_location}}</span>
+</p>
+
+<p class="left">
+    <span class="bold">3. MAHALI PA KAZI</span>
+</p>
+<p class="left">
+    Mwajiriwa atafanya kazi katika eneo la mkoa wa <span class="data-field">{{work_region}}</span> wilaya ya <span class="data-field">{{work_district}}</span> Kata ya <span class="data-field">{{work_ward}}</span>. Endapo kuna eneo lingine la kazi nje ya hili litabainishwa na Mwajiri.
+</p>
+
+<p class="left">
+    <span class="bold">4. WADHIFA/KAZI YA KUFANYA</span>
+</p>
+<p class="left">
+    Mwajiriwa atafanya kazi kama <span class="data-field">{{job_title}}</span> na atatekeleza majukumu yafuatayo:<br/>
+    <span class="data-field">{{job_duties}}</span>
+</p>
+
+<p class="left">
+    <span class="bold">5. MUDA WA MAJARIBIO</span>
+</p>
+<p class="left">
+    Mwajiriwa atakuwa katika kipindi cha majaribio kwa muda wa miezi <span class="data-field">{{probation_months}}</span> kuanzia tarehe aliyosaini mkataba huu. Madhumuni ya kipindi cha majaribio ni kutathmini endapo Mwajiriwa ana uwezo na anafaa kwa kazi hiyo. Iwapo mkataba huu wa ajira utasitishwa kipindi cha mwezi wa kwanza wa ajira yake, Mwajiri analazimika kutoa taarifa na kueleza nia yake hiyo kwa maandishi (notisi) ndani ya siku saba (7).
+</p>
+
+<p class="left">
+    <span class="bold">6. MUDA WA KAZI</span>
+</p>
+<p class="left">
+    Muda wa kazi utakuwa ni masaa <span class="data-field">{{work_hours_per_day}}</span> kwa siku, siku <span class="data-field">{{work_days_per_week}}</span> kwa wiki, kuanzia saa <span class="data-field">{{work_start_time}}</span> hadi <span class="data-field">{{work_end_time}}</span>.
+</p>
+
+<p class="left">
+    <span class="bold">7. MSHAHARA NA MALIPO</span>
+</p>
+<p class="left">
+    Mwajiriwa atalipwa mshahara wa Tsh <span class="data-field">{{salary_amount}}</span> kwa <span class="data-field">{{salary_period_month}}</span>, ambao utalipwa kila tarehe <span class="data-field">{{payment_date}}</span>.
+</p>
+
+<p class="left">
+    Malipo yatafanywa kwa njia ya: <span class="data-field">{{payment_method_bank}}</span>
+</p>
+
+<p class="left">
+    <span class="bold">Taarifa za Benki:</span><br/>
+    <span class="data-field">{{bank_name}}</span><br/>
+    <span class="data-field">{{bank_account_name}}</span><br/>
+    <span class="data-field">{{bank_account_number}}</span><br/>
+    <span class="data-field">{{bank_branch}}</span>
+</p>
+
+<p class="left">
+    <span class="bold">8. POSHO NA MANUFAA MENGINE</span>
+</p>
+<p class="left">
+    <span class="data-field">{{allowance_1}}</span>,<br/>
+    <span class="data-field">{{allowance_2}}</span>,<br/>
+    <span class="data-field">{{allowance_3}}</span>,<br/>
+    <span class="data-field">{{allowance_4}}</span>,<br/>
+    <span class="data-field">{{other_benefits}}</span>
+</p>
+
+<p class="left">
+    <span class="bold">9. LIKIZO</span>
+</p>
+<p class="left">
+    Mwajiriwa anastahili likizo ya mwaka (ikiwa ni pamoja na siku za mapumziko ya wiki), au kwa uwiano wa muda aliyokuwa kazini kwa mujibu wa Sheria ya Ajira na Mahusiano Kazini.
+</p>
+
+<p class="left">
+    <span class="bold">10. LIKIZO YA UGONJWA</span>
+</p>
+<p class="left">
+    Mwajiriwa atastahili likizo ya ugonjwa kwa mujibu wa Sheria ya Ajira na Mahusiano Kazini.
+</p>
+
+<p class="left">
+    <span class="bold">11. LIKIZO YA UZAZI</span>
+</p>
+<p class="left">
+    Kwa mujibu wa Sheria ya Ajira na Mahusiano Kazini, likizo ya uzazi itatolewa kwa Wafanyakazi wa kike na Wafanyakazi wa kiume.
+</p>
+
+<p class="left">
+    <span class="bold">12. MATUMIZI YA SHERIA NA KANUNI ZA KAZI</span>
+</p>
+<p class="left">
+    Ajira hii itaongozwa na Sheria ya Ajira na Mahusiano Kazini ya mwaka 2004 na marekebisho yake, pamoja na kanuni, miongozo ya ndani ya kampuni, na sera husika.
+</p>
+
+<p class="left">
+    <span class="bold">13. KUSITISHA AJIRA</span>
+</p>
+<p class="left">
+    Kusitisha ajira kutazingatia notisi kama ifuatavyo:
+</p>
+<ul>
+    <li>Siku saba (7) kama notisi itatolewa ndani ya mwezi wa kwanza wa ajira</li>
+    <li>Siku nne (4), kama mwajiriwa ameajiriwa ajira ya mpangilio wa siku hadi siku au wiki kwa wiki</li>
+    <li>Siku 28 kama mwajiriwa ameajiriwa ajira ya miezi</li>
+</ul>
+<p class="left">
+    Kusitisha bila kufuata utaratibu huu kunaweza kutoa haki ya fidia kwa upande ulioathirika.
+</p>
+
+<p class="left">
+    <span class="bold">14. NIDHAMU NA MAADILI YA KAZI</span>
+</p>
+<p class="left">
+    Mwajiriwa atahitajika kufuata maadili, taratibu na miongozo ya kampuni. Ukiukwaji wa kanuni unaweza kusababisha hatua za kinidhamu.
+</p>
+
+<p class="left">
+    <span class="bold">15. SIRI ZA MWAJIRI</span>
+</p>
+<p class="left">
+    Mwajiriwa hataruhusiwa kufichua taarifa zozote za siri za Mwajiri bila idhini ya maandishi, hata baada ya kuondoka kazini.
+</p>
+
+<p class="left">
+    <span class="bold">16. MIGOGORO YA KAZI</span>
+</p>
+<p class="left">
+    Migogoro yoyote ya ajira itashughulikiwa kwanza kwa mazungumzo. Isipotatuliwa, itaelekezwa kwa Tume ya Usuluhishi na Uamuzi (CMA) kwa mujibu wa sheria.
+</p>
+
+<div class="signature-section">
+    <p class="left">
+        <span class="bold">Sahihi za Wahusika</span>
+    </p>
+
+    <p class="left">
+        <span class="bold">Mwajiri</span><br/>
+        Jina: <span class="data-field">{{employer_name}}</span><br/>
+        Sahihi: _________________________<br/>
+        Tarehe: ________________________
+    </p>
+
+    <p class="left">
+        <span class="bold">Shahidi wa Mwajiri</span><br/>
+        Jina: __________________<br/>
+        Anuani: ___________________________<br/>
+        Simu: ____________________________<br/>
+        Sahihi: _________________________<br/>
+        Tarehe: ________________________
+    </p>
+
+    <p class="left">
+        <span class="bold">Mwajiriwa</span><br/>
+        Jina: <span class="data-field">{{employee_name}}</span><br/>
+        Sahihi: _________________________<br/>
+        Tarehe: ________________________
+    </p>
+
+    <p class="left">
+        <span class="bold">Shahidi wa Mwajiriwa</span><br/>
+        Jina: ________________________<br/>
+        Anuani: ___________________________<br/>
+        Simu: ____________________________<br/>
+        Sahihi: _________________________<br/>
+        Tarehe: ________________________
+    </p>
+</div>
+
+</body>
+</html>'''
+
+# Write the clean template
+output_file = '/Users/mac/development/python_projects/pola-backend/document_templates/templates/i._mkataba_wa_ajira_clean.html'
+with open(output_file, 'w', encoding='utf-8') as f:
+    f.write(template_html)
+
+print('✓ Clean Swahili template created!')
+print(f'✓ Output: {output_file}')
+print('✓ Features:')
+print('  - Bold data fields with underline')
+print('  - No placeholder dots or underscores')
+print('  - Block-aligned format (titles on separate lines)')
+print('  - Professional spacing (line-height 2.0)')
+print('  - Times New Roman 12pt font')
+print('  - Clean paragraph structure')

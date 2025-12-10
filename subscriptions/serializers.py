@@ -557,3 +557,171 @@ class EarningsSummarySerializer(serializers.Serializer):
     total_earnings = serializers.DecimalField(max_digits=12, decimal_places=2)
     total_paid = serializers.DecimalField(max_digits=12, decimal_places=2)
     total_unpaid = serializers.DecimalField(max_digits=12, decimal_places=2)
+
+
+# ============================================================================
+# CALL MANAGEMENT SERIALIZERS
+# ============================================================================
+
+class CallCreditBundleSerializer(serializers.ModelSerializer):
+    """Serializer for call credit bundles"""
+    price_formatted = serializers.SerializerMethodField()
+    
+    class Meta:
+        from .models import CallCreditBundle
+        model = CallCreditBundle
+        fields = [
+            'id', 'name', 'name_sw', 'description', 'description_sw',
+            'minutes', 'price', 'price_formatted', 'validity_days', 'is_active',
+            'created_at', 'updated_at'
+        ]
+    
+    def get_price_formatted(self, obj):
+        return f"TSh {float(obj.price):,.2f}"
+
+
+class UserCallCreditSerializer(serializers.ModelSerializer):
+    """Serializer for user call credits"""
+    bundle_name = serializers.CharField(source='bundle.name', read_only=True)
+    bundle_details = CallCreditBundleSerializer(source='bundle', read_only=True)
+    is_valid_status = serializers.SerializerMethodField()
+    days_until_expiry = serializers.SerializerMethodField()
+    
+    class Meta:
+        from .models import UserCallCredit
+        model = UserCallCredit
+        fields = [
+            'id', 'user', 'bundle', 'bundle_name', 'bundle_details',
+            'total_minutes', 'remaining_minutes', 'purchase_date',
+            'expiry_date', 'status', 'is_valid_status', 'days_until_expiry'
+        ]
+        read_only_fields = ['user', 'total_minutes', 'purchase_date']
+    
+    def get_is_valid_status(self, obj):
+        return obj.is_valid()
+    
+    def get_days_until_expiry(self, obj):
+        if obj.expiry_date > timezone.now():
+            return (obj.expiry_date - timezone.now()).days
+        return 0
+
+
+class CallSessionSerializer(serializers.ModelSerializer):
+    """Serializer for call sessions"""
+    consultant_name = serializers.SerializerMethodField()
+    booking_details = serializers.SerializerMethodField()
+    
+    class Meta:
+        from .models import CallSession
+        model = CallSession
+        fields = [
+            'id', 'booking', 'booking_details', 'call_credit', 
+            'start_time', 'end_time', 'duration_minutes',
+            'call_quality_rating', 'consultant_name', 'created_at'
+        ]
+        read_only_fields = ['created_at']
+    
+    def get_consultant_name(self, obj):
+        if obj.booking and obj.booking.consultant:
+            return obj.booking.consultant.get_full_name()
+        return None
+    
+    def get_booking_details(self, obj):
+        if obj.booking:
+            return {
+                'id': obj.booking.id,
+                'booking_type': obj.booking.booking_type,
+                'status': obj.booking.status,
+            }
+        return None
+
+
+class ConsultantProfileSerializer(serializers.ModelSerializer):
+    """Serializer for consultant profiles"""
+    user_details = serializers.SerializerMethodField()
+    pricing = serializers.SerializerMethodField()
+    
+    class Meta:
+        from .models import ConsultantProfile
+        model = ConsultantProfile
+        fields = [
+            'id', 'user', 'user_details', 'consultant_type', 'specialization',
+            'years_of_experience', 'offers_mobile_consultations',
+            'offers_physical_consultations', 'city', 'is_available',
+            'total_consultations', 'total_earnings', 'average_rating',
+            'total_reviews', 'pricing', 'created_at', 'updated_at'
+        ]
+        read_only_fields = [
+            'total_consultations', 'total_earnings', 'average_rating',
+            'total_reviews', 'created_at', 'updated_at'
+        ]
+    
+    def get_user_details(self, obj):
+        # Get phone number from related Contact model
+        phone_number = None
+        if hasattr(obj.user, 'contact') and obj.user.contact:
+            phone_number = obj.user.contact.phone_number
+        
+        return {
+            'id': obj.user.id,
+            'email': obj.user.email,
+            'first_name': obj.user.first_name,
+            'last_name': obj.user.last_name,
+            'full_name': obj.user.get_full_name(),
+            'phone_number': phone_number,
+        }
+    
+    def get_pricing(self, obj):
+        return obj.get_pricing()
+
+
+class ConsultationBookingSerializer(serializers.ModelSerializer):
+    """Serializer for consultation bookings"""
+    client_details = serializers.SerializerMethodField()
+    consultant_details = serializers.SerializerMethodField()
+    
+    class Meta:
+        from .models import ConsultationBooking
+        model = ConsultationBooking
+        fields = [
+            'id', 'client', 'client_details', 'consultant', 'consultant_details',
+            'booking_type', 'status', 'scheduled_date', 'scheduled_duration_minutes',
+            'actual_start_time', 'actual_end_time', 'actual_duration_minutes',
+            'total_amount', 'platform_commission', 'consultant_earnings',
+            'meeting_location', 'client_notes', 'consultant_notes',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = [
+            'actual_start_time', 'actual_end_time', 'actual_duration_minutes',
+            'created_at', 'updated_at'
+        ]
+    
+    def get_client_details(self, obj):
+        if obj.client:
+            # Get phone number from related Contact model
+            phone_number = None
+            if hasattr(obj.client, 'contact') and obj.client.contact:
+                phone_number = obj.client.contact.phone_number
+            
+            return {
+                'id': obj.client.id,
+                'email': obj.client.email,
+                'full_name': obj.client.get_full_name(),
+                'phone_number': phone_number,
+            }
+        return None
+    
+    def get_consultant_details(self, obj):
+        if obj.consultant:
+            # Get phone number from related Contact model
+            phone_number = None
+            if hasattr(obj.consultant, 'contact') and obj.consultant.contact:
+                phone_number = obj.consultant.contact.phone_number
+            
+            return {
+                'id': obj.consultant.id,
+                'email': obj.consultant.email,
+                'full_name': obj.consultant.get_full_name(),
+                'phone_number': phone_number,
+            }
+        return None

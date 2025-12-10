@@ -21,6 +21,13 @@ from .public_views import (
 # Phase 4: Webhook views
 from .webhook_views import azampay_webhook, webhook_health
 
+# Phase 5: Call management views
+from .call_views import (
+    ConsultantListViewSet,
+    CallManagementViewSet,
+    PhysicalConsultationViewSet,
+)
+
 # User-facing APIs
 router = DefaultRouter()
 
@@ -38,6 +45,11 @@ router.register(r'consultants', ConsultantViewSet, basename='consultant')
 router.register(r'consultations', ConsultationBookingViewSet, basename='consultation')
 router.register(r'payments', PaymentTransactionViewSet, basename='payment')
 router.register(r'earnings', EarningsViewSet, basename='earnings')
+
+# Phase 5: Call management endpoints
+router.register(r'calls/consultants', ConsultantListViewSet, basename='call-consultants')
+router.register(r'calls', CallManagementViewSet, basename='call-management')
+router.register(r'calls/physical', PhysicalConsultationViewSet, basename='physical-consultation')
 
 urlpatterns = [
     # User APIs

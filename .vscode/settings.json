@@ -1,0 +1,11 @@
+{
+    "python.defaultInterpreterPath": "/usr/local/bin/python3",
+    "python.languageServer": "Pylance",
+    "python.analysis.typeCheckingMode": "off",
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.diagnosticMode": "workspace",
+    "editor.semanticHighlighting.enabled": true,
+    "editor.tokenColorCustomizations": {
+        "textMateRules": []
+    }
+}

@@ -151,6 +151,7 @@ urlpatterns = [
     path(f"api/{API_VERSION}/consultants/", include("subscriptions.consultant_urls")),  # Consultant-specific endpoints
     path(f"api/{API_VERSION}/lookups/", include("lookups.urls")),
     path(f"api/{API_VERSION}/hubs/", include("hubs.urls")),  # Hubs APIs
+    path(f"api/{API_VERSION}/doc-templates/", include("document_templates.urls")),  # Document Template APIs
     
     # API Documentation
     path('swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),

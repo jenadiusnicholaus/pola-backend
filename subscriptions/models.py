@@ -829,7 +829,7 @@ class CallSession(models.Model):
     """
     Individual call sessions within a consultation
     """
-    booking = models.ForeignKey(ConsultationBooking, on_delete=models.CASCADE, related_name='call_sessions')
+    booking = models.ForeignKey(ConsultationBooking, on_delete=models.CASCADE, related_name='call_sessions', null=True, blank=True)
     call_credit = models.ForeignKey(UserCallCredit, on_delete=models.SET_NULL, null=True, blank=True)
     
     start_time = models.DateTimeField()

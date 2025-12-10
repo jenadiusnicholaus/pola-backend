@@ -1,0 +1,954 @@
+{
+  "filename": "iv. Questionnaire (English) 3.docx",
+  "content": [
+    {
+      "text": "FILL IN THE INFORMATION ACCURATELY",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "FILL IN THE INFORMATION ACCURATELY",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "1. EMPLOYEE INFORMATION",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "1. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "EMPLOYEE INFORMATION",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Fill in the information accurately:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Fill in the information accurately:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "a. Full name of Employee: ………………………………….",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "a. Full name of Employee: ………………………………….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "b. Address:  (i)P.o Box…………… (ii)Region………………….",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "b. Address: ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " (i)P.o Box…………… (ii)Region",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "………………….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "c. Phone Number: …………………………………………………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "c. Phone Number: …………………………………………………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "d. Email: ……………………………………………………………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "d. Email: ……………………………………………………………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "e. Date this form is being completed: (i)Date………… (ii)Month……… (iii) Year………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "e. Date this form is being completed: ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "(i)Date",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " (ii)Month…",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " (iii) Year………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "2. EMPLOYER INFORMATION",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "2. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "EMPLOYER INFORMATION",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "a. Full name of Employer:  (If your employer is a Company/Organization/Business write the name of the said company/Organization/Business, and if your employer is an individual write his/her full name)……………………………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "a. Full name of Employer: ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "(",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "If your employer is a ",
+          "bold": null,
+          "italic": true,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "C",
+          "bold": null,
+          "italic": true,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "ompany/Organization/Business write the name of the said company/Organization/Business, and if your employer is an individual write his/her full name",
+          "bold": null,
+          "italic": true,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ")",
+          "bold": null,
+          "italic": true,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "………………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "b. Address: (i) P.O Box………………(ii) Region ………………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "b. Address: ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "(i) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "P.O Box",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "………………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "(ii) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Region",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " …………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "3. EMPLOYMENT INFORMATION",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "3. EMPLOYMENT INFORMATION",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "a. What is your job title / position? ……………………………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "a. What is your job title / position? ……………………………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "b.  Is your employer a company/institution or an individual? (choose one)",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "b. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " Is your employer a company/institution or an individual? (choose one)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "i. Company / Institution / Business □\nii. Individual □",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "i. Company / Institution / Business □",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\nii. Individual □",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Note (for developer): If the user selects Individual, only the phrase (“in your office”) will appear in gap 3(b)(ii).",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Note (for developer): If the user selects Indiv",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "idual, only the phrase ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "(“in ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "your office”) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "will appear in gap ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "3(b)(ii).",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "And if the user selects company/institution or business, gap 3(c) will begin with the word (“at”) followed by the name of the company/institution/business.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "And if the user selects company/institution or business, gap ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "3(c) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "will begin with the word",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "(“at",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "”) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "followed by the name of the company/institution/business.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Only one answer should appear in the letter—either 3(b)(ii) or 3(c). When one is selected, the other should automatically disappear.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Only one answer should appear in the letter—either ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "3(b)(ii) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "or ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "3(c)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ". When one is selected, the other should automatically disappear.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "c. Name of company / institution/ business you are employed by: ………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "c",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ". Name o",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "f company / institution",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "/ business",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " you are",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " employed by: ………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "d. what date is the resignation effective? : ",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "d",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ". what date is the resignation effective? : ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "(i)Date…………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "(i)Date",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "(ii)Month…………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "(ii)Month",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "(iii)Year……………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "(iii)Year",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "4. REASONS FOR RESIGNATION",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "4. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "REASONS FOR RESIGNATION",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Why have you decided to resign? Select the reason below: (for developer: only the selected reason will appear in the letter)",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Why have you decided to resign? Select the reason below:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "(for developer: only the selected reason will appear in the letter)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "a. Personal reasons  □",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "a.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " Personal reasons",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "  □",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "b. Other job opportunity □",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "b. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Other job opportunity",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " □",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "c.  Health reasons  □",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "c. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " Health reasons",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "  □",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "d.  Family responsibilities  □",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "d. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " Family responsibilities",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "  □",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "e. Other reasons: (explain)………………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "e.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " Other reasons: (",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "explain",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ")………………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": "Times New Roman"
+        }
+      ]
+    }
+  ],
+  "fields": []
+}

@@ -90,6 +90,7 @@ docs/*.md
 backups/
 *.dump
 *.sql.dump
+*.docx
 
 
 

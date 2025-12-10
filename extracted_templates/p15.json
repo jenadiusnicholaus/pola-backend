@@ -1,0 +1,2576 @@
+{
+  "filename": "p15.docx",
+  "content": [
+    {
+      "text": "MKATABA WA AJIRA",
+      "alignment": "CENTER (1)",
+      "runs": [
+        {
+          "text": "MKATABA WA AJIRA",
+          "bold": true,
+          "italic": null,
+          "underline": true,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Mkataba huu umefanyika leo tarehe………1(a)…... Mwezi wa…1(b)……Mwaka……1(c)…….",
+      "alignment": "CENTER (1)",
+      "runs": [
+        {
+          "text": "Mkataba huu umefanyika leo tarehe………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "1(a)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…..",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ". Mwezi ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "wa…",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "1(b)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……Mwaka……",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "1(c)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "KATI YA:",
+      "alignment": "CENTER (1)",
+      "runs": [
+        {
+          "text": "KATI YA:",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "\n _______2(a)_____ Wa Anuani: ________2(b)(i), __2(b)(ii)___  Namba ya Simu: ___________2(c)___________ Barua Pepe: _____________2(d)_____________(Ambaye katika mkataba huu anatajwa kama ‘MWAJIRI’ kwa upande mmoja)",
+      "alignment": "CENTER (1)",
+      "runs": [
+        {
+          "text": "\n ___",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "____",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "2(a)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "___",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "__",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " Wa ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Anuani:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ______",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "__",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "2(b)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "(i), ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "__",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "2(b)(ii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "_",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "__  ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Namba ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "ya Simu: ___________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "2(c)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "___________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " Barua ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Pepe: _____________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "2(d)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "_____________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "(Ambaye katika mkataba huu anatajwa kama ‘",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "MWAJIRI",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "’ kwa upande mmoja)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "NA",
+      "alignment": "CENTER (1)",
+      "runs": [
+        {
+          "text": "NA",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "____ 3(a)__ Wa Anuani: ______3(b)(i), ___3(b)(ii)__ Namba ya Simu: _________3(c)__________ Aina ya Kitambulisho: ______3(d), Namba ya Kitambulisho  3(e)_____ Barua Pepe: __________3(f)___________(Ambaye katika mkataba huu anatajwa kama MWAJIRIWA kwa upande mwingine )\n",
+      "alignment": "CENTER (1)",
+      "runs": [
+        {
+          "text": "___",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "_",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "3(a)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "__",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Wa ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Anuani:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " __",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "_",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "___",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "3(b)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "(i), ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "__",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "_",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "3(b)(ii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "__ ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Namba ya Simu: _________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "3(c)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "_______",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "___",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Aina ya Kitambulisho",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ": ______",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "3(d)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ", Namba ya Kitambulisho ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "3(e)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "_____",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Barua Pepe: ______",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "____",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "3(f)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "______",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "_____",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "(Ambaye katika mkataba huu anatajwa kama ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "MWAJIRIWA",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " kwa upande mwingine )",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\n",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "AMBAPO; Mwajiri ana nia ya kumpa kazi/ajira mwajiriwa, na Mwajiriwa ana nia na ameridhia kufanya kazi ya Mwajiri kwa masharti na makubaliano kama yafuatayo. ",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "AMBAPO; ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Mwajiri ana nia ya kumpa kazi/ajira mwajiriwa, na Mwajiriwa ana nia na ameridhia kufanya kazi ya Mwajiri kwa masharti na makubaliano kama yafuatayo. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "1. TAREHE YA KUANZA KAZI",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "1. TAREHE YA KUANZA KAZI",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Mkataba huu wa Ajira utaanza  tarehe ___4(a)(i)___Mwezi wa___4(a)(ii)___Mwaka _4(a)(iii)__ na kuendelea kisheria mpaka tarehe…4(b)(i)……Mwezi wa …4(b)(ii)……Mwaka…4(b)(iii).… ",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "Mkataba huu wa Ajira utaanza  tarehe ___",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "4(a)(i)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "___",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Mwezi wa",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "___",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "4(a)(ii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "___",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Mwaka ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "_",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "4(a)(iii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "__ na kuendelea kisheria mpaka tarehe…",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "4(b",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ")(i)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Mwezi wa ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "…",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "4(b",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ")(ii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Mwaka…",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "4(b",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ")(iii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ".… ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "2. MAHALI ALIPOAJIRIWA",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "2. MAHALI ALIPOAJIRIWA",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Mwajiriwa ameajiriwa mkoa wa ………5(a)……… ",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Mwajiriwa ameajiriwa mkoa wa ………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "5(a)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……… ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "3. MAHALI PA KAZI",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "3",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ". MAHALI PA KAZI",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Mwajiriwa atafanya kazi katika eneo la mkoa wa _____5(b)(i)_____wilaya ya____5(b)(ii)____Kata ya ____5(b)(iii)___ . Endapo kuna eneo lingine la kazi nje ya hili litabainishwa na Mwajiri.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Mwajiriwa atafanya kazi katika eneo la",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " mkoa wa _____",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "5(b)(i)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "_____",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "wilaya",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ya",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "____",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "5(b)(ii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "____",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Kata ya ____",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "5(b)(iii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "___ ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ". Endapo kuna",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " eneo lingine ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "la kazi nje ya hili lita",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "bainishwa na Mwajiri.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "4. WADHIFA/ KAZI YA KUFANYA",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "4",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ". WADHIFA/",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "KAZI YA KUFANYA",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Mwajiriwa atafanya kazi kama ______________6(a)____________ na atatekeleza majukumu yafuatayo:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Mwajiriwa atafanya kazi kama ______________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "6(a)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "____________ na atatekeleza majukumu yafuatayo:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "6 (b)(i-x)",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "6 (b)(i-x)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "5. MUDA WA MAJARIBIO",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "5. MUDA WA MAJARIBIO",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Mwajiriwa atakuwa katika kipindi cha majaribio kwa muda wa miezi……7(a)….. kuanzia tarehe aliyosaini mkataba huu. Madhumuni ya kipindi cha majaribio ni kutathmini endapo Mwajiriwa ana uwezo na anafaa kwa kazi hiyo.  Iwapo mkataba huu wa ajira utasitishwa kipindi cha mwezi wa kwanza wa ajira yake, Mwajiri analazimika kutoa taarifa na  kueleza nia yake hiyo kwa maandishi (notisi) ndani ya siku saba. ",
+      "alignment": "JUSTIFY (3)",
+      "runs": [
+        {
+          "text": "Mwajiriwa atakuwa katika kipindi cha majaribio kwa muda wa miezi……",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "7(a)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "….. kuanzia tarehe aliyosaini mkataba huu. Madhumuni ya kipindi cha majaribio ni kutathmini endapo Mwajiriwa ana uwezo na anafaa kwa kazi hiyo.  Iwapo mkataba huu wa ajira utasitishwa kipindi cha mwezi wa kwanza wa ajira yake, Mwajiri analazimika kutoa taarifa na  kueleza nia yake hiyo kwa maandishi (notisi) ndani ya siku saba. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "6. MUDA WA KAZI",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "6",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ". MUDA WA KAZI",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Muda wa kazi utakuwa ni masaa __8(a)_ kwa siku, siku __8(b)_ kwa wiki, kuanzia saa __8(c)(i)__ hadi __8(c)(ii)__.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Muda wa kazi utakuwa ni masaa __",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "8(a)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "_ kwa siku, siku __",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "8(b)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "_ kwa wiki, kuanzia saa __",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "8(c)(i)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "__ hadi __",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "8(c)(ii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "__",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "7. MSHAHARA NA MALIPO",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "7",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ". MSHAHARA NA MALIPO",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Mwajiriwa atalipwa mshahara wa Tsh ______9(a)____ kwa …9(b)(i)……/ ……9(b)(ii)….. /……9(b)(iii)…..  ambao utalipwa kila tarehe……9(c)……. (kama ni malipo ya mwezi)",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Mwajiriwa atalipwa mshahara wa Tsh ______",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "9(a)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "____ kwa …",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "9(b)(i)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……/ ……",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "9(b)(ii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "….. /……",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "9(b)(iii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ambao utalipwa kila tarehe",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……9(c)…….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "(kama ni malipo ya mwezi)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "\nMalipo yatafanywa kwa njia ya:……9(d)(i) / 9(d)(ii)  /  9(d)(iii)  / 9(d)(iv)  …",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "\nMalipo yatafanywa kwa njia ya:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "……",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "9(d)(i) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "/",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "9(d)(ii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " /",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "  ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "9(d)(iii) ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "/",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "9(d)(iv)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "  …",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "\nTaarifa za Benki:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "\n",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Taarifa za ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Segoe UI Symbol"
+        },
+        {
+          "text": "Benki",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ":",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "9(e)(i)",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "9(e)(i)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "9(e) (ii)",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "9(e) (ii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "9 (e)(iii)",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "9 (e)(iii)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "9 (e)(iv)",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "9 (e)(iv)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "8. POSHO NA MANUFAA MENGINE",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "8",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ". POSHO NA MANUFAA MENGINE",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "10 (a)(i) ,",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "10 (a)(i) ,",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Segoe UI Symbol"
+        }
+      ]
+    },
+    {
+      "text": "10 (a)(ii),",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "10 (a)(ii),",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Segoe UI Symbol"
+        }
+      ]
+    },
+    {
+      "text": "10(a)(iii),",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "10(a)(iii),",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Segoe UI Symbol"
+        }
+      ]
+    },
+    {
+      "text": "10(a)(iv),",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "10(a)(",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Segoe UI Symbol"
+        },
+        {
+          "text": "iv)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Segoe UI Symbol"
+        },
+        {
+          "text": ",",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Segoe UI Symbol"
+        }
+      ]
+    },
+    {
+      "text": "10(b).",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "10(b).",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Segoe UI Symbol"
+        }
+      ]
+    },
+    {
+      "text": "9. LIKIZO",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "9",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ". LIKIZO",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Mwajiriwa anastahili likizo ya mwaka (ikiwa ni pamoja na siku za mapumziko ya wiki), au kwa uwiano wa muda aliokuwa kazini kwa mujibu wa Sheria ya Ajira na Mahusiano Kazini.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Mwajiriwa anastahili lik",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "izo ya ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "mwaka (ikiwa ni pamoja na siku za mapumziko ya wiki), au kwa",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " uwiano wa muda aliok",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "uwa kazini kwa mujibu wa ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Sheria ya Ajira na Mahusiano Kazini",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "10. LIKIZO YA UGONJWA",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "10",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ". LIKIZO YA UGONJWA",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Mwajiriwa atastahili likizo ya ugonjwa kwa mujibu wa Sheria ya Ajira na Mahusiano Kazini . ",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Mwajiriwa atastahili likizo ya ugonjwa kwa mujibu wa ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Sheria ya Ajira na Mahusiano Kazini",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ". ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "11. LIKIZO YA UZAZI",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "11",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ". LIKIZO YA UZAZI",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Kwa mujibu wa Sheria ya Ajira na Mahusiano Kazini, likizo ya uzazi itatolewa kwa Wafanyakazi wa kike na  Wafanyakazi wa kiume.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Kwa mujibu wa ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "Sheria ya Ajira na Mahusiano Kazini",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ",",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": " likizo ya uzazi itatolewa kwa Wafanyakazi wa kike na  Wafanyakazi wa kiume",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ".",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "12. MATUMIZI YA SHERIA NA KANUNI ZA KAZI",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "12",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ". MATUMIZI YA SHERIA NA KANUNI ZA KAZI",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Ajira hii itaongozwa na Sheria ya Ajira na Mahusiano Kazini ya mwaka 2004 na marekebisho yake, pamoja na kanuni, miongozo ya ndani ya kampuni, na sera husika.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Ajira hii itaongozwa na Sheria ya Ajira na Mahusiano Kazini ya mwaka 2004 na marekebisho yake, pamoja na kanuni, miongozo ya ndani ya kampuni, na sera husika.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "13. KUSITISHA AJIRA",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "13",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ". KUSITISHA AJIRA",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Kusitisha ajira kutazingatia notisi kama ifuatavyo:",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Kusitisha ajira kutazingatia notisi kama ifuatavyo:",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Siku saba (7) kama notisi itatolewa ndani ya mwezi wa kwanza wa ajira",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Siku saba (7) kama notisi itatolewa ndani ya mwezi wa kwanza wa ajira",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Siku nne (4) , kama mwajiriwa ameajiriwa ajira ya mpangilio wa siku hadi siku au wiki kwa wiki. ",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Siku nne (4) , kama mwajiriwa ameajiriwa ajira ya mpangilio wa siku hadi siku au wiki kwa wiki. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Siku 28 kama mwajiriwa ameajiriwa ajira ya miezi. ",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Siku 28 kama mwajiriwa ameajiriwa ajira ya miezi. ",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Kusitisha bila kufuata utaratibu huu kunaweza kutoa haki ya fidia kwa upande ulioathirika.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Kusitisha bila kufuata utaratibu huu kunaweza kutoa haki ya fidia kwa upande ulioathirika.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "14. NIDHAMU NA MAADILI YA KAZI",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "14",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ". NIDHAMU NA MAADILI YA KAZI",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Mwajiriwa atahitajika kufuata maadili, taratibu na miongozo ya kampuni. Ukiukwaji wa kanuni unaweza kusababisha hatua za kinidhamu.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Mwajiriwa atahitajika kufuata maadili, taratibu na miongozo ya kampuni. Ukiukwaji wa kanuni unaweza kusababisha hatua za kinidhamu.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "15. SIRI ZA MWAJIRI",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "15",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ". SIRI ZA ",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "MWAJIRI",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Mwajiriwa hataruhusiwa kufichua taarifa zozote za siri za Mwajiri bila idhini ya maandishi, hata baada ya kuondoka kazini.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Mwajiriwa hataruhusiwa kufichua taarifa zozote za siri za Mwajiri bila idhini ya maandishi, hata baada ya kuondoka kazini.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "16. MIGOGORO YA KAZI",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "16",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ". MIGOGORO YA KAZI",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 13.5,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Migogoro yoyote ya ajira itashughulikiwa kwanza kwa mazungumzo. Isipotatuliwa, itaelekezwa kwa Tume ya Usuluhishi na Uamuzi (CMA) kwa mujibu wa sheria.",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Migogoro yoyote ya ajira itashughulikiwa kwanza kwa mazungumzo. Isipotatuliwa, itaelekezwa kwa Tume ya Usuluhishi na Uamuzi (CMA) kwa mujibu wa sheria.",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Sahihi za Wahusika",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Sahihi za Wahusika",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Mwajiri",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Mwajiri",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Jina: _________2(a)______\nSahihi: _________________________\nTarehe: ________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Jina",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ": _________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "2(a)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "__",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "____",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\nSahihi: _________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\nTarehe: ________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Shahidi wa Mwajiri",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Shahidi wa Mwajiri",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Jina : __________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Jina : _______________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "___",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Anuani………………………………..",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Anuani………………………………..",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Simu…………………………………..\nSahihi: _________________________\nTarehe: ________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Simu…………………………………..",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\nSahihi: _________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\nTarehe: ________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Mwajiriwa",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Mwajiriwa",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Jina: _________3(a)_________\nSahihi: _________________________\nTarehe: ________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Jina",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": ": _________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "3(a)",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "____",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "__",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "___",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\nSahihi: _________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        },
+        {
+          "text": "\nTarehe: ________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Shahidi wa Mwajiriwa",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Shahidi wa Mwajiriwa",
+          "bold": true,
+          "italic": null,
+          "underline": null,
+          "font_size": 12.0,
+          "font_name": "Times New Roman"
+        }
+      ]
+    },
+    {
+      "text": "Jina: ________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Jina",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": ": ________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Anuani:…………………………………………",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Anuani:…………………………………………",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    },
+    {
+      "text": "Simu……………………………………………….\nSahihi: _________________________\nTarehe: ________________________",
+      "alignment": "LEFT",
+      "runs": [
+        {
+          "text": "Simu……………………………………………….",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\nSahihi: _________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        },
+        {
+          "text": "\nTarehe: ________________________",
+          "bold": null,
+          "italic": null,
+          "underline": null,
+          "font_size": null,
+          "font_name": null
+        }
+      ]
+    }
+  ],
+  "fields": []
+}
