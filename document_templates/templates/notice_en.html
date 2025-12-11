@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 2.5cm;
+        }
+        
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .employer-header {
+            text-align: right;
+            margin-bottom: 30px;
+        }
+        
+        .employee-address {
+            text-align: left;
+            margin-bottom: 30px;
+        }
+        
+        .center {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .left {
+            text-align: left;
+            margin-bottom: 5px;
+        }
+        
+        .bold {
+            font-weight: bold;
+        }
+        
+        .underline {
+            text-decoration: underline;
+        }
+        
+        .data-field {
+            border-bottom: 1px solid #000;
+            padding: 0 3px;
+            display: inline-block;
+            min-width: 140px;
+        }
+        .data-field:empty::before {
+            content: '\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0';
+        }        
+        ul {
+            margin: 10px 0;
+            padding-left: 40px;
+        }
+        
+        li {
+            margin: 5px 0;
+        }
+        
+        .signature-section {
+            margin-top: 40px;
+        }
+        
+        p {
+            margin: 3px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Employer Header (Top Right) -->
+    <div class="employer-header">
+        <p><span class="data-field">{{employer_name|default:"______________________________"}}</span></p>
+        <p>P.O. Box <span class="data-field">{{employer_po_box|default:"______________________________"}}</span></p>
+        <p><span class="data-field">{{employer_city|default:"______________________________"}}</span></p>
+        <p>Phone: <span class="data-field">{{employer_phone|default:"______________________________"}}</span></p>
+        <p>Email: <span class="data-field">{{employer_email|default:"______________________________"}}</span></p>
+        <p>DATE: <span class="data-field">{{notice_date_day|default:"______________________________"}}</span> | <span class="data-field">{{notice_date_month|default:"______________________________"}}</span> | <span class="data-field">{{notice_date_year|default:"______________________________"}}</span></p>
+    </div>
+
+    <!-- Employee Address (Left) -->
+    <div class="employee-address">
+        <p><span class="bold">To:</span></p>
+        <p><span class="data-field">{{employee_name|default:"______________________________"}}</span></p>
+        <p>P.O Box: <span class="data-field">{{employee_po_box|default:"______________________________"}}</span>,</p>
+        <p><span class="data-field">{{employee_city|default:"______________________________"}}</span></p>
+    </div>
+
+    <!-- Subject -->
+    <p class="center"><span class="bold underline">RE: NOTICE OF TERMINATION OF EMPLOYMENT</span></p>
+
+    <!-- Salutation -->
+    <p class="left">Dear <span class="data-field">{{employee_name|default:"______________________________"}}</span>,</p>
+
+    <!-- Body Paragraph 1 - Termination Notice -->
+    <p class="left">Pursuant to the terms and conditions of the employment contract between you and <span class="data-field">{{employer_name|default:"______________________________"}}</span> signed on <span class="data-field">{{contract_date|default:"______________________________"}}</span>, and in accordance with the Employment and Labour Relations Act, 2004, we hereby inform you that your employment shall be terminated effective from <span class="data-field">{{termination_date|default:"______________________________"}}</span>.</p>
+
+    <!-- Body Paragraph 2 - Reasons -->
+    <p class="left">The reasons for the termination of your employment are as follows:</p>
+    <p class="left"><span class="data-field">{{termination_reasons|default:"______________________________"}}</span></p>
+
+    <!-- Body Paragraph 3 - Notice Period -->
+    <p class="left">Considering the duration of your employment, you are entitled to a notice period of <span class="data-field">{{notice_period_days|default:"______________________________"}}</span> days, which shall commence from the date of this letter. If you do not serve this notice period, an amount equivalent to the respective salary period shall be deducted or paid in accordance with the applicable procedures.</p>
+
+    <!-- Body Paragraph 4 - Entitlements -->
+    <p class="left">Your entitlements payable upon termination of employment include:</p>
+    <ul>
+        <li>Outstanding salary arrears (if any)</li>
+        <li>Annual leave (if not taken)</li>
+        <li>Any other allowances or benefits due for payment</li>
+        <li>Service certificate</li>
+    </ul>
+
+    <!-- Body Paragraph 5 - Thank You -->
+    <p class="left">We thank you for your contribution during your period of service with this institution and wish you success in your future endeavors.</p>
+
+    <!-- Body Paragraph 6 - Contact -->
+    <p class="left">For further clarification or final exit procedures, please contact the Human Resources Department.</p>
+
+    <!-- Closing -->
+    <p class="left" style="margin-top: 40px;">Yours sincerely,</p>
+
+    <!-- Signature Section -->
+    <div class="signature-section">
+        <p class="left">Name of Employer / Representative: <span class="data-field">{{representative_name|default:"______________________________"}}</span></p>
+        <p class="left">Position: <span class="data-field">{{representative_position|default:"______________________________"}}</span></p>
+        <p class="left" style="border-bottom: 1px dotted #000; width: 200px; margin-top: 30px; margin-bottom: 5px;">&nbsp;</p>
+        <p class="left">Signature</p>
+        <p class="left">Date: <span class="data-field">{{signature_date|default:"______________________________"}}</span></p>
+    </div>
+</body>
+</html>

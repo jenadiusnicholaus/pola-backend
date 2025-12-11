@@ -265,7 +265,9 @@ class UserDocument(models.Model):
     user = models.ForeignKey(
         PolaUser,
         on_delete=models.CASCADE,
-        related_name='generated_documents'
+        related_name='generated_documents',
+        null=True,
+        blank=True
     )
     
     template = models.ForeignKey(

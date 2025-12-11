@@ -1,0 +1,23 @@
+{
+    "template_id": 14,
+    "language": "en",
+    "data": {
+        "employee_name": "John Michael Smith",
+        "employee_po_box": "12345",
+        "employee_city": "Dar es Salaam",
+        "employee_phone": "+255 123 456 789",
+        "employee_email": "john.smith@email.com",
+        "letter_date_day": "10",
+        "letter_date_month": "December",
+        "letter_date_year": "2025",
+        "employer_name": "Ms. Sarah Johnson",
+        "employer_po_box": "67890",
+        "employer_city": "Dar es Salaam",
+        "job_title": "Senior Software Engineer",
+        "organization_name": "TechCorp Tanzania Ltd",
+        "resignation_date_day": "31",
+        "resignation_date_month": "January",
+        "resignation_date_year": "2026",
+        "resignation_reason": "personal reasons and to pursue further education opportunities abroad"
+    }
+}

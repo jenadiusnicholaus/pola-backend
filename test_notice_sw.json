@@ -1,0 +1,24 @@
+{
+  "template_id": 15,
+  "language": "sw",
+  "data": {
+    "employer_name": "ABC Solutions Ltd",
+    "employer_po_box": "12345",
+    "employer_city": "Dar es Salaam",
+    "employer_phone": "+255 22 123 4567",
+    "employer_email": "hr@abcsolutions.co.tz",
+    "notice_date_day": "15",
+    "notice_date_month": "Januari",
+    "notice_date_year": "2025",
+    "employee_name": "John Michael Smith",
+    "employee_po_box": "67890",
+    "employee_city": "Dar es Salaam",
+    "contract_date": "1 Machi 2020",
+    "termination_date": "15 Februari 2025",
+    "termination_reasons": "Kupunguzwa kwa ajira kutokana na marekebisho ya muundo wa shirika na kupunguza utendaji. Nafasi ya Afisa Masoko imefutwa kama sehemu ya hatua za kupunguza gharama.",
+    "notice_period_days": "30",
+    "representative_name": "Sarah Johnson",
+    "representative_position": "Meneja wa Rasilimali Watu",
+    "signature_date": "15/01/2025"
+  }
+}

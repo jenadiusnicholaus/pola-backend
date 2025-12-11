@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 2.5cm;
+        }
+        
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .employee-header {
+            text-align: right;
+            margin-bottom: 30px;
+        }
+        
+        .employer-address {
+            text-align: left;
+            margin-bottom: 30px;
+        }
+        
+        .center {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .left {
+            text-align: left;
+            margin-bottom: 5px;
+        }
+        
+        .bold {
+            font-weight: bold;
+        }
+        
+        .underline {
+            text-decoration: underline;
+        }
+        
+        .data-field {
+            border-bottom: 1px solid #000;
+            padding: 0 3px;
+            display: inline-block;
+            min-width: 120px;
+        }
+        .data-field:empty::before {
+            content: '\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0';
+        }
+        
+        .signature-line {
+            margin-top: 40px;
+            margin-bottom: 5px;
+        }
+        
+        p {
+            margin: 3px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Employee Address (Top Right) -->
+    <div class="employee-header">
+        <p><span class="data-field">{{employee_name|default:"______________________________"}}</span></p>
+        <p>S.L.P <span class="data-field">{{employee_po_box|default:"______________________________"}}</span>,</p>
+        <p><span class="data-field">{{employee_city|default:"______________________________"}}</span>,</p>
+        <p>Simu: <span class="data-field">{{employee_phone|default:"______________________________"}}</span>,</p>
+        <p>Barua Pepe: <span class="data-field">{{employee_email|default:"______________________________"}}</span></p>
+        <p>Tarehe: <span class="data-field">{{letter_date_day|default:"______________________________"}}</span> | <span class="data-field">{{letter_date_month|default:"______________________________"}}</span> | <span class="data-field">{{letter_date_year|default:"______________________________"}}</span></p>
+    </div>
+
+    <!-- Employer Address (Left) -->
+    <div class="employer-address">
+        <p><span class="bold">Kwa:</span></p>
+        <p><span class="data-field">{{employer_name|default:"______________________________"}}</span></p>
+        <p>S.L.P <span class="data-field">{{employer_po_box|default:"______________________________"}}</span>,</p>
+        <p><span class="data-field">{{employer_city|default:"______________________________"}}</span>.</p>
+    </div>
+
+    <!-- Subject -->
+    <p class="center"><span class="bold underline">YAH: TAARIFA YA KUJIUZULU (KUACHA KAZI)</span></p>
+
+    <!-- Salutation -->
+    <p class="left">Kwako <span class="data-field">{{employer_name|default:"______________________________"}}</span>,</p>
+
+    <!-- Body Paragraph 1 - Resignation Statement -->
+    <p class="left">Kwa heshima na taadhima, napenda kukujulisha rasmi nia yangu ya kujiuzulu kutoka katika nafasi yangu ya <span class="data-field">{{job_title|default:"______________________________"}}</span>, <span class="data-field">{{organization_name|default:"______________________________"}}</span> itakayoanza rasmi tarehe <span class="data-field">{{resignation_date_day|default:"______________________________"}}</span> | <span class="data-field">{{resignation_date_month|default:"______________________________"}}</span> | <span class="data-field">{{resignation_date_year|default:"______________________________"}}</span>.</p>
+
+    <!-- Body Paragraph 2 - Reason -->
+    <p class="left">Nafanya uamuzi huu kwa sababu <span class="data-field">{{resignation_reason|default:"______________________________"}}</span>.</p>
+
+    <!-- Body Paragraph 3 - Formal Notice -->
+    <p class="left">Naomba barua hii izingatiwe kama taarifa yangu rasmi ya kujiuzulu. Niko tayari kujadiliana kuhusu masharti ya kuondoka mapema, pamoja na kushughulikia utaratibu wa makabidhiano na kipindi cha notisi.</p>
+
+    <!-- Body Paragraph 4 - Agreement -->
+    <p class="left">Kwa mujibu wa mkataba na sheria husika, naomba tutafute njia ya amani na makubaliano ili kufanikisha hatua hii kwa heshima na haki kwa pande zote mbili.</p>
+
+    <!-- Body Paragraph 5 - Gratitude -->
+    <p class="left">Ninashukuru sana kwa fursa ya kuchangia na kuwa sehemu ya ofisi yako, na kwa ushirikiano tulokuwa nao wakati wote wa utumishi wangu. Ninawatakia mafanikio mema katika shughuli za siku zijazo.</p>
+
+    <!-- Closing -->
+    <p class="left" style="margin-top: 40px;">Wako kwa heshima,</p>
+    <p class="left" style="border-bottom: 1px dotted #000; width: 200px; margin-top: 50px; margin-bottom: 5px;">&nbsp;</p>
+    <p class="left"><span class="data-field">{{employee_name|default:"______________________________"}}</span></p>
+</body>
+</html>

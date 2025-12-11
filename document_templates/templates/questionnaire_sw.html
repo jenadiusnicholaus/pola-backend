@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 2.5cm;
+        }
+        
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14pt;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+        
+        .section {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+        
+        .section-title {
+            font-weight: bold;
+            font-size: 11pt;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .field {
+            margin-left: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .field-label {
+            font-weight: normal;
+        }
+        
+        .data-field {
+            border-bottom: 1px solid #000;
+            padding: 0 3px;
+            display: inline-block;
+            min-width: 200px;
+            font-weight: bold;
+        }
+        .data-field:empty::before {
+            content: '\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0';
+        }
+        
+        .checkbox {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 1px solid #000;
+            margin-right: 5px;
+        }
+        
+        .duties-list {
+            margin-left: 40px;
+        }
+        
+        .duties-list .field {
+            margin-left: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">DODOSO LA AJIRA</div>
+
+    <!-- Section 1: Tarehe ya Kutengeneza Mkataba -->
+    <div class="section">
+        <div class="section-title">1. TAREHE YA KUTENGENEZA MKATABA</div>
+        <div class="field">a. Tarehe: <span class="data-field">{{contract_date_day|default:"______________________________"}}</span></div>
+        <div class="field">b. Mwezi: <span class="data-field">{{contract_date_month|default:"______________________________"}}</span></div>
+        <div class="field">c. Mwaka: <span class="data-field">{{contract_date_year|default:"______________________________"}}</span></div>
+    </div>
+
+    <!-- Section 2: Taarifa za Mwajiri -->
+    <div class="section">
+        <div class="section-title">2. TAARIFA ZA MWAJIRI</div>
+        <div class="field">a. Jina kamili la Mwajiri: <span class="data-field">{{employer_name|default:"______________________________"}}</span></div>
+        <div class="field">b. Anuani: (i) S.L.P <span class="data-field">{{employer_po_box|default:"______________________________"}}</span> (ii) Mkoa <span class="data-field">{{employer_region|default:"______________________________"}}</span></div>
+        <div class="field">c. Namba ya Simu: <span class="data-field">{{employer_phone|default:"______________________________"}}</span></div>
+        <div class="field">d. Barua Pepe: <span class="data-field">{{employer_email|default:"______________________________"}}</span></div>
+    </div>
+
+    <!-- Section 3: Taarifa za Mwajiriwa -->
+    <div class="section">
+        <div class="section-title">3. TAARIFA ZA MWAJIRIWA</div>
+        <div class="field">a. Jina kamili la Mwajiriwa: <span class="data-field">{{employee_name|default:"______________________________"}}</span></div>
+        <div class="field">b. Anuani: (i) S.L.P <span class="data-field">{{employee_po_box|default:"______________________________"}}</span> (ii) Mkoa <span class="data-field">{{employee_region|default:"______________________________"}}</span></div>
+        <div class="field">c. Namba ya Simu: <span class="data-field">{{employee_phone|default:"______________________________"}}</span></div>
+        <div class="field">d. Kitambulisho anachotumia Mwajiriwa: <span class="data-field">{{employee_id_type|default:"______________________________"}}</span></div>
+        <div class="field">e. Namba ya Kitambulisho (NIDA/Leseni ya Udereva nk): <span class="data-field">{{employee_id_number|default:"______________________________"}}</span></div>
+        <div class="field">f. Barua Pepe: <span class="data-field">{{employee_email|default:"______________________________"}}</span></div>
+    </div>
+
+    <!-- Section 4: Tarehe ya Kuanza Kazi -->
+    <div class="section">
+        <div class="section-title">4. TAREHE YA KUANZA KAZI</div>
+        <div class="field">a. Tarehe ya kuanza kazi:</div>
+        <div class="field" style="margin-left: 40px;">i. Tarehe: <span class="data-field">{{start_date_day|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">ii. Mwezi: <span class="data-field">{{start_date_month|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">iii. Mwaka: <span class="data-field">{{start_date_year|default:"______________________________"}}</span></div>
+        <div class="field">b. Tarehe ambayo mkataba utasitishwa/Kuisha rasmi.</div>
+        <div class="field" style="margin-left: 40px;">i. Tarehe: <span class="data-field">{{end_date_day|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">ii. Mwezi: <span class="data-field">{{end_date_month|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">iii. Mwaka: <span class="data-field">{{end_date_year|default:"______________________________"}}</span></div>
+    </div>
+
+    <!-- Section 5: Mahali Alipoajiriwa -->
+    <div class="section">
+        <div class="section-title">5. MAHALI ALIPOAJIRIWA</div>
+        <div class="field">a. Mkoa alipoajiriwa: <span class="data-field">{{employment_region|default:"______________________________"}}</span></div>
+        <div class="field">b. Eneo la kazi:</div>
+        <div class="field" style="margin-left: 40px;">i. Mkoa: <span class="data-field">{{work_location_region|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">ii. Wilaya: <span class="data-field">{{work_location_district|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">iii. Kata: <span class="data-field">{{work_location_ward|default:"______________________________"}}</span></div>
+    </div>
+
+    <!-- Section 6: Wadhifa/Kazi ya Kufanya -->
+    <div class="section">
+        <div class="section-title">6. WADHIFA/ KAZI YA KUFANYA</div>
+        <div class="field">a. Cheo/nafasi ya kazi: <span class="data-field">{{job_title|default:"______________________________"}}</span></div>
+        <div class="field">b. Majukumu/Responsibilities:</div>
+        <div class="duties-list">
+            {% if duty_1 %}<div class="field"><span class="data-field">{{duty_1|default:"______________________________"}}</span></div>{% endif %}
+            {% if duty_2 %}<div class="field"><span class="data-field">{{duty_2|default:"______________________________"}}</span></div>{% endif %}
+            {% if duty_3 %}<div class="field"><span class="data-field">{{duty_3|default:"______________________________"}}</span></div>{% endif %}
+            {% if duty_4 %}<div class="field"><span class="data-field">{{duty_4|default:"______________________________"}}</span></div>{% endif %}
+            {% if duty_5 %}<div class="field"><span class="data-field">{{duty_5|default:"______________________________"}}</span></div>{% endif %}
+            {% if duty_6 %}<div class="field"><span class="data-field">{{duty_6|default:"______________________________"}}</span></div>{% endif %}
+            {% if duty_7 %}<div class="field"><span class="data-field">{{duty_7|default:"______________________________"}}</span></div>{% endif %}
+            {% if duty_8 %}<div class="field"><span class="data-field">{{duty_8|default:"______________________________"}}</span></div>{% endif %}
+            {% if duty_9 %}<div class="field"><span class="data-field">{{duty_9|default:"______________________________"}}</span></div>{% endif %}
+            {% if duty_10 %}<div class="field"><span class="data-field">{{duty_10|default:"______________________________"}}</span></div>{% endif %}
+        </div>
+    </div>
+
+    <!-- Section 7: Muda wa Majaribio -->
+    <div class="section">
+        <div class="section-title">7. MUDA WA MAJARIBIO</div>
+        <div class="field">a. Je Miezi ya kipindi cha majaribio ni muda gani: <span class="data-field">{{probation_period|default:"______________________________"}}</span></div>
+    </div>
+
+    <!-- Section 8: Muda wa Kazi -->
+    <div class="section">
+        <div class="section-title">8. MUDA WA KAZI</div>
+        <div class="field">a. Masaa ya kazi kwa siku: <span class="data-field">{{working_hours_per_day|default:"______________________________"}}</span> (idadi ya masaa)</div>
+        <div class="field">b. Siku za kazi kwa wiki: <span class="data-field">{{working_days_per_week|default:"______________________________"}}</span> (idadi ya siku)</div>
+        <div class="field">c. (i) Kuanzia saa: <span class="data-field">{{work_time_from|default:"______________________________"}}</span> (ii) hadi <span class="data-field">{{work_time_to|default:"______________________________"}}</span></div>
+    </div>
+
+    <!-- Section 9: Mshahara na Malipo -->
+    <div class="section">
+        <div class="section-title">9. MSHAHARA NA MALIPO</div>
+        <div class="field">a. Kiasi cha mshahara: Tsh <span class="data-field">{{salary_amount|default:"______________________________"}}</span></div>
+        <div class="field">b. Kipindi cha malipo: {{payment_period|default:"______________________________"}}</div>
+        <div class="field">c. Tarehe ya malipo endapo malipo ni kwa mwezi: <span class="data-field">{{payment_date|default:"______________________________"}}</span></div>
+        <div class="field">d. Njia ya malipo: {{payment_mode|default:"______________________________"}}</div>
+        <div class="field">e. kama ni benki:</div>
+        <div class="field" style="margin-left: 40px;">i. Jina la Benki: <span class="data-field">{{bank_name|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">ii. Tawi la Benki: <span class="data-field">{{bank_branch|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">iii. Jina la Akaunti: <span class="data-field">{{account_name|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">iv. Namba ya Akaunti: <span class="data-field">{{account_number|default:"______________________________"}}</span></div>
+    </div>
+
+    <!-- Section 10: Posho na Manufaa -->
+    <div class="section">
+        <div class="section-title">10. POSHO NA MANUFAA</div>
+        <div class="field">a. Tiki posho zitakazotolewa na kuelezea kiasi chake</div>
+        <div class="field" style="margin-left: 40px;">i. Posho ya usafiri: Tsh <span class="data-field">{{transport_allowance|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">ii. Posho ya chakula: Tsh <span class="data-field">{{meal_allowance|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">iii. Malazi: Tsh <span class="data-field">{{accommodation_allowance|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">iv. Bima ya afya: Tsh <span class="data-field">{{health_insurance|default:"______________________________"}}</span></div>
+        <div class="field">b. Mengineyo: <span class="data-field">{{other_benefits|default:"______________________________"}}</span></div>
+    </div>
+</body>
+</html>

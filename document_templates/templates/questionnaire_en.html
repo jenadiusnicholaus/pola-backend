@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 2.5cm;
+        }
+        
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14pt;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+        
+        .section {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+        
+        .section-title {
+            font-weight: bold;
+            font-size: 11pt;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .field {
+            margin-left: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .field-label {
+            font-weight: normal;
+        }
+        
+        .data-field {
+            border-bottom: 1px solid #000;
+            padding: 0 3px;
+            display: inline-block;
+            min-width: 200px;
+            font-weight: bold;
+        }
+        .data-field:empty::before {
+            content: '\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0';
+        }
+        
+        .checkbox {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 1px solid #000;
+            margin-right: 5px;
+        }
+        
+        .duties-list {
+            margin-left: 40px;
+        }
+        
+        .duties-list .field {
+            margin-left: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">EMPLOYMENT QUESTIONNAIRE</div>
+
+    <!-- Section 1: Contract Date -->
+    <div class="section">
+        <div class="section-title">1. DATE OF CONTRACT CREATION</div>
+        <div class="field">a. Date: <span class="data-field">{{contract_date_day|default:"______________________________"}}</span></div>
+        <div class="field">b. Month: <span class="data-field">{{contract_date_month|default:"______________________________"}}</span></div>
+        <div class="field">c. Year: <span class="data-field">{{contract_date_year|default:"______________________________"}}</span></div>
+    </div>
+
+    <!-- Section 2: Employer Information -->
+    <div class="section">
+        <div class="section-title">2. EMPLOYER INFORMATION</div>
+        <div class="field">a. Full name of Employer: <span class="data-field">{{employer_name|default:"______________________________"}}</span></div>
+        <div class="field">b. Address: (i) P.O. Box <span class="data-field">{{employer_po_box|default:"______________________________"}}</span> (ii) Region <span class="data-field">{{employer_region|default:"______________________________"}}</span></div>
+        <div class="field">c. Phone Number: <span class="data-field">{{employer_phone|default:"______________________________"}}</span></div>
+        <div class="field">d. Email: <span class="data-field">{{employer_email|default:"______________________________"}}</span></div>
+    </div>
+
+    <!-- Section 3: Employee Information -->
+    <div class="section">
+        <div class="section-title">3. EMPLOYEE INFORMATION</div>
+        <div class="field">a. Full name of Employee: <span class="data-field">{{employee_name|default:"______________________________"}}</span></div>
+        <div class="field">b. Address: (i) P.O. Box <span class="data-field">{{employee_po_box|default:"______________________________"}}</span> (ii) Region <span class="data-field">{{employee_region|default:"______________________________"}}</span></div>
+        <div class="field">c. Phone Number: <span class="data-field">{{employee_phone|default:"______________________________"}}</span></div>
+        <div class="field">d. Identification used by the Employee: <span class="data-field">{{employee_id_type|default:"______________________________"}}</span></div>
+        <div class="field">e. Identification Number (NIDA/Driver's License etc.): <span class="data-field">{{employee_id_number|default:"______________________________"}}</span></div>
+        <div class="field">f. Email: <span class="data-field">{{employee_email|default:"______________________________"}}</span></div>
+    </div>
+
+    <!-- Section 4: Employment Commencement Date -->
+    <div class="section">
+        <div class="section-title">4. DATE OF COMMENCEMENT OF EMPLOYMENT</div>
+        <div class="field">a. Date of starting work:</div>
+        <div class="field" style="margin-left: 40px;">i. Date: <span class="data-field">{{start_date_day|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">ii. Month: <span class="data-field">{{start_date_month|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">iii. Year: <span class="data-field">{{start_date_year|default:"______________________________"}}</span></div>
+        <div class="field">b. If No, specify the date when the contract will officially terminate.</div>
+        <div class="field" style="margin-left: 40px;">i. Date: <span class="data-field">{{end_date_day|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">ii. Month: <span class="data-field">{{end_date_month|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">iii. Year: <span class="data-field">{{end_date_year|default:"______________________________"}}</span></div>
+    </div>
+
+    <!-- Section 5: Place of Employment -->
+    <div class="section">
+        <div class="section-title">5. PLACE OF EMPLOYMENT</div>
+        <div class="field">a. Region of employment: <span class="data-field">{{employment_region|default:"______________________________"}}</span></div>
+        <div class="field">b. Work location:</div>
+        <div class="field" style="margin-left: 40px;">i. Region: <span class="data-field">{{work_location_region|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">ii. District: <span class="data-field">{{work_location_district|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">iii. Ward: <span class="data-field">{{work_location_ward|default:"______________________________"}}</span></div>
+    </div>
+
+    <!-- Section 6: Position/Job Description -->
+    <div class="section">
+        <div class="section-title">6. POSITION / JOB DESCRIPTION</div>
+        <div class="field">a. Job title/position: <span class="data-field">{{job_title|default:"______________________________"}}</span></div>
+        <div class="field">b. Duties/Responsibilities:</div>
+        <div class="duties-list">
+            {% if duty_1 %}<div class="field">i. <span class="data-field">{{duty_1|default:"______________________________"}}</span></div>{% endif %}
+            {% if duty_2 %}<div class="field">ii. <span class="data-field">{{duty_2|default:"______________________________"}}</span></div>{% endif %}
+            {% if duty_3 %}<div class="field">iii. <span class="data-field">{{duty_3|default:"______________________________"}}</span></div>{% endif %}
+            {% if duty_4 %}<div class="field">iv. <span class="data-field">{{duty_4|default:"______________________________"}}</span></div>{% endif %}
+            {% if duty_5 %}<div class="field">v. <span class="data-field">{{duty_5|default:"______________________________"}}</span></div>{% endif %}
+            {% if duty_6 %}<div class="field">vi. <span class="data-field">{{duty_6|default:"______________________________"}}</span></div>{% endif %}
+            {% if duty_7 %}<div class="field">vii. <span class="data-field">{{duty_7|default:"______________________________"}}</span></div>{% endif %}
+            {% if duty_8 %}<div class="field">viii. <span class="data-field">{{duty_8|default:"______________________________"}}</span></div>{% endif %}
+            {% if duty_9 %}<div class="field">ix. <span class="data-field">{{duty_9|default:"______________________________"}}</span></div>{% endif %}
+            {% if duty_10 %}<div class="field">x. <span class="data-field">{{duty_10|default:"______________________________"}}</span></div>{% endif %}
+        </div>
+    </div>
+
+    <!-- Section 7: Probation Period -->
+    <div class="section">
+        <div class="section-title">7. PROBATION PERIOD</div>
+        <div class="field">a. Duration of probation period: <span class="data-field">{{probation_period|default:"______________________________"}}</span></div>
+    </div>
+
+    <!-- Section 8: Working Hours -->
+    <div class="section">
+        <div class="section-title">8. WORKING HOURS</div>
+        <div class="field">a. Working hours per day: <span class="data-field">{{working_hours_per_day|default:"______________________________"}}</span> (number of hours)</div>
+        <div class="field">b. Working days per week: <span class="data-field">{{working_days_per_week|default:"______________________________"}}</span> (number of days)</div>
+        <div class="field">c. (i) From: <span class="data-field">{{work_time_from|default:"______________________________"}}</span> (ii) To: <span class="data-field">{{work_time_to|default:"______________________________"}}</span></div>
+    </div>
+
+    <!-- Section 9: Salary and Payment -->
+    <div class="section">
+        <div class="section-title">9. SALARY AND PAYMENT</div>
+        <div class="field">a. Amount of salary: Tsh <span class="data-field">{{salary_amount|default:"______________________________"}}</span></div>
+        <div class="field">b. Payment period: {{payment_period|default:"______________________________"}}</div>
+        <div class="field">c. Payment date if payments are monthly: <span class="data-field">{{payment_date|default:"______________________________"}}</span></div>
+        <div class="field">d. Mode of payment: {{payment_mode|default:"______________________________"}}</div>
+        <div class="field">e. If by bank:</div>
+        <div class="field" style="margin-left: 40px;">i. Bank Name: <span class="data-field">{{bank_name|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">ii. Bank Branch: <span class="data-field">{{bank_branch|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">iii. Account Name: <span class="data-field">{{account_name|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">iv. Account Number: <span class="data-field">{{account_number|default:"______________________________"}}</span></div>
+    </div>
+
+    <!-- Section 10: Allowances and Benefits -->
+    <div class="section">
+        <div class="section-title">10. ALLOWANCES AND BENEFITS</div>
+        <div class="field">a. Tick the allowances to be provided and indicate their amounts</div>
+        <div class="field" style="margin-left: 40px;">i. Transport allowance: Tsh <span class="data-field">{{transport_allowance|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">ii. Meal allowance: Tsh <span class="data-field">{{meal_allowance|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">iii. Accommodation: Tsh <span class="data-field">{{accommodation_allowance|default:"______________________________"}}</span></div>
+        <div class="field" style="margin-left: 40px;">iv. Health insurance: Tsh <span class="data-field">{{health_insurance|default:"______________________________"}}</span></div>
+        <div class="field">b. Others: <span class="data-field">{{other_benefits|default:"______________________________"}}</span></div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 2.5cm;
+        }
+        
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .employer-header {
+            text-align: right;
+            margin-bottom: 30px;
+        }
+        
+        .employee-address {
+            text-align: left;
+            margin-bottom: 30px;
+        }
+        
+        .center {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .left {
+            text-align: left;
+            margin-bottom: 5px;
+        }
+        
+        .bold {
+            font-weight: bold;
+        }
+        
+        .underline {
+            text-decoration: underline;
+        }
+        
+        .data-field {
+            border-bottom: 1px solid #000;
+            padding: 0 3px;
+            display: inline-block;
+            min-width: 140px;
+        }
+        .data-field:empty::before {
+            content: '\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0';
+        }        
+        ul {
+            margin: 10px 0;
+            padding-left: 40px;
+        }
+        
+        li {
+            margin: 5px 0;
+        }
+        
+        .signature-section {
+            margin-top: 40px;
+        }
+        
+        p {
+            margin: 3px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Employer Header (Top Right) -->
+    <div class="employer-header">
+        <p><span class="data-field">{{employer_name|default:"______________________________"}}</span></p>
+        <p>S.L.P <span class="data-field">{{employer_po_box|default:"______________________________"}}</span></p>
+        <p><span class="data-field">{{employer_city|default:"______________________________"}}</span></p>
+        <p>Simu: <span class="data-field">{{employer_phone|default:"______________________________"}}</span></p>
+        <p>Barua Pepe: <span class="data-field">{{employer_email|default:"______________________________"}}</span></p>
+        <p>TAREHE: <span class="data-field">{{notice_date_day|default:"______________________________"}}</span> | <span class="data-field">{{notice_date_month|default:"______________________________"}}</span> | <span class="data-field">{{notice_date_year|default:"______________________________"}}</span></p>
+    </div>
+
+    <!-- Employee Address (Left) -->
+    <div class="employee-address">
+        <p><span class="bold">Kwa:</span></p>
+        <p><span class="data-field">{{employee_name|default:"______________________________"}}</span></p>
+        <p>S.L.P: <span class="data-field">{{employee_po_box|default:"______________________________"}}</span>,</p>
+        <p><span class="data-field">{{employee_city|default:"______________________________"}}</span></p>
+    </div>
+
+    <!-- Subject -->
+    <p class="center"><span class="bold underline">YAH: TAARIFA YA KUSITISHA AJIRA (NOTISI YA KUACHISHWA KAZI)</span></p>
+
+    <!-- Salutation -->
+    <p class="left">Kwako <span class="data-field">{{employee_name|default:"______________________________"}}</span>,</p>
+
+    <!-- Body Paragraph 1 - Termination Notice -->
+    <p class="left">Kwa mujibu wa masharti ya mkataba wa ajira kati yako na <span class="data-field">{{employer_name|default:"______________________________"}}</span> uliosainiwa tarehe <span class="data-field">{{contract_date|default:"______________________________"}}</span>, na kwa kuzingatia Sheria ya Ajira na Mahusiano Kazini ya mwaka 2004, tunakujulisha kuwa ajira yako itasitishwa kuanzia tarehe <span class="data-field">{{termination_date|default:"______________________________"}}</span>.</p>
+
+    <!-- Body Paragraph 2 - Reasons -->
+    <p class="left">Sababu ya kusitisha ajira yako ni kama ifuatavyo:</p>
+    <p class="left"><span class="data-field">{{termination_reasons|default:"______________________________"}}</span></p>
+
+    <!-- Body Paragraph 3 - Notice Period -->
+    <p class="left">Kwa kuzingatia muda wa ajira yako, unastahili notisi ya siku <span class="data-field">{{notice_period_days|default:"______________________________"}}</span>, ambayo itaanza kuhesabiwa kuanzia tarehe ya barua hii. Kama hutatumikia kipindi hiki cha notisi, kiasi cha mshahara wa kipindi husika kitakatwa au kulipwa kwa mujibu wa utaratibu.</p>
+
+    <!-- Body Paragraph 4 - Entitlements -->
+    <p class="left">Haki zako zinazostahili kulipwa baada ya kusitishwa kwa ajira hii ni pamoja na:</p>
+    <ul>
+        <li>Malimbikizo ya mshahara (ikiwa yapo)</li>
+        <li>Likizo ya mwaka (ikiwa haikutumika)</li>
+        <li>Posho au marupurupu mengine yanayostahili kulipwa</li>
+        <li>Cheti cha huduma (service certificate)</li>
+    </ul>
+
+    <!-- Body Paragraph 5 - Thank You -->
+    <p class="left">Tunakushukuru kwa mchango wako ulioutoa wakati wa utumishi wako katika taasisi hii, na tunakutakia mafanikio mema katika shughuli zako zijazo.</p>
+
+    <!-- Body Paragraph 6 - Contact -->
+    <p class="left">Kwa maelezo zaidi au utaratibu wa mwisho wa kuondoka, tafadhali wasiliana na Idara ya Rasilimali Watu.</p>
+
+    <!-- Closing -->
+    <p class="left" style="margin-top: 40px;">Wako kwa dhati,</p>
+
+    <!-- Signature Section -->
+    <div class="signature-section">
+        <p class="left">Jina la Mwajiri / Mwakilishi: <span class="data-field">{{representative_name|default:"______________________________"}}</span></p>
+        <p class="left">Cheo: <span class="data-field">{{representative_position|default:"______________________________"}}</span></p>
+        <p class="left" style="border-bottom: 1px dotted #000; width: 200px; margin-top: 30px; margin-bottom: 5px;">&nbsp;</p>
+        <p class="left">Saini</p>
+        <p class="left">Tarehe: <span class="data-field">{{signature_date|default:"______________________________"}}</span></p>
+    </div>
+</body>
+</html>

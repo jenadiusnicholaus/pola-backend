@@ -1,0 +1,23 @@
+{
+    "template_id": 14,
+    "language": "sw",
+    "data": {
+        "employee_name": "Juma Mwinyi Hassan",
+        "employee_po_box": "12345",
+        "employee_city": "Dar es Salaam",
+        "employee_phone": "+255 754 123 456",
+        "employee_email": "juma.hassan@email.com",
+        "letter_date_day": "10",
+        "letter_date_month": "Desemba",
+        "letter_date_year": "2025",
+        "employer_name": "Bi. Fatuma Mohamed",
+        "employer_po_box": "67890",
+        "employer_city": "Dar es Salaam",
+        "job_title": "Msanidi Programu Mkuu",
+        "organization_name": "Kampuni ya TechCorp Tanzania",
+        "resignation_date_day": "31",
+        "resignation_date_month": "Januari",
+        "resignation_date_year": "2026",
+        "resignation_reason": "sababu za kibinafsi na kutafuta fursa za kujiendeleza kimasomo nje ya nchi"
+    }
+}

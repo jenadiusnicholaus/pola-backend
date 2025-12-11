@@ -25,7 +25,10 @@ body {
     border-bottom: 1px solid #000;
     padding: 0 5px;
     display: inline-block;
-    min-width: 100px;
+    min-width: 150px;
+}
+.data-field:empty::before {
+    content: '\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0';
 }
 p { margin: 10px 0; }
 .signature-section {
@@ -46,7 +49,7 @@ p { margin: 10px 0; }
 </p>
 
 <p class="center">
-    This contract is made today, date <span class="data-field">{{contract_date_day}}</span> Month of <span class="data-field">{{contract_date_month}}</span> Year <span class="data-field">{{contract_date_year}}</span>
+    This contract is made today, date <span class="data-field">{{contract_date_day|default:"______________________________"}}</span> Month of <span class="data-field">{{contract_date_month|default:"______________________________"}}</span> Year <span class="data-field">{{contract_date_year|default:"______________________________"}}</span>
 </p>
 
 <p class="center">
@@ -54,7 +57,7 @@ p { margin: 10px 0; }
 </p>
 
 <p class="center">
-    <span class="data-field">{{employer_name}}</span> of Address: <span class="data-field">{{employer_address_street}}</span>, <span class="data-field">{{employer_address_city}}</span> Phone Number: <span class="data-field">{{employer_phone}}</span> Email: <span class="data-field">{{employer_email}}</span>
+    <span class="data-field">{{employer_name|default:"______________________________"}}</span> of Address: <span class="data-field">{{employer_address_street|default:"______________________________"}}</span>, <span class="data-field">{{employer_address_city|default:"______________________________"}}</span> Phone Number: <span class="data-field">{{employer_phone|default:"______________________________"}}</span> Email: <span class="data-field">{{employer_email|default:"______________________________"}}</span>
 </p>
 
 <p class="center">
@@ -66,7 +69,7 @@ p { margin: 10px 0; }
 </p>
 
 <p class="center">
-    <span class="data-field">{{employee_name}}</span> of Address: <span class="data-field">{{employee_address_street}}</span>, <span class="data-field">{{employee_address_city}}</span> Phone Number: <span class="data-field">{{employee_phone}}</span> Identification Type: <span class="data-field">{{employee_id_type}}</span>, Identification Number <span class="data-field">{{employee_id_number}}</span> Email: <span class="data-field">{{employee_email}}</span>
+    <span class="data-field">{{employee_name|default:"______________________________"}}</span> of Address: <span class="data-field">{{employee_address_street|default:"______________________________"}}</span>, <span class="data-field">{{employee_address_city|default:"______________________________"}}</span> Phone Number: <span class="data-field">{{employee_phone|default:"______________________________"}}</span> Identification Type: <span class="data-field">{{employee_id_type|default:"______________________________"}}</span>, Identification Number <span class="data-field">{{employee_id_number|default:"______________________________"}}</span> Email: <span class="data-field">{{employee_email|default:"______________________________"}}</span>
 </p>
 
 <p class="center">
@@ -81,73 +84,73 @@ p { margin: 10px 0; }
     <span class="bold">1. DATE OF COMMENCEMENT OF EMPLOYMENT</span>
 </p>
 <p class="left">
-    This Employment Contract shall commence on <span class="data-field">{{employment_start_day}}</span> Month of <span class="data-field">{{employment_start_month}}</span> Year <span class="data-field">{{employment_start_year}}</span> and shall continue lawfully until day <span class="data-field">{{employment_end_day}}</span> Month of <span class="data-field">{{employment_end_month}}</span> Year <span class="data-field">{{employment_end_year}}</span>.
+    This Employment Contract shall commence on <span class="data-field">{{employment_start_day|default:"______________________________"}}</span> Month of <span class="data-field">{{employment_start_month|default:"______________________________"}}</span> Year <span class="data-field">{{employment_start_year|default:"______________________________"}}</span> and shall continue lawfully until day <span class="data-field">{{employment_end_day|default:"______________________________"}}</span> Month of <span class="data-field">{{employment_end_month|default:"______________________________"}}</span> Year <span class="data-field">{{employment_end_year|default:"______________________________"}}</span>.
 </p>
 
 <p class="left">
     <span class="bold">2. PLACE OF EMPLOYMENT</span>
 </p>
 <p class="left">
-    The Employee is employed in the region of <span class="data-field">{{workplace_location}}</span>
+    The Employee is employed in the region of <span class="data-field">{{workplace_location|default:"______________________________"}}</span>
 </p>
 
 <p class="left">
     <span class="bold">3. WORK LOCATION</span>
 </p>
 <p class="left">
-    The Employee shall work in the area of <span class="data-field">{{work_region}}</span> Region, <span class="data-field">{{work_district}}</span> District, <span class="data-field">{{work_ward}}</span> Ward. If there is any other work location outside this, it shall be specified by the Employer.
+    The Employee shall work in the area of <span class="data-field">{{work_region|default:"______________________________"}}</span> Region, <span class="data-field">{{work_district|default:"______________________________"}}</span> District, <span class="data-field">{{work_ward|default:"______________________________"}}</span> Ward. If there is any other work location outside this, it shall be specified by the Employer.
 </p>
 
 <p class="left">
     <span class="bold">4. POSITION / JOB TITLE</span>
 </p>
 <p class="left">
-    The Employee shall work as <span class="data-field">{{job_title}}</span> and shall perform the following duties:<br/>
-    <span class="data-field">{{job_duties}}</span>
+    The Employee shall work as <span class="data-field">{{job_title|default:"______________________________"}}</span> and shall perform the following duties:<br/>
+    <span class="data-field">{{job_duties|default:"______________________________"}}</span>
 </p>
 
 <p class="left">
     <span class="bold">5. PROBATION PERIOD</span>
 </p>
 <p class="left">
-    The Employee shall be on probation for a period of <span class="data-field">{{probation_months}}</span> months from the date of signing this contract. The purpose of the probation period is to evaluate whether the Employee is capable and suitable for the job. If this employment contract is terminated during the first month of employment, the Employer is required to provide written notice of such intention within seven (7) days.
+    The Employee shall be on probation for a period of <span class="data-field">{{probation_months|default:"______________________________"}}</span> months from the date of signing this contract. The purpose of the probation period is to evaluate whether the Employee is capable and suitable for the job. If this employment contract is terminated during the first month of employment, the Employer is required to provide written notice of such intention within seven (7) days.
 </p>
 
 <p class="left">
     <span class="bold">6. WORKING HOURS</span>
 </p>
 <p class="left">
-    The working time shall be <span class="data-field">{{work_hours_per_day}}</span> hours per day, <span class="data-field">{{work_days_per_week}}</span> days per week, from <span class="data-field">{{work_start_time}}</span> to <span class="data-field">{{work_end_time}}</span>.
+    The working time shall be <span class="data-field">{{work_hours_per_day|default:"______________________________"}}</span> hours per day, <span class="data-field">{{work_days_per_week|default:"______________________________"}}</span> days per week, from <span class="data-field">{{work_start_time|default:"______________________________"}}</span> to <span class="data-field">{{work_end_time|default:"______________________________"}}</span>.
 </p>
 
 <p class="left">
     <span class="bold">7. SALARY AND PAYMENT</span>
 </p>
 <p class="left">
-    The Employee shall be paid a salary of Tsh <span class="data-field">{{salary_amount}}</span> per <span class="data-field">{{salary_period_month}}</span>, which shall be paid on the <span class="data-field">{{payment_date}}</span> of each month.
+    The Employee shall be paid a salary of Tsh <span class="data-field">{{salary_amount|default:"______________________________"}}</span> per <span class="data-field">{{salary_period_month|default:"______________________________"}}</span>, which shall be paid on the <span class="data-field">{{payment_date|default:"______________________________"}}</span> of each month.
 </p>
 
 <p class="left">
-    Payment shall be made by means of: <span class="data-field">{{payment_method_bank}}</span>
+    Payment shall be made by means of: <span class="data-field">{{payment_method_bank|default:"______________________________"}}</span>
 </p>
 
 <p class="left">
     <span class="bold">Bank Details:</span><br/>
-    <span class="data-field">{{bank_name}}</span><br/>
-    <span class="data-field">{{bank_account_name}}</span><br/>
-    <span class="data-field">{{bank_account_number}}</span><br/>
-    <span class="data-field">{{bank_branch}}</span>
+    <span class="data-field">{{bank_name|default:"______________________________"}}</span><br/>
+    <span class="data-field">{{bank_account_name|default:"______________________________"}}</span><br/>
+    <span class="data-field">{{bank_account_number|default:"______________________________"}}</span><br/>
+    <span class="data-field">{{bank_branch|default:"______________________________"}}</span>
 </p>
 
 <p class="left">
     <span class="bold">8. ALLOWANCES AND OTHER BENEFITS</span>
 </p>
 <p class="left">
-    <span class="data-field">{{allowance_1}}</span>,<br/>
-    <span class="data-field">{{allowance_2}}</span>,<br/>
-    <span class="data-field">{{allowance_3}}</span>,<br/>
-    <span class="data-field">{{allowance_4}}</span>,<br/>
-    <span class="data-field">{{other_benefits}}</span>
+    <span class="data-field">{{allowance_1|default:"______________________________"}}</span>,<br/>
+    <span class="data-field">{{allowance_2|default:"______________________________"}}</span>,<br/>
+    <span class="data-field">{{allowance_3|default:"______________________________"}}</span>,<br/>
+    <span class="data-field">{{allowance_4|default:"______________________________"}}</span>,<br/>
+    <span class="data-field">{{other_benefits|default:"______________________________"}}</span>
 </p>
 
 <p class="left">
@@ -221,7 +224,7 @@ p { margin: 10px 0; }
 
     <p class="left">
         <span class="bold">Employer</span><br/>
-        Name: <span class="data-field">{{employer_name}}</span><br/>
+        Name: <span class="data-field">{{employer_name|default:"______________________________"}}</span><br/>
         Signature: _________________________<br/>
         Date: ________________________
     </p>
@@ -237,7 +240,7 @@ p { margin: 10px 0; }
 
     <p class="left">
         <span class="bold">Employee</span><br/>
-        Name: <span class="data-field">{{employee_name}}</span><br/>
+        Name: <span class="data-field">{{employee_name|default:"______________________________"}}</span><br/>
         Signature: _________________________<br/>
         Date: ________________________
     </p>
