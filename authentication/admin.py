@@ -5,6 +5,8 @@ from .models import (
     Region, District, OperatingRegion, OperatingDistrict, Specialization,
     ProfessionalSpecialization, RegionalChapter, DeviceToken, NotificationPreference
 )
+from .device_models import UserDevice, UserSession, LoginHistory, SecurityAlert
+from .device_models import UserDevice, UserSession, LoginHistory, SecurityAlert
 
 @admin.register(PolaUser)
 class PolaUserAdmin(admin.ModelAdmin):
@@ -218,6 +220,121 @@ class NotificationPreferenceAdmin(admin.ModelAdmin):
         }),
         ('Quiet Hours', {
             'fields': ('quiet_hours_enabled', 'quiet_hours_start', 'quiet_hours_end')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
+
+
+# Device and Security Tracking Admin
+@admin.register(UserDevice)
+class UserDeviceAdmin(admin.ModelAdmin):
+    list_display = ('user', 'device_name', 'device_type', 'os_name', 'is_trusted', 'is_active', 'last_seen')
+    list_filter = ('device_type', 'os_name', 'is_trusted', 'is_active', 'first_seen')
+    search_fields = ('user__email', 'device_id', 'device_name', 'device_model', 'last_ip')
+    readonly_fields = ('device_id', 'first_seen', 'last_seen', 'created_at', 'updated_at')
+    date_hierarchy = 'last_seen'
+    ordering = ('-last_seen',)
+    fieldsets = (
+        ('User & Device', {
+            'fields': ('user', 'device_id', 'device_name', 'device_type')
+        }),
+        ('Operating System', {
+            'fields': ('os_name', 'os_version')
+        }),
+        ('Browser/App', {
+            'fields': ('browser_name', 'browser_version', 'app_version')
+        }),
+        ('Hardware', {
+            'fields': ('device_model', 'device_manufacturer')
+        }),
+        ('Security', {
+            'fields': ('is_trusted', 'is_active', 'fcm_token')
+        }),
+        ('Tracking', {
+            'fields': ('first_seen', 'last_seen', 'last_ip')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
+
+
+@admin.register(UserSession)
+class UserSessionAdmin(admin.ModelAdmin):
+    list_display = ('user', 'ip_address', 'city', 'country', 'status', 'login_time', 'last_activity')
+    list_filter = ('status', 'country', 'login_time')
+    search_fields = ('user__email', 'ip_address', 'city', 'country', 'session_key')
+    readonly_fields = ('session_key', 'login_time', 'last_activity', 'logout_time', 'created_at', 'updated_at')
+    date_hierarchy = 'login_time'
+    ordering = ('-login_time',)
+    fieldsets = (
+        ('User & Device', {
+            'fields': ('user', 'device', 'session_key', 'status')
+        }),
+        ('Location', {
+            'fields': ('ip_address', 'country', 'country_code', 'city', 'region', 'latitude', 'longitude', 'timezone', 'isp')
+        }),
+        ('Session Lifecycle', {
+            'fields': ('login_time', 'last_activity', 'logout_time', 'expires_at')
+        }),
+        ('User Agent', {
+            'fields': ('user_agent',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
+
+
+@admin.register(LoginHistory)
+class LoginHistoryAdmin(admin.ModelAdmin):
+    list_display = ('email', 'status', 'ip_address', 'city', 'country', 'is_suspicious', 'timestamp')
+    list_filter = ('status', 'is_suspicious', 'failure_reason', 'country', 'timestamp')
+    search_fields = ('email', 'user__email', 'ip_address', 'city', 'country')
+    readonly_fields = ('timestamp',)
+    date_hierarchy = 'timestamp'
+    ordering = ('-timestamp',)
+    fieldsets = (
+        ('User & Status', {
+            'fields': ('user', 'email', 'status', 'failure_reason')
+        }),
+        ('Location', {
+            'fields': ('ip_address', 'country', 'city')
+        }),
+        ('Device Information', {
+            'fields': ('device', 'user_agent', 'device_info')
+        }),
+        ('Security', {
+            'fields': ('is_suspicious', 'suspicious_reasons')
+        }),
+        ('Timestamp', {
+            'fields': ('timestamp',)
+        }),
+    )
+
+
+@admin.register(SecurityAlert)
+class SecurityAlertAdmin(admin.ModelAdmin):
+    list_display = ('user', 'alert_type', 'severity', 'title', 'is_read', 'is_resolved', 'created_at')
+    list_filter = ('alert_type', 'severity', 'is_read', 'is_resolved', 'created_at')
+    search_fields = ('user__email', 'title', 'message')
+    readonly_fields = ('created_at', 'updated_at', 'resolved_at', 'notification_sent_at')
+    date_hierarchy = 'created_at'
+    ordering = ('-created_at',)
+    fieldsets = (
+        ('Alert Information', {
+            'fields': ('user', 'alert_type', 'severity', 'title', 'message', 'details')
+        }),
+        ('Related Objects', {
+            'fields': ('device', 'session')
+        }),
+        ('Status', {
+            'fields': ('is_read', 'is_resolved', 'resolved_at')
+        }),
+        ('Notification', {
+            'fields': ('notification_sent', 'notification_sent_at')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at')

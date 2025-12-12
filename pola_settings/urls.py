@@ -152,6 +152,7 @@ urlpatterns = [
     path(f"api/{API_VERSION}/lookups/", include("lookups.urls")),
     path(f"api/{API_VERSION}/hubs/", include("hubs.urls")),  # Hubs APIs
     path(f"api/{API_VERSION}/doc-templates/", include("document_templates.urls")),  # Document Template APIs
+    path(f"api/{API_VERSION}/security/", include("authentication.device_urls")),  # Security & Device Tracking APIs
     
     # API Documentation
     path('swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
