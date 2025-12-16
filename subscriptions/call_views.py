@@ -143,7 +143,7 @@ class ConsultantListViewSet(viewsets.ReadOnlyModelViewSet):
 # CALL CREDIT MANAGEMENT
 # ============================================================================
 
-class CallManagementViewSet(viewsets.ViewSet):
+class CallHistoryViewSet(viewsets.ViewSet):
     """
     Manage call credits and call sessions
     

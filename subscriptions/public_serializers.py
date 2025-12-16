@@ -544,11 +544,13 @@ class PaymentTransactionSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'user', 'user_details', 'transaction_type',
             'amount', 'currency', 'payment_method', 'payment_reference',
-            'gateway_reference', 'status', 'description',
+            'gateway_reference', 'status', 'description', 'item_metadata',
+            'is_fulfilled', 'fulfilled_at', 'fulfillment_notes',
             'transaction_details', 'related_items', 'created_at', 'updated_at'
         ]
         read_only_fields = [
             'user', 'payment_reference', 'gateway_reference',
+            'is_fulfilled', 'fulfilled_at', 'fulfillment_notes',
             'created_at', 'updated_at'
         ]
     
@@ -573,7 +575,7 @@ class PaymentTransactionSerializer(serializers.ModelSerializer):
         }
     
     def get_related_items(self, obj):
-        """Get related items (booking, subscription, etc.)"""
+        """Get related items (booking, subscription, call_credit, document, material)"""
         related = {}
         
         if obj.related_booking:
@@ -587,6 +589,28 @@ class PaymentTransactionSerializer(serializers.ModelSerializer):
             related['subscription'] = {
                 'id': obj.related_subscription.id,
                 'plan': obj.related_subscription.plan.name,
+                'end_date': obj.related_subscription.end_date,
+            }
+        
+        if obj.related_call_credit:
+            related['call_credit'] = {
+                'id': obj.related_call_credit.id,
+                'minutes': obj.related_call_credit.total_minutes,
+                'remaining': obj.related_call_credit.remaining_minutes,
+                'expiry': obj.related_call_credit.expiry_date,
+            }
+        
+        if obj.related_document:
+            related['document'] = {
+                'id': obj.related_document.id,
+                'title': obj.related_document.title,
+                'document_type': obj.related_document.document_type,
+            }
+        
+        if obj.related_material:
+            related['material'] = {
+                'id': obj.related_material.id,
+                'title': obj.related_material.title,
             }
         
         return related if related else None

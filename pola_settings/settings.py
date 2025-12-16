@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'subscriptions',  # Subscription and wallet system
     'documents',  # Learning materials and document management
     'document_templates',  # Dynamic document template generation system
+    'notification',  # FCM push notifications and online status
     'django_filters',
     'corsheaders',
     'hubs'
@@ -82,7 +83,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'authentication.middleware.SecurityTrackingMiddleware',  # Automatic device & session tracking
+    'authentication.middleware.SecurityTrackingMiddleware',  # Automatic device, session & online status tracking
 ]
 
 ROOT_URLCONF = 'pola_settings.urls'

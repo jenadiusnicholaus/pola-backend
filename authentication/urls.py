@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 from . import views
 from . import verification_views
+from . import nearby_views
 
 app_name = 'authentication'
 
@@ -24,6 +25,13 @@ urlpatterns = [
     # User profile
     path('profile/', views.UserProfileView.as_view(), name='user-profile'),
     path('profile-picture/', views.UpdateProfilePictureView.as_view(), name='update-profile-picture'),
+    path('change-role/', views.change_user_role, name='change-role'),
+    
+    # Consultations
+    path('consultations/', views.professional_consultations, name='professional-consultations'),
+    
+    # Nearby search
+    path('nearby-legal-professionals/', nearby_views.nearby_legal_professionals, name='nearby-legal-professionals'),
     
     # Verification endpoints (from router)
     path('', include(router.urls)),

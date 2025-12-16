@@ -372,6 +372,66 @@ class VerificationViewSet(viewsets.ReadOnlyModelViewSet):
             }, status=status.HTTP_404_NOT_FOUND)
 
     @swagger_auto_schema(
+        method='post',
+        operation_description="Submit verification for review after uploading all required documents",
+        responses={
+            200: openapi.Response(
+                description="Verification submitted successfully",
+                examples={
+                    "application/json": {
+                        "success": True,
+                        "message": "Verification submitted for review",
+                        "status": "pending",
+                        "current_step": "documents"
+                    }
+                }
+            ),
+            400: "Bad Request - Missing documents or verification already submitted"
+        },
+        tags=['Verification - User']
+    )
+    @action(detail=False, methods=['post'])
+    def submit_for_review(self, request):
+        """
+        Submit verification for admin review
+        POST /verifications/submit_for_review/
+        """
+        try:
+            verification = Verification.objects.get(user=request.user)
+            
+            # Check if already verified
+            if verification.status == 'verified':
+                return Response({
+                    'error': 'Your account is already verified'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Check if user has uploaded documents
+            user_docs = request.user.documents.filter(is_active=True)
+            if not user_docs.exists():
+                return Response({
+                    'error': 'Please upload required documents before submitting for review'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Update verification status to pending
+            verification.status = 'pending'
+            verification.current_step = 'documents'
+            note = f'User submitted verification for review on {timezone.now()}'
+            verification.verification_notes = f'{verification.verification_notes}\n{note}' if verification.verification_notes else note
+            verification.save()
+            
+            return Response({
+                'success': True,
+                'message': 'Verification submitted for review. You will be notified once an admin reviews your documents.',
+                'status': verification.status,
+                'current_step': verification.current_step
+            })
+            
+        except Verification.DoesNotExist:
+            return Response({
+                'error': 'Verification record not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+    @swagger_auto_schema(
         method='get',
         operation_description="""Get all pending verifications (Admin only) with filtering support and pagination.
         

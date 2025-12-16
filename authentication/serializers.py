@@ -339,10 +339,25 @@ class UserDetailSerializer(serializers.ModelSerializer):
         return list(set(all_permissions))
     
     def get_subscription(self, obj):
-        """Get user's current subscription with permissions"""
+        """
+        Get user's current subscription with permissions
+        Includes both subscription-based and role-based permissions
+        """
         try:
             from subscriptions.models import UserSubscription
             subscription = obj.subscription
+            
+            # Get comprehensive permissions (subscription + role-based)
+            permissions = subscription.get_permissions()
+            
+            # Add role information to permissions
+            user_role = getattr(obj, 'user_role', None)
+            if user_role:
+                permissions['user_role'] = user_role.role_name
+                permissions['is_professional'] = user_role.role_name in ['advocate', 'lawyer', 'paralegal', 'law_firm']
+            else:
+                permissions['user_role'] = None
+                permissions['is_professional'] = False
             
             return {
                 'id': subscription.id,
@@ -356,9 +371,13 @@ class UserDetailSerializer(serializers.ModelSerializer):
                 'end_date': subscription.end_date.isoformat(),
                 'days_remaining': subscription.days_remaining(),
                 'auto_renew': subscription.auto_renew,
-                'permissions': subscription.get_permissions(),  # All subscription permissions
+                'permissions': permissions,  # All permissions (subscription + role-based)
             }
         except UserSubscription.DoesNotExist:
+            # No subscription - return default permissions with role restrictions
+            user_role = getattr(obj, 'user_role', None)
+            is_prof = user_role and user_role.role_name in ['advocate', 'lawyer', 'paralegal', 'law_firm']
+            
             return {
                 'has_subscription': False,
                 'message': 'No active subscription',
@@ -373,6 +392,12 @@ class UserDetailSerializer(serializers.ModelSerializer):
                     'can_purchase_consultations': False,
                     'can_purchase_documents': False,
                     'can_purchase_learning_materials': False,
+                    # Role-based permissions
+                    'can_view_talk_to_lawyer': not is_prof,  # Professionals can't view
+                    'can_view_nearby_lawyers': False,  # Need subscription
+                    'can_view_own_consultations': True,  # Can always view own
+                    'user_role': user_role.role_name if user_role else None,
+                    'is_professional': is_prof,
                 }
             }
         except Exception as e:

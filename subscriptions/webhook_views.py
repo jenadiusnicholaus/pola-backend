@@ -45,43 +45,46 @@ def azampay_webhook(request):
             }, status=status.HTTP_400_BAD_REQUEST)
         
         # Process based on transaction type (payment or disbursement)
-        # Payment transactions
-        from .models import PaymentTransaction, ConsultationBooking, CallCreditVoucher, Disbursement
+        from .models import PaymentTransaction, Disbursement
+        from .payment_service import payment_service, PaymentServiceError
         
-        # Try to find payment transaction
+        # Try to find payment transaction by gateway_reference or payment_reference
         try:
-            payment_transaction = PaymentTransaction.objects.get(
-                azampay_transaction_id=transaction_id
-            )
+            # First try by gateway reference (AzamPay transaction ID)
+            try:
+                payment_transaction = PaymentTransaction.objects.get(
+                    gateway_reference=transaction_id
+                )
+            except PaymentTransaction.DoesNotExist:
+                # Try by payment reference (external_reference)
+                payment_transaction = PaymentTransaction.objects.get(
+                    payment_reference=external_reference
+                )
             
-            # Update payment status
-            if azam_status in ['success', 'completed']:
+            # Update payment status based on AzamPay response
+            if azam_status in ['success', 'completed', 'successful']:
                 payment_transaction.status = 'completed'
                 payment_transaction.updated_at = timezone.now()
                 payment_transaction.save()
                 
-                # Confirm related booking or voucher
-                if payment_transaction.item_type == 'consultation':
-                    booking = ConsultationBooking.objects.filter(
-                        booking_reference=external_reference
-                    ).first()
-                    if booking and booking.payment_status == 'pending':
-                        booking.confirm_payment()
+                logger.info(f"✅ Payment {external_reference} marked as completed")
                 
-                elif payment_transaction.item_type == 'call_credit':
-                    voucher = CallCreditVoucher.objects.filter(
-                        order_reference=external_reference
-                    ).first()
-                    if voucher and voucher.status == 'pending':
-                        voucher.activate()
-                
-                logger.info(f"Payment transaction {transaction_id} marked as completed")
+                # NEW: Use payment service to fulfill the purchase
+                try:
+                    payment_service.fulfill_payment(payment_transaction)
+                    logger.info(f"✅ Payment {external_reference} fulfilled successfully")
+                except PaymentServiceError as e:
+                    logger.error(f"❌ Fulfillment error for {external_reference}: {e}")
+                    # Don't fail the webhook, but log the error
+                    payment_transaction.fulfillment_notes = f"Fulfillment error: {str(e)}"
+                    payment_transaction.save()
             
-            elif azam_status == 'failed':
+            elif azam_status in ['failed', 'failure', 'rejected', 'declined']:
                 payment_transaction.status = 'failed'
                 payment_transaction.updated_at = timezone.now()
+                payment_transaction.fulfillment_notes = payload.get('message', 'Payment failed')
                 payment_transaction.save()
-                logger.info(f"Payment transaction {transaction_id} marked as failed")
+                logger.info(f"❌ Payment {external_reference} marked as failed")
         
         except PaymentTransaction.DoesNotExist:
             # Try to find disbursement by transaction ID or external reference
@@ -145,6 +148,99 @@ def webhook_health(request):
     Webhook health check endpoint
     Used by AzamPay to verify webhook is accessible
     """
+    return Response({
+        'status': 'healthy',
+        'message': 'Webhook endpoint is accessible'
+    })
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])  # For testing only
+def manual_fulfill_payment(request):
+    """
+    TESTING ONLY: Manually trigger payment fulfillment
+    
+    Use this if webhook didn't arrive or failed
+    POST body: {"payment_reference": "PAY-1234567890-123"}
+    """
+    from .models import PaymentTransaction
+    from .payment_service import payment_service, PaymentServiceError
+    
+    payment_reference = request.data.get('payment_reference')
+    
+    if not payment_reference:
+        return Response({
+            'success': False,
+            'message': 'payment_reference is required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        payment_txn = PaymentTransaction.objects.get(payment_reference=payment_reference)
+        
+        logger.info(f"🔧 Manual fulfillment requested for: {payment_reference}")
+        logger.info(f"   Status: {payment_txn.status}")
+        logger.info(f"   Type: {payment_txn.transaction_type}")
+        logger.info(f"   Amount: {payment_txn.amount} {payment_txn.currency}")
+        logger.info(f"   User: {payment_txn.user.email}")
+        logger.info(f"   Is Fulfilled: {payment_txn.is_fulfilled}")
+        
+        if payment_txn.is_fulfilled:
+            return Response({
+                'success': False,
+                'message': 'Payment already fulfilled',
+                'payment': {
+                    'reference': payment_txn.payment_reference,
+                    'status': payment_txn.status,
+                    'type': payment_txn.transaction_type,
+                    'fulfilled_at': payment_txn.fulfilled_at
+                }
+            })
+        
+        if payment_txn.status != 'completed':
+            # Force complete it for testing
+            logger.warning(f"⚠️ Forcing status to completed for testing: {payment_reference}")
+            payment_txn.status = 'completed'
+            payment_txn.save()
+        
+        # Try to fulfill
+        try:
+            payment_service.fulfill_payment(payment_txn)
+            
+            return Response({
+                'success': True,
+                'message': 'Payment fulfilled successfully',
+                'payment': {
+                    'reference': payment_txn.payment_reference,
+                    'status': payment_txn.status,
+                    'type': payment_txn.transaction_type,
+                    'fulfilled': payment_txn.is_fulfilled,
+                    'fulfilled_at': payment_txn.fulfilled_at
+                }
+            })
+        except PaymentServiceError as e:
+            logger.error(f"❌ Fulfillment failed: {str(e)}")
+            return Response({
+                'success': False,
+                'message': f'Fulfillment failed: {str(e)}',
+                'payment': {
+                    'reference': payment_txn.payment_reference,
+                    'status': payment_txn.status,
+                    'type': payment_txn.transaction_type,
+                    'error': str(e)
+                }
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    except PaymentTransaction.DoesNotExist:
+        return Response({
+            'success': False,
+            'message': f'Payment not found: {payment_reference}'
+        }, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        logger.error(f"Error in manual fulfillment: {str(e)}", exc_info=True)
+        return Response({
+            'success': False,
+            'message': f'Error: {str(e)}'\
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response({
         'status': 'healthy',
         'service': 'POLA AzamPay Webhook',

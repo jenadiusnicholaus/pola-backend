@@ -249,6 +249,9 @@ class UserDeviceAdmin(admin.ModelAdmin):
         ('Hardware', {
             'fields': ('device_model', 'device_manufacturer')
         }),
+        ('Location', {
+            'fields': ('latitude', 'longitude')
+        }),
         ('Security', {
             'fields': ('is_trusted', 'is_active', 'fcm_token')
         }),

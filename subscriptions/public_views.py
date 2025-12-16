@@ -658,6 +658,129 @@ class ConsultantViewSet(viewsets.ReadOnlyModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
     
+    @action(detail=False, methods=['get'], url_path='my-consultations')
+    def my_consultations(self, request):
+        """
+        Get ALL consultations for the authenticated consultant
+        Combines both scheduled bookings AND instant incoming calls in one unified list
+        
+        Query params:
+        - page: Page number for pagination (default 1)
+        - page_size: Number of results per page (default 20, max 100)
+        - status: Filter by status
+        - type: Filter by type (booking, call, mobile, physical)
+        """
+        try:
+            profile = ConsultantProfile.objects.get(user=request.user)
+        except ConsultantProfile.DoesNotExist:
+            return Response(
+                {'error': 'You do not have a consultant profile'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Get scheduled consultations (bookings)
+        bookings = ConsultationBooking.objects.filter(
+            consultant=request.user
+        ).select_related('client', 'consultant')
+        
+        # Get instant incoming calls
+        calls = CallSession.objects.filter(
+            consultant=request.user
+        ).select_related('caller', 'consultant', 'call_credit__bundle')
+        
+        # Apply type filter
+        type_filter = request.query_params.get('type')
+        if type_filter:
+            if type_filter == 'booking':
+                calls = CallSession.objects.none()  # Exclude calls
+            elif type_filter == 'call':
+                bookings = ConsultationBooking.objects.none()  # Exclude bookings
+            elif type_filter == 'mobile':
+                bookings = bookings.filter(booking_type='mobile')
+                calls = calls.filter(call_type__in=['voice', 'video'])
+            elif type_filter == 'physical':
+                bookings = bookings.filter(booking_type='physical')
+                calls = CallSession.objects.none()  # No physical calls
+        
+        # Apply status filter
+        status_filter = request.query_params.get('status')
+        if status_filter:
+            bookings = bookings.filter(status=status_filter)
+            calls = calls.filter(status=status_filter)
+        
+        # Combine data
+        combined = []
+        
+        # Add bookings
+        for booking in bookings:
+            combined.append({
+                'type': 'booking',
+                'id': booking.id,
+                'client': {
+                    'id': booking.client.id,
+                    'name': booking.client.get_full_name() or booking.client.email,
+                    'email': booking.client.email,
+                },
+                'booking_type': booking.booking_type,
+                'call_type': None,
+                'status': booking.status,
+                'topic': getattr(booking, 'client_notes', ''),
+                'scheduled_date': booking.scheduled_date,
+                'created_at': booking.created_at,
+                'duration_minutes': booking.actual_duration_minutes if hasattr(booking, 'actual_duration_minutes') else booking.scheduled_duration_minutes,
+                'amount': float(booking.total_amount) if booking.total_amount else 0,
+            })
+        
+        # Add instant calls
+        for call in calls:
+            combined.append({
+                'type': 'call',
+                'id': call.id,
+                'client': {
+                    'id': call.caller.id,
+                    'name': call.caller.get_full_name() or call.caller.email,
+                    'email': call.caller.email,
+                },
+                'booking_type': None,
+                'call_type': call.call_type,
+                'status': call.status,
+                'topic': None,
+                'channel_name': call.channel_name,
+                'scheduled_date': None,
+                'initiated_at': call.initiated_at,
+                'accepted_at': call.accepted_at,
+                'ended_at': call.ended_at,
+                'created_at': call.created_at or call.initiated_at,
+                'duration_minutes': call.duration_minutes,
+                'credits_deducted': float(call.credits_deducted) if call.credits_deducted else 0,
+            })
+        
+        # Sort by created_at/initiated_at (newest first)
+        combined.sort(key=lambda x: x.get('created_at') or x.get('initiated_at'), reverse=True)
+        
+        # Pagination
+        page = int(request.query_params.get('page', 1))
+        page_size = min(int(request.query_params.get('page_size', 20)), 100)
+        
+        start = (page - 1) * page_size
+        end = start + page_size
+        
+        total_count = len(combined)
+        combined_page = combined[start:end]
+        
+        return Response({
+            'count': total_count,
+            'page': page,
+            'page_size': page_size,
+            'total_pages': (total_count + page_size - 1) // page_size,
+            'summary': {
+                'total_bookings': bookings.count(),
+                'total_calls': calls.count(),
+                'total_combined': total_count,
+            },
+            'consultations': combined_page
+        })
+    
     @action(detail=False, methods=['get'], url_path='my-reviews')
     def my_consultant_reviews(self, request):
         """
@@ -799,16 +922,16 @@ class ConsultationBookingViewSet(viewsets.ModelViewSet):
             consultant_profile = ConsultantProfile.objects.get(user=user)
             # Return bookings where user is either client or consultant
             return ConsultationBooking.objects.filter(
-                Q(client=user) | Q(consultant_profile=consultant_profile)
+                Q(client=user) | Q(consultant=user)
             ).select_related(
-                'client', 'consultant_profile__user', 'payment_transaction', 'call_session'
+                'client', 'consultant', 'payment_transaction', 'call_session'
             ).order_by('-created_at')
         except ConsultantProfile.DoesNotExist:
             # User is not a consultant, return only their client bookings
             return ConsultationBooking.objects.filter(
                 client=user
             ).select_related(
-                'consultant_profile__user', 'payment_transaction', 'call_session'
+                'consultant', 'payment_transaction', 'call_session'
             ).order_by('-created_at')
     
     @action(detail=False, methods=['post'])

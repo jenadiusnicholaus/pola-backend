@@ -6,7 +6,6 @@ from django.utils import timezone
 
 class UserDeviceSerializer(serializers.ModelSerializer):
     """Serializer for user devices"""
-    is_current_device = serializers.SerializerMethodField()
     days_since_last_seen = serializers.SerializerMethodField()
     
     class Meta:
@@ -15,17 +14,10 @@ class UserDeviceSerializer(serializers.ModelSerializer):
             'id', 'device_id', 'device_name', 'device_type',
             'os_name', 'os_version', 'browser_name', 'browser_version',
             'app_version', 'device_model', 'device_manufacturer',
-            'is_trusted', 'is_active', 'first_seen', 'last_seen',
-            'last_ip', 'is_current_device', 'days_since_last_seen'
+            'is_trusted', 'is_active', 'is_current_device', 'first_seen', 'last_seen',
+            'last_ip', 'latitude', 'longitude', 'days_since_last_seen'
         ]
         read_only_fields = ['id', 'first_seen', 'last_seen', 'last_ip']
-    
-    def get_is_current_device(self, obj):
-        """Check if this is the current device"""
-        request = self.context.get('request')
-        if request and hasattr(request, 'device_id'):
-            return obj.device_id == request.device_id
-        return False
     
     def get_days_since_last_seen(self, obj):
         """Calculate days since last seen"""
@@ -58,8 +50,8 @@ class RegisterDeviceSerializer(serializers.Serializer):
     fcm_token = serializers.CharField(required=False, allow_blank=True)
     
     # Location data (from client)
-    latitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, allow_null=True)
-    longitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, allow_null=True)
+    latitude = serializers.DecimalField(max_digits=12, decimal_places=9, required=False, allow_null=True)
+    longitude = serializers.DecimalField(max_digits=12, decimal_places=9, required=False, allow_null=True)
 
 
 class UserSessionSerializer(serializers.ModelSerializer):
@@ -188,7 +180,7 @@ class SecurityAlertSerializer(serializers.ModelSerializer):
 
 class LocationUpdateSerializer(serializers.Serializer):
     """Serializer for updating location data"""
-    latitude = serializers.DecimalField(max_digits=9, decimal_places=6)
-    longitude = serializers.DecimalField(max_digits=9, decimal_places=6)
+    latitude = serializers.DecimalField(max_digits=12, decimal_places=9)
+    longitude = serializers.DecimalField(max_digits=12, decimal_places=9)
     accuracy = serializers.DecimalField(max_digits=10, decimal_places=2, required=False)
     altitude = serializers.DecimalField(max_digits=10, decimal_places=2, required=False, allow_null=True)

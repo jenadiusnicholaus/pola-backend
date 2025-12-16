@@ -1,13 +1,29 @@
 """
-Subscription-based permission utilities
+Subscription-based and Role-based permission utilities
 
-These utilities help check user permissions based on their active subscription.
-Use these in views to enforce subscription-based access control.
+These utilities help check user permissions based on their active subscription
+and user role (professional vs citizen/student/lecturer).
+Use these in views to enforce access control.
 """
 
 from rest_framework.permissions import BasePermission
 from rest_framework.exceptions import PermissionDenied
 from .models import UserSubscription
+
+
+def is_professional(user):
+    """
+    Check if user is a professional (advocate, lawyer, paralegal, law_firm)
+    
+    Args:
+        user: PolaUser instance
+        
+    Returns:
+        bool: True if user is a professional
+    """
+    if not hasattr(user, 'user_role') or not user.user_role:
+        return False
+    return user.user_role.role_name in ['advocate', 'lawyer', 'paralegal', 'law_firm']
 
 
 def get_user_subscription_permissions(user):
@@ -284,6 +300,100 @@ class CanAccessStudentHub(BasePermission):
             return True
         
         return check_subscription_permission(request.user, 'can_access_student_hub')
+
+
+class CanViewTalkToLawyer(BasePermission):
+    """
+    Permission class for "Talk to Lawyer" page
+    Only citizens/students/lecturers can view this page
+    Professionals (lawyers) cannot view it as they ARE the service providers
+    """
+    message = {
+        'error': 'Access denied',
+        'message': 'This page is for clients seeking legal consultation. As a legal professional, you provide consultations through your profile.',
+        'message_sw': 'Ukurasa huu ni kwa wateja wanaotafuta ushauri wa kisheria. Kama mtaalamu wa sheria, unatoa ushauri kupitia wasifu wako.'
+    }
+    
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        
+        # Admin users can view
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        
+        # Check role-based permission
+        return check_subscription_permission(request.user, 'can_view_talk_to_lawyer')
+
+
+class CanViewNearbyLawyers(BasePermission):
+    """
+    Permission class for viewing nearby lawyers
+    Only citizens/students/lecturers with active subscription
+    Professionals cannot view nearby lawyers (they are the lawyers!)
+    """
+    message = {
+        'error': 'Access denied',
+        'message': 'This feature is for clients seeking legal services. As a legal professional, clients can find you through the platform.',
+        'message_sw': 'Kipengele hiki ni kwa wateja wanaotafuta huduma za kisheria. Kama mtaalamu wa sheria, wateja wanaweza kukutafuta kupitia jukwaa.'
+    }
+    
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        
+        # Admin users can view
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        
+        # Check role-based permission
+        return check_subscription_permission(request.user, 'can_view_nearby_lawyers')
+
+
+class IsProfessional(BasePermission):
+    """
+    Permission class to check if user is a legal professional
+    (advocate, lawyer, paralegal, law_firm)
+    """
+    message = {
+        'error': 'Professional account required',
+        'message': 'This feature is only available for legal professionals.',
+        'message_sw': 'Kipengele hiki kinapatikana tu kwa wataalamu wa sheria.'
+    }
+    
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        
+        # Admin users can access
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        
+        # Check if user is a professional
+        return is_professional(request.user)
+
+
+class IsNotProfessional(BasePermission):
+    """
+    Permission class to check if user is NOT a professional
+    Used for features exclusive to citizens/students/lecturers
+    """
+    message = {
+        'error': 'Client account required',
+        'message': 'This feature is only available for citizens, students, and lecturers.',
+        'message_sw': 'Kipengele hiki kinapatikana tu kwa wananchi, wanafunzi, na wahadhiri.'
+    }
+    
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        
+        # Admin users can access
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        
+        # Check if user is NOT a professional
+        return not is_professional(request.user)
 
 
 # Helper decorators for views

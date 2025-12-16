@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from django.db.models import Q
+from django.db import IntegrityError
+import logging
 
 from .device_models import UserDevice, UserSession, LoginHistory, SecurityAlert
 from .device_serializers import (
@@ -16,6 +18,8 @@ from .device_utils import (
     generate_device_fingerprint, detect_suspicious_activity,
     create_security_alert, calculate_session_expiry
 )
+
+logger = logging.getLogger(__name__)
 
 
 class UserDeviceViewSet(viewsets.ModelViewSet):
@@ -37,93 +41,188 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
     
     def create(self, request, *args, **kwargs):
         """Register a new device"""
-        serializer = RegisterDeviceSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        
-        device_data = serializer.validated_data
-        device_id = device_data['device_id']
-        
-        # Get IP and location
-        ip_address = get_client_ip(request)
-        user_agent = request.META.get('HTTP_USER_AGENT', '')
-        location_data = get_location_from_ip(ip_address)
-        
-        # Parse user agent if device info not provided
-        ua_data = parse_user_agent(user_agent)
-        
-        # Merge data (client data takes precedence)
-        for key, value in ua_data.items():
-            if key not in device_data or not device_data.get(key):
-                device_data[key] = value
-        
-        # Check if this exact device already exists for this user
-        existing_device = UserDevice.objects.filter(
-            user=request.user,
-            device_id=device_id
-        ).first()
-        
-        if existing_device:
-            # Device already registered in DB - update and return
-            existing_device.device_name = device_data.get('device_name', existing_device.device_name)
-            existing_device.fcm_token = device_data.get('fcm_token', existing_device.fcm_token)
-            existing_device.app_version = device_data.get('app_version', existing_device.app_version)
-            existing_device.last_ip = ip_address
-            existing_device.is_active = True
-            existing_device.save()
+        try:
+            # Log incoming request data
+            logger.info("=" * 80)
+            logger.info(f"📱 DEVICE REGISTRATION REQUEST")
+            logger.info(f"User: {request.user.email} (ID: {request.user.id})")
+            logger.info(f"Request Data: {request.data}")
+            logger.info("=" * 80)
             
-            serializer = UserDeviceSerializer(existing_device, context={'request': request})
+            serializer = RegisterDeviceSerializer(data=request.data)
+            if not serializer.is_valid():
+                # Log validation errors
+                logger.error(f"❌ Validation failed: {serializer.errors}")
+                return Response({
+                    'error': 'Validation failed',
+                    'details': serializer.errors
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            logger.info("✅ Validation passed")
+            serializer.is_valid(raise_exception=True)
+            
+            device_data = serializer.validated_data
+            device_id = device_data['device_id']
+            logger.info(f"🔑 Device ID: {device_id}")
+            logger.info(f"📍 GPS Coordinates: lat={device_data.get('latitude')}, lon={device_data.get('longitude')}")
+            
+            # Get IP and location
+            ip_address = get_client_ip(request)
+            user_agent = request.META.get('HTTP_USER_AGENT', '')
+            location_data = get_location_from_ip(ip_address)
+            logger.info(f"🌐 IP Address: {ip_address}")
+            logger.info(f"📡 User Agent: {user_agent[:100]}...")
+            logger.info(f"🗺️  IP Location: {location_data.get('city')}, {location_data.get('country')}")
+            
+            # Parse user agent if device info not provided
+            ua_data = parse_user_agent(user_agent)
+            
+            # Merge data (client data takes precedence)
+            for key, value in ua_data.items():
+                if key not in device_data or not device_data.get(key):
+                    device_data[key] = value
+            
+            # Check if this exact device already exists for this user
+            existing_device = UserDevice.objects.filter(
+                user=request.user,
+                device_id=device_id
+            ).first()
+            
+            if existing_device:
+                logger.info(f"🔄 Device already exists in database - updating")
+                
+                # Unmark all other devices as current
+                UserDevice.objects.filter(user=request.user, is_current_device=True).exclude(id=existing_device.id).update(is_current_device=False)
+                
+                # Device already registered in DB - check for missing fields
+                # Update with new data if provided
+                if device_data.get('latitude'):
+                    existing_device.latitude = device_data.get('latitude')
+                if device_data.get('longitude'):
+                    existing_device.longitude = device_data.get('longitude')
+                if device_data.get('device_name'):
+                    existing_device.device_name = device_data.get('device_name')
+                if device_data.get('fcm_token'):
+                    existing_device.fcm_token = device_data.get('fcm_token')
+                if device_data.get('app_version'):
+                    existing_device.app_version = device_data.get('app_version')
+                
+                existing_device.last_ip = ip_address
+                existing_device.is_active = True
+                existing_device.is_current_device = True  # Mark as current device
+                existing_device.save()
+                logger.info(f"💾 Updated existing device and marked as current")
+                
+                # Check what's still missing
+                missing_fields = []
+                if not existing_device.latitude:
+                    missing_fields.append('latitude')
+                if not existing_device.longitude:
+                    missing_fields.append('longitude')
+                if not existing_device.device_name:
+                    missing_fields.append('device_name')
+                
+                serializer = UserDeviceSerializer(existing_device, context={'request': request})
+                response_data = {
+                    'is_registered': True,
+                    'device': serializer.data,
+                    'message': 'Device already registered'
+                }
+                
+                if missing_fields:
+                    response_data['missing_fields'] = missing_fields
+                    response_data['message'] = f'Device registered but missing: {", ".join(missing_fields)}'
+                    logger.warning(f"⚠️  Missing fields: {missing_fields}")
+                
+                logger.info(f"✅ Returning existing device (200 OK)")
+                return Response(response_data, status=status.HTTP_200_OK)
+            
+            # Check if user has other devices registered
+            user_device_count = UserDevice.objects.filter(user=request.user).count()
+            logger.info(f"📊 User has {user_device_count} devices registered")
+            
+            # Unmark all other devices as current for this user
+            if user_device_count > 0:
+                logger.info(f"🔄 Unmarking {user_device_count} existing device(s) as current")
+                UserDevice.objects.filter(user=request.user, is_current_device=True).update(is_current_device=False)
+            
+            # Register new device (no verification required)
+            logger.info(f"🎉 Registering new device (total devices will be {user_device_count + 1})")
+            logger.info(f"Creating device with:")
+            logger.info(f"  - device_id: {device_id}")
+            logger.info(f"  - device_name: {device_data.get('device_name', '')}")
+            logger.info(f"  - device_type: {device_data.get('device_type', 'unknown')}")
+            logger.info(f"  - os_name: {device_data.get('os_name', 'unknown')}")
+            logger.info(f"  - latitude: {device_data.get('latitude')}")
+            logger.info(f"  - longitude: {device_data.get('longitude')}")
+            
+            try:
+                device = UserDevice.objects.create(
+                    user=request.user,
+                    device_id=device_id,
+                    device_name=device_data.get('device_name', ''),
+                    device_type=device_data.get('device_type', 'unknown'),
+                    os_name=device_data.get('os_name', 'unknown'),
+                    os_version=device_data.get('os_version', ''),
+                    browser_name=device_data.get('browser_name', ''),
+                    browser_version=device_data.get('browser_version', ''),
+                    app_version=device_data.get('app_version', ''),
+                    device_model=device_data.get('device_model', ''),
+                    device_manufacturer=device_data.get('device_manufacturer', ''),
+                    fcm_token=device_data.get('fcm_token', ''),
+                    last_ip=ip_address,
+                    latitude=device_data.get('latitude'),
+                    longitude=device_data.get('longitude'),
+                    is_active=True,
+                    is_current_device=True,  # Mark as current device
+                )
+                
+                logger.info(f"✅ Device created successfully (ID: {device.id})")
+                logger.info(f"🎯 Marked as current device")
+            except IntegrityError:
+                # Race condition: device was created between check and create
+                logger.warning(f"⚠️  Race condition detected - device was just created")
+                existing_device = UserDevice.objects.get(device_id=device_id)
+                
+                # Check if device belongs to current user
+                if existing_device.user != request.user:
+                    logger.error(f"❌ Device belongs to different user (User ID: {existing_device.user.id})")
+                    return Response({
+                        'error': 'This device is already registered to another account',
+                        'message': 'Please use a different device or contact support'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+                
+                # Update existing device
+                logger.info(f"🔄 Updating device that was just created")
+                existing_device.latitude = device_data.get('latitude')
+                existing_device.longitude = device_data.get('longitude')
+                existing_device.device_name = device_data.get('device_name', '')
+                existing_device.fcm_token = device_data.get('fcm_token', '')
+                existing_device.last_ip = ip_address
+                existing_device.is_active = True
+                existing_device.is_current_device = True
+                existing_device.save()
+                device = existing_device
+                logger.info(f"✅ Updated device successfully")
+            
+            serializer = UserDeviceSerializer(device, context={'request': request})
+            logger.info(f"🎊 Returning success response (201 CREATED)")
+            logger.info("=" * 80)
             return Response({
                 'is_registered': True,
                 'device': serializer.data,
-                'message': 'Device already registered'
-            }, status=status.HTTP_200_OK)
-        
-        # Check if user has other devices registered
-        user_has_devices = UserDevice.objects.filter(user=request.user).exists()
-        
-        if user_has_devices:
-            # User has existing devices, new device requires verification
-            # Device NOT stored in DB yet, so is_registered = false
+                'message': 'Device registered successfully'
+            }, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            # If any error occurs, don't register the device
+            logger.error(f"💥 EXCEPTION during device registration: {str(e)}")
+            logger.exception(e)
             return Response({
                 'is_registered': False,
-                'requires_verification': True,
-                'reason': 'new_device',
-                'message': 'New device detected. Please verify this device to continue.',
-                'device_info': {
-                    'device_id': device_id,
-                    'device_name': device_data.get('device_name', ''),
-                    'device_type': device_data.get('device_type', 'unknown'),
-                    'device_model': device_data.get('device_model', ''),
-                    'os_name': device_data.get('os_name', 'unknown'),
-                    'location': f"{location_data.get('city', 'Unknown')}, {location_data.get('country', 'Unknown')}",
-                    'ip_address': ip_address,
-                }
-            }, status=status.HTTP_202_ACCEPTED)
-        
-        # First device - register without verification and save to DB
-        device = UserDevice.objects.create(
-            user=request.user,
-            device_id=device_id,
-            device_name=device_data.get('device_name', ''),
-            device_type=device_data.get('device_type', 'unknown'),
-            os_name=device_data.get('os_name', 'unknown'),
-            os_version=device_data.get('os_version', ''),
-            browser_name=device_data.get('browser_name', ''),
-            browser_version=device_data.get('browser_version', ''),
-            app_version=device_data.get('app_version', ''),
-            device_model=device_data.get('device_model', ''),
-            device_manufacturer=device_data.get('device_manufacturer', ''),
-            fcm_token=device_data.get('fcm_token', ''),
-            last_ip=ip_address,
-            is_active=True,
-        )
-        
-        serializer = UserDeviceSerializer(device, context={'request': request})
-        return Response({
-            'is_registered': True,
-            'device': serializer.data,
-            'message': 'First device registered successfully'
-        }, status=status.HTTP_201_CREATED)
+                'error': str(e),
+                'message': 'Device registration failed'
+            }, status=status.HTTP_400_BAD_REQUEST)
     
     @action(detail=True, methods=['post'])
     def trust(self, request, pk=None):
@@ -215,6 +314,8 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
             device_manufacturer=device_data.get('device_manufacturer', ''),
             fcm_token=device_data.get('fcm_token', ''),
             last_ip=ip_address,
+            latitude=device_data.get('latitude'),
+            longitude=device_data.get('longitude'),
             is_active=True,
             is_trusted=True,  # Auto-trust verified devices
         )

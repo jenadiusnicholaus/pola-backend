@@ -71,7 +71,8 @@ def get_location_from_ip(ip_address):
     Get location information from IP address using ipapi.co
     Free tier: 1000 requests per day
     """
-    if not ip_address or ip_address in ['127.0.0.1', 'localhost']:
+    # Return empty data for local/private IPs
+    if not ip_address or ip_address in ['127.0.0.1', 'localhost'] or ip_address.startswith('192.168.') or ip_address.startswith('10.'):
         return {
             'country': 'Local',
             'country_code': 'LOCAL',
@@ -84,10 +85,10 @@ def get_location_from_ip(ip_address):
         }
     
     try:
-        # Using ipapi.co (free tier)
+        # Using ipapi.co (free tier) with shorter timeout
         response = requests.get(
             f'https://ipapi.co/{ip_address}/json/',
-            timeout=5
+            timeout=2  # Reduced from 5 to 2 seconds
         )
         
         if response.status_code == 200:
@@ -102,9 +103,12 @@ def get_location_from_ip(ip_address):
                 'timezone': data.get('timezone', ''),
                 'isp': data.get('org', ''),
             }
+    except requests.exceptions.Timeout:
+        print(f"Location API timeout for IP: {ip_address}")
     except Exception as e:
         print(f"Error getting location from IP: {e}")
     
+    # Return empty data on error (don't block the request)
     return {
         'country': '',
         'country_code': '',

@@ -117,8 +117,9 @@ def get_azampay_timeout() -> tuple:
     """
     Get appropriate timeout for AzamPay requests based on environment
     
-    Sandbox environment can be very slow, so we use no timeout or very long timeout
-    Production should use reasonable timeouts
+    ⚠️ IMPORTANT: AzamPay sandbox has timeout issues!
+    Sandbox mode uses NO TIMEOUT to prevent request failures
+    Production uses reasonable timeouts for reliability
     
     Returns:
         Tuple of (connection_timeout, read_timeout) or None for no timeout
@@ -130,8 +131,9 @@ def get_azampay_timeout() -> tuple:
         # (15 seconds to connect, 60 seconds to read response)
         return (15, 60)
     else:
-        # Sandbox: No timeout (sandbox can be very slow)
-        # Returning None means no timeout
+        # Sandbox: NO TIMEOUT (AzamPay sandbox can be very slow and timeout frequently)
+        # Returning None means requests will wait indefinitely
+        logger.debug("🐌 Using NO TIMEOUT for AzamPay sandbox (sandbox is slow)")
         return None
 
 
@@ -351,15 +353,30 @@ class AzamPayCheckout:
             logger.warning("AzamPay running in MOCK MODE - using simulated responses for development")
         
         # Provider mappings for different payment methods (exact enum values from AzamPay API)
+        # Accept both exact AzamPay names AND our internal names for flexibility
         self.mobile_providers = {
+            # AzamPay exact enum values (frontend should send these)
+            'Mpesa': 'Mpesa',
+            'Airtel': 'Airtel',
+            'Tigo': 'Tigo',
+            'Halopesa': 'Halopesa',
+            'Azampesa': 'Azampesa',
+            # Legacy/internal names (for backward compatibility)
             'mpesa': 'Mpesa',
-            'airtel_money': 'Airtel', 
+            'airtel_money': 'Airtel',
+            'airtel': 'Airtel',
             'tigo_pesa': 'Tigo',
+            'tigo': 'Tigo',
+            'tigopesa': 'Tigo',
             'halopesa': 'Halopesa',
             'azampesa': 'Azampesa'
         }
         
         self.bank_providers = {
+            # AzamPay exact enum values (frontend should send these)
+            'CRDB': 'CRDB',
+            'NMB': 'NMB',
+            # Legacy/internal names (for backward compatibility)
             'crdb': 'CRDB',
             'nmb': 'NMB'
         }
@@ -380,8 +397,16 @@ class AzamPayCheckout:
         
         return is_mock
     
-    def mobile_checkout(self, account_number: str, amount: float, external_id: str, provider: str) -> Dict[str, Any]:
-        """Initialize mobile money checkout with comprehensive validation"""
+    def mobile_checkout(self, account_number: str, amount: float, external_id: str, provider: str, currency: str = 'TZS') -> Dict[str, Any]:
+        """Initialize mobile money checkout with comprehensive validation
+        
+        Args:
+            account_number: Mobile money account number
+            amount: Amount to charge
+            external_id: Unique reference ID
+            provider: Mobile money provider (Mpesa, Airtel, Tigo, etc.)
+            currency: Currency code (default: TZS)
+        """
         logger.info(f"AzamPay mobile_checkout called - Mock mode: {self.is_mock_mode}")
         
         # Return mock response if in development mode
@@ -389,12 +414,18 @@ class AzamPayCheckout:
             logger.info(f"AzamPay running in MOCK MODE - returning simulated response")
             return self._mock_mobile_checkout(account_number, amount, external_id, provider)
         
-        # Validate and normalize provider
-        provider_key = provider.lower().replace('-', '_')
-        if provider_key not in self.mobile_providers:
-            raise AzamPayError(f"Unsupported mobile provider: {provider}. Supported: {list(self.mobile_providers.keys())}")
-        
-        azam_provider = self.mobile_providers[provider_key]
+        # Validate and normalize provider (accept exact AzamPay names OR internal names)
+        # Try exact match first (case-sensitive), then try lowercase
+        if provider in self.mobile_providers:
+            azam_provider = self.mobile_providers[provider]
+        else:
+            provider_key = provider.lower().replace('-', '_')
+            if provider_key not in self.mobile_providers:
+                raise AzamPayError(
+                    f"Unsupported mobile provider: {provider}. "
+                    f"Use: Mpesa, Airtel, Tigo, Halopesa, or Azampesa"
+                )
+            azam_provider = self.mobile_providers[provider_key]
         
         # Normalize phone number
         normalized_phone = self._normalize_phone_number(account_number)
@@ -408,8 +439,8 @@ class AzamPayCheckout:
         
         payload = {
             "accountNumber": normalized_phone,
-            "amount": str(int(amount)),  # AzamPay expects string amount format
-            "currency": "TZS",
+            "amount": int(amount),  # AzamPay expects number (not string) per official docs
+            "currency": currency.upper(),  # Use provided currency (default: TZS)
             "externalId": external_id,
             "provider": azam_provider,
             "additionalProperties": {
@@ -425,10 +456,11 @@ class AzamPayCheckout:
         import time
         import random
         
-        # Validate basic inputs
-        provider_key = provider.lower().replace('-', '_')
-        if provider_key not in self.mobile_providers:
-            raise AzamPayError(f"Unsupported mobile provider: {provider}")
+        # Validate basic inputs (accept exact AzamPay names OR internal names)
+        if provider not in self.mobile_providers:
+            provider_key = provider.lower().replace('-', '_')
+            if provider_key not in self.mobile_providers:
+                raise AzamPayError(f"Unsupported mobile provider: {provider}")
         
         normalized_phone = self._normalize_phone_number(account_number)
         
@@ -459,12 +491,14 @@ class AzamPayCheckout:
                      merchant_account_number: str, merchant_mobile_number: str, 
                      otp: str, provider: str) -> Dict[str, Any]:
         """Initialize bank checkout with OTP support"""
-        # Validate provider
-        provider_key = provider.lower()
-        if provider_key not in self.bank_providers:
-            raise AzamPayError(f"Unsupported bank provider: {provider}. Supported: {list(self.bank_providers.keys())}")
-        
-        azam_provider = self.bank_providers[provider_key]
+        # Validate provider (accept exact AzamPay names OR internal names)
+        if provider in self.bank_providers:
+            azam_provider = self.bank_providers[provider]
+        else:
+            provider_key = provider.lower()
+            if provider_key not in self.bank_providers:
+                raise AzamPayError(f"Unsupported bank provider: {provider}. Use: CRDB or NMB")
+            azam_provider = self.bank_providers[provider_key]
         
         token = self.auth_service.get_token()
         url = f"{self.checkout_url}/azampay/bank/checkout"
@@ -472,7 +506,8 @@ class AzamPayCheckout:
         payload = {
             "referenceId": reference_id,
             "merchantName": merchant_name,
-            "amount": int(amount),
+            "amount": int(amount),  # Send as number per docs
+            "currencyCode": "TZS",  # Required field per docs
             "merchantAccountNumber": merchant_account_number,
             "merchantMobileNumber": self._normalize_phone_number(merchant_mobile_number),
             "otp": otp,
@@ -746,7 +781,8 @@ class AzamPayDisbursement:
             return self._mock_disbursement(destination_account, amount, external_reference)
         
         token = self.auth_service.get_token()
-        url = f"{self.checkout_url}/api/v1/Partner/PostTransactionRefund"
+        # Updated to official AzamPay disbursement endpoint per docs
+        url = f"{self.checkout_url}/api/v1/azampay/disburse"
         
         if not external_reference:
             external_reference = f"DISB_{int(datetime.now().timestamp())}_{uuid.uuid4().hex[:8]}"
@@ -765,11 +801,10 @@ class AzamPayDisbursement:
             },
             "transferDetails": {
                 "type": "Disbursement",
-                "amount": str(int(amount)),
-                "currency": currency,
-                "externalReferenceId": external_reference,
-                "remarks": remarks or "Earnings payout from POLA"
-            }
+                "amount": float(amount)  # Docs show decimal format (0.1)
+            },
+            "externalReferenceId": external_reference,
+            "remarks": remarks or "Earnings payout from POLA"
         }
         
         headers = {
@@ -837,14 +872,13 @@ class AzamPayDisbursement:
             }
         
         token = self.auth_service.get_token()
-        url = f"{self.checkout_url}/api/v1/Partner/NameLookup"
+        # Updated to official AzamPay name lookup endpoint per docs
+        url = f"{self.checkout_url}/api/v1/azampay/namelookup"
         
         payload = {
-            "accountNumber": self._normalize_phone_number(account_number)
+            "accountNumber": self._normalize_phone_number(account_number),
+            "bankName": bank_code or ""  # bankName per docs, not bankCode
         }
-        
-        if bank_code:
-            payload["bankCode"] = bank_code
         
         headers = {
             "Content-Type": "application/json",
@@ -921,7 +955,8 @@ class AzamPayDisbursement:
             provider = detect_mobile_provider(destination_account)
         
         token = self.auth_service.get_token()
-        url = f"{self.checkout_url}/api/v1/Partner/PostTransactionRefund"
+        # Updated to official AzamPay disbursement endpoint per docs
+        url = f"{self.checkout_url}/api/v1/azampay/disburse"
         
         if not external_reference:
             external_reference = f"DISB_MM_{int(datetime.now().timestamp())}_{uuid.uuid4().hex[:8]}"
@@ -943,11 +978,10 @@ class AzamPayDisbursement:
             },
             "transferDetails": {
                 "type": "Disbursement",
-                "amount": str(int(amount)),
-                "currency": currency,
-                "externalReferenceId": external_reference,
-                "remarks": remarks or "Earnings payout from POLA"
-            }
+                "amount": float(amount)  # Docs show decimal format (0.1)
+            },
+            "externalReferenceId": external_reference,
+            "remarks": remarks or "Earnings payout from POLA"
         }
         
         headers = {
@@ -1029,7 +1063,8 @@ class AzamPayDisbursement:
             return self._mock_disbursement(account_number, amount, external_reference)
         
         token = self.auth_service.get_token()
-        url = f"{self.checkout_url}/api/v1/Partner/PostTransactionRefund"
+        # Updated to official AzamPay disbursement endpoint per docs
+        url = f"{self.checkout_url}/api/v1/azampay/disburse"
         
         if not external_reference:
             external_reference = f"DISB_BANK_{int(datetime.now().timestamp())}_{uuid.uuid4().hex[:8]}"
@@ -1051,11 +1086,10 @@ class AzamPayDisbursement:
             },
             "transferDetails": {
                 "type": "Disbursement",
-                "amount": str(int(amount)),
-                "currency": currency,
-                "externalReferenceId": external_reference,
-                "remarks": remarks or "Bank transfer payout from POLA"
-            }
+                "amount": float(amount)  # Docs show decimal format (0.1)
+            },
+            "externalReferenceId": external_reference,
+            "remarks": remarks or "Bank transfer payout from POLA"
         }
         
         headers = {
@@ -1191,7 +1225,8 @@ class AzamPayDisbursement:
             }
         
         token = self.auth_service.get_token()
-        url = f"{self.checkout_url}/api/v1/Partner/GetTranscationStatus"
+        # Updated to official endpoint per docs (GET with query params, not POST)
+        url = f"{self.checkout_url}/api/v1/azampay/transactionstatus"
         
         headers = {
             "Content-Type": "application/json",

@@ -214,7 +214,10 @@ class UserSubscription(models.Model):
         self.save()
     
     def get_permissions(self):
-        """Get subscription permissions for this user"""
+        """
+        Get subscription permissions for this user
+        Combines subscription-based permissions with role-based restrictions
+        """
         if not self.is_active():
             return {
                 'is_active': False,
@@ -231,6 +234,9 @@ class UserSubscription(models.Model):
                 'can_purchase_consultations': False,
                 'can_purchase_documents': False,
                 'can_purchase_learning_materials': False,
+                'can_view_talk_to_lawyer': False,
+                'can_view_nearby_lawyers': False,
+                'can_view_own_consultations': False,
             }
         
         # Reset monthly limits if needed
@@ -253,6 +259,45 @@ class UserSubscription(models.Model):
             0,
             self.plan.free_documents_per_month - self.documents_generated_this_month
         )
+        
+        # Apply role-based restrictions
+        user_role = getattr(self.user, 'user_role', None)
+        if user_role:
+            role_name = user_role.role_name
+            professional_roles = ['advocate', 'lawyer', 'paralegal', 'law_firm']
+            
+            if role_name in professional_roles:
+                # PROFESSIONAL RESTRICTIONS
+                # Professionals CANNOT view "Talk to Lawyer" page (they ARE the lawyers)
+                permissions['can_view_talk_to_lawyer'] = False
+                
+                # Professionals CANNOT view nearby lawyers (they are the service providers)
+                permissions['can_view_nearby_lawyers'] = False
+                
+                # Professionals CAN still ask questions in Q&A (professional advice exchange)
+                # permissions['can_ask_questions'] stays as is from subscription
+                
+                # Professionals CAN view their OWN consultations (as service providers)
+                permissions['can_view_own_consultations'] = True
+                
+            else:
+                # CITIZEN/STUDENT/LECTURER PERMISSIONS
+                # These users CAN view Talk to Lawyer page (public page)
+                permissions['can_view_talk_to_lawyer'] = True
+                
+                # These users CAN view nearby lawyers based on subscription
+                permissions['can_view_nearby_lawyers'] = permissions['is_active']
+                
+                # These users CAN view their own consultations as clients
+                permissions['can_view_own_consultations'] = True
+                
+                # Student Hub access is subscription-based (paid users only)
+                # Already handled by plan permissions
+        else:
+            # Default permissions if no role assigned
+            permissions['can_view_talk_to_lawyer'] = True
+            permissions['can_view_nearby_lawyers'] = permissions['is_active']
+            permissions['can_view_own_consultations'] = True
         
         return permissions
 
@@ -573,12 +618,19 @@ class CallCreditBundle(models.Model):
     - SILVER/FEDHA: 10 min = 5,000 TZS (5 days expiry; carry forward unused minutes within 5 days)
     - GOLD/DHAHABU: 20 min = 9,000 TZS (7 days expiry; carry forward unused minutes within 7 days)
     """
+    CURRENCY_CHOICES = [
+        ('TZS', 'Tanzanian Shilling'),
+        ('USD', 'US Dollar'),
+        ('EUR', 'Euro'),
+    ]
+    
     name = models.CharField(max_length=100, help_text="English name")
     name_sw = models.CharField(max_length=100, blank=True, help_text="Swahili name")
     description = models.TextField(blank=True, help_text="English description of the bundle")
     description_sw = models.TextField(blank=True, help_text="Swahili description of the bundle")
     minutes = models.IntegerField(help_text="Total minutes in bundle")
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='TZS', help_text="Price currency")
     validity_days = models.IntegerField(help_text="Days until expiry after purchase (carry forward period)")
     is_active = models.BooleanField(default=True)
     
@@ -591,7 +643,9 @@ class CallCreditBundle(models.Model):
         verbose_name_plural = 'Call Credit Bundles (Consultation Vouchers)'
     
     def __str__(self):
-        return f"{self.name} - {self.minutes} minutes - {self.price} TZS ({self.validity_days} days)"
+        currency_symbols = {'TZS': 'TSh', 'USD': '$', 'EUR': '€'}
+        symbol = currency_symbols.get(self.currency, self.currency)
+        return f"{self.name} - {self.minutes} minutes - {symbol} {self.price} ({self.validity_days} days)"
 
 
 class UserCallCredit(models.Model):
@@ -828,36 +882,123 @@ class ConsultantReview(models.Model):
 class CallSession(models.Model):
     """
     Individual call sessions within a consultation
+    Handles incoming call flow: initiate → ringing → accept/reject → active → completed
     """
-    booking = models.ForeignKey(ConsultationBooking, on_delete=models.CASCADE, related_name='call_sessions', null=True, blank=True)
-    call_credit = models.ForeignKey(UserCallCredit, on_delete=models.SET_NULL, null=True, blank=True)
+    CALL_STATUS_CHOICES = [
+        ('ringing', 'Ringing'),
+        ('active', 'Active'),
+        ('completed', 'Completed'),
+        ('rejected', 'Rejected'),
+        ('missed', 'Missed'),
+        ('cancelled', 'Cancelled'),
+    ]
     
-    start_time = models.DateTimeField()
+    CALL_TYPE_CHOICES = [
+        ('voice', 'Voice Call'),
+        ('video', 'Video Call'),
+    ]
+    
+    ENDED_BY_CHOICES = [
+        ('user', 'User'),
+        ('consultant', 'Consultant'),
+        ('system', 'System'),
+    ]
+    
+    # Consultation linking (optional - for consultations booked in advance)
+    booking = models.ForeignKey(ConsultationBooking, on_delete=models.CASCADE, related_name='call_sessions', null=True, blank=True)
+    
+    # Direct call participants (for instant calls without booking)
+    caller = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='initiated_calls', null=True, blank=True, help_text="User who initiated the call")
+    consultant = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='received_calls', null=True, blank=True, help_text="Consultant receiving the call")
+    
+    # Call details
+    channel_name = models.CharField(max_length=255, null=True, blank=True, help_text="Agora channel name")
+    call_type = models.CharField(max_length=20, choices=CALL_TYPE_CHOICES, default='voice')
+    status = models.CharField(max_length=50, choices=CALL_STATUS_CHOICES, default='ringing')
+    
+    # Timestamps
+    initiated_at = models.DateTimeField(null=True, blank=True, help_text="When call was initiated")
+    accepted_at = models.DateTimeField(null=True, blank=True, help_text="When consultant accepted")
+    ended_at = models.DateTimeField(null=True, blank=True, help_text="When call ended")
+    
+    # Legacy fields (for backward compatibility)
+    start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
     duration_minutes = models.IntegerField(default=0)
     
-    # Call details
-    call_quality_rating = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(1)])
+    # Call termination
+    ended_by = models.CharField(max_length=20, choices=ENDED_BY_CHOICES, null=True, blank=True)
+    
+    # Credits and billing
+    call_credit = models.ForeignKey(UserCallCredit, on_delete=models.SET_NULL, null=True, blank=True)
+    credits_deducted = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    
+    # Call quality
+    call_quality_rating = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(1), MaxValueValidator(5)])
     
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        ordering = ['-start_time']
+        ordering = ['-initiated_at']
         verbose_name = 'Call Session'
         verbose_name_plural = 'Call Sessions'
+        indexes = [
+            models.Index(fields=['caller', 'status']),
+            models.Index(fields=['consultant', 'status']),
+            models.Index(fields=['channel_name']),
+            models.Index(fields=['status', 'initiated_at']),
+        ]
     
     def __str__(self):
-        return f"Call for {self.booking} - {self.duration_minutes} mins"
+        return f"Call: {self.caller.email} → {self.consultant.email} ({self.status})"
     
-    def end_call(self):
+    def accept_call(self):
+        """Consultant accepts the call"""
+        self.status = 'active'
+        self.accepted_at = timezone.now()
+        self.start_time = self.accepted_at  # For backward compatibility
+        self.save()
+    
+    def reject_call(self):
+        """Consultant rejects the call"""
+        self.status = 'rejected'
+        self.ended_at = timezone.now()
+        self.save()
+    
+    def mark_as_missed(self):
+        """Mark call as missed if not answered within timeout"""
+        self.status = 'missed'
+        self.ended_at = timezone.now()
+        self.save()
+    
+    def end_call(self, ended_by='user', duration_seconds=None):
         """End the call and deduct minutes"""
-        self.end_time = timezone.now()
-        self.duration_minutes = int((self.end_time - self.start_time).total_seconds() / 60)
+        self.status = 'completed'
+        self.ended_at = timezone.now()
+        self.end_time = self.ended_at  # For backward compatibility
+        self.ended_by = ended_by
+        
+        # Calculate duration
+        if duration_seconds:
+            self.duration_minutes = int(duration_seconds / 60)
+        elif self.accepted_at:
+            duration = (self.ended_at - self.accepted_at).total_seconds()
+            self.duration_minutes = int(duration / 60)
+        
         self.save()
         
         # Deduct from call credit if available
-        if self.call_credit and self.call_credit.is_valid():
+        if self.call_credit and self.call_credit.is_valid() and self.duration_minutes > 0:
             self.call_credit.deduct_minutes(self.duration_minutes)
+            self.credits_deducted = Decimal(str(self.duration_minutes))
+            self.save()
+    
+    def get_duration_seconds(self):
+        """Get call duration in seconds"""
+        if self.ended_at and self.accepted_at:
+            return int((self.ended_at - self.accepted_at).total_seconds())
+        return 0
 
 
 # ============================================================================
@@ -1166,9 +1307,20 @@ class PaymentTransaction(models.Model):
     
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     
-    # Related objects
+    # Related objects (polymorphic relations for different payment types)
     related_subscription = models.ForeignKey(UserSubscription, on_delete=models.SET_NULL, null=True, blank=True)
     related_booking = models.ForeignKey(ConsultationBooking, on_delete=models.SET_NULL, null=True, blank=True)
+    related_call_credit = models.ForeignKey(UserCallCredit, on_delete=models.SET_NULL, null=True, blank=True, related_name='payment_transactions')
+    related_document = models.ForeignKey(GeneratedDocument, on_delete=models.SET_NULL, null=True, blank=True, related_name='payment_transactions')
+    related_material = models.ForeignKey('documents.LearningMaterial', on_delete=models.SET_NULL, null=True, blank=True, related_name='payment_transactions')
+    
+    # Item metadata (store details for API responses)
+    item_metadata = models.JSONField(default=dict, blank=True, help_text="Store item details (plan name, bundle info, document title, etc.)")
+    
+    # Fulfillment tracking
+    is_fulfilled = models.BooleanField(default=False, help_text="Has the purchase been delivered/activated?")
+    fulfilled_at = models.DateTimeField(null=True, blank=True)
+    fulfillment_notes = models.TextField(blank=True)
     
     description = models.TextField(blank=True)
     
@@ -1196,6 +1348,28 @@ class PaymentTransaction(models.Model):
         """Mark transaction as failed"""
         self.status = 'failed'
         self.save()
+    
+    def mark_fulfilled(self, notes=''):
+        """Mark transaction as fulfilled"""
+        self.is_fulfilled = True
+        self.fulfilled_at = timezone.now()
+        if notes:
+            self.fulfillment_notes = notes
+        self.save()
+    
+    def get_related_item(self):
+        """Get the related purchase item based on transaction_type"""
+        type_mapping = {
+            'subscription': 'related_subscription',
+            'consultation': 'related_booking',
+            'call_credit': 'related_call_credit',
+            'document': 'related_document',
+            'material': 'related_material',
+        }
+        field_name = type_mapping.get(self.transaction_type)
+        if field_name:
+            return getattr(self, field_name, None)
+        return None
 
 
 # ============================================================================

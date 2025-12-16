@@ -49,6 +49,7 @@ class UserDevice(models.Model):
     # Security
     is_trusted = models.BooleanField(default=False, help_text="User has marked this device as trusted")
     is_active = models.BooleanField(default=True)
+    is_current_device = models.BooleanField(default=False, help_text="Currently active device for this user")
     
     # FCM Token for push notifications
     fcm_token = models.TextField(blank=True, help_text="Firebase Cloud Messaging token")
@@ -57,6 +58,10 @@ class UserDevice(models.Model):
     first_seen = models.DateTimeField(auto_now_add=True)
     last_seen = models.DateTimeField(auto_now=True)
     last_ip = models.GenericIPAddressField(null=True, blank=True)
+    
+    # Location (captured during registration)
+    latitude = models.DecimalField(max_digits=12, decimal_places=9, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=12, decimal_places=9, null=True, blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -106,8 +111,8 @@ class UserSession(models.Model):
     country_code = models.CharField(max_length=10, blank=True)
     city = models.CharField(max_length=100, blank=True)
     region = models.CharField(max_length=100, blank=True)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    latitude = models.DecimalField(max_digits=12, decimal_places=9, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=12, decimal_places=9, null=True, blank=True)
     timezone = models.CharField(max_length=100, blank=True)
     
     # ISP Information
