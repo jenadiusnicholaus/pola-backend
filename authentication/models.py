@@ -656,6 +656,102 @@ class PolaUser(AbstractUser):
                 'verification_date': self.verification.verification_date
             }
         return None
+    
+    @property
+    def purchased_material_ids(self):
+        """
+        Get set of material IDs this user has purchased
+        Used to check: if material.id in user.purchased_material_ids
+        """
+        from subscriptions.models import MaterialPurchase
+        return set(
+            MaterialPurchase.objects.filter(buyer=self)
+            .values_list('material_id', flat=True)
+        )
+    
+    @property
+    def purchased_document_ids(self):
+        """
+        Get set of document IDs this user has purchased (paid generated documents)
+        Used to check: if document.id in user.purchased_document_ids
+        """
+        from document_templates.models import UserDocument
+        return set(
+            UserDocument.objects.filter(user=self, is_paid=True)
+            .values_list('id', flat=True)
+        )
+    
+    def has_purchased_material(self, material_id):
+        """Check if user purchased a specific material"""
+        return material_id in self.purchased_material_ids
+    
+    def has_purchased_document(self, document_id):
+        """Check if user purchased a specific document"""
+        return document_id in self.purchased_document_ids
+    
+    def get_purchase_summary(self):
+        """
+        Get summary of user's purchases for profile display
+        Returns recent purchases and totals
+        """
+        from subscriptions.models import MaterialPurchase
+        from document_templates.models import UserDocument
+        from django.db.models import Sum, Count
+        
+        # Get material purchases
+        material_purchases = MaterialPurchase.objects.filter(buyer=self).select_related('material')
+        material_stats = material_purchases.aggregate(
+            total_count=Count('id'),
+            total_spent=Sum('amount_paid')
+        )
+        
+        # Get document purchases
+        document_purchases = UserDocument.objects.filter(
+            user=self, 
+            is_paid=True
+        ).select_related('template')
+        document_stats = document_purchases.aggregate(
+            total_count=Count('id'),
+            total_spent=Sum('payment_amount')
+        )
+        
+        # Get recent purchases (last 5 of each type)
+        recent_materials = material_purchases.order_by('-created_at')[:5]
+        recent_documents = document_purchases.order_by('-created_at')[:5]
+        
+        return {
+            'materials': {
+                'total_count': material_stats['total_count'] or 0,
+                'total_spent': float(material_stats['total_spent'] or 0),
+                'recent': [
+                    {
+                        'id': p.material.id,
+                        'title': p.material.title,
+                        'type': 'material',
+                        'price_paid': float(p.amount_paid),
+                        'purchased_at': p.created_at.isoformat(),
+                    }
+                    for p in recent_materials
+                ]
+            },
+            'documents': {
+                'total_count': document_stats['total_count'] or 0,
+                'total_spent': float(document_stats['total_spent'] or 0),
+                'recent': [
+                    {
+                        'id': d.id,
+                        'title': d.document_title or d.template.name,
+                        'template_name': d.template.name,
+                        'type': 'document',
+                        'price_paid': float(d.payment_amount),
+                        'purchased_at': d.created_at.isoformat(),
+                    }
+                    for d in recent_documents
+                ]
+            },
+            'total_purchases': (material_stats['total_count'] or 0) + (document_stats['total_count'] or 0),
+            'total_spent': float((material_stats['total_spent'] or 0) + (document_stats['total_spent'] or 0))
+        }
         
     def full_name (self):
         """Return the user's full name."""

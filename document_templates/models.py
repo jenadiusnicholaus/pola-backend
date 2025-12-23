@@ -339,12 +339,52 @@ class UserDocument(models.Model):
         self.status = 'completed'
         self.generation_completed_at = timezone.now()
         self.save(update_fields=['status', 'generation_completed_at', 'updated_at'])
+        
+        # Track earnings for paid documents
+        if self.is_paid and self.payment_amount > 0:
+            self.record_purchase_earnings()
     
     def mark_as_failed(self, error_message):
         """Mark document generation as failed"""
         self.status = 'failed'
         self.error_message = error_message
         self.save(update_fields=['status', 'error_message', 'updated_at'])
+    
+    def record_purchase_earnings(self):
+        """Create earnings record for paid document purchase"""
+        if not self.is_paid or self.payment_amount <= 0:
+            return None
+        
+        # Import here to avoid circular dependency
+        from subscriptions.models import UploaderEarnings
+        from decimal import Decimal
+        
+        # Check if earnings already created for this document
+        existing_earning = UploaderEarnings.objects.filter(
+            uploader=self.template.created_by,
+            service_type='document_template'
+        ).first()
+        
+        if existing_earning:
+            return existing_earning
+        
+        # Use 50/50 split for document templates (similar to lecturer materials)
+        # TODO: Make this configurable by template or creator role
+        split_percentage = Decimal('0.50')
+        
+        uploader_share = self.payment_amount * split_percentage
+        platform_share = self.payment_amount * (Decimal('1.00') - split_percentage)
+        
+        earning = UploaderEarnings.objects.create(
+            uploader=self.template.created_by,
+            material=None,  # No material for document templates
+            service_type='document_template',
+            gross_amount=self.payment_amount,
+            platform_commission=platform_share,
+            net_earnings=uploader_share
+        )
+        
+        return earning
     
     def increment_download(self):
         """Increment download counter"""

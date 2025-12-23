@@ -28,6 +28,7 @@ from .serializers import (
 )
 from .azampay_integration import azampay_client, AzamPayError
 from authentication.models import PolaUser
+from .disbursement_pdf_generator import DisbursementPDFGenerator
 
 
 class AdminDisbursementViewSet(viewsets.ModelViewSet):
@@ -60,6 +61,15 @@ class AdminDisbursementViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"get_queryset called, action={getattr(self, 'action', 'unknown')}")
+        
+        # Don't apply filters for detail actions (retrieve, download_pdf, download_excel_receipt)
+        if self.action in ['retrieve', 'download_pdf', 'download_excel_receipt', 'process', 'retry', 'cancel', 'check_status']:
+            logger.info(f"Returning unfiltered queryset for action: {self.action}")
+            return queryset
+        
         # Filter by status
         status_filter = self.request.query_params.get('status', None)
         if status_filter:
@@ -87,7 +97,17 @@ class AdminDisbursementViewSet(viewsets.ModelViewSet):
         return queryset.order_by('-initiated_at')
     
     def create(self, request, *args, **kwargs):
-        """Initiate a new disbursement"""
+        """
+        Initiate a new disbursement with automatic earnings linking
+        
+        Returns PDF and Excel receipts in base64 format that can be downloaded by admin.
+        
+        Response includes:
+        - disbursement details
+        - earnings_summary (linked earnings counts)
+        - pdf_receipt: {base64, filename, size_bytes, mimetype}
+        - excel_receipt: {base64, filename, size_bytes, mimetype}
+        """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
@@ -98,6 +118,46 @@ class AdminDisbursementViewSet(viewsets.ModelViewSet):
         payment_method = serializer.validated_data['payment_method']
         recipient_phone = serializer.validated_data['recipient_phone']
         notes = serializer.validated_data.get('notes', '')
+        
+        # AUTO-GATHER UNPAID EARNINGS
+        unpaid_consultant = ConsultantEarnings.objects.filter(
+            consultant=recipient,
+            paid_out=False
+        )
+        
+        unpaid_uploader = UploaderEarnings.objects.filter(
+            uploader=recipient,
+            paid_out=False
+        )
+        
+        # Calculate total unpaid earnings
+        total_consultant = unpaid_consultant.aggregate(
+            total=Sum('net_earnings')
+        )['total'] or Decimal('0.00')
+        
+        total_uploader = unpaid_uploader.aggregate(
+            total=Sum('net_earnings')
+        )['total'] or Decimal('0.00')
+        
+        total_unpaid = total_consultant + total_uploader
+        
+        # Validate requested amount
+        if amount > total_unpaid:
+            return Response({
+                'error': f'Requested amount ({amount}) exceeds total unpaid earnings ({total_unpaid})',
+                'total_consultant_earnings': str(total_consultant),
+                'total_uploader_earnings': str(total_uploader),
+                'total_available': str(total_unpaid),
+                'unpaid_consultant_count': unpaid_consultant.count(),
+                'unpaid_uploader_count': unpaid_uploader.count(),
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Validate minimum payout amount
+        if amount < Decimal('1000.00'):
+            return Response({
+                'error': 'Minimum disbursement amount is 1,000 TZS',
+                'requested_amount': str(amount),
+            }, status=status.HTTP_400_BAD_REQUEST)
         
         # Create disbursement record
         disbursement = Disbursement.objects.create(
@@ -111,16 +171,95 @@ class AdminDisbursementViewSet(viewsets.ModelViewSet):
             status='pending'
         )
         
-        # Link related earnings if provided
-        if 'consultant_earnings' in serializer.validated_data:
-            disbursement.consultant_earnings.set(serializer.validated_data['consultant_earnings'])
+        # AUTO-LINK EARNINGS
+        # For now, require full payout (link all unpaid earnings)
+        if amount == total_unpaid:
+            # Full payout - link all earnings
+            disbursement.consultant_earnings.set(unpaid_consultant)
+            disbursement.uploader_earnings.set(unpaid_uploader)
+            
+            # Mark earnings as paid out
+            unpaid_consultant.update(paid_out=True, payout_date=timezone.now())
+            unpaid_uploader.update(paid_out=True, payout_date=timezone.now())
+        else:
+            # Partial payout - link proportionally
+            # Calculate how much to pay from each type
+            if total_consultant > 0:
+                consultant_ratio = min(amount / total_consultant, Decimal('1.00'))
+                consultant_amount = total_consultant * consultant_ratio
+            else:
+                consultant_ratio = Decimal('0.00')
+                consultant_amount = Decimal('0.00')
+            
+            uploader_amount = amount - consultant_amount
+            
+            # Link and mark consultant earnings
+            if consultant_amount > 0:
+                consultant_earnings_to_pay = []
+                running_total = Decimal('0.00')
+                for earning in unpaid_consultant:
+                    if running_total + earning.net_earnings <= consultant_amount:
+                        consultant_earnings_to_pay.append(earning.id)
+                        running_total += earning.net_earnings
+                    else:
+                        break
+                
+                earnings_to_update = ConsultantEarnings.objects.filter(id__in=consultant_earnings_to_pay)
+                disbursement.consultant_earnings.set(earnings_to_update)
+                earnings_to_update.update(paid_out=True, payout_date=timezone.now())
+            
+            # Link and mark uploader earnings
+            if uploader_amount > 0:
+                uploader_earnings_to_pay = []
+                running_total = Decimal('0.00')
+                for earning in unpaid_uploader:
+                    if running_total + earning.net_earnings <= uploader_amount:
+                        uploader_earnings_to_pay.append(earning.id)
+                        running_total += earning.net_earnings
+                    else:
+                        break
+                
+                earnings_to_update = UploaderEarnings.objects.filter(id__in=uploader_earnings_to_pay)
+                disbursement.uploader_earnings.set(earnings_to_update)
+                earnings_to_update.update(paid_out=True, payout_date=timezone.now())
         
-        if 'uploader_earnings' in serializer.validated_data:
-            disbursement.uploader_earnings.set(serializer.validated_data['uploader_earnings'])
+        # Generate PDF and Excel receipts
+        try:
+            pdf_data = DisbursementPDFGenerator.generate_pdf(disbursement)
+            excel_data = DisbursementPDFGenerator.generate_excel(disbursement)
+        except Exception as e:
+            # If PDF generation fails, continue without it
+            pdf_data = None
+            excel_data = None
         
-        # Return created disbursement
+        # Return created disbursement with earnings summary and documents
         response_serializer = DisbursementDetailSerializer(disbursement)
-        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+        response_data = response_serializer.data
+        response_data['earnings_summary'] = {
+            'total_unpaid_before': str(total_unpaid),
+            'consultant_earnings_linked': disbursement.consultant_earnings.count(),
+            'uploader_earnings_linked': disbursement.uploader_earnings.count(),
+            'total_linked': str(amount),
+        }
+        
+        # Add PDF and Excel documents in base64
+        if pdf_data:
+            response_data['pdf_receipt'] = {
+                'base64': pdf_data['pdf_base64'],
+                'filename': pdf_data['filename'],
+                'size_bytes': pdf_data['size_bytes'],
+                'mimetype': pdf_data['mimetype']
+            }
+        
+        if excel_data:
+            response_data['excel_receipt'] = {
+                'base64': excel_data['excel_base64'],
+                'filename': excel_data['filename'],
+                'size_bytes': excel_data['size_bytes'],
+                'mimetype': excel_data['mimetype']
+            }
+        
+        return Response(response_data, status=status.HTTP_201_CREATED)
     
     @action(detail=True, methods=['post'])
     def process(self, request, pk=None):
@@ -276,6 +415,163 @@ class AdminDisbursementViewSet(viewsets.ModelViewSet):
         except AzamPayError as e:
             return Response(
                 {'error': f'AzamPay error: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    @action(detail=True, methods=['get'], url_path='download-pdf', url_name='download-pdf')
+    def download_pdf(self, request, pk=None):
+        """Generate and download disbursement receipt as PDF"""
+        return self._generate_receipt(pk, 'pdf')
+    
+    @action(detail=True, methods=['get'], url_path='download-excel', url_name='download-excel')
+    def download_excel_receipt(self, request, pk=None):
+        """Generate and download disbursement receipt as Excel"""
+        return self._generate_receipt(pk, 'excel')
+    
+    def _generate_receipt(self, pk, format_type):
+        """Internal method to generate receipts"""
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"Generating {format_type} receipt for disbursement pk={pk}")
+        
+        # Fetch directly from database, bypassing get_queryset filters
+        try:
+            disbursement = Disbursement.objects.select_related('recipient').prefetch_related(
+                'consultant_earnings', 'uploader_earnings'
+            ).get(pk=pk)
+            logger.info(f"Found disbursement: {disbursement.id}")
+        except Disbursement.DoesNotExist:
+            logger.error(f"Disbursement {pk} not found in database")
+            return Response(
+                {'error': f'Disbursement with id {pk} not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        try:
+            if format_type == 'excel':
+                document_data = DisbursementPDFGenerator.generate_excel(disbursement)
+                base64_key = 'excel_base64'
+            else:
+                document_data = DisbursementPDFGenerator.generate_pdf(disbursement)
+                base64_key = 'pdf_base64'
+            
+            return Response({
+                'success': True,
+                'document': {
+                    'base64': document_data[base64_key],
+                    'filename': document_data['filename'],
+                    'size_bytes': document_data['size_bytes'],
+                    'mimetype': document_data['mimetype']
+                },
+                'disbursement_id': disbursement.id,
+                'external_reference': disbursement.external_reference,
+                'format': format_type
+            })
+        
+        except Exception as e:
+            logger.exception(f"Error generating {format_type} receipt")
+            return Response(
+                {'error': f'Failed to generate receipt: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    @action(detail=False, methods=['get'])
+    def export_excel(self, request):
+        """
+        Export disbursements to Excel with flexible filtering
+        
+        Query Parameters:
+        - disbursement_id: Export specific disbursement by ID
+        - status: Filter by status (pending, processing, completed, failed, cancelled)
+        - paid_status: Filter by paid/unpaid (paid=completed, unpaid=pending,processing,failed)
+        - recipient_id: Filter by recipient user ID
+        - from_date: Filter from date (YYYY-MM-DD)
+        - to_date: Filter to date (YYYY-MM-DD)
+        - disbursement_type: Filter by type (consultant, uploader, refund, other)
+        
+        Examples:
+        - /api/v1/admin/disbursements/export_excel/?disbursement_id=123
+        - /api/v1/admin/disbursements/export_excel/?status=completed
+        - /api/v1/admin/disbursements/export_excel/?paid_status=paid
+        - /api/v1/admin/disbursements/export_excel/?paid_status=unpaid
+        - /api/v1/admin/disbursements/export_excel/ (exports all)
+        """
+        # Start with base queryset
+        queryset = self.get_queryset()
+        
+        # Filter by specific disbursement ID
+        disbursement_id = request.query_params.get('disbursement_id')
+        if disbursement_id:
+            queryset = queryset.filter(id=disbursement_id)
+            report_title = f"Disbursement Report - ID {disbursement_id}"
+        else:
+            # Filter by paid/unpaid status
+            paid_status = request.query_params.get('paid_status')
+            if paid_status == 'paid':
+                queryset = queryset.filter(status='completed')
+                report_title = "Paid Disbursements Report"
+            elif paid_status == 'unpaid':
+                queryset = queryset.filter(status__in=['pending', 'processing', 'failed'])
+                report_title = "Unpaid Disbursements Report"
+            else:
+                # Filter by specific status if provided
+                status_filter = request.query_params.get('status')
+                if status_filter:
+                    queryset = queryset.filter(status=status_filter)
+                    report_title = f"{status_filter.title()} Disbursements Report"
+                else:
+                    report_title = "All Disbursements Report"
+        
+        # Check if any results
+        if not queryset.exists():
+            return Response(
+                {
+                    'error': 'No disbursements found matching the criteria',
+                    'filters_applied': {
+                        'disbursement_id': disbursement_id,
+                        'status': request.query_params.get('status'),
+                        'paid_status': request.query_params.get('paid_status'),
+                        'recipient_id': request.query_params.get('recipient_id'),
+                        'from_date': request.query_params.get('from_date'),
+                        'to_date': request.query_params.get('to_date'),
+                    }
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        try:
+            # Generate Excel
+            excel_data = DisbursementPDFGenerator.generate_bulk_excel(
+                queryset,
+                title=report_title
+            )
+            
+            return Response({
+                'success': True,
+                'document': {
+                    'base64': excel_data['excel_base64'],
+                    'filename': excel_data['filename'],
+                    'size_bytes': excel_data['size_bytes'],
+                    'mimetype': excel_data['mimetype']
+                },
+                'report_info': {
+                    'title': report_title,
+                    'total_disbursements': queryset.count(),
+                    'total_amount': str(queryset.aggregate(Sum('amount'))['amount__sum'] or 0),
+                    'filters_applied': {
+                        'disbursement_id': disbursement_id,
+                        'status': request.query_params.get('status'),
+                        'paid_status': request.query_params.get('paid_status'),
+                        'recipient_id': request.query_params.get('recipient_id'),
+                        'from_date': request.query_params.get('from_date'),
+                        'to_date': request.query_params.get('to_date'),
+                    }
+                }
+            })
+        
+        except Exception as e:
+            return Response(
+                {'error': f'Failed to generate Excel report: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
     

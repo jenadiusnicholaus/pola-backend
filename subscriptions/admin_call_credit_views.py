@@ -246,6 +246,10 @@ class UserCallCreditViewSet(viewsets.ReadOnlyModelViewSet):
         # Group by period
         usage_data = {}
         for session in sessions:
+            # Skip sessions without booking
+            if not session.booking or not session.booking.client:
+                continue
+                
             if period == 'weekly':
                 key = f"{session.start_time.year}-W{session.start_time.isocalendar()[1]}"
             elif period == 'monthly':

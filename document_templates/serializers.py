@@ -87,6 +87,7 @@ class UserDocumentSerializer(serializers.ModelSerializer):
     template_name_sw = serializers.CharField(source='template.name_sw', read_only=True)
     field_data = UserDocumentDataSerializer(many=True, read_only=True)
     download_url = serializers.SerializerMethodField()
+    can_download = serializers.SerializerMethodField()
     
     class Meta:
         model = UserDocument
@@ -97,7 +98,7 @@ class UserDocumentSerializer(serializers.ModelSerializer):
             'is_paid', 'payment_amount',
             'download_count', 'last_downloaded_at',
             'field_data', 'created_at', 'updated_at',
-            'error_message'
+            'error_message', 'can_download'
         ]
         read_only_fields = ['generated_file', 'status', 'download_count']
     
@@ -108,6 +109,14 @@ class UserDocumentSerializer(serializers.ModelSerializer):
             if request:
                 return request.build_absolute_uri(obj.generated_file.url)
         return None
+    
+    def get_can_download(self, obj):
+        """Check if user can download (free template or paid)"""
+        # Free templates can always be downloaded
+        if obj.template.is_free or obj.template.price == 0:
+            return True
+        # Paid documents need payment
+        return obj.is_paid
 
 
 class GenerateDocumentSerializer(serializers.Serializer):

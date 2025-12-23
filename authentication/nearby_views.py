@@ -137,6 +137,20 @@ def nearby_legal_professionals(request):
             specialization_names.append(ps.specialization.name_en)
         specialization_string = ", ".join(specialization_names) if specialization_names else None
         
+        # Check online status
+        is_online = False
+        try:
+            from notification.models import UserOnlineStatus
+            status_obj = UserOnlineStatus.objects.get(user=professional)
+            is_online = status_obj.is_online and status_obj.is_available_for_call()
+        except UserOnlineStatus.DoesNotExist:
+            pass
+        
+        # Build profile picture URL
+        profile_picture_url = None
+        if professional.profile_picture:
+            profile_picture_url = request.build_absolute_uri(professional.profile_picture.url)
+        
         # Build result matching consultant API structure
         result = {
             'id': professional.id,
@@ -148,6 +162,7 @@ def nearby_legal_professionals(request):
                 'last_name': professional.last_name,
                 'full_name': f"{professional.first_name} {professional.last_name}".strip(),
                 'phone_number': contact.phone_number if contact else None,
+                'profile_picture': profile_picture_url,
             },
             'consultant_type': professional.user_role.role_name if professional.user_role else None,
             'specialization': specialization_string,
@@ -167,6 +182,7 @@ def nearby_legal_professionals(request):
                     'platform_share': 50.0
                 }
             },
+            'is_online': is_online,
             'distance_km': round(distance_km, 2),
             'location': {
                 'latitude': float(device.latitude),

@@ -20,7 +20,7 @@ from django.conf import settings
 
 from .models import (
     PaymentTransaction, SubscriptionPlan, CallCreditBundle,
-    GeneratedDocument, UserSubscription, UserCallCredit
+    UserSubscription, UserCallCredit
 )
 from .azampay_integration import azampay_client, format_phone_number, detect_mobile_provider
 
@@ -51,9 +51,9 @@ class PaymentService:
             'amount_field': 'price',
         },
         'document': {
-            'model': GeneratedDocument,
-            'description_field': 'title',
-            'amount_field': 'price',  # Assuming documents have price field
+            'model_path': 'document_templates.UserDocument',  # Use UserDocument from document_templates
+            'description_field': 'template__name',  # Access template name through FK
+            'amount_field': 'template__price',  # Access price from template
         },
         'material': {
             'model_path': 'documents.LearningMaterial',
@@ -207,6 +207,8 @@ class PaymentService:
                     self._fulfill_document_download(payment_txn)
                 elif category == 'material':
                     self._fulfill_material_purchase(payment_txn)
+                elif category == 'consultation':
+                    self._fulfill_consultation_booking(payment_txn)
                 else:
                     raise PaymentServiceError(f"Unknown category: {category}")
                 
@@ -245,7 +247,19 @@ class PaymentService:
         """Extract amount from item"""
         config = self.PAYMENT_CATEGORIES[category]
         amount_field = config['amount_field']
-        amount = getattr(item, amount_field, 0)
+        
+        # Handle nested attribute access (e.g., 'template__price')
+        if '__' in amount_field:
+            parts = amount_field.split('__')
+            value = item
+            for part in parts:
+                value = getattr(value, part, None)
+                if value is None:
+                    return Decimal('0')
+            amount = value
+        else:
+            amount = getattr(item, amount_field, 0)
+        
         return Decimal(str(amount))
     
     def _get_currency(self, category, item):
@@ -264,12 +278,24 @@ class PaymentService:
         """Generate human-readable description"""
         config = self.PAYMENT_CATEGORIES[category]
         description_field = config['description_field']
-        item_name = getattr(item, description_field, 'Unknown')
+        
+        # Handle nested attribute access (e.g., 'template__name')
+        if '__' in description_field:
+            parts = description_field.split('__')
+            value = item
+            for part in parts:
+                value = getattr(value, part, None)
+                if value is None:
+                    value = 'Unknown'
+                    break
+            item_name = value
+        else:
+            item_name = getattr(item, description_field, 'Unknown')
         
         category_names = {
             'subscription': 'Subscription',
             'call_credit': 'Call Credit Bundle',
-            'document': 'Document',
+            'document': 'Document Download',
             'material': 'Study Material'
         }
         
@@ -295,9 +321,12 @@ class PaymentService:
                 'validity_days': item.validity_days
             })
         elif category == 'document':
+            # UserDocument from document_templates
             metadata.update({
-                'document_title': item.title,
-                'document_type': item.document_type
+                'document_id': item.id,
+                'template_name': item.template.name if item.template else 'Unknown',
+                'language': item.language,
+                'status': item.status
             })
         elif category == 'material':
             metadata.update({
@@ -472,15 +501,25 @@ class PaymentService:
         logger.info(f"✅ Added {bundle.minutes} minutes to {payment_txn.user.email}")
     
     def _fulfill_document_download(self, payment_txn):
-        """Grant access to generated document"""
-        # Document already linked in related_document
-        # Just mark document as purchased (not free)
-        document = payment_txn.related_document
-        if document:
-            document.was_free = False
+        """Grant access to generated document (UserDocument from document_templates)"""
+        # Get document ID from metadata
+        from document_templates.models import UserDocument
+        
+        document_id = payment_txn.item_metadata.get('document_id')
+        if not document_id:
+            raise PaymentServiceError("Document ID not found in payment metadata")
+        
+        try:
+            document = UserDocument.objects.get(id=document_id)
+            
+            # Mark as purchased/paid
+            document.is_paid = True
+            document.payment_amount = payment_txn.amount
             document.save()
             
-            logger.info(f"✅ Granted document access: {document.title} to {payment_txn.user.email}")
+            logger.info(f"✅ Granted document access: UserDocument #{document.id} (Template: {document.template.name if document.template else 'Unknown'}) to {payment_txn.user.email}")
+        except UserDocument.DoesNotExist:
+            raise PaymentServiceError(f"UserDocument with ID {document_id} not found")
     
     def _fulfill_material_purchase(self, payment_txn):
         """Grant access to study material and distribute earnings"""
@@ -490,12 +529,13 @@ class PaymentService:
         if not material:
             raise PaymentServiceError("Material not found")
         
-        # Import MaterialPurchase model
-        from .models import MaterialPurchase
+        # Import models
+        from .models import MaterialPurchase, UploaderEarnings
         
-        # Calculate commission split (assuming 30% platform, 70% uploader)
-        platform_commission = payment_txn.amount * Decimal('0.30')
-        uploader_earnings = payment_txn.amount * Decimal('0.70')
+        # Calculate commission split using role-based revenue split
+        split = material.get_revenue_split()
+        platform_commission = payment_txn.amount * Decimal(str(split['app']))
+        uploader_earnings = payment_txn.amount * Decimal(str(split['uploader']))
         
         # Create purchase record
         purchase = MaterialPurchase.objects.create(
@@ -506,10 +546,71 @@ class PaymentService:
             uploader_earnings=uploader_earnings
         )
         
-        # TODO: Credit uploader's wallet/earnings
-        # This will be implemented when wallet system is ready
+        # Create uploader earnings record
+        if uploader_earnings > 0:
+            UploaderEarnings.objects.create(
+                uploader=material.uploader,
+                material=material,
+                service_type='learning_material',
+                gross_amount=payment_txn.amount,
+                platform_commission=platform_commission,
+                net_earnings=uploader_earnings
+            )
         
         logger.info(f"✅ Granted material access: {material.title} to {payment_txn.user.email}")
+    
+    def _fulfill_consultation_booking(self, payment_txn):
+        """Confirm consultation booking and create consultant earnings"""
+        from .models import ConsultationBooking, ConsultantEarnings
+        
+        # Get the related booking
+        booking = payment_txn.related_booking
+        if not booking:
+            raise PaymentServiceError("No related booking found for this payment")
+        
+        logger.info(f"🔧 Starting consultation booking fulfillment...")
+        logger.info(f"   Booking ID: {booking.id}")
+        logger.info(f"   Type: {booking.booking_type}")
+        logger.info(f"   Client: {booking.client.email}")
+        logger.info(f"   Consultant: {booking.consultant.email if booking.consultant else 'N/A'}")
+        logger.info(f"   Status: {booking.status}")
+        
+        # Only confirm if currently pending
+        if booking.status == 'pending':
+            # Confirm the booking
+            booking.status = 'confirmed'
+            booking.save()
+            logger.info(f"✅ Booking #{booking.id} status updated: pending → confirmed")
+        elif booking.status == 'confirmed':
+            logger.info(f"⚠️ Booking #{booking.id} already confirmed, skipping")
+        else:
+            logger.warning(f"⚠️ Booking #{booking.id} in unexpected status: {booking.status}")
+        
+        # Create consultant earnings record if not already exists
+        if booking.consultant:
+            earnings, created = ConsultantEarnings.objects.get_or_create(
+                consultant=booking.consultant,
+                booking=booking,
+                defaults={
+                    'service_type': booking.booking_type,  # 'mobile' or 'physical'
+                    'gross_amount': booking.total_amount,
+                    'platform_commission': booking.platform_commission,
+                    'net_earnings': booking.consultant_earnings,
+                    'paid_out': False
+                }
+            )
+            
+            if created:
+                logger.info(f"✅ Created consultant earnings record for {booking.consultant.email}")
+                logger.info(f"   Gross: {booking.total_amount} TZS")
+                logger.info(f"   Commission: {booking.platform_commission} TZS")
+                logger.info(f"   Net Earnings: {booking.consultant_earnings} TZS")
+            else:
+                logger.info(f"⚠️ Consultant earnings record already exists")
+        else:
+            logger.warning(f"⚠️ No consultant assigned to booking #{booking.id}")
+        
+        logger.info(f"✅ Consultation booking fulfillment complete for {payment_txn.user.email}")
 
 
 # Singleton instance for easy import

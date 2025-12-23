@@ -2,6 +2,7 @@ from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.parsers import MultiPartParser, FormParser
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from drf_yasg.utils import swagger_auto_schema
@@ -208,6 +209,7 @@ class UpdateProfilePictureView(APIView):
     Allows any authenticated user to update their profile picture.
     """
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
     
     @swagger_auto_schema(
         operation_description="Update user profile picture",

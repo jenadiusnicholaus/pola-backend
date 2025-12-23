@@ -134,9 +134,11 @@ class ConsultantProfileSerializer(serializers.ModelSerializer):
     pricing_info = serializers.SerializerMethodField()
     statistics = serializers.SerializerMethodField()
     verification_status = serializers.SerializerMethodField()
+    is_online = serializers.SerializerMethodField()
     
     class Meta:
         model = ConsultantProfile
+        ref_name = 'PublicConsultantProfile'
         fields = [
             'id', 'user', 'user_details', 'consultant_type',
             'specialization', 'years_of_experience',
@@ -144,7 +146,7 @@ class ConsultantProfileSerializer(serializers.ModelSerializer):
             'city', 'is_available', 'total_consultations',
             'total_earnings', 'average_rating', 'total_reviews',
             'verification_status', 'pricing_info', 'statistics',
-            'created_at', 'updated_at'
+            'is_online', 'created_at', 'updated_at'
         ]
         read_only_fields = [
             'user', 'total_consultations', 'total_earnings',
@@ -223,6 +225,15 @@ class ConsultantProfileSerializer(serializers.ModelSerializer):
             'has_registration': has_registration,
             'verification_level': 'verified' if has_registration else 'active'
         }
+    
+    def get_is_online(self, obj):
+        """Check if consultant is currently online"""
+        from notification.models import UserOnlineStatus
+        try:
+            status = UserOnlineStatus.objects.get(user=obj.user)
+            return status.is_online and status.is_available_for_call()
+        except UserOnlineStatus.DoesNotExist:
+            return False
 
 
 class ConsultantRegistrationRequestSerializer(serializers.ModelSerializer):
@@ -396,6 +407,7 @@ class ConsultationBookingSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = ConsultationBooking
+        ref_name = 'ConsultationBookingPublic'
         fields = [
             'id', 'client', 'client_details', 'consultant',
             'consultant_details', 'booking_type', 'status',

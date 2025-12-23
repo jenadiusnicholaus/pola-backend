@@ -24,10 +24,12 @@ from .webhook_views import azampay_webhook, webhook_health, manual_fulfill_payme
 # Phase 5: Call management views
 from .call_views import (
     ConsultantListViewSet,
-    PhysicalConsultationViewSet,
     CallHistoryViewSet,
 )
 from .call_management_views import CallManagementViewSet
+
+# Phase 7: Physical consultation booking
+from .physical_consultation_views import PhysicalConsultationViewSet as PhysicalBookingViewSet
 
 # Phase 6: Unified payment views
 from .payment_views import PaymentViewSet
@@ -49,7 +51,9 @@ router.register(r'unified-payments', PaymentViewSet, basename='unified-payment')
 
 # Phase 5: Call management endpoints  
 router.register(r'call-history', CallHistoryViewSet, basename='call-history')
-router.register(r'physical-consultations', PhysicalConsultationViewSet, basename='physical-consultation')
+
+# Phase 7: Physical consultation booking (NEW - Enhanced)
+router.register(r'physical-consultations', PhysicalBookingViewSet, basename='physical-consultation')
 
 # Old endpoints (backward compatibility)
 router.register(r'documents', DocumentViewSet, basename='document')

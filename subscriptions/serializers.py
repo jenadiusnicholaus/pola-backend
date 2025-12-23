@@ -201,6 +201,10 @@ class LearningMaterialSerializer(serializers.ModelSerializer):
     downloads_count_display = serializers.SerializerMethodField()
     file = serializers.SerializerMethodField()  # Override to return absolute URL
     
+    # Purchase status for current user
+    is_purchased_by_user = serializers.SerializerMethodField()
+    can_download = serializers.SerializerMethodField()
+    
     class Meta:
         model = LearningMaterial
         fields = [
@@ -210,7 +214,9 @@ class LearningMaterialSerializer(serializers.ModelSerializer):
             'revenue_split_info', 'is_approved', 'is_active',
             'created_at', 'updated_at',
             # Enhanced display fields
-            'price_display', 'is_free', 'downloads_count_display'
+            'price_display', 'is_free', 'downloads_count_display',
+            # Purchase status
+            'is_purchased_by_user', 'can_download'
         ]
         read_only_fields = [
             'uploader', 'downloads_count', 'total_revenue', 'uploader_earnings',
@@ -265,6 +271,22 @@ class LearningMaterialSerializer(serializers.ModelSerializer):
             return f"{count/1000:.1f}K downloads"
         else:
             return f"{count/1000000:.1f}M downloads"
+    
+    def get_is_purchased_by_user(self, obj):
+        """Check if current user has purchased this material"""
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+        return obj.id in request.user.purchased_material_ids
+    
+    def get_can_download(self, obj):
+        """Check if user can download (free or purchased)"""
+        if obj.price == 0:  # Free material
+            return True
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+        return obj.id in request.user.purchased_material_ids
 
 
 class LearningMaterialPurchaseSerializer(serializers.ModelSerializer):
@@ -359,18 +381,55 @@ class ConsultantEarningsSerializer(serializers.ModelSerializer):
     """Serializer for consultant earnings"""
     consultant_email = serializers.EmailField(source='consultant.email', read_only=True)
     consultant_name = serializers.CharField(source='consultant.full_name', read_only=True, allow_null=True)
-    booking_reference = serializers.CharField(source='booking.booking_reference', read_only=True)
+    consultant_type = serializers.SerializerMethodField()
+    consultation_type = serializers.SerializerMethodField()
+    booking_details = serializers.SerializerMethodField()
     
     class Meta:
         model = ConsultantEarnings
         ref_name = 'AdminConsultantEarnings'
         fields = [
             'id', 'consultant', 'consultant_email', 'consultant_name',
-            'booking', 'booking_reference', 'service_type',
-            'gross_amount', 'platform_commission', 'net_earnings',
+            'consultant_type', 'booking', 'booking_details',
+            'service_type', 'consultation_type', 'gross_amount', 'platform_commission', 'net_earnings',
             'paid_out', 'payout_date', 'created_at'
         ]
         read_only_fields = ['id', 'created_at']
+    
+    def get_consultant_type(self, obj):
+        """Get consultant type from profile"""
+        try:
+            from .models import ConsultantProfile
+            profile = ConsultantProfile.objects.get(user=obj.consultant)
+            return profile.consultant_type
+        except:
+            return None
+    
+    def get_consultation_type(self, obj):
+        """Get consultation type from booking"""
+        if obj.booking:
+            return obj.booking.booking_type  # 'mobile' or 'physical'
+        return None
+    
+    def get_booking_details(self, obj):
+        """Get detailed booking information"""
+        if obj.booking:
+            # Get client name
+            client_name = None
+            if obj.booking.client:
+                client_name = obj.booking.client.get_full_name()
+            
+            return {
+                'id': obj.booking.id,
+                'booking_type': obj.booking.booking_type,
+                'status': obj.booking.status,
+                'client_name': client_name,
+                'scheduled_date': obj.booking.scheduled_date,
+                'scheduled_duration_minutes': obj.booking.scheduled_duration_minutes,
+                'actual_duration_minutes': obj.booking.actual_duration_minutes,
+                'total_amount': str(obj.booking.total_amount),
+            }
+        return None
 
 
 class UploaderEarningsSerializer(serializers.ModelSerializer):
@@ -640,16 +699,18 @@ class ConsultantProfileSerializer(serializers.ModelSerializer):
     """Serializer for consultant profiles"""
     user_details = serializers.SerializerMethodField()
     pricing = serializers.SerializerMethodField()
+    is_online = serializers.SerializerMethodField()
     
     class Meta:
         from .models import ConsultantProfile
         model = ConsultantProfile
+        ref_name = 'ConsultantProfileInternal'
         fields = [
             'id', 'user', 'user_details', 'consultant_type', 'specialization',
             'years_of_experience', 'offers_mobile_consultations',
             'offers_physical_consultations', 'city', 'is_available',
             'total_consultations', 'total_earnings', 'average_rating',
-            'total_reviews', 'pricing', 'created_at', 'updated_at'
+            'total_reviews', 'pricing', 'is_online', 'created_at', 'updated_at'
         ]
         read_only_fields = [
             'total_consultations', 'total_earnings', 'average_rating',
@@ -662,6 +723,15 @@ class ConsultantProfileSerializer(serializers.ModelSerializer):
         if hasattr(obj.user, 'contact') and obj.user.contact:
             phone_number = obj.user.contact.phone_number
         
+        # Build profile picture URL
+        profile_picture_url = None
+        if obj.user.profile_picture:
+            request = self.context.get('request')
+            if request:
+                profile_picture_url = request.build_absolute_uri(obj.user.profile_picture.url)
+            else:
+                profile_picture_url = obj.user.profile_picture.url
+        
         return {
             'id': obj.user.id,
             'email': obj.user.email,
@@ -669,10 +739,20 @@ class ConsultantProfileSerializer(serializers.ModelSerializer):
             'last_name': obj.user.last_name,
             'full_name': obj.user.get_full_name(),
             'phone_number': phone_number,
+            'profile_picture': profile_picture_url,
         }
     
     def get_pricing(self, obj):
         return obj.get_pricing()
+    
+    def get_is_online(self, obj):
+        """Check if consultant is currently online"""
+        from notification.models import UserOnlineStatus
+        try:
+            status = UserOnlineStatus.objects.get(user=obj.user)
+            return status.is_online and status.is_available_for_call()
+        except UserOnlineStatus.DoesNotExist:
+            return False
 
 
 class ConsultationBookingSerializer(serializers.ModelSerializer):
@@ -683,6 +763,7 @@ class ConsultationBookingSerializer(serializers.ModelSerializer):
     class Meta:
         from .models import ConsultationBooking
         model = ConsultationBooking
+        ref_name = 'ConsultationBookingAdmin'
         fields = [
             'id', 'client', 'client_details', 'consultant', 'consultant_details',
             'booking_type', 'status', 'scheduled_date', 'scheduled_duration_minutes',
@@ -725,3 +806,70 @@ class ConsultationBookingSerializer(serializers.ModelSerializer):
                 'phone_number': phone_number,
             }
         return None
+
+
+class ConsultationBookingCreateSerializer(serializers.Serializer):
+    """Serializer for creating consultation bookings"""
+    consultant_id = serializers.IntegerField(required=True, help_text="ID of the consultant to book")
+    booking_type = serializers.ChoiceField(
+        choices=['mobile', 'physical'],
+        required=True,
+        help_text="Type of consultation: mobile (in-app) or physical (in-person)"
+    )
+    scheduled_date = serializers.DateTimeField(
+        required=True,
+        help_text="Scheduled date and time for the consultation"
+    )
+    scheduled_duration_minutes = serializers.IntegerField(
+        default=30,
+        min_value=15,
+        max_value=180,
+        help_text="Duration of consultation in minutes (15-180)"
+    )
+    meeting_location = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        max_length=500,
+        help_text="Physical meeting location (required for physical consultations)"
+    )
+    client_notes = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        max_length=1000,
+        help_text="Client's notes about the consultation topic/questions"
+    )
+    phone_number = serializers.CharField(
+        required=False,
+        help_text="Phone number for payment (required for paid consultations)"
+    )
+    
+    def validate(self, data):
+        """Validate booking data"""
+        from django.utils import timezone
+        
+        # Validate scheduled_date is in the future
+        if data['scheduled_date'] <= timezone.now():
+            raise serializers.ValidationError({
+                'scheduled_date': 'Scheduled date must be in the future'
+            })
+        
+        # Validate meeting_location for physical consultations
+        if data['booking_type'] == 'physical' and not data.get('meeting_location'):
+            raise serializers.ValidationError({
+                'meeting_location': 'Meeting location is required for physical consultations'
+            })
+        
+        # Validate consultant exists and is active
+        from .models import ConsultantProfile
+        try:
+            consultant_profile = ConsultantProfile.objects.select_related('user').get(
+                user_id=data['consultant_id'],
+                is_active=True
+            )
+            data['consultant_profile'] = consultant_profile
+        except ConsultantProfile.DoesNotExist:
+            raise serializers.ValidationError({
+                'consultant_id': 'Consultant not found or inactive'
+            })
+        
+        return data
