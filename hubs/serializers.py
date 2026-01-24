@@ -150,7 +150,7 @@ class UserMinimalSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = PolaUser
-        fields = ['id', 'email', 'full_name', 'user_role', 'is_verified', 'avatar_url']
+        fields = ['id', 'email', 'username', 'full_name', 'user_role', 'is_verified', 'avatar_url']
         read_only_fields = fields
     
     def get_is_verified(self, obj):
@@ -486,6 +486,7 @@ class HubCommentSerializer(serializers.ModelSerializer):
         mentions = obj.mentions.select_related('mentioned_user').all()
         return [{
             'user_id': m.mentioned_user.id,
+            'username': m.mentioned_user.username,
             'full_name': m.mentioned_user.get_full_name(),
             'position': m.position
         } for m in mentions]
