@@ -5,7 +5,7 @@ from rest_framework import serializers
 from django.db.models import Avg
 from .models import (
     LegalEdTopic, LegalEdSubTopic, HubComment, ContentLike, 
-    ContentBookmark, HubCommentLike, HubMessage
+    ContentBookmark, HubCommentLike, HubMessage, CommentMention
 )
 from documents.models import (
     LearningMaterial, LearningMaterialPurchase, LecturerFollow, 
@@ -454,17 +454,18 @@ class HubCommentSerializer(serializers.ModelSerializer):
     replies_count = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
     replies = serializers.SerializerMethodField()
+    mentions = serializers.SerializerMethodField()
     
     class Meta:
         model = HubComment
         fields = [
             'id', 'hub_type', 'content', 'author_info', 'parent_comment',
             'comment_text', 'likes_count', 'replies_count', 'is_liked',
-            'replies', 'is_active', 'created_at', 'updated_at'
+            'replies', 'mentions', 'is_active', 'created_at', 'updated_at'
         ]
         read_only_fields = [
             'id', 'author_info', 'likes_count', 'replies_count',
-            'is_liked', 'replies', 'created_at', 'updated_at'
+            'is_liked', 'replies', 'mentions', 'created_at', 'updated_at'
         ]
     
     def get_likes_count(self, obj):
@@ -479,6 +480,15 @@ class HubCommentSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return HubCommentLike.objects.filter(user=request.user, comment=obj).exists()
         return False
+    
+    def get_mentions(self, obj):
+        """Get all user mentions in this comment"""
+        mentions = obj.mentions.select_related('mentioned_user').all()
+        return [{
+            'user_id': m.mentioned_user.id,
+            'full_name': m.mentioned_user.get_full_name(),
+            'position': m.position
+        } for m in mentions]
     
     def get_replies(self, obj):
         """Get nested replies (only for top-level comments)"""
@@ -581,6 +591,157 @@ class MaterialRatingSerializer(serializers.ModelSerializer):
         if value < 1 or value > 5:
             raise serializers.ValidationError("Rating must be between 1 and 5")
         return value
+
+
+class UserMentionSerializer(serializers.ModelSerializer):
+    """
+    Serializer for user info when searching for mentions
+    Returns basic user info for autocomplete
+    """
+    full_name = serializers.SerializerMethodField()
+    can_be_tagged = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = PolaUser
+        fields = [
+            'id', 'email', 'first_name', 'last_name', 'full_name', 'username',
+            'profile_picture', 'can_be_tagged'
+        ]
+    
+    def get_full_name(self, obj):
+        return obj.get_full_name()
+    
+    def get_can_be_tagged(self, obj):
+        """Check if this user allows tagging based on privacy settings"""
+        if hasattr(obj, 'privacy_settings'):
+            request = self.context.get('request')
+            if request and request.user.is_authenticated:
+                return obj.privacy_settings.can_be_tagged_by(request.user)
+            return obj.privacy_settings.allow_tagging != 'none'
+        return True  # Default: allow tagging if no privacy settings
+
+
+class CommentMentionSerializer(serializers.ModelSerializer):
+    """Serializer for comment mentions (user tags)"""
+    mentioned_user_info = UserMentionSerializer(source='mentioned_user', read_only=True)
+    mentioned_by_info = UserMentionSerializer(source='mentioned_by', read_only=True)
+    comment_preview = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = CommentMention
+        fields = [
+            'id', 'comment', 'mentioned_user_info', 'mentioned_by_info',
+            'position', 'is_read', 'comment_preview', 'created_at'
+        ]
+        read_only_fields = ['id', 'mentioned_by_info', 'created_at']
+    
+    def get_comment_preview(self, obj):
+        """Get a preview of the comment text"""
+        text = obj.comment.comment_text
+        if len(text) > 100:
+            return text[:100] + '...'
+        return text
+
+
+class CreateCommentWithMentionsSerializer(serializers.ModelSerializer):
+    """
+    Serializer for creating comments with user mentions
+    Handles parsing and creating mentions
+    """
+    mentioned_users = serializers.ListField(
+        child=serializers.IntegerField(),
+        required=False,
+        write_only=True,
+        help_text="List of user IDs mentioned in the comment"
+    )
+    
+    class Meta:
+        model = HubComment
+        fields = [
+            'hub_type', 'content', 'parent_comment', 'comment_text',
+            'mentioned_users'
+        ]
+    
+    def validate_mentioned_users(self, value):
+        """Validate that all mentioned users exist and can be tagged"""
+        if not value:
+            return []
+        
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            raise serializers.ValidationError("You must be authenticated to mention users")
+        
+        # Get all mentioned users
+        users = PolaUser.objects.filter(id__in=value)
+        if users.count() != len(value):
+            found_ids = set(users.values_list('id', flat=True))
+            missing_ids = set(value) - found_ids
+            raise serializers.ValidationError(
+                f"Users not found: {', '.join(map(str, missing_ids))}"
+            )
+        
+        # Check privacy settings
+        for user in users:
+            if hasattr(user, 'privacy_settings'):
+                if not user.privacy_settings.can_be_tagged_by(request.user):
+                    raise serializers.ValidationError(
+                        f"User {user.get_full_name()} does not allow being tagged"
+                    )
+        
+        return value
+    
+    def create(self, validated_data):
+        """Create comment and mentions"""
+        mentioned_user_ids = validated_data.pop('mentioned_users', [])
+        request = self.context.get('request')
+        
+        # Create the comment
+        comment = HubComment.objects.create(
+            author=request.user,
+            **validated_data
+        )
+        
+        # Create mentions
+        if mentioned_user_ids:
+            mentions = []
+            comment_text = validated_data['comment_text']
+            
+            for user_id in mentioned_user_ids:
+                user = PolaUser.objects.get(id=user_id)
+                # Find position of @username in text
+                username_pattern = f"@{user.first_name}"
+                position = comment_text.find(username_pattern)
+                
+                if position >= 0:
+                    mentions.append(
+                        CommentMention(
+                            comment=comment,
+                            mentioned_user=user,
+                            mentioned_by=request.user,
+                            position=position
+                        )
+                    )
+            
+            # Bulk create mentions
+            if mentions:
+                CommentMention.objects.bulk_create(mentions)
+        
+        return comment
+
+
+class UserPrivacySettingsSerializer(serializers.Serializer):
+    """Serializer for user privacy settings"""
+    allow_tagging = serializers.ChoiceField(
+        choices=[
+            ('everyone', 'Everyone can tag me'),
+            ('following', 'Only people I follow can tag me'),
+            ('none', 'No one can tag me'),
+        ],
+        default='everyone'
+    )
+    notify_on_tag = serializers.BooleanField(default=True)
+    show_email = serializers.BooleanField(default=False)
+    show_phone = serializers.BooleanField(default=False)
 
 
 class HubMessageSerializer(serializers.ModelSerializer):

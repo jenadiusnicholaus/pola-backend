@@ -21,19 +21,78 @@ from .serializers import (
     RegionalChapterSerializer,
 )
 
+# UI Translation constants for role selection
+ROLE_SELECTION_UI = {
+    'heading': {
+        'en': 'Select your Role',
+        'sw': 'Chagua Wadhifa Wako',
+        'display': 'Chagua Wadhifa Wako | Select your Role'
+    },
+    'description': {
+        'en': 'Please select the role that best describes you. This will determine your access to features and services.',
+        'sw': 'Tafadhali chagua wadhifa unaokufaa zaidi. Hii itaamua upatikanaji wako wa huduma na vipengele.',
+        'display': 'Tafadhali chagua wadhifa unaokufaa zaidi. Hii itaamua upatikanaji wako wa huduma na vipengele. | Please select the role that best describes you. This will determine your access to features and services.'
+    }
+}
+
+# Role ordering by significance (index position)
+ROLE_ORDER = ['citizen', 'advocate', 'lawyer', 'paralegal', 'law_firm', 'law_student', 'lecturer']
+
 
 class UserRoleListView(generics.ListAPIView):
-    """List all available user roles"""
-    queryset = UserRole.objects.all()
+    """List all available user roles for signup process
+    
+    Returns roles ordered by significance:
+    1. Mwananchi | Citizen
+    2. Wakili | Advocate  
+    3. Mwanasheria | Lawyer
+    4. Msaidizi wa Kisheria | Paralegal
+    5. Ofisi ya Mawakili | Law Firm
+    6. Mwanafunzi wa Sheria | Law Student
+    7. Mhadhiri | Lecturer
+    
+    Response includes UI translations for the heading and description.
+    """
     serializer_class = UserRoleSerializer
     permission_classes = [permissions.AllowAny]
     
+    def get_queryset(self):
+        """Return roles ordered by significance"""
+        roles = UserRole.objects.all()
+        # Sort by the predefined order
+        role_order_map = {role: idx for idx, role in enumerate(ROLE_ORDER)}
+        return sorted(roles, key=lambda r: role_order_map.get(r.role_name, 999))
+    
     @swagger_auto_schema(
-        operation_description="Get list of all user roles",
+        operation_description="""Get list of all user roles for signup process.
+        
+        **UI Heading Translation:**
+        - Swahili: Chagua Wadhifa Wako
+        - English: Select your Role
+        
+        **Roles are ordered by significance (most expected users first):**
+        1. Mwananchi | Citizen
+        2. Wakili | Advocate
+        3. Mwanasheria | Lawyer
+        4. Msaidizi wa Kisheria | Paralegal
+        5. Ofisi ya Mawakili | Law Firm
+        6. Mwanafunzi wa Sheria | Law Student
+        7. Mhadhiri | Lecturer
+        """,
         tags=['Lookups']
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
+    
+    def list(self, request, *args, **kwargs):
+        """Override list to include UI translations"""
+        response = super().list(request, *args, **kwargs)
+        # Add UI translations to the response
+        response.data = {
+            'ui': ROLE_SELECTION_UI,
+            'roles': response.data
+        }
+        return response
 
 
 class RegionListView(generics.ListAPIView):
@@ -176,6 +235,46 @@ class AdvocateListView(generics.ListAPIView):
                             "full_name": "John Doe",
                             "email": "john.doe@example.com",
                             "roll_number": "TLS/2020/12345",
+                            "regional_chapter_name": "Dar es Salaam Chapter"
+                        }
+                    ]
+                }
+            )
+        },
+        tags=['Lookups']
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+
+class LawFirmListView(generics.ListAPIView):
+    """List all law firms for consultant selection"""
+    permission_classes = [permissions.AllowAny]
+    
+    def get_queryset(self):
+        """Return only verified law firms"""
+        return PolaUser.objects.filter(
+            user_role__role_name='law_firm',
+            is_active=True,
+            verification__status='verified'
+        ).select_related('user_role', 'verification', 'regional_chapter').order_by('firm_name', 'first_name')
+    
+    def get_serializer_class(self):
+        from .serializers import LawFirmSerializer
+        return LawFirmSerializer
+    
+    @swagger_auto_schema(
+        operation_description="Get list of all verified law firms for consultant selection",
+        responses={
+            200: openapi.Response(
+                description="List of law firms",
+                examples={
+                    "application/json": [
+                        {
+                            "id": 1,
+                            "full_name": "ABC Law Firm",
+                            "email": "contact@abclaw.co.tz",
+                            "firm_name": "ABC Law Firm",
                             "regional_chapter_name": "Dar es Salaam Chapter"
                         }
                     ]

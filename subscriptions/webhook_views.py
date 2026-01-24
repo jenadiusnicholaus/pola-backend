@@ -11,9 +11,45 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.utils import timezone
+from notification.notification_service import notification_service
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+def _send_payment_notification(payment_transaction):
+    """Send notification when payment is received"""
+    try:
+        # Determine who should receive the notification based on payment type
+        if payment_transaction.transaction_type == 'consultation':
+            # Find the booking and notify the consultant
+            from .models import ConsultationBooking
+            try:
+                booking = ConsultationBooking.objects.get(
+                    id=payment_transaction.related_consultation_id
+                )
+                notification_service.send_payment_received_notification(
+                    recipient=booking.consultant,
+                    payer=payment_transaction.user,
+                    amount=str(payment_transaction.amount),
+                    currency=payment_transaction.currency,
+                    payment_id=payment_transaction.id,
+                    service_type='consultation'
+                )
+            except ConsultationBooking.DoesNotExist:
+                logger.warning(f"Consultation booking not found for payment {payment_transaction.id}")
+        
+        elif payment_transaction.transaction_type == 'document':
+            # Document purchase - notify document creator/owner if applicable
+            # For now, just log it
+            logger.info(f"Document purchase payment received: {payment_transaction.id}")
+        
+        elif payment_transaction.transaction_type == 'subscription':
+            # Subscription payment - internal, no notification needed
+            logger.info(f"Subscription payment received: {payment_transaction.id}")
+        
+    except Exception as e:
+        logger.error(f"Failed to send payment notification: {str(e)}")
 
 
 @api_view(['POST'])
@@ -73,6 +109,10 @@ def azampay_webhook(request):
                 try:
                     payment_service.fulfill_payment(payment_transaction)
                     logger.info(f"✅ Payment {external_reference} fulfilled successfully")
+                    
+                    # Send payment received notification to the recipient
+                    _send_payment_notification(payment_transaction)
+                    
                 except PaymentServiceError as e:
                     logger.error(f"❌ Fulfillment error for {external_reference}: {e}")
                     # Don't fail the webhook, but log the error

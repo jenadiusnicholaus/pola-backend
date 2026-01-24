@@ -126,6 +126,8 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
     - GET /subtopics/ - List all subtopics
     - GET /subtopics/{id}/ - Get subtopic details
     - GET /subtopics/{id}/materials/ - Get all materials in a subtopic
+    
+    Note: Free trial users are limited to viewing 5 subtopics.
     """
     queryset = LegalEdSubTopic.objects.filter(is_active=True).select_related('topic')
     permission_classes = [IsAuthenticated]
@@ -135,6 +137,24 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
         if self.action == 'retrieve':
             return SubtopicDetailSerializer
         return SubtopicListSerializer
+    
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Get subtopic details.
+        For free trial users, tracks and limits subtopic access.
+        """
+        from subscriptions.permissions import check_legal_education_access
+        
+        instance = self.get_object()
+        
+        # Check if user can access this subtopic (Free trial limit)
+        if not request.user.is_staff and not request.user.is_superuser:
+            can_access, error_response = check_legal_education_access(request.user, instance.id)
+            if not can_access:
+                return Response(error_response, status=status.HTTP_403_FORBIDDEN)
+        
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
     
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -161,8 +181,19 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
     
     @action(detail=True, methods=['get'])
     def materials(self, request, slug=None):
-        """Get all materials in a subtopic"""
+        """
+        Get all materials in a subtopic.
+        For free trial users, tracks and limits subtopic access.
+        """
+        from subscriptions.permissions import check_legal_education_access
+        
         subtopic = self.get_object()
+        
+        # Check if user can access this subtopic (Free trial limit)
+        if not request.user.is_staff and not request.user.is_superuser:
+            can_access, error_response = check_legal_education_access(request.user, subtopic.id)
+            if not can_access:
+                return Response(error_response, status=status.HTTP_403_FORBIDDEN)
         
         # Get materials with basic filtering
         materials = LearningMaterial.objects.filter(

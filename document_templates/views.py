@@ -291,6 +291,8 @@ class UserDocumentViewSet(viewsets.ModelViewSet):
         Download generated document
         
         GET /api/v1/documents/{id}/download/
+        
+        Note: Free trial users cannot download documents.
         """
         user_document = self.get_object()
         
@@ -298,6 +300,18 @@ class UserDocumentViewSet(viewsets.ModelViewSet):
             return Response({
                 'error': 'Document file not available'
             }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check if user can download (Free trial restriction)
+        from subscriptions.permissions import check_subscription_permission
+        if not request.user.is_staff and not request.user.is_superuser:
+            if not check_subscription_permission(request.user, 'can_download_templates'):
+                return Response({
+                    'error': 'Subscription required',
+                    'message': 'Free trial users can generate and preview documents but cannot download. Please subscribe to download your documents.',
+                    'message_sw': 'Watumiaji wa jaribio bure wanaweza kutengeneza na kuona nyaraka lakini hawawezi kupakua. Tafadhali jiandikishe kupakua nyaraka zako.',
+                    'upgrade_required': True,
+                    'restriction': 'document_download'
+                }, status=status.HTTP_403_FORBIDDEN)
         
         # Increment download counter
         user_document.increment_download()

@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from decimal import Decimal
 import uuid
+from notification.notification_service import notification_service
 
 from .models import (
     ConsultationBooking,
@@ -60,19 +61,31 @@ class PhysicalConsultationViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'])
     def book(self, request):
         """
-        Book a new physical consultation
+        Step 1: Create a new physical consultation booking (no payment yet)
         
         Request body:
         {
             "consultant_id": 123,
-            "booking_type": "physical",
             "scheduled_date": "2025-12-25T14:00:00Z",
             "scheduled_duration_minutes": 60,
             "meeting_location": "Consultant's Office, Dar es Salaam",
-            "client_notes": "Need legal advice on property matters",
-            "phone_number": "0712345678"
+            "client_notes": "Need legal advice on property matters"
         }
+        
+        Response includes payment_info for next step (pay endpoint)
         """
+        from subscriptions.permissions import check_subscription_permission
+        
+        # Check if user can book consultations (Free trial users cannot)
+        if not check_subscription_permission(request.user, 'can_book_consultation'):
+            return Response({
+                'error': 'Subscription required',
+                'message': 'Free trial users cannot book consultations. Please subscribe to access this feature.',
+                'message_sw': 'Watumiaji wa majaribio ya bure hawawezi kuweka nafasi ya kushauriana. Tafadhali jiandikishe kufikia kipengele hiki.',
+                'upgrade_required': True,
+                'restriction': 'book_consultation'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
         serializer = ConsultationBookingCreateSerializer(data=request.data)
         
         if not serializer.is_valid():
@@ -81,35 +94,44 @@ class PhysicalConsultationViewSet(viewsets.ModelViewSet):
         validated_data = serializer.validated_data
         consultant_profile = validated_data['consultant_profile']
         
-        # Get pricing configuration
+        # Get pricing configuration for physical consultation
         try:
-            pricing_config = PricingConfiguration.objects.get(is_active=True)
-        except PricingConfiguration.DoesNotExist:
-            return Response(
-                {'error': 'Pricing configuration not found. Please contact support.'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            pricing_config = PricingConfiguration.objects.get(
+                service_type='PHYSICAL_CONSULTATION',
+                is_active=True
             )
+        except PricingConfiguration.DoesNotExist:
+            # Fallback to any physical pricing or create default
+            pricing_config = PricingConfiguration.objects.filter(
+                service_type__startswith='PHYSICAL',
+                is_active=True
+            ).first()
+            if not pricing_config:
+                return Response(
+                    {'error': 'Pricing configuration not found. Please contact support.'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
         
         # Calculate pricing
-        base_rate = pricing_config.physical_base_rate
+        base_rate = pricing_config.price  # Price per 30 minutes
         duration_minutes = validated_data.get('scheduled_duration_minutes', 30)
         
         # Calculate total amount (base rate per 30 minutes)
         total_amount = (base_rate / 30) * duration_minutes
         
         # Apply consultant multiplier if they have custom pricing
-        if hasattr(consultant_profile, 'pricing_multiplier'):
-            total_amount *= Decimal(str(consultant_profile.pricing_multiplier or 1.0))
+        if hasattr(consultant_profile, 'pricing_multiplier') and consultant_profile.pricing_multiplier:
+            total_amount *= Decimal(str(consultant_profile.pricing_multiplier))
         
         # Calculate platform commission
-        commission_percentage = pricing_config.platform_commission_percentage
+        commission_percentage = pricing_config.platform_commission_percent
         platform_commission = total_amount * (commission_percentage / 100)
         consultant_earnings = total_amount - platform_commission
         
-        # Create booking and payment transaction
+        # Create booking only (no payment transaction yet)
         try:
             with db_transaction.atomic():
-                # Create booking
+                # Create booking with status=pending
                 booking = ConsultationBooking.objects.create(
                     client=request.user,
                     consultant=consultant_profile.user,
@@ -124,96 +146,164 @@ class PhysicalConsultationViewSet(viewsets.ModelViewSet):
                     client_notes=validated_data.get('client_notes', '')
                 )
                 
-                # Create payment transaction
-                payment_reference = f"PHYS-{uuid.uuid4().hex[:12].upper()}"
-                payment = PaymentTransaction.objects.create(
-                    user=request.user,
-                    transaction_type='consultation',
-                    amount=total_amount,
-                    currency='TZS',
-                    payment_method='mobile_money',
-                    payment_reference=payment_reference,
-                    description=f"Physical consultation with {consultant_profile.user.get_full_name()}",
-                    status='pending',
-                    related_booking=booking
-                )
+                # Send notification to consultant
+                try:
+                    notification_service.send_consultation_request_notification(
+                        consultant=consultant_profile.user,
+                        client=request.user,
+                        booking_id=booking.id,
+                        consultation_type='physical',
+                        scheduled_date=booking.scheduled_date.strftime('%B %d, %Y'),
+                        scheduled_time=booking.scheduled_date.strftime('%I:%M %p')
+                    )
+                except Exception as e:
+                    # Log but don't fail the booking
+                    import logging
+                    logging.getLogger(__name__).error(f"Failed to send booking notification: {str(e)}")
                 
-                # Initiate payment with AzamPay
-                phone_number = validated_data.get('phone_number')
-                if not phone_number:
-                    return Response({
-                        'error': 'phone_number is required for payment'
-                    }, status=status.HTTP_400_BAD_REQUEST)
-                
-                if azampay_client.config.is_configured():
-                    formatted_phone = format_phone_number(phone_number)
-                    provider = detect_mobile_provider(formatted_phone)
-                    
-                    try:
-                        payment_result = azampay_client.initiate_checkout(
-                            phone_number=formatted_phone,
-                            amount=float(total_amount),
-                            external_reference=payment_reference,
-                            provider=provider
-                        )
-                        
-                        if payment_result['success']:
-                            payment.gateway_reference = payment_result['transaction_id']
-                            payment.save()
-                            
-                            return Response({
-                                'success': True,
-                                'message': 'Physical consultation booked successfully. Complete payment to confirm.',
-                                'booking': ConsultationBookingSerializer(booking).data,
-                                'payment': {
-                                    'reference': payment_reference,
-                                    'amount': float(total_amount),
-                                    'currency': 'TZS',
-                                    'status': 'pending',
-                                    'gateway_transaction_id': payment_result['transaction_id'],
-                                    'provider': provider,
-                                    'phone': formatted_phone
-                                },
-                                'next_step': f'Complete payment on your {provider} phone: {formatted_phone}'
-                            }, status=status.HTTP_201_CREATED)
-                        else:
-                            raise AzamPayError(payment_result.get('message', 'Payment initiation failed'))
-                    
-                    except AzamPayError as e:
-                        # Payment initiation failed, but booking is created
-                        return Response({
-                            'success': True,
-                            'message': 'Booking created but payment initiation failed',
-                            'booking': ConsultationBookingSerializer(booking).data,
-                            'payment': {
-                                'reference': payment_reference,
-                                'amount': float(total_amount),
-                                'status': 'pending'
-                            },
-                            'error': str(e),
-                            'next_step': 'Please contact support to complete payment'
-                        }, status=status.HTTP_201_CREATED)
-                else:
-                    # Test mode - no actual payment
-                    return Response({
-                        'success': True,
-                        'message': 'Physical consultation booked successfully (TEST MODE)',
-                        'booking': ConsultationBookingSerializer(booking).data,
-                        'payment': {
-                            'reference': payment_reference,
-                            'amount': float(total_amount),
-                            'currency': 'TZS',
-                            'status': 'pending'
-                        },
-                        'test_mode': True,
-                        'next_step': 'Payment gateway not configured. This is a test booking.'
-                    }, status=status.HTTP_201_CREATED)
+                return Response({
+                    'success': True,
+                    'message': 'Booking created successfully. Proceed to payment to confirm.',
+                    'booking': ConsultationBookingSerializer(booking).data,
+                    'payment_info': {
+                        'payment_category': 'consultation',
+                        'item_id': booking.id,
+                        'amount': float(total_amount),
+                        'currency': 'TZS',
+                        'consultant_name': consultant_profile.user.get_full_name(),
+                        'scheduled_date': booking.scheduled_date.isoformat(),
+                        'duration_minutes': duration_minutes,
+                        'meeting_location': booking.meeting_location,
+                    },
+                    'next_step': {
+                        'endpoint': '/api/v1/subscriptions/unified-payments/initiate/',
+                        'method': 'POST',
+                        'body': {
+                            'payment_category': 'consultation',
+                            'item_id': booking.id,
+                            'phone_number': '<your_phone_number>',
+                            'payment_method': 'mobile_money',
+                            'provider': 'Mpesa'  # or Airtel, Tigo
+                        }
+                    }
+                }, status=status.HTTP_201_CREATED)
         
         except Exception as e:
             return Response(
                 {'error': f'Failed to create booking: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+    
+    @action(detail=True, methods=['post'])
+    def pay(self, request, pk=None):
+        """
+        Step 2: Initiate payment for a pending booking
+        
+        Request body:
+        {
+            "phone_number": "0712345678",
+            "payment_method": "mobile_money"  // optional, defaults to mobile_money
+        }
+        
+        Uses unified payment API to process payment via AzamPay
+        """
+        from .payment_service import payment_service, PaymentServiceError
+        
+        booking = self.get_object()
+        
+        # Verify user owns this booking
+        if booking.client != request.user:
+            return Response(
+                {'error': 'You can only pay for your own bookings'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Check booking is still pending
+        if booking.status == 'confirmed':
+            return Response(
+                {'error': 'This booking is already confirmed and paid'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if booking.status == 'cancelled':
+            return Response(
+                {'error': 'This booking has been cancelled'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Check if there's already a completed payment
+        existing_payment = PaymentTransaction.objects.filter(
+            related_booking=booking,
+            status='completed'
+        ).first()
+        
+        if existing_payment:
+            return Response(
+                {'error': 'Payment already completed for this booking'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Get payment details from request
+        phone_number = request.data.get('phone_number')
+        payment_method = request.data.get('payment_method', 'mobile_money')
+        
+        if not phone_number:
+            return Response(
+                {'error': 'phone_number is required for payment'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            # Use unified payment service
+            result = payment_service.initiate_payment(
+                user=request.user,
+                payment_category='consultation',
+                item_id=booking.id,
+                payment_method=payment_method,
+                phone_number=phone_number,
+            )
+            
+            if result['success']:
+                # Get formatted phone and provider for response
+                formatted_phone = format_phone_number(phone_number)
+                provider = detect_mobile_provider(formatted_phone)
+                
+                return Response({
+                    'success': True,
+                    'message': 'Payment initiated. Complete payment on your phone to confirm booking.',
+                    'booking': ConsultationBookingSerializer(booking).data,
+                    'payment': {
+                        'transaction_id': result['transaction'].id,
+                        'reference': result['transaction'].payment_reference,
+                        'amount': float(booking.total_amount),
+                        'currency': 'TZS',
+                        'status': result['transaction'].status,
+                        'gateway_transaction_id': result['payment_details'].get('transaction_id'),
+                        'provider': provider,
+                        'phone': formatted_phone,
+                    },
+                    'next_step': f'Complete payment on your {provider} phone: {formatted_phone}'
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    'success': False,
+                    'message': result.get('message', 'Payment initiation failed'),
+                    'booking': ConsultationBookingSerializer(booking).data,
+                    'error': result.get('message')
+                }, status=status.HTTP_400_BAD_REQUEST)
+        
+        except PaymentServiceError as e:
+            return Response({
+                'success': False,
+                'error': str(e),
+                'booking': ConsultationBookingSerializer(booking).data,
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        except Exception as e:
+            return Response({
+                'success': False,
+                'error': f'Payment initiation failed: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     @action(detail=True, methods=['patch'])
     def confirm(self, request, pk=None):

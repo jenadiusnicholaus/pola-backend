@@ -859,17 +859,29 @@ class ConsultationBookingCreateSerializer(serializers.Serializer):
                 'meeting_location': 'Meeting location is required for physical consultations'
             })
         
-        # Validate consultant exists and is active
+        # Validate consultant exists and is available
+        # Accept either profile ID or user ID for flexibility
         from .models import ConsultantProfile
+        consultant_id = data['consultant_id']
+        
+        # First try to find by user ID (from nearby list), then by profile ID
+        consultant_profile = None
         try:
             consultant_profile = ConsultantProfile.objects.select_related('user').get(
-                user_id=data['consultant_id'],
-                is_active=True
+                user_id=consultant_id,
+                is_available=True
             )
-            data['consultant_profile'] = consultant_profile
         except ConsultantProfile.DoesNotExist:
-            raise serializers.ValidationError({
-                'consultant_id': 'Consultant not found or inactive'
-            })
+            # Try by profile ID as fallback
+            try:
+                consultant_profile = ConsultantProfile.objects.select_related('user').get(
+                    id=consultant_id,
+                    is_available=True
+                )
+            except ConsultantProfile.DoesNotExist:
+                raise serializers.ValidationError({
+                    'consultant_id': 'Consultant not found or not available'
+                })
         
+        data['consultant_profile'] = consultant_profile
         return data

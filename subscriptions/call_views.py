@@ -12,7 +12,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from django.db.models import Q, Avg, Count
+from django.db.models import Q, Avg, Count, Sum
 from django.utils import timezone
 from django.db import transaction as db_transaction
 from datetime import timedelta
@@ -548,22 +548,25 @@ class CallHistoryViewSet(viewsets.ViewSet):
         limit = int(request.query_params.get('limit', 20))
         offset = int(request.query_params.get('offset', 0))
         
-        # Get call sessions for user's bookings
+        # Get call sessions where user is the caller (instant calls)
+        # OR where user is the client on a booking
         call_sessions = CallSession.objects.filter(
-            booking__client=request.user
+            Q(caller=request.user) | Q(booking__client=request.user)
         ).select_related(
+            'caller',
+            'consultant',
             'booking__consultant',
             'call_credit__bundle'
-        ).order_by('-start_time')[offset:offset+limit]
+        ).order_by('-initiated_at', '-start_time')[offset:offset+limit]
         
         total_count = CallSession.objects.filter(
-            booking__client=request.user
+            Q(caller=request.user) | Q(booking__client=request.user)
         ).count()
         
         # Calculate stats
         total_minutes_used = CallSession.objects.filter(
-            booking__client=request.user
-        ).aggregate(total=Count('duration_minutes'))['total'] or 0
+            Q(caller=request.user) | Q(booking__client=request.user)
+        ).aggregate(total=Sum('duration_minutes'))['total'] or 0
         
         return Response({
             'count': total_count,
@@ -574,13 +577,20 @@ class CallHistoryViewSet(viewsets.ViewSet):
                 {
                     'id': call.id,
                     'consultant': {
-                        'name': call.booking.consultant.get_full_name() if call.booking and call.booking.consultant else 'Unknown',
+                        'id': call.consultant.id if call.consultant else (call.booking.consultant.id if call.booking and call.booking.consultant else None),
+                        'name': call.consultant.get_full_name() if call.consultant else (call.booking.consultant.get_full_name() if call.booking and call.booking.consultant else 'Unknown'),
                     },
+                    'call_type': call.call_type,
+                    'status': call.status,
                     'duration_minutes': call.duration_minutes,
+                    'initiated_at': call.initiated_at,
+                    'accepted_at': call.accepted_at,
+                    'ended_at': call.ended_at,
                     'start_time': call.start_time,
                     'end_time': call.end_time,
-                    'date': call.start_time.date(),
+                    'date': (call.initiated_at or call.start_time).date() if (call.initiated_at or call.start_time) else None,
                     'call_quality_rating': call.call_quality_rating,
+                    'credits_deducted': float(call.credits_deducted) if call.credits_deducted else 0,
                 }
                 for call in call_sessions
             ]

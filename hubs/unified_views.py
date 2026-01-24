@@ -8,17 +8,20 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from django.db.models import Q, Count, Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from notification.notification_service import notification_service
 
 from documents.models import (
     LearningMaterial, LearningMaterialPurchase,
     LecturerFollow, MaterialQuestion, MaterialRating
 )
-from .models import HubComment, ContentLike, ContentBookmark, HubCommentLike, HubMessage
+from .models import HubComment, ContentLike, ContentBookmark, HubCommentLike, HubMessage, CommentMention
 from .serializers import (
     HubContentSerializer, HubContentCreateSerializer, HubCommentSerializer, ContentLikeSerializer,
     ContentBookmarkSerializer, LecturerFollowSerializer,
-    MaterialQuestionSerializer, MaterialRatingSerializer, HubMessageSerializer
+    MaterialQuestionSerializer, MaterialRatingSerializer, HubMessageSerializer,
+    CreateCommentWithMentionsSerializer
 )
+from authentication.models import PolaUser
 from .permissions import (
     CanAccessHub, IsOwnerOrReadOnly, CanCreateContent,
     CanPurchaseContent, CanFollowLecturer
@@ -461,6 +464,9 @@ class HubContentViewSet(viewsets.ModelViewSet):
 class HubCommentViewSet(viewsets.ModelViewSet):
     """
     Unified ViewSet for comments across all hubs
+    
+    Note: Free trial users can view comments but cannot create comments or replies.
+    Supports user mentions (@username) - include 'mentioned_users' array in request body.
     """
     queryset = HubComment.objects.filter(is_active=True)
     serializer_class = HubCommentSerializer
@@ -478,18 +484,112 @@ class HubCommentViewSet(viewsets.ModelViewSet):
         if content_id:
             queryset = queryset.filter(content_id=content_id)
         
-        return queryset.select_related('author', 'content').prefetch_related('replies')
+        return queryset.select_related('author', 'content').prefetch_related('replies', 'mentions')
+    
+    def get_serializer_class(self):
+        """Use CreateCommentWithMentionsSerializer for creation if mentions are provided"""
+        if self.action == 'create':
+            # Check if request has mentioned_users field
+            if hasattr(self.request, 'data') and 'mentioned_users' in self.request.data:
+                return CreateCommentWithMentionsSerializer
+        return HubCommentSerializer
+    
+    def create(self, request, *args, **kwargs):
+        """
+        Create a new comment with optional user mentions.
+        
+        Free trial users cannot create comments - returns subscription prompt.
+        
+        Request body can include:
+        - mentioned_users: [123, 456] - Array of user IDs to mention
+        """
+        from subscriptions.permissions import check_subscription_permission
+        
+        # Check if user can comment (Free trial restriction)
+        if not request.user.is_staff and not request.user.is_superuser:
+            if not check_subscription_permission(request.user, 'can_comment_forum'):
+                return Response({
+                    'error': 'Subscription required',
+                    'message': 'Free trial users can view forums but cannot comment. Please subscribe to participate in discussions.',
+                    'message_sw': 'Watumiaji wa jaribio bure wanaweza kuona majukwaa lakini hawawezi kutoa maoni. Tafadhali jiandikishe kushiriki katika majadiliano.',
+                    'upgrade_required': True,
+                    'restriction': 'forum_comment'
+                }, status=status.HTTP_403_FORBIDDEN)
+        
+        # Use CreateCommentWithMentionsSerializer if mentioned_users provided
+        if 'mentioned_users' in request.data and request.data['mentioned_users']:
+            serializer = CreateCommentWithMentionsSerializer(data=request.data, context={'request': request})
+            serializer.is_valid(raise_exception=True)
+            comment = serializer.save()
+        else:
+            # Regular comment without mentions
+            serializer = HubCommentSerializer(data=request.data, context={'request': request})
+            serializer.is_valid(raise_exception=True)
+            
+            # Manually set author and hub_type
+            content = serializer.validated_data.get('content')
+            hub_type = content.hub_type if content else None
+            
+            comment = serializer.save(
+                author=request.user,
+                hub_type=hub_type
+            )
+        
+        # Return created comment with full details
+        output_serializer = HubCommentSerializer(comment, context={'request': request})
+        
+        # Send notifications
+        self._send_comment_notifications(comment)
+        
+        return Response(
+            output_serializer.data,
+            status=status.HTTP_201_CREATED
+        )
     
     def perform_create(self, serializer):
         """Set author to current user and ensure hub_type matches content"""
-        # Get the content being commented on
-        content = serializer.validated_data.get('content')
-        hub_type = content.hub_type if content else None
-        
-        serializer.save(
-            author=self.request.user,
-            hub_type=hub_type
-        )
+        # This is now handled in create() method to support mentions
+        pass
+    
+    def _send_comment_notifications(self, comment):
+        """Send notifications for mentions and replies"""
+        try:
+            # 1. Send notifications to mentioned users
+            if hasattr(comment, 'mentions') and comment.mentions.exists():
+                for mention in comment.mentions.all():
+                    notification_service.send_mention_notification(
+                        mentioned_user=mention.mentioned_user,
+                        mentioning_user=comment.author,
+                        comment_id=comment.id,
+                        content_id=comment.content.id,
+                        hub_type=comment.hub_type,
+                        comment_preview=comment.comment_text
+                    )
+            
+            # 2. Send reply notification if this is a reply
+            if comment.parent_comment:
+                parent_author = comment.parent_comment.author
+                # Don't notify if replying to own comment or if they were already mentioned
+                already_mentioned = (
+                    hasattr(comment, 'mentions') and 
+                    comment.mentions.filter(mentioned_user=parent_author).exists()
+                )
+                
+                if not already_mentioned:
+                    notification_service.send_reply_notification(
+                        parent_comment_author=parent_author,
+                        replying_user=comment.author,
+                        comment_id=comment.id,
+                        parent_comment_id=comment.parent_comment.id,
+                        content_id=comment.content.id,
+                        hub_type=comment.hub_type,
+                        reply_preview=comment.comment_text
+                    )
+        except Exception as e:
+            # Log error but don't fail the request
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to send comment notifications: {str(e)}")
     
     @action(detail=True, methods=['post'])
     def like(self, request, pk=None):
@@ -621,6 +721,19 @@ class MaterialQuestionViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         """Set asker to current user when creating a question"""
+        from subscriptions.permissions import check_subscription_permission
+        from rest_framework.exceptions import PermissionDenied
+        
+        # Check if user can ask questions (Free trial users cannot)
+        if not check_subscription_permission(self.request.user, 'can_ask_question'):
+            raise PermissionDenied({
+                'error': 'Subscription required',
+                'message': 'Free trial users cannot ask questions. Please subscribe to access this feature.',
+                'message_sw': 'Watumiaji wa majaribio ya bure hawawezi kuuliza maswali. Tafadhali jiandikishe kufikia kipengele hiki.',
+                'upgrade_required': True,
+                'restriction': 'ask_question'
+            })
+        
         serializer.save(asker=self.request.user)
     
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])

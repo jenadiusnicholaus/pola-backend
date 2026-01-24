@@ -302,6 +302,15 @@ class CallManagementViewSet(viewsets.ViewSet):
                 'message': 'Only the consultant can reject this call'
             }, status=status.HTTP_403_FORBIDDEN)
         
+        # Check if call is already rejected (idempotent behavior)
+        if call_session.status == 'rejected':
+            logger.info(f"Call {call_session.id} already rejected, returning success")
+            return Response({
+                'success': True,
+                'message': 'Call already rejected',
+                'already_rejected': True
+            }, status=status.HTTP_200_OK)
+        
         # Check if call is still ringing
         if call_session.status != 'ringing':
             return Response({
@@ -399,6 +408,39 @@ class CallManagementViewSet(viewsets.ViewSet):
         if call_session.call_credit:
             call_session.call_credit.refresh_from_db()
             remaining_minutes = call_session.call_credit.remaining_minutes
+        
+        # Send notification to the other participant (call ended)
+        other_user = call_session.consultant if call_session.caller == request.user else call_session.caller
+        try:
+            other_devices = UserDevice.objects.filter(
+                user=other_user,
+                is_active=True,
+                fcm_token__isnull=False
+            ).exclude(fcm_token='')
+            
+            if other_devices.exists():
+                project_id = 'website-192723'
+                google_auth = GoogleAuth(project_id)
+                access_token = google_auth.get_access_token()
+                fcm = FCM(project_id, access_token)
+                
+                status_data = {
+                    'type': 'call_ended',
+                    'call_id': call_session.id,
+                    'message': f'Call ended by {request.user.get_full_name() or request.user.email}',
+                    'duration_seconds': call_session.get_duration_seconds(),
+                    'duration_minutes': call_session.duration_minutes
+                }
+                
+                for device in other_devices:
+                    try:
+                        fcm.send_call_status_notification(device.fcm_token, status_data)
+                        logger.info(f"📲 Call end notification sent to {other_user.email}")
+                    except Exception as e:
+                        logger.error(f"Error sending call end notification: {e}")
+        
+        except Exception as e:
+            logger.error(f"Error notifying other participant of call end: {e}")
         
         return Response({
             'success': True,

@@ -44,6 +44,14 @@ class SubscriptionPlan(models.Model):
     forum_access = models.BooleanField(default=False)
     student_hub_access = models.BooleanField(default=False)
     
+    # Free Trial Restrictions (new fields)
+    can_comment_in_forums = models.BooleanField(default=True, help_text="Can user comment/reply in forums and hubs")
+    can_download_documents = models.BooleanField(default=True, help_text="Can user download generated documents")
+    can_talk_to_lawyer = models.BooleanField(default=True, help_text="Can user access Talk to Lawyer feature")
+    can_ask_questions_qa = models.BooleanField(default=True, help_text="Can user ask questions in Q&A")
+    can_book_consultation = models.BooleanField(default=True, help_text="Can user book consultations")
+    legal_ed_subtopics_limit = models.IntegerField(default=0, help_text="Max subtopics in Legal Education (0 = unlimited)")
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -65,32 +73,77 @@ class SubscriptionPlan(models.Model):
         """Return benefits as dictionary for API responses"""
         benefits = []
         
+        # Check if this is a free trial plan
+        is_trial = self.plan_type == 'free_trial'
+        
         if language == 'sw':
-            if self.full_legal_library_access:
-                benefits.append("Pata taarifa, elimu na nyaraka za kisheria bila kikomo")
-            if self.monthly_questions_limit > 0:
-                benefits.append(f"Pata Msaada wa Kisheria bila Malipo kwa kuuliza maswali hadi {self.monthly_questions_limit} ya kisheria kila mwezi")
-            if self.free_documents_per_month > 0:
-                benefits.append(f"Tengeneza na pakua nyaraka {self.free_documents_per_month} ya kisheria ya kibinafsi BURE kila mwezi")
-            if self.legal_updates:
-                benefits.append("Pokea taarifa, habari na Ushauri wa kisheria mara kwa mara")
-            if self.forum_access:
-                benefits.append("Ungana na watumiaji wengine na jadili mada za kisheria kwenye majukwaa husika")
-            if self.student_hub_access:
-                benefits.append("Ungana na wanafunzi wenzako kutoka vyuo tofauti, shiriki majadiliano, notes za masomo, mitihani ya awali, na nyaraka nyingine muhimu za kusaidia masomo yako")
+            if is_trial:
+                # Free Trial benefits (short phrases)
+                benefits.append("Chunguza programu yote")
+                benefits.append("Tazama majukwaa (bila maoni)")
+                benefits.append("Elimu ya kisheria (mada 5)")
+                benefits.append("Tengeneza nyaraka (bila kupakua)")
+                benefits.append("Weka akaunti na wasifu")
+                # Restrictions
+                benefits.append("❌ Huwezi kuongea na wakili")
+                benefits.append("❌ Huwezi kuuliza maswali")
+                benefits.append("❌ Huwezi kuandikisha ushauri")
+            else:
+                # Paid subscription benefits
+                if self.full_legal_library_access:
+                    benefits.append("Maktaba kamili ya kisheria")
+                if self.monthly_questions_limit > 0:
+                    benefits.append(f"Maswali {self.monthly_questions_limit} kwa mwezi")
+                if self.free_documents_per_month > 0:
+                    benefits.append(f"Nyaraka {self.free_documents_per_month} bure kwa mwezi")
+                if self.legal_updates:
+                    benefits.append("Taarifa za kisheria")
+                if self.forum_access and self.can_comment_in_forums:
+                    benefits.append("Majukwaa kamili (maoni na majibu)")
+                if self.student_hub_access:
+                    benefits.append("Kituo cha wanafunzi")
+                if self.can_talk_to_lawyer:
+                    benefits.append("✅ Ongea na wakili")
+                if self.can_ask_questions_qa:
+                    benefits.append("✅ Uliza maswali")
+                if self.can_book_consultation:
+                    benefits.append("✅ Andikisha ushauri")
+                if self.can_download_documents:
+                    benefits.append("✅ Pakua nyaraka")
         else:
-            if self.full_legal_library_access:
-                benefits.append("Enjoy full access to legal knowledge library")
-            if self.monthly_questions_limit > 0:
-                benefits.append(f"Get Free legal assistance, ask up to {self.monthly_questions_limit} legal questions per month")
-            if self.free_documents_per_month > 0:
-                benefits.append(f"Create and download {self.free_documents_per_month} FREE personalized legal document every month")
-            if self.legal_updates:
-                benefits.append("Get regular legal updates, news, and tips")
-            if self.forum_access:
-                benefits.append("Connect with other users and discuss legal topics in relevant forums")
-            if self.student_hub_access:
-                benefits.append("Connect with fellow students from different universities, share discussions, study notes, past exam papers, and other helpful resources")
+            if is_trial:
+                # Free Trial benefits (short phrases)
+                benefits.append("Full app exploration")
+                benefits.append("View forums & hubs (no commenting)")
+                benefits.append("Legal education (5 topics)")
+                benefits.append("Generate templates (no download)")
+                benefits.append("Account & profile setup")
+                # Restrictions
+                benefits.append("❌ Cannot talk to lawyer")
+                benefits.append("❌ Cannot ask questions")
+                benefits.append("❌ Cannot book consultation")
+            else:
+                # Paid subscription benefits
+                if self.full_legal_library_access:
+                    benefits.append("Full legal library access")
+                if self.monthly_questions_limit > 0:
+                    benefits.append(f"{self.monthly_questions_limit} questions per month")
+                if self.free_documents_per_month > 0:
+                    benefits.append(f"{self.free_documents_per_month} free document per month")
+                if self.legal_updates:
+                    benefits.append("Legal updates & news")
+                if self.forum_access and self.can_comment_in_forums:
+                    benefits.append("Full forum access (comment & reply)")
+                if self.student_hub_access:
+                    benefits.append("Student hub access")
+                if self.can_talk_to_lawyer:
+                    benefits.append("✅ Talk to lawyer")
+                if self.can_ask_questions_qa:
+                    benefits.append("✅ Ask questions")
+                if self.can_book_consultation:
+                    benefits.append("✅ Book consultation")
+                if self.can_download_documents:
+                    benefits.append("✅ Download documents")
         
         return benefits
     
@@ -108,6 +161,14 @@ class SubscriptionPlan(models.Model):
             'can_purchase_consultations': True,  # All subscribed users can purchase
             'can_purchase_documents': True,  # All subscribed users can purchase
             'can_purchase_learning_materials': True,  # All subscribed users can purchase
+            # Free Trial Restrictions (frontend expected keys)
+            'can_comment_forum': self.can_comment_in_forums,
+            'can_reply_forum': self.can_comment_in_forums,  # Same as comment
+            'can_download_templates': self.can_download_documents,
+            'can_talk_to_lawyer': self.can_talk_to_lawyer,
+            'can_ask_question': self.can_ask_questions_qa,  # Q&A questions
+            'can_book_consultation': self.can_book_consultation,
+            'legal_education_limit': self.legal_ed_subtopics_limit,
         }
 
 
@@ -137,6 +198,10 @@ class UserSubscription(models.Model):
     documents_generated_this_month = models.IntegerField(default=0)
     last_reset_date = models.DateField(auto_now_add=True, help_text="Last date monthly limits were reset")
     
+    # Free Trial tracking - Legal Education subtopics viewed
+    legal_ed_subtopics_viewed = models.IntegerField(default=0, help_text="Number of legal education subtopics viewed (for trial limit)")
+    viewed_subtopic_ids = models.JSONField(default=list, blank=True, help_text="List of subtopic IDs user has viewed")
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -148,8 +213,21 @@ class UserSubscription(models.Model):
     def __str__(self):
         return f"{self.user.email} - {self.plan.name} ({self.status})"
     
+    def check_and_update_expired_status(self):
+        """
+        Check if subscription has expired and update status accordingly.
+        Call this method before checking permissions to ensure status is accurate.
+        """
+        if self.status == 'active' and self.end_date <= timezone.now():
+            self.status = 'expired'
+            self.save(update_fields=['status', 'updated_at'])
+            return True  # Status was updated
+        return False  # No change
+    
     def is_active(self):
         """Check if subscription is currently active"""
+        # First, check and update expired status if needed
+        self.check_and_update_expired_status()
         return self.status == 'active' and self.end_date > timezone.now()
     
     def is_trial(self):
@@ -186,6 +264,69 @@ class UserSubscription(models.Model):
         self.documents_generated_this_month += 1
         self.save()
     
+    # ========================================================================
+    # FREE TRIAL RESTRICTIONS - Legal Education Subtopics
+    # ========================================================================
+    
+    def can_view_legal_ed_subtopic(self, subtopic_id):
+        """
+        Check if user can view a legal education subtopic.
+        
+        For free trial users, limited to plan.legal_ed_subtopics_limit subtopics.
+        Returns tuple: (can_view: bool, reason: str or None)
+        """
+        # No limit if plan has 0 (unlimited)
+        if self.plan.legal_ed_subtopics_limit == 0:
+            return (True, None)
+        
+        # If user has already viewed this subtopic, allow
+        if subtopic_id in (self.viewed_subtopic_ids or []):
+            return (True, None)
+        
+        # Check if limit reached
+        if self.legal_ed_subtopics_viewed >= self.plan.legal_ed_subtopics_limit:
+            return (False, 'legal_ed_limit_reached')
+        
+        return (True, None)
+    
+    def track_subtopic_view(self, subtopic_id):
+        """
+        Track that user has viewed a subtopic.
+        Only counts unique subtopics towards the limit.
+        """
+        if subtopic_id not in (self.viewed_subtopic_ids or []):
+            if self.viewed_subtopic_ids is None:
+                self.viewed_subtopic_ids = []
+            self.viewed_subtopic_ids.append(subtopic_id)
+            self.legal_ed_subtopics_viewed = len(self.viewed_subtopic_ids)
+            self.save(update_fields=['viewed_subtopic_ids', 'legal_ed_subtopics_viewed'])
+    
+    def get_legal_ed_remaining(self):
+        """Get remaining legal education subtopics user can view"""
+        if self.plan.legal_ed_subtopics_limit == 0:
+            return float('inf')
+        return max(0, self.plan.legal_ed_subtopics_limit - self.legal_ed_subtopics_viewed)
+    
+    def can_comment_in_forum(self):
+        """Check if user can comment/reply in forums (False for trial users)"""
+        return self.plan.can_comment_in_forums
+    
+    def can_download_document(self):
+        """Check if user can download generated documents (False for trial users)"""
+        return self.plan.can_download_documents
+    
+    def can_access_talk_to_lawyer(self):
+        """Check if user can access Talk to Lawyer feature (False for trial users)"""
+        return self.plan.can_talk_to_lawyer
+    
+    def can_ask_question_qa(self):
+        """Check if user can ask questions in Q&A (False for trial users)"""
+        return self.plan.can_ask_questions_qa
+    
+    def can_book_consultation_service(self):
+        """Check if user can book consultations (False for trial users)"""
+        return self.plan.can_book_consultation
+
     def _reset_monthly_limits_if_needed(self):
         """Reset monthly limits if a new month has started"""
         today = timezone.now().date()
@@ -237,6 +378,16 @@ class UserSubscription(models.Model):
                 'can_view_talk_to_lawyer': False,
                 'can_view_nearby_lawyers': False,
                 'can_view_own_consultations': False,
+                # Free Trial restrictions (frontend expected keys)
+                'can_comment_forum': False,
+                'can_reply_forum': False,
+                'can_download_templates': False,
+                'can_talk_to_lawyer': False,
+                'can_ask_question': False,
+                'can_book_consultation': False,
+                'legal_education_limit': 0,
+                'legal_education_reads': 0,
+                'legal_education_remaining': 0,
             }
         
         # Reset monthly limits if needed
@@ -260,6 +411,10 @@ class UserSubscription(models.Model):
             self.plan.free_documents_per_month - self.documents_generated_this_month
         )
         
+        # Add Free Trial specific tracking (frontend expected keys)
+        permissions['legal_education_reads'] = self.legal_ed_subtopics_viewed
+        permissions['legal_education_remaining'] = self.get_legal_ed_remaining()
+        
         # Apply role-based restrictions
         user_role = getattr(self.user, 'user_role', None)
         if user_role:
@@ -279,6 +434,10 @@ class UserSubscription(models.Model):
                 
                 # Professionals CAN view their OWN consultations (as service providers)
                 permissions['can_view_own_consultations'] = True
+                
+                # Advocates and lawyers can access student hub (to view/mentor students) regardless of subscription
+                if role_name in ['advocate', 'lawyer']:
+                    permissions['can_access_student_hub'] = True
                 
             else:
                 # CITIZEN/STUDENT/LECTURER PERMISSIONS
@@ -308,8 +467,8 @@ class UserSubscription(models.Model):
 
 class ConsultantRegistrationRequest(models.Model):
     """
-    Consultant registration request - advocates, lawyers, paralegals
-    must submit and get approved before becoming consultants
+    Consultant registration request - ONLY Law Firms can register as consultants.
+    Individual advocates, lawyers, and paralegals cannot be booked directly.
     
     Note: User data (name, email, phone, license numbers, experience, specializations) 
     is already in PolaUser model. This model only stores:
@@ -324,9 +483,7 @@ class ConsultantRegistrationRequest(models.Model):
     ]
     
     CONSULTANT_TYPES = [
-        ('advocate', 'Advocate'),
-        ('lawyer', 'Lawyer'),
-        ('paralegal', 'Paralegal'),
+        ('law_firm', 'Law Firm'),
     ]
     
     # User submitting the request (inherits all professional info from PolaUser)
@@ -445,12 +602,12 @@ class ConsultantRegistrationRequest(models.Model):
 
 class ConsultantProfile(models.Model):
     """
-    Active consultant profile - created after approval
+    Active consultant profile - created after approval.
+    Only Law Firms can have consultant profiles and be booked.
+    Individual advocates, lawyers, and paralegals cannot be booked directly.
     """
     CONSULTANT_TYPES = [
-        ('advocate', 'Advocate'),
-        ('lawyer', 'Lawyer'),
-        ('paralegal', 'Paralegal'),
+        ('law_firm', 'Law Firm'),
     ]
     
     user = models.OneToOneField(PolaUser, on_delete=models.CASCADE, related_name='consultant_profile')
@@ -491,14 +648,14 @@ class ConsultantProfile(models.Model):
         return f"{self.user.get_full_name()} - {self.consultant_type}"
     
     def get_pricing(self):
-        """Get pricing for this consultant type"""
+        """Get pricing for law firm consultations"""
         try:
             pricing = {}
             
-            # Mobile consultation pricing (50/50 split)
+            # Mobile consultation pricing (50/50 split) - Law Firm only
             if self.offers_mobile_consultations:
                 mobile_pricing = PricingConfiguration.objects.get(
-                    service_type=f'MOBILE_{self.consultant_type.upper()}',
+                    service_type='MOBILE_LAW_FIRM',
                     is_active=True
                 )
                 pricing['mobile'] = {
@@ -507,10 +664,10 @@ class ConsultantProfile(models.Model):
                     'platform_share': mobile_pricing.platform_commission_percent,
                 }
             
-            # Physical consultation pricing (60/40 split)
+            # Physical consultation pricing (60/40 split) - Law Firm only
             if self.offers_physical_consultations:
                 physical_pricing = PricingConfiguration.objects.get(
-                    service_type=f'PHYSICAL_{self.consultant_type.upper()}',
+                    service_type='PHYSICAL_LAW_FIRM',
                     is_active=True
                 )
                 pricing['physical'] = {
@@ -534,22 +691,29 @@ class PricingConfiguration(models.Model):
     Separate from monthly subscription (SubscriptionPlan)
     
     Revenue Splits:
-    - Mobile consultations: 50/50 (App/Consultant)
-    - Physical consultations: 60/40 (App/Consultant)
+    - Mobile consultations: 50/50 (App/Law Firm)
+    - Physical consultations: 60/40 (App/Law Firm)
     - Student materials: 50/50 (App/Uploader)
     - Lecturer materials: 40/60 (App/Uploader)
     - Admin materials: 100/0 (App/Uploader)
+    
+    NOTE: Only Law Firms can be booked as consultants.
+    Individual advocates, lawyers, and paralegals cannot be booked directly.
     """
     SERVICE_TYPES = [
-        # Mobile Consultations (50/50 split)
-        ('MOBILE_ADVOCATE', 'Mobile Consultation - Advocate (In-App Call)'),
-        ('MOBILE_LAWYER', 'Mobile Consultation - Lawyer (In-App Call)'),
-        ('MOBILE_PARALEGAL', 'Mobile Consultation - Paralegal (In-App Call)'),
+        # Law Firm Consultations - Mobile (50/50 split)
+        ('MOBILE_LAW_FIRM', 'Mobile Consultation - Law Firm (In-App Call)'),
         
-        # Physical Consultations (60/40 split)
-        ('PHYSICAL_ADVOCATE', 'Physical Consultation - Advocate'),
-        ('PHYSICAL_LAWYER', 'Physical Consultation - Lawyer'),
-        ('PHYSICAL_PARALEGAL', 'Physical Consultation - Paralegal'),
+        # Law Firm Consultations - Physical (60/40 split)
+        ('PHYSICAL_LAW_FIRM', 'Physical Consultation - Law Firm'),
+        
+        # Legacy types (kept for backward compatibility - may be removed)
+        ('MOBILE_ADVOCATE', 'Mobile Consultation - Advocate (DEPRECATED)'),
+        ('MOBILE_LAWYER', 'Mobile Consultation - Lawyer (DEPRECATED)'),
+        ('MOBILE_PARALEGAL', 'Mobile Consultation - Paralegal (DEPRECATED)'),
+        ('PHYSICAL_ADVOCATE', 'Physical Consultation - Advocate (DEPRECATED)'),
+        ('PHYSICAL_LAWYER', 'Physical Consultation - Lawyer (DEPRECATED)'),
+        ('PHYSICAL_PARALEGAL', 'Physical Consultation - Paralegal (DEPRECATED)'),
         
         # Documents
         ('DOCUMENT_STANDARD', 'Standard Document Generation'),
@@ -705,10 +869,13 @@ class UserCallCredit(models.Model):
 
 class ConsultationBooking(models.Model):
     """
-    Consultation booking - both mobile and physical
+    Physical Consultation Booking - ONLY for in-person meetings with Law Firms.
+    Mobile consultations are handled separately via CallSession/CallCredits.
+    
+    NOTE: Only verified Law Firms can be booked for physical consultations.
+    Individual advocates, lawyers, and paralegals cannot be booked directly.
     """
     BOOKING_TYPES = [
-        ('mobile', 'Mobile Consultation (In-App Call)'),
         ('physical', 'Physical Consultation'),
     ]
     
@@ -973,26 +1140,46 @@ class CallSession(models.Model):
         self.save()
     
     def end_call(self, ended_by='user', duration_seconds=None):
-        """End the call and deduct minutes"""
+        """End the call and deduct minutes (rounds up to nearest minute)"""
+        import math
+        
         self.status = 'completed'
         self.ended_at = timezone.now()
         self.end_time = self.ended_at  # For backward compatibility
         self.ended_by = ended_by
         
-        # Calculate duration
+        # Calculate duration in seconds
         if duration_seconds:
-            self.duration_minutes = int(duration_seconds / 60)
+            actual_seconds = duration_seconds
         elif self.accepted_at:
-            duration = (self.ended_at - self.accepted_at).total_seconds()
-            self.duration_minutes = int(duration / 60)
+            actual_seconds = (self.ended_at - self.accepted_at).total_seconds()
+        else:
+            actual_seconds = 0
+        
+        # Round UP to nearest minute (e.g., 61 seconds = 2 minutes)
+        self.duration_minutes = math.ceil(actual_seconds / 60) if actual_seconds > 0 else 0
         
         self.save()
         
         # Deduct from call credit if available
-        if self.call_credit and self.call_credit.is_valid() and self.duration_minutes > 0:
-            self.call_credit.deduct_minutes(self.duration_minutes)
-            self.credits_deducted = Decimal(str(self.duration_minutes))
-            self.save()
+        if self.call_credit and self.duration_minutes > 0:
+            try:
+                if self.call_credit.is_valid():
+                    # Check if user has enough credits
+                    if self.call_credit.remaining_minutes >= self.duration_minutes:
+                        self.call_credit.deduct_minutes(self.duration_minutes)
+                        self.credits_deducted = Decimal(str(self.duration_minutes))
+                    else:
+                        # Deduct whatever is available
+                        available = self.call_credit.remaining_minutes
+                        self.call_credit.deduct_minutes(available)
+                        self.credits_deducted = Decimal(str(available))
+                    self.save()
+            except Exception as e:
+                # Log error but don't fail the call end
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Error deducting credits: {e}")
     
     def get_duration_seconds(self):
         """Get call duration in seconds"""

@@ -17,4 +17,5 @@ urlpatterns = [
     path('academic-roles/', views.AcademicRoleListView.as_view(), name='academic-roles'),
     path('regional-chapters/', views.RegionalChapterListView.as_view(), name='regional-chapters'),
     path('advocates/', views.AdvocateListView.as_view(), name='advocates'),
+    path('law-firms/', views.LawFirmListView.as_view(), name='law-firms'),
 ]

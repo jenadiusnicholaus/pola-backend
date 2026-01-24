@@ -237,41 +237,38 @@ class ConsultantRegistrationRequestSerializer(serializers.ModelSerializer):
         }
     
     def validate_consultant_type(self, value):
-        """Validate consultant type"""
-        valid_types = ['advocate', 'lawyer', 'paralegal']
-        if value not in valid_types:
+        """Validate consultant type - only law_firm allowed"""
+        if value != 'law_firm':
             raise serializers.ValidationError(
-                f"Invalid consultant type. Must be one of: {', '.join(valid_types)}"
+                "Only Law Firms can register as consultants. Individual advocates, lawyers, and paralegals cannot be booked directly."
             )
         return value
     
     def validate_roll_number(self, value):
-        """Validate roll number for advocates"""
-        if self.initial_data.get('consultant_type') == 'advocate':
-            if not value:
-                raise serializers.ValidationError("Roll number is required for advocates")
+        """Validate roll number - not required for law firms"""
         return value
 
 
 class ConsultantRegistrationCreateSerializer(serializers.Serializer):
-    """Serializer for creating consultant registration requests"""
+    """
+    Serializer for creating consultant registration requests.
+    ONLY Law Firms can register as consultants.
+    """
     consultant_type = serializers.ChoiceField(
-        choices=['advocate', 'lawyer', 'paralegal'],
+        choices=['law_firm'],
         required=True
     )
     specialization = serializers.CharField(max_length=100, required=False, allow_blank=True)
     years_of_experience = serializers.IntegerField(min_value=0, required=True)
-    roll_number = serializers.CharField(max_length=50, required=False, allow_blank=True)
-    law_firm = serializers.CharField(max_length=255, required=False, allow_blank=True)
     bio = serializers.CharField(required=False, allow_blank=True)
     qualification_document = serializers.FileField(required=True)
     id_document = serializers.FileField(required=True)
     
     def validate(self, data):
-        """Cross-field validation"""
-        if data.get('consultant_type') == 'advocate' and not data.get('roll_number'):
+        """Cross-field validation - only law firms allowed"""
+        if data.get('consultant_type') != 'law_firm':
             raise serializers.ValidationError({
-                'roll_number': 'Roll number is required for advocates'
+                'consultant_type': 'Only Law Firms can register as consultants'
             })
         return data
 

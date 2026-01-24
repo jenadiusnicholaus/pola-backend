@@ -18,7 +18,7 @@ class CanAccessHub(BasePermission):
     """
     Check if user can access specific hub based on hub_type
     - Advocates Hub: Only verified advocates and admins
-    - Students Hub: Students, lecturers, and admins  
+    - Students Hub: Students, lecturers, advocates, lawyers, and admins  
     - Forum: Everyone (public)
     - Legal Education: Everyone (public)
     
@@ -60,11 +60,11 @@ class CanAccessHub(BasePermission):
                     self.message = "You must be verified to access this hub"
                     return False
         
-        # Students Hub - students, lecturers, admins
+        # Students Hub - students, lecturers, advocates, lawyers, admins
         elif hub_type == 'students':
             user_role_name = request.user.user_role.role_name if request.user.user_role else None
-            if user_role_name not in ['student', 'lecturer', 'admin']:
-                self.message = "Only students, lecturers, and admins can access the Students Hub"
+            if user_role_name not in ['student', 'lecturer', 'advocate', 'lawyer', 'admin']:
+                self.message = "Only students, lecturers, advocates, lawyers, and admins can access the Students Hub"
                 return False
         
         return True
@@ -94,7 +94,7 @@ class CanAccessHub(BasePermission):
         
         if hub_type == 'students':
             user_role_name = request.user.user_role.role_name if request.user.user_role else None
-            return user_role_name in ['student', 'lecturer', 'admin']
+            return user_role_name in ['student', 'lecturer', 'advocate', 'lawyer', 'admin']
         
         return True
 
@@ -171,7 +171,7 @@ class CanCreateContent(BasePermission):
                     self.message = "You must be verified"
                     return False
         
-        # Students Hub - students, lecturers, admins
+        # Students Hub - students, lecturers, admins (advocates can view but not create)
         if hub_type == 'students':
             user_role_name = request.user.user_role.role_name if request.user.user_role else None
             if user_role_name not in ['student', 'lecturer', 'admin']:

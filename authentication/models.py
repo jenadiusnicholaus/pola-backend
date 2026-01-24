@@ -90,17 +90,64 @@ class CustomUserManager(BaseUserManager):
         )
     
 class UserRole(models.Model):
+    # Roles ordered by significance (most expected users first)
+    # Format: Swahili first, then English (e.g., "Mwananchi | Citizen")
     ROLE_CHOICES = [
-        ('lawyer', {'en': 'Lawyer', 'sw': 'Mwanasheria'}),
-        ('advocate', {'en': 'Advocate', 'sw': 'Wakili'}),
-        ('paralegal', {'en': 'Paralegal', 'sw': 'Msaidizi wa Kisheria'}),
-        ('law_student', {'en': 'Law Student', 'sw': 'Mwanafunzi wa Sheria'}),
-        ('lecturer', {'en': 'Lecturer', 'sw': 'Mhadhiri'}),
-        ('law_firm', {'en': 'Law Firm', 'sw': 'Ofisi ya Mawakili'}),
-        ('citizen', {'en': 'Citizen', 'sw': 'Mwananchi'}),
+        ('citizen', {
+            'en': 'Citizen', 
+            'sw': 'Mwananchi',
+            'display': 'Mwananchi | Citizen',
+            'description_en': 'A general user seeking legal information, services, or consultation from legal professionals.',
+            'description_sw': 'Mtumiaji wa kawaida anayetafuta taarifa za kisheria, huduma, au ushauri kutoka kwa wataalamu wa kisheria.'
+        }),
+        ('advocate', {
+            'en': 'Advocate', 
+            'sw': 'Wakili',
+            'display': 'Wakili | Advocate',
+            'description_en': 'A qualified legal practitioner admitted to the Bar, authorized to represent clients in all courts of law.',
+            'description_sw': 'Mtaalamu wa kisheria aliyeidhinishwa na Chama cha Mawakili, mwenye mamlaka ya kuwakilisha wateja katika mahakama zote za kisheria.'
+        }),
+        ('lawyer', {
+            'en': 'Lawyer', 
+            'sw': 'Mwanasheria',
+            'display': 'Mwanasheria | Lawyer',
+            'description_en': 'A legal professional who has completed law school and is licensed to practice law, providing legal advice and representation.',
+            'description_sw': 'Mtaalamu wa kisheria ambaye amemaliza shule ya sheria na ana leseni ya kufanya kazi za kisheria, kutoa ushauri wa kisheria na uwakilishi.'
+        }),
+        ('paralegal', {
+            'en': 'Paralegal', 
+            'sw': 'Msaidizi wa Kisheria',
+            'display': 'Msaidizi wa Kisheria | Paralegal',
+            'description_en': 'A trained legal assistant who supports lawyers and advocates by conducting research, preparing documents, and assisting with legal procedures.',
+            'description_sw': 'Msaidizi wa kisheria aliyefunzwa ambaye husaidia mawakili kwa kufanya utafiti, kuandaa nyaraka, na kusaidia katika taratibu za kisheria.'
+        }),
+        ('law_firm', {
+            'en': 'Law Firm', 
+            'sw': 'Ofisi ya Mawakili',
+            'display': 'Ofisi ya Mawakili | Law Firm',
+            'description_en': 'A business entity formed by one or more lawyers to engage in the practice of law and provide legal services.',
+            'description_sw': 'Taasisi ya biashara iliyoanzishwa na wakili mmoja au zaidi kwa ajili ya kufanya kazi za kisheria na kutoa huduma za kisheria.'
+        }),
+        ('law_student', {
+            'en': 'Law Student', 
+            'sw': 'Mwanafunzi wa Sheria',
+            'display': 'Mwanafunzi wa Sheria | Law Student',
+            'description_en': 'A student currently enrolled in a law school or legal studies program, preparing for a career in law.',
+            'description_sw': 'Mwanafunzi anayesoma katika shule ya sheria au programu ya masomo ya kisheria, akijiandaa kwa kazi ya kisheria.'
+        }),
+        ('lecturer', {
+            'en': 'Lecturer', 
+            'sw': 'Mhadhiri',
+            'display': 'Mhadhiri | Lecturer',
+            'description_en': 'An academic professional who teaches law courses at universities or legal training institutions.',
+            'description_sw': 'Mtaalamu wa kitaaluma anayefundisha masomo ya sheria katika vyuo vikuu au taasisi za mafunzo ya kisheria.'
+        }),
     ]
     
     role_name = models.CharField(max_length=255, unique=True, choices=[(code, data['en']) for code, data in ROLE_CHOICES])
+    description = models.TextField(blank=True, null=True)
+    description_en = models.TextField(blank=True, null=True, help_text="English description of the role")
+    description_sw = models.TextField(blank=True, null=True, help_text="Swahili description of the role")
     
     def get_role_display_sw(self):
         """Get the Swahili display name for the role"""
@@ -117,9 +164,29 @@ class UserRole(models.Model):
         return ''
 
     def get_role_display(self):
-        """Override the default get_role_name_display to support both languages"""
-        return f"{self.get_role_display_en()} / {self.get_role_display_sw()}"
-    description = models.TextField(blank=True, null=True)
+        """Get bilingual display name (Swahili | English)"""
+        for code, data in self.ROLE_CHOICES:
+            if code == self.role_name:
+                return data.get('display', f"{data['sw']} | {data['en']}")
+        return f"{self.get_role_display_sw()} | {self.get_role_display_en()}"
+    
+    def get_description_en(self):
+        """Get English description - first from database, then from ROLE_CHOICES"""
+        if self.description_en:
+            return self.description_en
+        for code, data in self.ROLE_CHOICES:
+            if code == self.role_name:
+                return data.get('description_en', '')
+        return ''
+
+    def get_description_sw(self):
+        """Get Swahili description - first from database, then from ROLE_CHOICES"""
+        if self.description_sw:
+            return self.description_sw
+        for code, data in self.ROLE_CHOICES:
+            if code == self.role_name:
+                return data.get('description_sw', '')
+        return ''
     permissions = models.ManyToManyField(
         Permission,
         through='RolePermission',
@@ -450,7 +517,13 @@ class PolaUser(AbstractUser):
 
     """
   
-    username = None
+    username = models.CharField(
+        max_length=150,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text=_("Username for @mentions and tagging. Auto-generated from email if not provided.")
+    )
     date_of_birth = models.DateField(verbose_name="Birthday", null=True)
     agreed_to_Terms = models.BooleanField(default=False)
     user_role = models.ForeignKey(UserRole, on_delete=models.SET_NULL, null=True, blank=True)
@@ -564,6 +637,13 @@ class PolaUser(AbstractUser):
     # Fields for Citizen
     ward = models.CharField(max_length=100, null=True)
     id_number = models.CharField(max_length=50, null=True)
+    occupation = models.CharField(
+        max_length=255, 
+        null=True, 
+        blank=True,
+        verbose_name=_("Occupation"),
+        help_text=_("User's occupation or profession (Kazi/Shughuli)")
+    )
 
     groups = models.ManyToManyField(
         Group,
@@ -606,6 +686,40 @@ class PolaUser(AbstractUser):
         if self.email is not None:
             return self.email
         return self.phone_number
+    
+    def _generate_unique_username(self):
+        """Generate a unique username from email or name"""
+        import re
+        
+        # Try to extract from email first
+        if self.email:
+            base_username = self.email.split('@')[0]
+        elif self.first_name or self.last_name:
+            # Fallback to name
+            name_parts = [self.first_name, self.last_name]
+            base_username = ''.join(name_parts).lower()
+        else:
+            # Last resort: use user ID
+            base_username = f'user{self.id if self.id else "new"}'
+        
+        # Clean the username: only alphanumeric, underscore, hyphen
+        base_username = re.sub(r'[^\w-]', '', base_username)
+        base_username = base_username[:30]  # Limit length
+        
+        # Check if username exists, add number suffix if needed
+        username = base_username
+        counter = 1
+        while PolaUser.objects.filter(username=username).exclude(pk=self.pk).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+        
+        return username
+    
+    def save(self, *args, **kwargs):
+        """Auto-generate username if not provided"""
+        if not self.username and self.email:
+            self.username = self._generate_unique_username()
+        super().save(*args, **kwargs)
         
     def has_role(self, role_name):
         """Check if user has a specific role."""
@@ -893,7 +1007,8 @@ class PolaUser(AbstractUser):
             ],
             'citizen': [
                 *all_common_fields,
-                'id_number'
+                'id_number',
+                'occupation'
             ]
         }
         
@@ -1330,3 +1445,73 @@ class NotificationPreference(models.Model):
     
     def __str__(self):
         return f"Notification preferences for {self.user.email}"
+
+
+class UserPrivacySettings(models.Model):
+    """
+    Privacy settings for users - controls tagging, visibility, etc.
+    """
+    TAGGING_CHOICES = [
+        ('everyone', 'Everyone can tag me'),
+        ('following', 'Only people I follow can tag me'),
+        ('none', 'No one can tag me'),
+    ]
+    
+    user = models.OneToOneField(
+        PolaUser,
+        on_delete=models.CASCADE,
+        related_name='privacy_settings'
+    )
+    
+    # Tagging preferences
+    allow_tagging = models.CharField(
+        max_length=20,
+        choices=TAGGING_CHOICES,
+        default='everyone',
+        help_text="Who can tag you in comments and posts"
+    )
+    notify_on_tag = models.BooleanField(
+        default=True,
+        help_text="Receive notification when tagged"
+    )
+    
+    # Profile visibility
+    show_email = models.BooleanField(
+        default=False,
+        help_text="Show email on public profile"
+    )
+    show_phone = models.BooleanField(
+        default=False,
+        help_text="Show phone number on public profile"
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "User Privacy Settings"
+        verbose_name_plural = "User Privacy Settings"
+    
+    def __str__(self):
+        return f"Privacy settings for {self.user.email}"
+    
+    def can_be_tagged_by(self, tagger):
+        """
+        Check if the user can be tagged by another user
+        
+        Args:
+            tagger: PolaUser who wants to tag this user
+            
+        Returns:
+            bool: True if tagging is allowed, False otherwise
+        """
+        if self.allow_tagging == 'none':
+            return False
+        
+        if self.allow_tagging == 'everyone':
+            return True
+        
+        # For 'following' option - we need to check if user follows the tagger
+        # This would require a Following/Connection model (to be implemented if needed)
+        # For now, we'll return True to avoid breaking functionality
+        return True

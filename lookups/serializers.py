@@ -11,10 +11,32 @@ from authentication.models import (
 
 
 class UserRoleSerializer(serializers.ModelSerializer):
-    """Serializer for UserRole model"""
+    """Serializer for UserRole model with bilingual support
+    
+    Response includes:
+    - display_name: Bilingual format "Swahili | English" (e.g., "Mwananchi | Citizen")
+    - name_en: English name only
+    - name_sw: Swahili name only  
+    - description_en: English description of the role
+    - description_sw: Swahili description of the role
+    
+    UI Heading Translation:
+    - English: "Select your Role"
+    - Swahili: "Chagua Wadhifa Wako"
+    """
+    name_en = serializers.CharField(source='get_role_display_en', read_only=True)
+    name_sw = serializers.CharField(source='get_role_display_sw', read_only=True)
+    display_name = serializers.CharField(source='get_role_display', read_only=True)
+    description_en = serializers.CharField(source='get_description_en', read_only=True)
+    description_sw = serializers.CharField(source='get_description_sw', read_only=True)
+    
     class Meta:
         model = UserRole
-        fields = ['id', 'role_name', 'get_role_display', 'description']
+        fields = [
+            'id', 'role_name', 'display_name',
+            'name_en', 'name_sw',
+            'description', 'description_en', 'description_sw'
+        ]
         ref_name = 'LookupUserRole'
 
 
@@ -78,4 +100,14 @@ class AdvocateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PolaUser
         fields = ['id', 'full_name', 'email', 'roll_number', 'regional_chapter_name']
+
+
+class LawFirmSerializer(serializers.ModelSerializer):
+    """Serializer for Law Firm users"""
+    full_name = serializers.CharField(source='get_full_name', read_only=True)
+    regional_chapter_name = serializers.CharField(source='regional_chapter.name', read_only=True)
+    
+    class Meta:
+        model = PolaUser
+        fields = ['id', 'full_name', 'email', 'firm_name', 'regional_chapter_name']
         ref_name = 'LookupAdvocate'

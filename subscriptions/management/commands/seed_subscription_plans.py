@@ -8,37 +8,54 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS('🔄 Seeding subscription plans...'))
         
-        # Free Trial Plan - Updated to give users meaningful access to test platform
+        # Free Trial Plan - Limited access to explore the platform
+        # FREE TRIAL RESTRICTIONS:
+        # - Can view forums/hubs but NOT comment or reply
+        # - Can generate/preview documents but NOT download
+        # - Cannot talk to lawyer
+        # - Cannot ask questions in Q&A
+        # - Cannot book consultations
+        # - Limited to 5 legal education subtopics
+        # - CAN: Set up account/profile, explore app features
         free_trial, created = SubscriptionPlan.objects.update_or_create(
             plan_type='free_trial',
             defaults={
                 'name': 'Free Trial (24 Hours)',
                 'name_sw': 'Majaribio ya Bure (Masaa 24)',
                 'description': '''Enjoy 24 hours of free access to explore the platform. 
-                Test key features including legal library, ask questions, access forums, 
-                and student hub. Limited to 5 questions during trial.''',
-                'description_sw': '''Furahia masaa 24 ya upatikanaji wa bure kuchunguza 
-                jukwaa. Jaribu vipengele muhimu ikiwa ni pamoja na maktaba ya kisheria, 
-                uliza maswali, pata majukwaa, na kituo cha wanafunzi. Maswali 5 tu wakati wa jaribio.''',
+                View all features with limited access. Browse legal library, view forums 
+                and hubs (no commenting), preview legal education (5 topics), and generate 
+                documents (no download). Subscribe to unlock full features.''',
+                'description_sw': '''Furahia masaa 24 ya upatikanaji wa bure kuchunguza jukwaa. 
+                Tazama vipengele vyote na ufikiaji mdogo. Vinjari maktaba ya kisheria, ona 
+                majukwaa na vituo (bila maoni), tazama elimu ya kisheria (mada 5), na tengeneza 
+                nyaraka (bila kupakua). Jiandikishe kufungua vipengele vyote.''',
                 'price': 0.00,
                 'duration_days': 1,
                 'is_active': True,
-                # Give trial users good access to test the platform
-                'full_legal_library_access': True,  # ✅ Let them browse legal library
-                'monthly_questions_limit': 5,  # ✅ 5 questions to test Q&A feature
-                'free_documents_per_month': 0,  # ❌ No free documents (can still purchase)
-                'legal_updates': False,  # ❌ No automated updates during trial
-                'forum_access': True,  # ✅ Access to forums to engage with community
-                'student_hub_access': True,  # ✅ Access to student hub for students
+                # Features - Limited access for trial users
+                'full_legal_library_access': True,  # ✅ Can browse legal library
+                'monthly_questions_limit': 0,  # ❌ No questions during trial
+                'free_documents_per_month': 0,  # ❌ No free documents
+                'legal_updates': False,  # ❌ No automated updates
+                'forum_access': True,  # ✅ Can VIEW forums (but not comment)
+                'student_hub_access': True,  # ✅ Can VIEW student hub (but not comment)
+                # Free Trial Restrictions
+                'can_comment_in_forums': False,  # ❌ Cannot comment/reply in forums
+                'can_download_documents': False,  # ❌ Cannot download templates
+                'can_talk_to_lawyer': False,  # ❌ Cannot talk to lawyer
+                'can_ask_questions_qa': False,  # ❌ Cannot ask questions
+                'can_book_consultation': False,  # ❌ Cannot book consultations
+                'legal_ed_subtopics_limit': 5,  # ⚠️ Limited to 5 subtopics
             }
         )
         
         if created:
-            self.stdout.write(self.style.SUCCESS('✅ Created Free Trial plan with testing access'))
+            self.stdout.write(self.style.SUCCESS('✅ Created Free Trial plan with exploration access'))
         else:
-            self.stdout.write(self.style.SUCCESS('✅ Updated Free Trial plan with testing access'))
+            self.stdout.write(self.style.SUCCESS('✅ Updated Free Trial plan with exploration access'))
         
-        # Monthly Subscription Plan
+        # Monthly Subscription Plan - Full access to all features
         monthly, created = SubscriptionPlan.objects.update_or_create(
             plan_type='monthly',
             defaults={
@@ -60,6 +77,13 @@ class Command(BaseCommand):
                 'legal_updates': True,
                 'forum_access': True,
                 'student_hub_access': True,
+                # Full permissions (not trial restricted)
+                'can_comment_in_forums': True,  # ✅ Can comment/reply
+                'can_download_documents': True,  # ✅ Can download templates
+                'can_talk_to_lawyer': True,  # ✅ Can talk to lawyer
+                'can_ask_questions_qa': True,  # ✅ Can ask questions
+                'can_book_consultation': True,  # ✅ Can book consultations
+                'legal_ed_subtopics_limit': 0,  # ✅ Unlimited (0 = no limit)
             }
         )
         

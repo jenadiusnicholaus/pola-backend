@@ -151,10 +151,19 @@ def nearby_legal_professionals(request):
         if professional.profile_picture:
             profile_picture_url = request.build_absolute_uri(professional.profile_picture.url)
         
+        # Get consultant profile if exists
+        from subscriptions.models import ConsultantProfile
+        consultant_profile = ConsultantProfile.objects.filter(
+            user=professional,
+            is_available=True
+        ).first()
+        
         # Build result matching consultant API structure
         result = {
             'id': professional.id,
             'user': professional.id,
+            'consultant_profile_id': consultant_profile.id if consultant_profile else None,
+            'can_book_physical': consultant_profile is not None and consultant_profile.offers_physical_consultations,
             'user_details': {
                 'id': professional.id,
                 'email': professional.email,

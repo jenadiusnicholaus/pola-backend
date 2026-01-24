@@ -149,6 +149,69 @@ class UserOnlineStatus(models.Model):
         return True
 
 
+class UserNotification(models.Model):
+    """
+    Store notification history for users
+    Allows users to view past notifications even if FCM was not delivered
+    """
+    NOTIFICATION_TYPES = [
+        ('mention', 'Mention'),
+        ('reply', 'Reply'),
+        ('consultation_request', 'Consultation Request'),
+        ('consultation_status', 'Consultation Status'),
+        ('payment_received', 'Payment Received'),
+        ('document_ready', 'Document Ready'),
+        ('system', 'System'),
+    ]
+    
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='notifications'
+    )
+    notification_type = models.CharField(
+        max_length=50,
+        choices=NOTIFICATION_TYPES,
+        db_index=True
+    )
+    title = models.CharField(max_length=255)
+    body = models.TextField()
+    data = models.JSONField(
+        default=dict,
+        help_text="Additional data payload for navigation"
+    )
+    
+    # Status
+    is_read = models.BooleanField(default=False, db_index=True)
+    read_at = models.DateTimeField(null=True, blank=True)
+    
+    # Tracking
+    fcm_sent = models.BooleanField(
+        default=False,
+        help_text="Whether FCM push was successfully sent"
+    )
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'User Notification'
+        verbose_name_plural = 'User Notifications'
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['user', 'is_read', '-created_at']),
+        ]
+    
+    def __str__(self):
+        return f"{self.notification_type} for {self.user.email}"
+    
+    def mark_as_read(self):
+        """Mark notification as read"""
+        if not self.is_read:
+            self.is_read = True
+            self.read_at = timezone.now()
+            self.save(update_fields=['is_read', 'read_at'])
+
+
 
 
     

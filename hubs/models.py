@@ -127,6 +127,58 @@ class HubCommentLike(models.Model):
         return f"{self.user.get_full_name()} liked comment"
 
 
+class CommentMention(models.Model):
+    """
+    Track user mentions (@username) in comments
+    Supports tagging users in comments and replies across all hubs
+    """
+    comment = models.ForeignKey(
+        HubComment,
+        on_delete=models.CASCADE,
+        related_name='mentions',
+        help_text="The comment where the user was mentioned"
+    )
+    mentioned_user = models.ForeignKey(
+        PolaUser,
+        on_delete=models.CASCADE,
+        related_name='comment_mentions',
+        help_text="The user who was mentioned/tagged"
+    )
+    mentioned_by = models.ForeignKey(
+        PolaUser,
+        on_delete=models.CASCADE,
+        related_name='mentions_created',
+        help_text="The user who created the mention"
+    )
+    position = models.PositiveIntegerField(
+        help_text="Character position in comment where mention starts"
+    )
+    is_read = models.BooleanField(
+        default=False,
+        help_text="Whether the mentioned user has seen the mention"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = 'Comment Mention'
+        verbose_name_plural = 'Comment Mentions'
+        unique_together = ['comment', 'mentioned_user', 'position']
+        indexes = [
+            models.Index(fields=['mentioned_user', '-created_at']),
+            models.Index(fields=['comment', 'mentioned_user']),
+            models.Index(fields=['mentioned_user', 'is_read']),
+        ]
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.mentioned_by.get_full_name()} mentioned {self.mentioned_user.get_full_name()}"
+    
+    def mark_as_read(self):
+        """Mark this mention as read"""
+        self.is_read = True
+        self.save(update_fields=['is_read'])
+
+
 class ContentBookmark(models.Model):
     """
     Track bookmarked content (posts/documents) across all hubs

@@ -69,7 +69,7 @@ class PaymentViewSet(viewsets.ViewSet):
         if not payment_category:
             return Response({
                 'error': 'payment_category is required',
-                'valid_categories': ['subscription', 'call_credit', 'document', 'material']
+                'valid_categories': ['subscription', 'call_credit', 'document', 'material', 'consultation']
             }, status=status.HTTP_400_BAD_REQUEST)
         
         if not item_id:

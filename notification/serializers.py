@@ -1,5 +1,25 @@
-from notification.models import FcmNotification, FcmTokenModel
+from notification.models import FcmNotification, FcmTokenModel, UserNotification
 from rest_framework import serializers
+
+
+class UserNotificationSerializer(serializers.ModelSerializer):
+    """Serializer for user notification history"""
+    
+    class Meta:
+        model = UserNotification
+        fields = [
+            'id',
+            'user',
+            'notification_type',
+            'title',
+            'body',
+            'data',
+            'is_read',
+            'read_at',
+            'fcm_sent',
+            'created_at'
+        ]
+        read_only_fields = ['id', 'user', 'fcm_sent', 'created_at', 'read_at']
 
 
 class FcmNotificationSerializer(serializers.ModelSerializer):

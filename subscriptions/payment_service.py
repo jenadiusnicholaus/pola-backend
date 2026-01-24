@@ -59,6 +59,11 @@ class PaymentService:
             'model_path': 'documents.LearningMaterial',
             'description_field': 'title',
             'amount_field': 'price',
+        },
+        'consultation': {
+            'model_path': 'subscriptions.ConsultationBooking',
+            'description_field': 'booking_type',
+            'amount_field': 'total_amount',
         }
     }
     
@@ -296,8 +301,14 @@ class PaymentService:
             'subscription': 'Subscription',
             'call_credit': 'Call Credit Bundle',
             'document': 'Document Download',
-            'material': 'Study Material'
+            'material': 'Study Material',
+            'consultation': 'Consultation Booking'
         }
+        
+        # Special handling for consultation - include consultant name
+        if category == 'consultation':
+            consultant_name = item.consultant.get_full_name() if item.consultant else 'Consultant'
+            return f"{category_names[category]}: {item.booking_type.title()} with {consultant_name}"
         
         return f"{category_names[category]}: {item_name}"
     
@@ -333,6 +344,19 @@ class PaymentService:
                 'material_title': item.title,
                 'uploader_id': item.uploader.id if hasattr(item, 'uploader') else None
             })
+        elif category == 'consultation':
+            metadata.update({
+                'booking_id': item.id,
+                'booking_type': item.booking_type,
+                'consultant_id': item.consultant.id if item.consultant else None,
+                'consultant_name': item.consultant.get_full_name() if item.consultant else 'Unknown',
+                'scheduled_date': str(item.scheduled_date),
+                'duration_minutes': item.scheduled_duration_minutes,
+                'meeting_location': item.meeting_location or '',
+                'total_amount': str(item.total_amount),
+                'platform_commission': str(item.platform_commission),
+                'consultant_earnings': str(item.consultant_earnings),
+            })
         
         return metadata
     
@@ -353,6 +377,8 @@ class PaymentService:
             payment_txn.related_document = item
         elif category == 'material':
             payment_txn.related_material = item
+        elif category == 'consultation':
+            payment_txn.related_booking = item
         
         payment_txn.save()
     
@@ -434,35 +460,34 @@ class PaymentService:
         except SubscriptionPlan.DoesNotExist:
             raise PaymentServiceError(f"Subscription plan not found: {plan_id}")
         
-        # Check for existing active subscription
-        existing = UserSubscription.objects.filter(
-            user=payment_txn.user,
-            status='active'
-        ).first()
+        # Check for ANY existing subscription (active, expired, or cancelled)
+        existing = UserSubscription.objects.filter(user=payment_txn.user).first()
         
         if existing:
-            # UPGRADE/EXTEND existing subscription
-            logger.info(f"   Found existing subscription: {existing.plan.name}")
+            # RENEW/UPGRADE existing subscription
+            logger.info(f"   Found existing subscription: {existing.plan.name} (status: {existing.status})")
             
             # Determine start date
-            if existing.end_date > timezone.now():
+            if existing.status == 'active' and existing.end_date > timezone.now():
                 # Active subscription - extend from end date
                 start_date = existing.end_date
                 logger.info(f"   Extending from current end date: {existing.end_date}")
             else:
-                # Expired subscription - start from now
+                # Expired/cancelled subscription - start from now
                 start_date = timezone.now()
-                logger.info(f"   Subscription expired, starting fresh from now")
+                logger.info(f"   Subscription was {existing.status}, starting fresh from now")
             
             # UPDATE TO NEW PAID PLAN (important!)
             existing.plan = plan
+            existing.status = 'active'  # Reactivate if expired/cancelled
+            existing.start_date = start_date
             existing.end_date = start_date + timedelta(days=plan.duration_days)
             existing.save()
             
             payment_txn.related_subscription = existing
             payment_txn.save()
             
-            logger.info(f"✅ UPGRADED subscription to {plan.name} for {payment_txn.user.email}")
+            logger.info(f"✅ RENEWED/UPGRADED subscription to {plan.name} for {payment_txn.user.email}")
             logger.info(f"   Valid until: {existing.end_date}")
         else:
             # Create new subscription

@@ -895,15 +895,17 @@ class ConsultantViewSet(viewsets.ReadOnlyModelViewSet):
 
 class ConsultationBookingViewSet(viewsets.ModelViewSet):
     """
-    ViewSet for consultation bookings
+    ViewSet for PHYSICAL consultation bookings with Law Firms.
+    
+    NOTE: 
+    - BOOKING = Physical consultations only (in-person meetings with Law Firms)
+    - CALLS = Mobile consultations (in-app calls) - use /api/v1/calls/ endpoints
     
     Endpoints:
-    - POST /api/v1/consultations/book/ - Book a consultation
+    - POST /api/v1/consultations/book/ - Book a physical consultation
     - GET /api/v1/consultations/ - List user's bookings
     - GET /api/v1/consultations/{id}/ - Get booking details
     - PATCH /api/v1/consultations/{id}/cancel/ - Cancel a booking
-    - POST /api/v1/consultations/{id}/start-call/ - Start a call session
-    - POST /api/v1/consultations/{id}/end-call/ - End a call session
     - POST /api/v1/consultations/{id}/rate/ - Rate a consultation
     """
     serializer_class = ConsultationBookingSerializer
@@ -936,7 +938,12 @@ class ConsultationBookingViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['post'])
     def book(self, request):
-        """Create a new consultation booking"""
+        """
+        Create a new physical consultation booking with a Law Firm.
+        
+        NOTE: This is for PHYSICAL consultations only.
+        For mobile/in-app calls, use the Call Credits system (/api/v1/calls/).
+        """
         serializer = ConsultationBookingCreateSerializer(data=request.data)
         
         if serializer.is_valid():
@@ -946,30 +953,42 @@ class ConsultationBookingViewSet(viewsets.ModelViewSet):
                 consultant_profile = ConsultantProfile.objects.get(id=consultant_profile_id)
             except ConsultantProfile.DoesNotExist:
                 return Response(
-                    {'error': 'Consultant not found'},
+                    {'error': 'Law firm not found'},
                     status=status.HTTP_404_NOT_FOUND
                 )
             
-            # Get pricing
+            # Verify it's a law firm
+            if consultant_profile.consultant_type != 'law_firm':
+                return Response(
+                    {'error': 'Only Law Firms can be booked for physical consultations'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Get physical consultation pricing
             pricing = consultant_profile.get_pricing()
-            consultation_type = serializer.validated_data['consultation_type']
-            service_key = 'mobile' if consultation_type == 'mobile' else 'physical'
-            amount = pricing[service_key]['price']
+            if 'physical' not in pricing:
+                return Response(
+                    {'error': 'This law firm does not offer physical consultations'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            amount = pricing['physical']['price']
             
             # Create booking
             with db_transaction.atomic():
                 booking = ConsultationBooking.objects.create(
                     client=request.user,
-                    consultant_profile=consultant_profile,
-                    consultation_type=consultation_type,
+                    consultant=consultant_profile.user,
+                    booking_type='physical',
                     topic=serializer.validated_data['topic'],
-                    description=serializer.validated_data['description'],
-                    scheduled_date=serializer.validated_data.get('scheduled_date'),
-                    scheduled_time=serializer.validated_data.get('scheduled_time'),
-                    duration_minutes=serializer.validated_data.get('duration_minutes', 30),
-                    location=serializer.validated_data.get('location', ''),
-                    status='pending_payment',
-                    amount_paid=amount
+                    scheduled_date=serializer.validated_data['scheduled_date'],
+                    scheduled_duration_minutes=serializer.validated_data.get('duration_minutes', 60),
+                    meeting_location=serializer.validated_data['location'],
+                    client_notes=serializer.validated_data['description'],
+                    status='pending',
+                    total_amount=amount,
+                    platform_commission=amount * pricing['physical']['platform_share'] / 100,
+                    consultant_earnings=amount * pricing['physical']['consultant_share'] / 100,
                 )
                 
                 # Create payment transaction
@@ -979,65 +998,61 @@ class ConsultationBookingViewSet(viewsets.ModelViewSet):
                     amount=amount,
                     currency='TZS',
                     payment_method=serializer.validated_data.get('payment_method', 'mobile_money'),
-                    payment_reference=f"CONS-{uuid.uuid4().hex[:12].upper()}",
-                    description=f"Consultation booking: {booking.topic}",
+                    payment_reference=f"BOOK-{uuid.uuid4().hex[:12].upper()}",
+                    description=f"Physical consultation booking: {booking.topic}",
                     status='pending',
                     related_booking=booking
                 )
                 
-                booking.payment_transaction = payment
-                booking.save()
-                
-                # For physical consultations, initiate payment
+                # Initiate payment
                 phone_number = request.data.get('phone_number')
                 
-                if consultation_type == 'physical' and amount > 0:
-                    if not phone_number:
-                        return Response({
-                            'error': 'phone_number is required for physical consultation payments'
-                        }, status=status.HTTP_400_BAD_REQUEST)
-                    
-                    # Check if AzamPay is configured
-                    if azampay_client.config.is_configured():
-                        formatted_phone = format_phone_number(phone_number)
-                        provider = detect_mobile_provider(formatted_phone)
-                        
-                        # Initiate payment
-                        payment_result = azampay_client.initiate_checkout(
-                            phone_number=formatted_phone,
-                            amount=amount,
-                            external_reference=payment.payment_reference,
-                            provider=provider
-                        )
-                        
-                        if payment_result['success']:
-                            payment.gateway_reference = payment_result['transaction_id']
-                            payment.save()
-                            
-                            return Response({
-                                'message': 'Consultation booking created and payment initiated',
-                                'booking': ConsultationBookingSerializer(booking).data,
-                                'payment': PaymentTransactionSerializer(payment).data,
-                                'payment_details': {
-                                    'azampay_transaction_id': payment_result['transaction_id'],
-                                    'phone': formatted_phone,
-                                    'provider': provider
-                                },
-                                'next_step': f'Complete payment on your {provider} phone: {formatted_phone}'
-                            }, status=status.HTTP_201_CREATED)
-                        else:
-                            return Response({
-                                'error': 'Payment initiation failed',
-                                'message': payment_result['message'],
-                                'booking': ConsultationBookingSerializer(booking).data
-                            }, status=status.HTTP_400_BAD_REQUEST)
+                if not phone_number:
+                    return Response({
+                        'error': 'phone_number is required for booking payment'
+                    }, status=status.HTTP_400_BAD_REQUEST)
                 
-                # For mobile consultations (FREE) or test mode
+                # Check if AzamPay is configured
+                if azampay_client.config.is_configured():
+                    formatted_phone = format_phone_number(phone_number)
+                    provider = detect_mobile_provider(formatted_phone)
+                    
+                    # Initiate payment
+                    payment_result = azampay_client.initiate_checkout(
+                        phone_number=formatted_phone,
+                        amount=amount,
+                        external_reference=payment.payment_reference,
+                        provider=provider
+                    )
+                    
+                    if payment_result['success']:
+                        payment.gateway_reference = payment_result['transaction_id']
+                        payment.save()
+                        
+                        return Response({
+                            'message': 'Physical consultation booking created and payment initiated',
+                            'booking': ConsultationBookingSerializer(booking).data,
+                            'payment': PaymentTransactionSerializer(payment).data,
+                            'payment_details': {
+                                'azampay_transaction_id': payment_result['transaction_id'],
+                                'phone': formatted_phone,
+                                'provider': provider
+                            },
+                            'next_step': f'Complete payment on your {provider} phone: {formatted_phone}'
+                        }, status=status.HTTP_201_CREATED)
+                    else:
+                        return Response({
+                            'error': 'Payment initiation failed',
+                            'message': payment_result['message'],
+                            'booking': ConsultationBookingSerializer(booking).data
+                        }, status=status.HTTP_400_BAD_REQUEST)
+                
+                # Test mode - no payment gateway
                 return Response({
-                    'message': 'Consultation booking created successfully',
+                    'message': 'Physical consultation booking created successfully',
                     'booking': ConsultationBookingSerializer(booking).data,
                     'payment': PaymentTransactionSerializer(payment).data,
-                    'next_step': 'Complete payment to confirm booking' if amount > 0 else 'Booking confirmed (FREE mobile consultation)'
+                    'next_step': 'Complete payment to confirm booking'
                 }, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -1074,6 +1089,18 @@ class ConsultationBookingViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='start-call')
     def start_call(self, request, pk=None):
         """Start a call session for mobile consultation"""
+        from subscriptions.permissions import check_subscription_permission
+        
+        # Check if user can talk to lawyer (Free trial users cannot)
+        if not check_subscription_permission(request.user, 'can_talk_to_lawyer'):
+            return Response({
+                'error': 'Subscription required',
+                'message': 'Free trial users cannot talk to lawyers. Please subscribe to access this feature.',
+                'message_sw': 'Watumiaji wa majaribio ya bure hawawezi kuwasiliana na mawakili. Tafadhali jiandikishe kufikia kipengele hiki.',
+                'upgrade_required': True,
+                'restriction': 'talk_to_lawyer'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
         booking = self.get_object()
         
         # Validate booking

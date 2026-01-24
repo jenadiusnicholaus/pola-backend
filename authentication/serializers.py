@@ -11,10 +11,20 @@ User = get_user_model()
 
 
 class UserRoleSerializer(serializers.ModelSerializer):
-    """Serializer for UserRole model"""
+    """Serializer for UserRole model with bilingual support"""
+    name_en = serializers.CharField(source='get_role_display_en', read_only=True)
+    name_sw = serializers.CharField(source='get_role_display_sw', read_only=True)
+    display_name = serializers.CharField(source='get_role_display', read_only=True)
+    description_en = serializers.CharField(source='get_description_en', read_only=True)
+    description_sw = serializers.CharField(source='get_description_sw', read_only=True)
+    
     class Meta:
         model = UserRole
-        fields = ['id', 'role_name', 'get_role_display', 'description']
+        fields = [
+            'id', 'role_name', 'display_name', 
+            'name_en', 'name_sw',
+            'description', 'description_en', 'description_sw'
+        ]
         read_only_fields = ['id']
 
 
@@ -150,7 +160,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             'university_name', 'academic_role', 'year_of_study', 'academic_qualification',
             
             # Citizen fields
-            'id_number',
+            'id_number', 'occupation',
         ]
         read_only_fields = ['id']
         extra_kwargs = {
@@ -377,6 +387,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             # No subscription - return default permissions with role restrictions
             user_role = getattr(obj, 'user_role', None)
             is_prof = user_role and user_role.role_name in ['advocate', 'lawyer', 'paralegal', 'law_firm']
+            is_advocate_or_lawyer = user_role and user_role.role_name in ['advocate', 'lawyer']
             
             return {
                 'has_subscription': False,
@@ -388,7 +399,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
                     'can_generate_documents': False,
                     'can_receive_legal_updates': False,
                     'can_access_forum': False,
-                    'can_access_student_hub': False,
+                    'can_access_student_hub': is_advocate_or_lawyer,  # Advocates and lawyers can access student hub
                     'can_purchase_consultations': False,
                     'can_purchase_documents': False,
                     'can_purchase_learning_materials': False,
@@ -398,6 +409,16 @@ class UserDetailSerializer(serializers.ModelSerializer):
                     'can_view_own_consultations': True,  # Can always view own
                     'user_role': user_role.role_name if user_role else None,
                     'is_professional': is_prof,
+                    # Free Trial restrictions (all false when no subscription)
+                    'can_comment_forum': False,
+                    'can_reply_forum': False,
+                    'can_download_templates': False,
+                    'can_talk_to_lawyer': False,
+                    'can_ask_question': False,
+                    'can_book_consultation': False,
+                    'legal_education_limit': 0,
+                    'legal_education_reads': 0,
+                    'legal_education_remaining': 0,
                 }
             }
         except Exception as e:
@@ -439,7 +460,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'university_name', 'academic_role', 'year_of_study', 'academic_qualification',
             
             # Citizen fields
-            'id_number',
+            'id_number', 'occupation',
             
             'date_joined', 'last_login',
         ]
@@ -459,7 +480,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'citizen': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
                 'user_role', 'gender', 'profile_picture', 'profile_picture_url', 'is_active', 'is_verified',
-                'contact', 'address', 'verification_status', 'permissions', 'subscription', 'id_number',
+                'contact', 'address', 'verification_status', 'permissions', 'subscription', 'id_number', 'occupation',
                 'date_joined', 'last_login'
             ],
             'advocate': [

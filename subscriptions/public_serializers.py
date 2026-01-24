@@ -300,42 +300,40 @@ class ConsultantRegistrationCreateSerializer(serializers.ModelSerializer):
         return value
     
     def validate_consultant_type(self, value):
-        """Validate consultant type matches user's role"""
+        """Validate consultant type - only law firms can register as consultants"""
         user = self.context['request'].user
         
         if not user.user_role:
             raise serializers.ValidationError("User role not found")
         
-        # Map user roles to consultant types
-        type_mapping = {
-            'advocate': ['advocate'],
-            'lawyer': ['lawyer'],
-            'paralegal': ['paralegal'],
-            'law_firm': ['advocate', 'lawyer']  # Law firms can register as advocate or lawyer
-        }
-        
-        allowed_types = type_mapping.get(user.user_role.role_name, [])
-        
-        if value not in allowed_types:
+        # Only law firms can register as consultants
+        if user.user_role.role_name != 'law_firm':
             raise serializers.ValidationError(
-                f"Your role ({user.user_role.role_name}) cannot register as {value}"
+                "Only Law Firms can register as consultants. Individual advocates, lawyers, and paralegals cannot be booked directly."
+            )
+        
+        # Law firms can only register as 'law_firm' type
+        if value != 'law_firm':
+            raise serializers.ValidationError(
+                "Consultant type must be 'law_firm'"
             )
         
         return value
     
     def validate(self, attrs):
-        """Validate physical consultations eligibility"""
+        """Validate consultant registration - only law firms allowed"""
         user = self.context['request'].user
         
         if not user.user_role:
             raise serializers.ValidationError("User role not found")
         
-        # Only law firms can offer physical consultations
-        if attrs.get('offers_physical_consultations', False) and user.user_role.role_name != 'law_firm':
-            raise serializers.ValidationError({
-                'offers_physical_consultations': 'Only registered law firms can offer physical consultations'
-            })
+        # Only law firms can register as consultants
+        if user.user_role.role_name != 'law_firm':
+            raise serializers.ValidationError(
+                "Only Law Firms can register as consultants. Individual advocates, lawyers, and paralegals cannot be booked directly."
+            )
         
+        # Law firms can offer both mobile and physical consultations
         # If offering physical consultations, city is required
         if attrs.get('offers_physical_consultations') and not attrs.get('preferred_consultation_city'):
             raise serializers.ValidationError({
@@ -347,9 +345,9 @@ class ConsultantRegistrationCreateSerializer(serializers.ModelSerializer):
 
 class ConsultantRegistrationCreateSerializer(serializers.Serializer):
     """
-    Simplified serializer for creating consultant registration requests.
-    Most information (consultant_type, documents, personal info) is already collected
-    during user registration and verification, so we only need consultation preferences.
+    Serializer for creating consultant registration requests.
+    ONLY Law Firms can register as consultants.
+    Individual advocates, lawyers, and paralegals cannot be booked directly.
     """
     offers_physical_consultations = serializers.BooleanField(default=False)
     terms_accepted = serializers.BooleanField(required=True, write_only=True)
@@ -362,8 +360,8 @@ class ConsultantRegistrationCreateSerializer(serializers.Serializer):
     
     def validate(self, data):
         """
-        Validate based on user's role and firm association.
-        Physical consultations require advocate/lawyer role AND law firm association.
+        Validate that only Law Firms can register as consultants.
+        Individual advocates, lawyers, and paralegals cannot be booked directly.
         """
         request = self.context.get('request')
         if not request or not request.user:
@@ -375,21 +373,11 @@ class ConsultantRegistrationCreateSerializer(serializers.Serializer):
         if not user.user_role:
             raise serializers.ValidationError("User role not found")
         
-        # Physical consultations validation
-        if data.get('offers_physical_consultations'):
-            # Must be advocate or lawyer
-            if user.user_role.role_name not in ['advocate', 'lawyer']:
-                raise serializers.ValidationError({
-                    'offers_physical_consultations': 
-                    'Only advocates and lawyers can offer physical consultations'
-                })
-            
-            # Must be associated with a law firm
-            if not user.associated_law_firm:
-                raise serializers.ValidationError({
-                    'offers_physical_consultations': 
-                    'You must be associated with a law firm to offer physical consultations'
-                })
+        # Only law firms can register as consultants
+        if user.user_role.role_name != 'law_firm':
+            raise serializers.ValidationError(
+                "Only Law Firms can register as consultants. Individual advocates, lawyers, and paralegals cannot be booked directly."
+            )
         
         return data
 
@@ -450,50 +438,50 @@ class ConsultationBookingSerializer(serializers.ModelSerializer):
 
 
 class ConsultationBookingCreateSerializer(serializers.Serializer):
-    """Serializer for creating consultation bookings"""
+    """
+    Serializer for creating physical consultation bookings.
+    ONLY for in-person meetings with verified Law Firms.
+    Mobile consultations are handled separately via CallSession/CallCredits.
+    """
     consultant_profile_id = serializers.IntegerField(required=True)
-    consultation_type = serializers.ChoiceField(
-        choices=['mobile', 'physical'],
-        required=True
-    )
     topic = serializers.CharField(max_length=255, required=True)
     description = serializers.CharField(required=True)
-    scheduled_date = serializers.DateField(required=False, allow_null=True)
-    scheduled_time = serializers.TimeField(required=False, allow_null=True)
-    duration_minutes = serializers.IntegerField(min_value=5, required=False, default=30)
-    location = serializers.CharField(required=False, allow_blank=True)
+    scheduled_date = serializers.DateField(required=True)
+    scheduled_time = serializers.TimeField(required=True)
+    duration_minutes = serializers.IntegerField(min_value=15, required=False, default=60)
+    location = serializers.CharField(required=True)
     payment_method = serializers.ChoiceField(
         choices=['mobile_money', 'card', 'bank_transfer'],
         default='mobile_money'
     )
     
     def validate_consultant_profile_id(self, value):
-        """Validate consultant profile exists"""
+        """Validate consultant profile exists and offers physical consultations"""
         try:
             profile = ConsultantProfile.objects.get(id=value)
             if not profile.is_available:
-                raise serializers.ValidationError("This consultant is not currently available")
-            # Consultants with profiles are already verified (approved by admin)
+                raise serializers.ValidationError("This law firm is not currently available")
+            if not profile.offers_physical_consultations:
+                raise serializers.ValidationError("This law firm does not offer physical consultations")
+            if profile.consultant_type != 'law_firm':
+                raise serializers.ValidationError("Only Law Firms can be booked for physical consultations")
         except ConsultantProfile.DoesNotExist:
-            raise serializers.ValidationError("Consultant profile not found")
+            raise serializers.ValidationError("Law firm profile not found")
         return value
     
     def validate(self, data):
-        """Cross-field validation"""
-        # Physical consultations require date, time, and location
-        if data.get('consultation_type') == 'physical':
-            if not data.get('scheduled_date'):
-                raise serializers.ValidationError({
-                    'scheduled_date': 'Scheduled date is required for physical consultations'
-                })
-            if not data.get('scheduled_time'):
-                raise serializers.ValidationError({
-                    'scheduled_time': 'Scheduled time is required for physical consultations'
-                })
-            if not data.get('location'):
-                raise serializers.ValidationError({
-                    'location': 'Location is required for physical consultations'
-                })
+        """Validate all required fields for physical consultation"""
+        errors = {}
+        
+        if not data.get('scheduled_date'):
+            errors['scheduled_date'] = 'Scheduled date is required'
+        if not data.get('scheduled_time'):
+            errors['scheduled_time'] = 'Scheduled time is required'
+        if not data.get('location'):
+            errors['location'] = 'Meeting location is required'
+        
+        if errors:
+            raise serializers.ValidationError(errors)
         
         return data
 

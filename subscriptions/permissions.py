@@ -40,6 +40,10 @@ def get_user_subscription_permissions(user):
         subscription = user.subscription
         return subscription.get_permissions()
     except UserSubscription.DoesNotExist:
+        # Check if user is an advocate or lawyer - they get student hub access by default
+        user_role = getattr(user, 'user_role', None)
+        is_advocate_or_lawyer = user_role and user_role.role_name in ['advocate', 'lawyer']
+        
         return {
             'is_active': False,
             'can_access_legal_library': False,
@@ -47,10 +51,20 @@ def get_user_subscription_permissions(user):
             'can_generate_documents': False,
             'can_receive_legal_updates': False,
             'can_access_forum': False,
-            'can_access_student_hub': False,
+            'can_access_student_hub': is_advocate_or_lawyer,  # Advocates and lawyers can access student hub
             'can_purchase_consultations': False,
             'can_purchase_documents': False,
             'can_purchase_learning_materials': False,
+            # Free Trial restrictions (frontend expected keys)
+            'can_comment_forum': False,
+            'can_reply_forum': False,
+            'can_download_templates': False,
+            'can_talk_to_lawyer': False,
+            'can_ask_question': False,
+            'can_book_consultation': False,
+            'legal_education_limit': 0,
+            'legal_education_reads': 0,
+            'legal_education_remaining': 0,
         }
 
 
@@ -432,3 +446,222 @@ def subscription_required(permission_name=None):
             return func(request, *args, **kwargs)
         return wrapper
     return decorator
+
+
+# ============================================================================
+# FREE TRIAL RESTRICTION PERMISSION CLASSES
+# ============================================================================
+
+class CanCommentInForum(BasePermission):
+    """
+    Permission class to check if user can comment/reply in forums.
+    Free trial users cannot comment - they can only view.
+    """
+    message = {
+        'error': 'Subscription required',
+        'message': 'Free trial users can view forums but cannot comment. Please subscribe to participate in discussions.',
+        'message_sw': 'Watumiaji wa jaribio bure wanaweza kuona majukwaa lakini hawawezi kutoa maoni. Tafadhali jiandikishe kushiriki katika majadiliano.',
+        'upgrade_required': True,
+        'restriction': 'forum_comment'
+    }
+    
+    def has_permission(self, request, view):
+        # Allow GET requests (viewing)
+        if request.method in ['GET', 'HEAD', 'OPTIONS']:
+            return True
+        
+        if not request.user or not request.user.is_authenticated:
+            return False
+        
+        # Django admin users bypass restrictions
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        
+        return check_subscription_permission(request.user, 'can_comment_forum')
+
+
+class CanDownloadTemplates(BasePermission):
+    """
+    Permission class to check if user can download generated templates/documents.
+    Free trial users can generate and preview templates but cannot download.
+    """
+    message = {
+        'error': 'Subscription required',
+        'message': 'Free trial users can generate and preview documents but cannot download. Please subscribe to download your documents.',
+        'message_sw': 'Watumiaji wa jaribio bure wanaweza kutengeneza na kuona nyaraka lakini hawawezi kupakua. Tafadhali jiandikishe kupakua nyaraka zako.',
+        'upgrade_required': True,
+        'restriction': 'document_download'
+    }
+    
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        
+        # Django admin users bypass restrictions
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        
+        return check_subscription_permission(request.user, 'can_download_templates')
+
+
+class CanTalkToLawyerFeature(BasePermission):
+    """
+    Permission class to check if user can access Talk to Lawyer feature.
+    Free trial users cannot talk to lawyers.
+    """
+    message = {
+        'error': 'Subscription required',
+        'message': 'Free trial users cannot access the Talk to Lawyer feature. Please subscribe to connect with lawyers.',
+        'message_sw': 'Watumiaji wa jaribio bure hawawezi kufikia kipengele cha Ongea na Wakili. Tafadhali jiandikishe kuwasiliana na mawakili.',
+        'upgrade_required': True,
+        'restriction': 'talk_to_lawyer'
+    }
+    
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        
+        # Django admin users bypass restrictions
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        
+        return check_subscription_permission(request.user, 'can_talk_to_lawyer')
+
+
+class CanAskQuestionQA(BasePermission):
+    """
+    Permission class to check if user can ask questions in Q&A.
+    Free trial users cannot ask questions.
+    """
+    message = {
+        'error': 'Subscription required',
+        'message': 'Free trial users cannot ask questions. Please subscribe to get answers to your legal questions.',
+        'message_sw': 'Watumiaji wa jaribio bure hawawezi kuuliza maswali. Tafadhali jiandikishe kupata majibu ya maswali yako ya kisheria.',
+        'upgrade_required': True,
+        'restriction': 'ask_question'
+    }
+    
+    def has_permission(self, request, view):
+        # Allow GET requests (viewing questions)
+        if request.method in ['GET', 'HEAD', 'OPTIONS']:
+            return True
+        
+        if not request.user or not request.user.is_authenticated:
+            return False
+        
+        # Django admin users bypass restrictions
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        
+        return check_subscription_permission(request.user, 'can_ask_question')
+
+
+class CanBookConsultation(BasePermission):
+    """
+    Permission class to check if user can book consultations.
+    Free trial users cannot book consultations.
+    """
+    message = {
+        'error': 'Subscription required',
+        'message': 'Free trial users cannot book consultations. Please subscribe to schedule a consultation with a lawyer.',
+        'message_sw': 'Watumiaji wa jaribio bure hawawezi kuandikisha ushauri. Tafadhali jiandikishe kupanga ushauri na wakili.',
+        'upgrade_required': True,
+        'restriction': 'book_consultation'
+    }
+    
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        
+        # Django admin users bypass restrictions
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        
+        return check_subscription_permission(request.user, 'can_book_consultation')
+
+
+class CanViewLegalEducationContent(BasePermission):
+    """
+    Permission class to check if user can view legal education subtopics.
+    Free trial users are limited to 5 subtopics.
+    """
+    message = {
+        'error': 'Limit reached',
+        'message': 'You have reached your free trial limit for legal education content. Please subscribe to continue learning.',
+        'message_sw': 'Umefika kikomo chako cha jaribio bure kwa maudhui ya elimu ya kisheria. Tafadhali jiandikishe kuendelea kujifunza.',
+        'upgrade_required': True,
+        'restriction': 'legal_education_limit'
+    }
+    
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        
+        # Django admin users bypass restrictions
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        
+        # This permission just checks if limit is not exhausted
+        # Actual subtopic tracking is done in the view
+        try:
+            subscription = request.user.subscription
+            if not subscription.is_active():
+                return False
+            
+            # If unlimited (0), always allow
+            if subscription.plan.legal_ed_subtopics_limit == 0:
+                return True
+            
+            # Check if user has remaining views
+            return subscription.get_legal_ed_remaining() > 0
+        except UserSubscription.DoesNotExist:
+            return False
+
+
+def check_legal_education_access(user, subtopic_id):
+    """
+    Check if user can access a specific legal education subtopic.
+    Tracks the view if allowed.
+    
+    Args:
+        user: PolaUser instance
+        subtopic_id: ID of the subtopic being accessed
+        
+    Returns:
+        tuple: (can_access: bool, message: dict or None)
+    """
+    # Django admin users bypass restrictions
+    if user.is_staff or user.is_superuser:
+        return (True, None)
+    
+    try:
+        subscription = user.subscription
+        if not subscription.is_active():
+            return (False, {
+                'error': 'Subscription required',
+                'message': 'You need an active subscription to access this content.',
+                'upgrade_required': True
+            })
+        
+        can_view, reason = subscription.can_view_legal_ed_subtopic(subtopic_id)
+        
+        if can_view:
+            # Track the view
+            subscription.track_subtopic_view(subtopic_id)
+            return (True, None)
+        else:
+            return (False, {
+                'error': 'Limit reached',
+                'message': f'You have viewed {subscription.legal_ed_subtopics_viewed} of {subscription.plan.legal_ed_subtopics_limit} allowed subtopics. Please subscribe to continue.',
+                'message_sw': f'Umeona {subscription.legal_ed_subtopics_viewed} kati ya {subscription.plan.legal_ed_subtopics_limit} vichwa vidogo vinavyoruhusiwa. Tafadhali jiandikishe kuendelea.',
+                'upgrade_required': True,
+                'legal_education_limit': subscription.plan.legal_ed_subtopics_limit,
+                'legal_education_reads': subscription.legal_ed_subtopics_viewed,
+                'legal_education_remaining': 0
+            })
+    except UserSubscription.DoesNotExist:
+        return (False, {
+            'error': 'No subscription',
+            'message': 'You need a subscription to access this content.',
+            'upgrade_required': True
+        })
