@@ -19,15 +19,14 @@ logger = logging.getLogger(__name__)
 class NotificationService:
     """Unified service for sending push notifications"""
     
-    PROJECT_ID = 'website-192723'  # Firebase project ID
-    
     @staticmethod
     def _get_fcm_instance():
-        """Get FCM instance with access token"""
+        """Get FCM instance with access token - reads project_id from service account file"""
         try:
-            google_auth = GoogleAuth(NotificationService.PROJECT_ID)
+            google_auth = GoogleAuth()  # Auto-reads project_id from service_account_file.json
             access_token = google_auth.get_access_token()
-            return FCM(NotificationService.PROJECT_ID, access_token)
+            project_id = google_auth.get_project_id()
+            return FCM(project_id, access_token)
         except Exception as e:
             logger.error(f"Failed to initialize FCM: {str(e)}")
             return None
@@ -68,6 +67,8 @@ class NotificationService:
         # Save notification to database first
         from .models import UserNotification
         
+        logger.info(f"📤 Creating notification for user {user.id} ({user.email}): {title}")
+        
         notification_record = UserNotification.objects.create(
             user=user,
             notification_type=notification_type,
@@ -77,14 +78,20 @@ class NotificationService:
             fcm_sent=False  # Will update after FCM send
         )
         
+        logger.info(f"📝 Notification record created: ID={notification_record.id}")
+        
         devices = NotificationService._get_user_devices(user)
         
         if not devices.exists():
-            logger.warning(f"No active devices found for user {user.id}")
+            logger.warning(f"⚠️ No active devices with FCM token found for user {user.id} ({user.email})")
+            logger.warning(f"   User needs to: 1) Log in on app 2) Accept notification permission 3) Device must register FCM token")
             return False
+        
+        logger.info(f"📱 Found {devices.count()} active device(s) for user {user.email}")
         
         fcm = NotificationService._get_fcm_instance()
         if not fcm:
+            logger.error(f"❌ Failed to initialize FCM client")
             return False
         
         # Ensure all data values are strings
@@ -231,37 +238,56 @@ class NotificationService:
         scheduled_time: str
     ) -> bool:
         """
-        Send notification when client books a consultation
+        Send notification to ADMINS when client books a consultation
         
         Args:
-            consultant: Professional receiving the booking
+            consultant: Professional being booked (included in notification info)
             client: Client who booked
             booking_id: ID of ConsultationBooking
             consultation_type: physical, mobile, video
             scheduled_date: Date string
             scheduled_time: Time string
         """
-        title = f"New consultation request from {client.get_full_name() or client.email}"
-        body = f"{consultation_type.title()} consultation on {scheduled_date} at {scheduled_time}"
+        consultant_name = consultant.get_full_name() or consultant.email
+        client_name = client.get_full_name() or client.email
+        
+        title = f"New consultation request"
+        body = f"{client_name} booked {consultation_type} consultation with {consultant_name} on {scheduled_date} at {scheduled_time}"
         
         data = {
             'action_type': 'open_consultation',
             'booking_id': booking_id,
             'client_id': client.id,
-            'client_name': client.get_full_name() or client.email,
+            'client_name': client_name,
+            'consultant_id': consultant.id,
+            'consultant_name': consultant_name,
             'consultation_type': consultation_type,
             'scheduled_date': scheduled_date,
             'scheduled_time': scheduled_time
         }
         
-        return NotificationService.send_notification_to_user(
-            user=consultant,
-            title=title,
-            body=body,
-            data=data,
-            notification_type='consultation_request',
-            priority='high'
-        )
+        # Send to all admin users
+        admins = PolaUser.objects.filter(is_staff=True, is_active=True)
+        
+        if not admins.exists():
+            logger.warning("No admin users found to send consultation request notification")
+            return False
+        
+        successful_sends = 0
+        for admin in admins:
+            result = NotificationService.send_notification_to_user(
+                user=admin,
+                title=title,
+                body=body,
+                data=data,
+                notification_type='consultation_request',
+                priority='high'
+            )
+            if result:
+                successful_sends += 1
+        
+        logger.info(f"Consultation request notification sent to {successful_sends}/{admins.count()} admins")
+        return successful_sends > 0
     
     @staticmethod
     def send_payment_received_notification(

@@ -72,6 +72,7 @@ urlpatterns = [
     path('calls/<int:pk>/reject/', CallManagementViewSet.as_view({'post': 'reject'}), name='call-reject'),
     path('calls/<int:pk>/end/', CallManagementViewSet.as_view({'post': 'end'}), name='call-end'),
     path('calls/<int:pk>/missed/', CallManagementViewSet.as_view({'post': 'mark_missed'}), name='call-missed'),
+    path('calls/<int:pk>/cancel/', CallManagementViewSet.as_view({'post': 'cancel'}), name='call-cancel'),
     path('calls/consultants/<int:consultant_id>/status/', CallManagementViewSet.as_view({'get': 'consultant_status'}), name='consultant-status'),
     path('calls/check-credits/', CallManagementViewSet.as_view({'post': 'check_credits'}), name='call-check-credits'),
     path('calls/consultants/', ConsultantListViewSet.as_view({'get': 'list'}), name='call-consultants-list'),

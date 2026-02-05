@@ -82,36 +82,89 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                 if key not in device_data or not device_data.get(key):
                     device_data[key] = value
             
-            # Check if this exact device already exists for this user
-            existing_device = UserDevice.objects.filter(
-                user=request.user,
-                device_id=device_id
-            ).first()
+            # Check if device already exists for this user
+            # Priority order:
+            # 1. FCM token (if provided and not empty)
+            # 2. Device ID
+            # 3. Device fingerprint (name + model combination)
+            existing_device = None
+            fcm_token = device_data.get('fcm_token', '').strip()
+            device_name = device_data.get('device_name', '').strip()
+            device_model = device_data.get('device_model', '').strip()
+            
+            # 1. Try FCM token first (most reliable if provided)
+            if fcm_token:
+                existing_device = UserDevice.objects.filter(
+                    user=request.user,
+                    fcm_token=fcm_token
+                ).first()
+                if existing_device:
+                    logger.info(f"🔍 Found device by FCM token (ID: {existing_device.id})")
+            
+            # 2. Fallback to device_id
+            if not existing_device:
+                existing_device = UserDevice.objects.filter(
+                    user=request.user,
+                    device_id=device_id
+                ).first()
+                if existing_device:
+                    logger.info(f"🔍 Found device by device_id (ID: {existing_device.id})")
+            
+            # 3. Fingerprint match as last resort (prevent duplicates from same physical device)
+            if not existing_device and device_name and device_model:
+                existing_device = UserDevice.objects.filter(
+                    user=request.user,
+                    device_name=device_name,
+                    device_model=device_model,
+                    is_active=True
+                ).first()
+                if existing_device:
+                    logger.info(f"🔍 Found device by fingerprint (name+model) (ID: {existing_device.id})")
+                    logger.info(f"   Updating device_id from {existing_device.device_id} to {device_id}")
+                    existing_device.device_id = device_id  # Update to new device_id
             
             if existing_device:
-                logger.info(f"🔄 Device already exists in database - updating")
+                logger.info(f"🔄 Device already exists (ID: {existing_device.id}) - updating")
                 
                 # Unmark all other devices as current
-                UserDevice.objects.filter(user=request.user, is_current_device=True).exclude(id=existing_device.id).update(is_current_device=False)
+                UserDevice.objects.filter(
+                    user=request.user,
+                    is_current_device=True
+                ).exclude(id=existing_device.id).update(is_current_device=False)
                 
-                # Device already registered in DB - check for missing fields
-                # Update with new data if provided
-                if device_data.get('latitude'):
+                # Update all fields with new data
+                update_fields = []
+                
+                if device_data.get('latitude') and device_data.get('latitude') != existing_device.latitude:
                     existing_device.latitude = device_data.get('latitude')
-                if device_data.get('longitude'):
+                    update_fields.append('latitude')
+                    
+                if device_data.get('longitude') and device_data.get('longitude') != existing_device.longitude:
                     existing_device.longitude = device_data.get('longitude')
-                if device_data.get('device_name'):
+                    update_fields.append('longitude')
+                    
+                if device_data.get('device_name') and device_data.get('device_name') != existing_device.device_name:
                     existing_device.device_name = device_data.get('device_name')
-                if device_data.get('fcm_token'):
-                    existing_device.fcm_token = device_data.get('fcm_token')
-                if device_data.get('app_version'):
+                    update_fields.append('device_name')
+                    
+                if fcm_token and fcm_token != existing_device.fcm_token:
+                    existing_device.fcm_token = fcm_token
+                    update_fields.append('fcm_token')
+                    
+                if device_data.get('app_version') and device_data.get('app_version') != existing_device.app_version:
                     existing_device.app_version = device_data.get('app_version')
+                    update_fields.append('app_version')
                 
+                # Always update these
                 existing_device.last_ip = ip_address
                 existing_device.is_active = True
-                existing_device.is_current_device = True  # Mark as current device
+                existing_device.is_current_device = True
+                existing_device.last_seen = timezone.now()
+                update_fields.extend(['last_ip', 'is_active', 'is_current_device', 'last_seen'])
+                
                 existing_device.save()
-                logger.info(f"💾 Updated existing device and marked as current")
+                logger.info(f"💾 Updated existing device. Fields changed: {', '.join(update_fields) if update_fields else 'none (just refreshed)'}")
+                logger.info(f"🎯 Marked as current device")
                 
                 # Check what's still missing
                 missing_fields = []
@@ -264,6 +317,83 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
             'message': 'Device deactivated successfully',
             'device_id': device.device_id
         })
+    
+    @action(detail=True, methods=['patch'])
+    def update_fcm_token(self, request, pk=None):
+        """
+        Update FCM token for a specific device
+        
+        PATCH /api/v1/security/devices/{id}/update_fcm_token/
+        
+        Request body:
+        {
+            "fcm_token": "new_fcm_token_here"
+        }
+        """
+        device = self.get_object()
+        fcm_token = request.data.get('fcm_token')
+        
+        if not fcm_token:
+            return Response({
+                'error': 'fcm_token is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        device.fcm_token = fcm_token
+        device.last_seen = timezone.now()
+        device.save(update_fields=['fcm_token', 'last_seen', 'updated_at'])
+        
+        logger.info(f"✅ FCM token updated for device {device.id} (user: {device.user.email})")
+        
+        return Response({
+            'success': True,
+            'message': 'FCM token updated successfully',
+            'device': UserDeviceSerializer(device, context={'request': request}).data
+        })
+    
+    @action(detail=False, methods=['patch'])
+    def update_current_device_token(self, request):
+        """
+        Update FCM token for the current active device
+        
+        PATCH /api/v1/security/devices/update_current_device_token/
+        
+        Request body:
+        {
+            "fcm_token": "new_fcm_token_here"
+        }
+        """
+        fcm_token = request.data.get('fcm_token')
+        
+        if not fcm_token:
+            return Response({
+                'error': 'fcm_token is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Find current device
+        device = UserDevice.objects.filter(
+            user=request.user,
+            is_current_device=True,
+            is_active=True
+        ).first()
+        
+        if not device:
+            return Response({
+                'error': 'No current device found. Please register device first.',
+                'register_url': '/api/v1/authentication/devices/register/'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        device.fcm_token = fcm_token
+        device.last_seen = timezone.now()
+        device.save(update_fields=['fcm_token', 'last_seen', 'updated_at'])
+        
+        logger.info(f"✅ FCM token updated for current device {device.id} (user: {device.user.email})")
+        
+        return Response({
+            'success': True,
+            'message': 'FCM token updated successfully',
+            'device': UserDeviceSerializer(device, context={'request': request}).data
+        })
+
     
     @action(detail=False, methods=['post'])
     def verify_and_register(self, request):

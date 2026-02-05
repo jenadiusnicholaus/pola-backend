@@ -7,6 +7,7 @@ from django.utils import timezone
 class UserDeviceSerializer(serializers.ModelSerializer):
     """Serializer for user devices"""
     days_since_last_seen = serializers.SerializerMethodField()
+    has_fcm_token = serializers.SerializerMethodField()
     
     class Meta:
         model = UserDevice
@@ -15,9 +16,14 @@ class UserDeviceSerializer(serializers.ModelSerializer):
             'os_name', 'os_version', 'browser_name', 'browser_version',
             'app_version', 'device_model', 'device_manufacturer',
             'is_trusted', 'is_active', 'is_current_device', 'first_seen', 'last_seen',
-            'last_ip', 'latitude', 'longitude', 'days_since_last_seen'
+            'last_ip', 'latitude', 'longitude', 'days_since_last_seen',
+            'fcm_token', 'has_fcm_token'
         ]
         read_only_fields = ['id', 'first_seen', 'last_seen', 'last_ip']
+    
+    def get_has_fcm_token(self, obj):
+        """Check if device has a valid FCM token"""
+        return bool(obj.fcm_token)
     
     def get_days_since_last_seen(self, obj):
         """Calculate days since last seen"""

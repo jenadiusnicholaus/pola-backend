@@ -693,39 +693,60 @@ class CreateCommentWithMentionsSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         """Create comment and mentions"""
+        import logging
+        logger = logging.getLogger(__name__)
+        
         mentioned_user_ids = validated_data.pop('mentioned_users', [])
         request = self.context.get('request')
+        
+        logger.info(f"📝 [SERIALIZER] Creating comment with mentions: {mentioned_user_ids}")
         
         # Create the comment
         comment = HubComment.objects.create(
             author=request.user,
             **validated_data
         )
+        logger.info(f"📝 [SERIALIZER] Comment created with ID: {comment.id}")
         
         # Create mentions
         if mentioned_user_ids:
             mentions = []
             comment_text = validated_data['comment_text']
+            logger.info(f"📝 [SERIALIZER] Processing {len(mentioned_user_ids)} mentions")
             
             for user_id in mentioned_user_ids:
                 user = PolaUser.objects.get(id=user_id)
-                # Find position of @username in text
+                # Find position of @username in text (try first_name, username, or any @word)
                 username_pattern = f"@{user.first_name}"
-                position = comment_text.find(username_pattern)
+                position = comment_text.lower().find(username_pattern.lower())
                 
-                if position >= 0:
-                    mentions.append(
-                        CommentMention(
-                            comment=comment,
-                            mentioned_user=user,
-                            mentioned_by=request.user,
-                            position=position
-                        )
+                # Also try username if first_name didn't match
+                if position < 0 and user.username:
+                    username_pattern = f"@{user.username}"
+                    position = comment_text.lower().find(username_pattern.lower())
+                
+                logger.info(f"📝 [SERIALIZER] User {user_id} ({user.email}): pattern={username_pattern}, position={position}")
+                
+                # If still not found, just use position 0 (mention exists but pattern not in text)
+                if position < 0:
+                    logger.warning(f"⚠️ [SERIALIZER] Pattern not found, using position 0")
+                    position = 0
+                
+                mentions.append(
+                    CommentMention(
+                        comment=comment,
+                        mentioned_user=user,
+                        mentioned_by=request.user,
+                        position=position
                     )
+                )
             
             # Bulk create mentions
             if mentions:
-                CommentMention.objects.bulk_create(mentions)
+                created = CommentMention.objects.bulk_create(mentions)
+                logger.info(f"✅ [SERIALIZER] Created {len(created)} mentions in DB")
+            else:
+                logger.warning(f"⚠️ [SERIALIZER] No mentions to create!")
         
         return comment
 

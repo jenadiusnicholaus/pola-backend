@@ -1,4 +1,4 @@
-from notification.models import FcmNotification, FcmTokenModel, UserNotification
+from notification.models import FcmNotification, UserNotification
 from rest_framework import serializers
 
 
@@ -59,23 +59,7 @@ class FcmNotificationSerializer(serializers.ModelSerializer):
 
 
 
-class FcmTokenModelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FcmTokenModel
-        fields = [
-            'user',
-            'fcm_token',
-            'time_stamp',   
-            'is_stale',
-            'stale_time',
-        ]
-        read_only_fields = ('time_stamp', 'is_stale')
-        extra_kwargs = {
-            'fcm_token': {'required': True},
-            'stale_time': {'required': False},
-            'user': {'required': True}
-        }
-#
-        
-        
+# NOTE: FcmTokenModelSerializer has been deprecated.
+# FCM tokens are now managed via UserDevice model in authentication app.
+# Use /api/v1/authentication/devices/register/ to register devices with FCM tokens
    

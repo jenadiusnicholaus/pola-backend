@@ -17,9 +17,20 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import JsonResponse
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+
+
+# Health check endpoint for Docker/Kubernetes
+def health_check(request):
+    """Simple health check endpoint for container orchestration."""
+    return JsonResponse({
+        'status': 'healthy',
+        'service': 'pola-backend',
+        'version': settings.API_VERSION
+    })
 
 API_VERSION = settings.API_VERSION
 
@@ -136,6 +147,9 @@ For API support and inquiries, contact: **support@pola.co.tz**
 )
 
 urlpatterns = [
+    # Health check endpoint (for Docker/Kubernetes)
+    path('api/health/', health_check, name='health-check'),
+    
     # Admin
     path('admin/', admin.site.urls),
     
@@ -153,6 +167,8 @@ urlpatterns = [
     path(f"api/{API_VERSION}/hubs/", include("hubs.urls")),  # Hubs APIs
     path(f"api/{API_VERSION}/doc-templates/", include("document_templates.urls")),  # Document Template APIs
     path(f"api/{API_VERSION}/security/", include("authentication.device_urls")),  # Security & Device Tracking APIs
+    path(f"api/{API_VERSION}/notifications/", include("notification.urls")),  # Notification APIs
+    path(f"api/{API_VERSION}/notification/", include("notification.urls")),  # Notification APIs (singular alias)
     
     # API Documentation
     path('swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),

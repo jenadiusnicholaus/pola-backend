@@ -54,6 +54,12 @@ class CallManagementViewSet(viewsets.ViewSet):
         channel_name = request.data.get('channel_name')
         call_type = request.data.get('call_type', 'voice')
         
+        # DEBUG: Log all received data
+        logger.info(f"📥 Request from: {user.email} (User ID: {user.id})")
+        logger.info(f"📥 consultant_id received: {consultant_id} (type: {type(consultant_id).__name__})")
+        logger.info(f"📥 channel_name: {channel_name}")
+        logger.info(f"📥 call_type: {call_type}")
+        
         # Validation
         if not consultant_id:
             return Response({
@@ -69,9 +75,12 @@ class CallManagementViewSet(viewsets.ViewSet):
         # Get consultant (consultant_id is the ConsultantProfile ID)
         try:
             from .models import ConsultantProfile
+            logger.info(f"🔍 Looking for ConsultantProfile with ID: {consultant_id}")
             consultant_profile = ConsultantProfile.objects.get(id=consultant_id)
             consultant = consultant_profile.user
+            logger.info(f"✅ Found consultant: {consultant.email} (User ID: {consultant.id})")
         except ConsultantProfile.DoesNotExist:
+            logger.error(f"❌ ConsultantProfile with ID {consultant_id} NOT FOUND")
             return Response({
                 'error': 'consultant_not_found',
                 'message': f'Consultant with ID {consultant_id} not found'
@@ -139,31 +148,53 @@ class CallManagementViewSet(viewsets.ViewSet):
             logger.info(f"📞 Call initiated: {user.email} → {consultant.email} (Call ID: {call_session.id})")
             logger.info(f"📺 Channel: {channel_name}")
         
-        # Get consultant's current device with FCM token
+        # DEBUG: Log consultant info
+        logger.info(f"🔍 Looking for devices for consultant: {consultant.email} (User ID: {consultant.id})")
+        
+        # DEBUG: Check ALL devices for this consultant
+        all_devices = UserDevice.objects.filter(user=consultant)
+        logger.info(f"🔍 Total devices for consultant: {all_devices.count()}")
+        for d in all_devices:
+            logger.info(f"   Device {d.id}: {d.device_name} | active={d.is_active} | current={d.is_current_device} | fcm_token={bool(d.fcm_token)}")
+        
+        # Get consultant's devices with FCM token
+        # First try current device, then fall back to any active device
         consultant_devices = UserDevice.objects.filter(
             user=consultant,
-            is_current_device=True,  # Only send to current device
+            is_current_device=True,
             is_active=True,
             fcm_token__isnull=False
         ).exclude(fcm_token='')
         
+        logger.info(f"🔍 Devices with current=True, active=True, fcm_token: {consultant_devices.count()}")
+        
+        # If no current device, try any active device with FCM token
+        if not consultant_devices.exists():
+            consultant_devices = UserDevice.objects.filter(
+                user=consultant,
+                is_active=True,
+                fcm_token__isnull=False
+            ).exclude(fcm_token='').order_by('-last_seen')
+            logger.info(f"🔍 Fallback - Devices with active=True, fcm_token: {consultant_devices.count()}")
+        
         if not consultant_devices.exists():
             call_session.status = 'cancelled'
             call_session.save()
+            logger.warning(f"⚠️ Consultant {consultant.email} has no devices with FCM tokens")
             return Response({
                 'error': 'consultant_no_devices',
                 'message': 'Consultant has no registered devices for push notifications'
             }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         
         # Send FCM notifications to all consultant devices
-        project_id = 'website-192723'  # Matches service account project
         successful_notifications = 0
         
         for device in consultant_devices:
             try:
-                # Get FCM access token
-                google_auth = GoogleAuth(project_id)
+                # Get FCM access token (auto-reads project_id from service account file)
+                google_auth = GoogleAuth()
                 access_token = google_auth.get_access_token()
+                project_id = google_auth.get_project_id()
                 
                 # Send notification
                 fcm = FCM(project_id, access_token)
@@ -251,9 +282,9 @@ class CallManagementViewSet(viewsets.ViewSet):
             ).exclude(fcm_token='')
             
             if caller_devices.exists():
-                project_id = 'website-192723'
-                google_auth = GoogleAuth(project_id)
+                google_auth = GoogleAuth()
                 access_token = google_auth.get_access_token()
+                project_id = google_auth.get_project_id()
                 fcm = FCM(project_id, access_token)
                 
                 status_data = {
@@ -333,9 +364,9 @@ class CallManagementViewSet(viewsets.ViewSet):
             ).exclude(fcm_token='')
             
             if caller_devices.exists():
-                project_id = 'website-192723'
-                google_auth = GoogleAuth(project_id)
+                google_auth = GoogleAuth()
                 access_token = google_auth.get_access_token()
+                project_id = google_auth.get_project_id()
                 fcm = FCM(project_id, access_token)
                 
                 status_data = {
@@ -419,9 +450,9 @@ class CallManagementViewSet(viewsets.ViewSet):
             ).exclude(fcm_token='')
             
             if other_devices.exists():
-                project_id = 'website-192723'
-                google_auth = GoogleAuth(project_id)
+                google_auth = GoogleAuth()
                 access_token = google_auth.get_access_token()
+                project_id = google_auth.get_project_id()
                 fcm = FCM(project_id, access_token)
                 
                 status_data = {
@@ -491,9 +522,9 @@ class CallManagementViewSet(viewsets.ViewSet):
             ).exclude(fcm_token='')
             
             if consultant_devices.exists():
-                project_id = 'website-192723'
-                google_auth = GoogleAuth(project_id)
+                google_auth = GoogleAuth()
                 access_token = google_auth.get_access_token()
+                project_id = google_auth.get_project_id()
                 fcm = FCM(project_id, access_token)
                 
                 status_data = {
@@ -514,6 +545,69 @@ class CallManagementViewSet(viewsets.ViewSet):
         return Response({
             'success': True,
             'message': 'Call marked as missed'
+        }, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['post'], url_path='cancel')
+    def cancel(self, request, pk=None):
+        """
+        Cancel a call (caller cancels before consultant answers)
+        
+        POST /api/v1/subscriptions/calls/{call_id}/cancel/
+        """
+        call_session = get_object_or_404(CallSession, pk=pk)
+        
+        # Only the caller can cancel
+        if call_session.caller != request.user:
+            return Response({
+                'error': 'unauthorized',
+                'message': 'Only the caller can cancel the call'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        # Check if call is still ringing
+        if call_session.status != 'ringing':
+            return Response({
+                'error': 'invalid_status',
+                'message': f'Call cannot be cancelled. Current status: {call_session.status}'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Mark as cancelled
+        call_session.status = 'cancelled'
+        call_session.save()
+        
+        logger.info(f"📵 Call cancelled: {call_session.caller.email} → {call_session.consultant.email}")
+        
+        # Send cancellation notification to consultant
+        try:
+            consultant_devices = UserDevice.objects.filter(
+                user=call_session.consultant,
+                is_active=True,
+                fcm_token__isnull=False
+            ).exclude(fcm_token='')
+            
+            if consultant_devices.exists():
+                google_auth = GoogleAuth()
+                access_token = google_auth.get_access_token()
+                project_id = google_auth.get_project_id()
+                fcm = FCM(project_id, access_token)
+                
+                status_data = {
+                    'type': 'call_cancelled',
+                    'call_id': call_session.id,
+                    'message': f'{call_session.caller.get_full_name() or call_session.caller.email} cancelled the call'
+                }
+                
+                for device in consultant_devices:
+                    try:
+                        fcm.send_call_status_notification(device.fcm_token, status_data)
+                    except Exception as e:
+                        logger.error(f"Error sending call cancelled notification: {e}")
+        
+        except Exception as e:
+            logger.error(f"Error notifying consultant of cancelled call: {e}")
+        
+        return Response({
+            'success': True,
+            'message': 'Call cancelled successfully'
         }, status=status.HTTP_200_OK)
     
     @action(detail=False, methods=['get'], url_path='consultants/(?P<consultant_id>[^/.]+)/status')

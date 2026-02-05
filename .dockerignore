@@ -1,0 +1,88 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+.eggs/
+*.egg-info/
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.docker/
+
+# Documentation
+*.md
+docs/
+
+# Local development files
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# Media uploads (don't include in build)
+media/
+
+# Static files (will be collected during build)
+static/
+
+# Backup files
+backups/
+*.backup
+*.sql
+
+# Test files
+test_*.py
+test_*.pdf
+test_*.json
+test_*.html
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Certificates (sensitive)
+certbot/
+*.pem
+*.key
+*.crt
+
+# Sample and extracted templates
+sample_templates/
+extracted_templates/
+
+# Jupyter notebooks
+*.ipynb
+
+# Environment example (keep .env.example in repo but not in Docker image)
+# .env.example is useful to have in the repo

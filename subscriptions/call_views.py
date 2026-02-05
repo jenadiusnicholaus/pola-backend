@@ -148,12 +148,59 @@ class CallHistoryViewSet(viewsets.ViewSet):
     Manage call credits and call sessions
     
     Endpoints:
-    - POST /api/v1/calls/check-credits/ - Check if user has enough credits before call
-    - POST /api/v1/calls/record-call/ - Record call duration and deduct credits
-    - GET /api/v1/calls/my-credits/ - Get user's available credits
-    - GET /api/v1/calls/my-history/ - Get user's call history
+    - POST /api/v1/subscriptions/call-history/check-credits/ - Check if user has enough credits before call
+    - POST /api/v1/subscriptions/call-history/record-call/ - Record call duration and deduct credits
+    - GET /api/v1/subscriptions/call-history/my-credits/ - Get user's available credits
+    - GET /api/v1/subscriptions/call-history/my-history/ - Get user's call history
+    - GET /api/v1/subscriptions/call-history/bundles/ - List available call credit bundles
     """
     permission_classes = [IsAuthenticated]
+    
+    @action(detail=False, methods=['get'], url_path='bundles')
+    def bundles(self, request):
+        """
+        List all available call credit bundles
+        
+        Response:
+        {
+            "bundles": [
+                {
+                    "id": 1,
+                    "name": "Starter Pack",
+                    "name_sw": "Pakiti ya Mwanzo",
+                    "minutes": 10,
+                    "price": 5000.00,
+                    "price_formatted": "TSh 5,000",
+                    "validity_days": 30,
+                    "description": "10 minutes for quick consultations"
+                },
+                ...
+            ]
+        }
+        """
+        bundles = CallCreditBundle.objects.filter(is_active=True).order_by('price')
+        
+        bundles_data = [
+            {
+                'id': bundle.id,
+                'name': bundle.name,
+                'name_sw': bundle.name_sw or bundle.name,
+                'minutes': bundle.minutes,
+                'price': float(bundle.price),
+                'price_formatted': f"TSh {float(bundle.price):,.0f}",
+                'currency': bundle.currency,
+                'validity_days': bundle.validity_days,
+                'description': bundle.description,
+                'description_sw': bundle.description_sw or bundle.description,
+            }
+            for bundle in bundles
+        ]
+        
+        return Response({
+            'bundles': bundles_data,
+            'count': len(bundles_data),
+            'purchase_url': '/api/v1/subscriptions/call-credits/purchase/'
+        })
     
     @action(detail=False, methods=['post'], url_path='check-credits')
     def check_credits(self, request):

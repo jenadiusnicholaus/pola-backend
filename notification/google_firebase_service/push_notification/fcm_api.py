@@ -14,6 +14,9 @@ class FCM:
         }
 
     def send_notification(self, device_registration_token, title, body, data):
+        """
+        Send a general push notification with high priority
+        """
         payload = {
             "message": {
                 "token": device_registration_token,
@@ -21,7 +24,27 @@ class FCM:
                     "title": title,
                     "body": body
                 },
-                "data": data
+                "data": data,
+                "android": {
+                    "priority": "high",
+                    "notification": {
+                        "channel_id": "general_notifications",
+                        "sound": "default",
+                        "default_vibrate_timings": True
+                    }
+                },
+                "apns": {
+                    "headers": {
+                        "apns-priority": "10"
+                    },
+                    "payload": {
+                        "aps": {
+                            "sound": "default",
+                            "content-available": 1,
+                            "badge": 1
+                        }
+                    }
+                }
             }
         }
         response = requests.post(self.url, headers=self.headers, data=json.dumps(payload))

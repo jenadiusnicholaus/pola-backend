@@ -5,11 +5,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from geopy.distance import geodesic
+import logging
 
 from .device_models import UserDevice
 from .models import UserRole, Contact, Address
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 
 @api_view(['GET'])
@@ -87,6 +89,10 @@ def nearby_legal_professionals(request):
         'operating_districts__district'
     )
     
+    logger.info(f"🔍 [NEARBY] User {request.user.email} searching with types={user_types}, radius={radius_km}km")
+    logger.info(f"🔍 [NEARBY] User location: {user_location}")
+    logger.info(f"🔍 [NEARBY] Found {legal_professionals.count()} professionals matching role filter")
+    
     # Calculate distances and filter by radius
     results = []
     
@@ -108,6 +114,7 @@ def nearby_legal_professionals(request):
             ).first()
         
         if not device or not device.latitude or not device.longitude:
+            logger.info(f"🔍 [NEARBY] Skipping {professional.email} - no device location")
             continue
         
         professional_location = (float(device.latitude), float(device.longitude))
@@ -115,8 +122,11 @@ def nearby_legal_professionals(request):
         # Calculate distance
         distance_km = geodesic(user_location, professional_location).kilometers
         
+        logger.info(f"🔍 [NEARBY] {professional.email}: distance={distance_km:.2f}km (radius={radius_km}km)")
+        
         # Filter by radius
         if distance_km > radius_km:
+            logger.info(f"🔍 [NEARBY] Skipping {professional.email} - outside radius")
             continue
         
         # Get contact info
@@ -159,11 +169,10 @@ def nearby_legal_professionals(request):
         ).first()
         
         # Build result matching consultant API structure
+        # Use consultant_profile.id as the primary ID (same as Talk to Lawyer API)
         result = {
-            'id': professional.id,
+            'id': consultant_profile.id if consultant_profile else None,  # ConsultantProfile ID
             'user': professional.id,
-            'consultant_profile_id': consultant_profile.id if consultant_profile else None,
-            'can_book_physical': consultant_profile is not None and consultant_profile.offers_physical_consultations,
             'user_details': {
                 'id': professional.id,
                 'email': professional.email,
@@ -173,18 +182,18 @@ def nearby_legal_professionals(request):
                 'phone_number': contact.phone_number if contact else None,
                 'profile_picture': profile_picture_url,
             },
-            'consultant_type': professional.user_role.role_name if professional.user_role else None,
-            'specialization': specialization_string,
-            'years_of_experience': professional.years_of_experience,
-            'offers_mobile_consultations': True,  # Default to True for all
-            'offers_physical_consultations': bool(address and address.office_address),  # True if has office
-            'city': address.district.name if address and address.district else None,
-            'is_available': professional.is_active,
-            'total_consultations': 0,  # TODO: Integrate with consultation system
-            'total_earnings': "0.00",
-            'average_rating': None,
-            'total_reviews': 0,
-            'pricing': {
+            'consultant_type': consultant_profile.consultant_type if consultant_profile else (professional.user_role.role_name if professional.user_role else None),
+            'specialization': consultant_profile.specialization if consultant_profile else specialization_string,
+            'years_of_experience': consultant_profile.years_of_experience if consultant_profile else professional.years_of_experience,
+            'offers_mobile_consultations': consultant_profile.offers_mobile_consultations if consultant_profile else True,
+            'offers_physical_consultations': consultant_profile.offers_physical_consultations if consultant_profile else bool(address and address.office_address),
+            'city': consultant_profile.city if consultant_profile else (address.district.name if address and address.district else None),
+            'is_available': consultant_profile.is_available if consultant_profile else professional.is_active,
+            'total_consultations': consultant_profile.total_consultations if consultant_profile else 0,
+            'total_earnings': str(consultant_profile.total_earnings) if consultant_profile else "0.00",
+            'average_rating': float(consultant_profile.average_rating) if consultant_profile and consultant_profile.average_rating else None,
+            'total_reviews': consultant_profile.total_reviews if consultant_profile else 0,
+            'pricing': consultant_profile.get_pricing() if consultant_profile else {
                 'mobile': {
                     'price': 0.0,
                     'consultant_share': 50.0,
@@ -201,24 +210,16 @@ def nearby_legal_professionals(request):
                 'district': address.district.name if address and address.district else None,
                 'region': address.region.name if address and address.region else None,
             },
-            'professional_details': {
-                'practice_status': professional.practice_status,
-                'bar_membership_number': professional.bar_membership_number,
-                'roll_number': professional.roll_number,
-                'regional_chapter': professional.regional_chapter.name if professional.regional_chapter else None,
-                'place_of_work': professional.place_of_work.name_en if professional.place_of_work else None,
-            },
-            'firm_info': {
-                'firm_name': professional.firm_name,
-                'managing_partner': f"{professional.managing_partner.first_name} {professional.managing_partner.last_name}" if professional.managing_partner else None,
-                'number_of_lawyers': professional.number_of_lawyers,
-                'year_established': professional.year_established,
-            } if professional.user_role and professional.user_role.role_name == 'law_firm' else None,
-            'created_at': professional.date_joined.isoformat() if professional.date_joined else None,
-            'updated_at': professional.last_login.isoformat() if professional.last_login else None,
+            'created_at': consultant_profile.created_at.isoformat() if consultant_profile and consultant_profile.created_at else (professional.date_joined.isoformat() if professional.date_joined else None),
+            'updated_at': consultant_profile.updated_at.isoformat() if consultant_profile and consultant_profile.updated_at else (professional.last_login.isoformat() if professional.last_login else None),
         }
         
-        results.append(result)
+        # Only include if they have a consultant profile (so they can be called)
+        if consultant_profile:
+            results.append(result)
+            logger.info(f"✅ [NEARBY] Added {professional.email} (ConsultantProfile ID: {consultant_profile.id})")
+        else:
+            logger.info(f"⚠️ [NEARBY] Skipping {professional.email} - no ConsultantProfile")
     
     # Sort by distance (nearest first)
     results.sort(key=lambda x: x['distance_km'])

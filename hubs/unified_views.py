@@ -468,7 +468,7 @@ class HubCommentViewSet(viewsets.ModelViewSet):
     Note: Free trial users can view comments but cannot create comments or replies.
     Supports user mentions (@username) - include 'mentioned_users' array in request body.
     """
-    queryset = HubComment.objects.filter(is_active=True)
+    queryset = HubComment.objects.filter(is_active=True).order_by('-created_at')
     serializer_class = HubCommentSerializer
     permission_classes = [IsAuthenticated]
     
@@ -484,7 +484,7 @@ class HubCommentViewSet(viewsets.ModelViewSet):
         if content_id:
             queryset = queryset.filter(content_id=content_id)
         
-        return queryset.select_related('author', 'content').prefetch_related('replies', 'mentions')
+        return queryset.select_related('author', 'content').prefetch_related('replies', 'mentions').order_by('-created_at')
     
     def get_serializer_class(self):
         """Use CreateCommentWithMentionsSerializer for creation if mentions are provided"""
@@ -517,11 +517,54 @@ class HubCommentViewSet(viewsets.ModelViewSet):
                 }, status=status.HTTP_403_FORBIDDEN)
         
         # Use CreateCommentWithMentionsSerializer if mentioned_users provided
-        if 'mentioned_users' in request.data and request.data['mentioned_users']:
+        # Auto-detect @mentions from comment text if not provided
+        mentioned_users = request.data.get('mentioned_users', [])
+        comment_text = request.data.get('comment_text', '')
+        
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"📝 [COMMENT CREATE] mentioned_users from request: {mentioned_users}")
+        logger.info(f"📝 [COMMENT CREATE] comment_text: {comment_text}")
+        
+        if not mentioned_users and comment_text:
+            # Parse @mentions from text
+            import re
+            from authentication.models import PolaUser
+            mention_pattern = r'@(\w+)'
+            usernames = re.findall(mention_pattern, comment_text)
+            
+            if usernames:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.info(f"[AUTO-MENTION] Found @mentions in text: {usernames}")
+                
+                # Find users by username or first_name
+                for username in usernames:
+                    user = PolaUser.objects.filter(
+                        Q(username__iexact=username) |
+                        Q(first_name__iexact=username)
+                    ).exclude(id=request.user.id).first()
+                    
+                    if user:
+                        mentioned_users.append(user.id)
+                        logger.info(f"[AUTO-MENTION] Resolved @{username} to user {user.id} ({user.email})")
+                    else:
+                        logger.warning(f"[AUTO-MENTION] Could not find user for @{username}")
+                
+                # Update request data with mentioned_users
+                if mentioned_users:
+                    request.data._mutable = True
+                    request.data['mentioned_users'] = mentioned_users
+                    request.data._mutable = False
+        
+        if mentioned_users:
+            logger.info(f"📝 [COMMENT CREATE] Using CreateCommentWithMentionsSerializer")
             serializer = CreateCommentWithMentionsSerializer(data=request.data, context={'request': request})
             serializer.is_valid(raise_exception=True)
             comment = serializer.save()
+            logger.info(f"📝 [COMMENT CREATE] Comment saved with ID: {comment.id}")
         else:
+            logger.info(f"📝 [COMMENT CREATE] Using regular HubCommentSerializer (no mentions)")
             # Regular comment without mentions
             serializer = HubCommentSerializer(data=request.data, context={'request': request})
             serializer.is_valid(raise_exception=True)
@@ -553,11 +596,23 @@ class HubCommentViewSet(viewsets.ModelViewSet):
     
     def _send_comment_notifications(self, comment):
         """Send notifications for mentions and replies"""
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        logger.info(f"🔔 [NOTIFICATION] _send_comment_notifications called for comment {comment.id}")
+        
         try:
+            # Refresh comment to ensure mentions are loaded
+            comment.refresh_from_db()
+            
             # 1. Send notifications to mentioned users
-            if hasattr(comment, 'mentions') and comment.mentions.exists():
-                for mention in comment.mentions.all():
-                    notification_service.send_mention_notification(
+            mentions = comment.mentions.select_related('mentioned_user').all()
+            logger.info(f"🔔 [NOTIFICATION] Comment {comment.id} has {mentions.count()} mentions in DB")
+            
+            if mentions.exists():
+                for mention in mentions:
+                    logger.info(f"🔔 [NOTIFICATION] Sending mention notification to {mention.mentioned_user.email}")
+                    result = notification_service.send_mention_notification(
                         mentioned_user=mention.mentioned_user,
                         mentioning_user=comment.author,
                         comment_id=comment.id,
@@ -565,17 +620,23 @@ class HubCommentViewSet(viewsets.ModelViewSet):
                         hub_type=comment.hub_type,
                         comment_preview=comment.comment_text
                     )
+                    logger.info(f"🔔 [NOTIFICATION] Result: {result}")
+            else:
+                logger.warning(f"⚠️ [NOTIFICATION] No mentions found for comment {comment.id}")
             
             # 2. Send reply notification if this is a reply
             if comment.parent_comment:
                 parent_author = comment.parent_comment.author
-                # Don't notify if replying to own comment or if they were already mentioned
-                already_mentioned = (
-                    hasattr(comment, 'mentions') and 
-                    comment.mentions.filter(mentioned_user=parent_author).exists()
-                )
+                # Don't notify if replying to own comment
+                if parent_author.id == comment.author.id:
+                    logger.info(f"[NOTIFICATION] Skipping reply notification - same author")
+                    return
+                    
+                # Don't notify if they were already mentioned
+                already_mentioned = mentions.filter(mentioned_user=parent_author).exists()
                 
                 if not already_mentioned:
+                    logger.info(f"[NOTIFICATION] Sending reply notification to {parent_author.email}")
                     notification_service.send_reply_notification(
                         parent_comment_author=parent_author,
                         replying_user=comment.author,
@@ -587,9 +648,7 @@ class HubCommentViewSet(viewsets.ModelViewSet):
                     )
         except Exception as e:
             # Log error but don't fail the request
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.error(f"Failed to send comment notifications: {str(e)}")
+            logger.error(f"[NOTIFICATION ERROR] Failed to send comment notifications: {str(e)}", exc_info=True)
     
     @action(detail=True, methods=['post'])
     def like(self, request, pk=None):

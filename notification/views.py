@@ -6,9 +6,9 @@ from rest_framework import viewsets
 
 from notification.google_firebase_service.push_notification.auth_api import GoogleAuth
 from notification.google_firebase_service.push_notification.fcm_api import FCM
-from notification.models import FcmNotification, FcmTokenModel
-from notification.serializers import FcmNotificationSerializer, FcmTokenModelSerializer
-from vasta_settings import settings as settings
+from notification.models import FcmNotification
+from notification.serializers import FcmNotificationSerializer
+from django.conf import settings
 from rest_framework.permissions import AllowAny
 
 
@@ -50,7 +50,6 @@ class SendFcmNotification(viewsets.ModelViewSet):
 
 
     def create(self, request):
-        project_id = 'vista-9e65c'
         data = request.data
         title = data.get('title')
         body = data.get('body')
@@ -61,8 +60,9 @@ class SendFcmNotification(viewsets.ModelViewSet):
 
         print(request.data)
         try:
-            google_auth = GoogleAuth(project_id)
+            google_auth = GoogleAuth()  # Auto-reads project_id from service_account_file.json
             access_token = google_auth.get_access_token()
+            project_id = google_auth.get_project_id()
 
         except Exception as e:
             logging.error(f'Error: {e}')
@@ -145,67 +145,7 @@ def update_heartbeat(request):
         }, status=500)
 
 
-class FcmTokenViewSet(viewsets.ModelViewSet):
-    queryset = FcmTokenModel.objects.all()
-    permission_classes = [IsAuthenticated]
-    serializer_class = FcmTokenModelSerializer
 
-    def list(self, request):
-        user = request.user
-        try:
-            token = FcmTokenModel.objects.get(user=user)
-        except FcmTokenModel.DoesNotExist:
-            return Response({
-                'status': 'error',
-                'message': 'Token does not exist'
-            },
-            status=404)
-        token = FcmTokenModel.objects.get(user=user)
-        serializer = self.get_serializer(token)
-        return Response(serializer.data, status=200)    
-
-    def create(self, request):
-        data = request.data
-        token = data.get('fcm_token')
-        user = request.user
-        serializer = self.get_serializer(data={
-            'user': user.id,
-            'fcm_token': token
-        })
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=400)
-        serializer.save()
-        return Response({
-            'status': 'success',
-            'message': 'Token saved successfully'
-        },
-        status=200)
-    
-    def patch(self, request):
-        data = request.data
-        token = data.get('fcm_token')
-        user = request.user
-        token_instance = FcmTokenModel.objects.get(user=user)
-        data = {
-            'user': user.id,
-            'fcm_token': token,
-            "is_stale": False,
-        }
-        instance = self.get_serializer(token_instance, data=data, partial=True)
-
-        if not instance.is_valid():
-            return Response(instance.errors, status=400)
-        instance.save()
-        return Response({
-            'status': 'success',
-            'message': 'Token updated successfully'
-        },
-        status=200)
-
-
-
-    
-
-
-        
-
+# NOTE: FcmTokenViewSet has been deprecated.
+# FCM tokens are now managed via UserDevice model in authentication app.
+# Use /api/v1/authentication/devices/register/ to register devices with FCM tokens
