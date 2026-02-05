@@ -125,8 +125,7 @@ class Command(BaseCommand):
             uploader=uploader,
             defaults={
                 'description': data.get('description', ''),
-                'category': 'hub_content',
-                'language': data.get('language', 'en'),
+                'hub_type': 'legal_ed',
                 'content_type': 'file',
                 'price': data.get('price', 0),
                 'is_approved': True,
