@@ -48,6 +48,10 @@ class PhysicalConsultationViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Return physical consultation bookings for current user"""
+        # Handle swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return ConsultationBooking.objects.none()
+        
         user = self.request.user
         
         # Return bookings where user is either client or consultant (physical only)

@@ -27,6 +27,10 @@ class UserNotificationViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Return notifications for the authenticated user only"""
+        # Handle swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return UserNotification.objects.none()
+        
         queryset = UserNotification.objects.filter(user=self.request.user)
         
         # Filter by unread_only

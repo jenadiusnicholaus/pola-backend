@@ -37,6 +37,10 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Filter devices by authenticated user"""
+        # Handle swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return UserDevice.objects.none()
+        
         return UserDevice.objects.filter(user=self.request.user)
     
     def create(self, request, *args, **kwargs):
@@ -519,6 +523,10 @@ class UserSessionViewSet(viewsets.ReadOnlyModelViewSet):
     
     def get_queryset(self):
         """Filter sessions by authenticated user"""
+        # Handle swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return UserSession.objects.none()
+        
         return UserSession.objects.filter(
             user=self.request.user
         ).select_related('device')
@@ -580,6 +588,10 @@ class LoginHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     
     def get_queryset(self):
         """Filter login history by authenticated user"""
+        # Handle swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return LoginHistory.objects.none()
+        
         return LoginHistory.objects.filter(
             Q(user=self.request.user) | Q(email=self.request.user.email)
         )
@@ -639,6 +651,10 @@ class SecurityAlertViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Filter alerts by authenticated user"""
+        # Handle swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return SecurityAlert.objects.none()
+        
         return SecurityAlert.objects.filter(
             user=self.request.user
         ).select_related('device', 'session')

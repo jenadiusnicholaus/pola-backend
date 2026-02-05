@@ -127,6 +127,10 @@ class CommentMentionViewSet(viewsets.ReadOnlyModelViewSet):
     
     def get_queryset(self):
         """Return mentions for current user"""
+        # Handle swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return CommentMention.objects.none()
+        
         return CommentMention.objects.filter(
             mentioned_user=self.request.user
         ).select_related(

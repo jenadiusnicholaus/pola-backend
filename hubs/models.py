@@ -433,23 +433,6 @@ class StudentHubComment(models.Model):
         return self.replies.count()
 
 
-# DEPRECATED: Use HubCommentLike instead
-class StudentHubCommentLike(models.Model):
-    """
-    DEPRECATED: Use HubCommentLike instead
-    Track who liked which comment/reply
-    """
-    user = models.ForeignKey(PolaUser, on_delete=models.CASCADE)
-    comment = models.ForeignKey(StudentHubComment, on_delete=models.CASCADE, related_name='likes')
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        unique_together = ['user', 'comment']
-        verbose_name = 'Document Comment Like (Deprecated)'
-        verbose_name_plural = 'Document Comment Likes (Deprecated)'
-
-
-
 class StudentHubCommentLike(models.Model):
     """Track who liked which comment/reply"""
     user = models.ForeignKey(PolaUser, on_delete=models.CASCADE)

@@ -140,6 +140,10 @@ class UserDocumentViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Only return user's own documents"""
+        # Handle swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return UserDocument.objects.none()
+        
         return UserDocument.objects.filter(user=self.request.user)
     
     @action(detail=False, methods=['post'])

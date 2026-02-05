@@ -6,65 +6,103 @@ from django.conf import settings
 from django.db import migrations, models
 
 
+def table_exists(schema_editor, table_name):
+    """Check if a table exists in the database."""
+    with schema_editor.connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = %s)",
+            [table_name]
+        )
+        return cursor.fetchone()[0]
+
+
+def create_model_if_not_exists(apps, schema_editor):
+    """
+    This migration was originally created by documents app but the tables
+    may already exist from subscriptions app. This function handles both cases.
+    """
+    # Tables are created by subscriptions.0001_initial - just register the model
+    # The actual table creation is skipped if it already exists
+    pass
+
+
+def noop(apps, schema_editor):
+    """No-op for reverse migration."""
+    pass
+
+
 class Migration(migrations.Migration):
 
     initial = True
 
     dependencies = [
         ('hubs', '0003_alter_legaledtopic_options_and_more'),
+        ('subscriptions', '0001_initial'),  # Ensure subscriptions runs first
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='LearningMaterial',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uploader_type', models.CharField(choices=[('student', 'Student'), ('lecturer', 'Lecturer'), ('admin', 'Admin')], max_length=20)),
-                ('title', models.CharField(max_length=255)),
-                ('description', models.TextField()),
-                ('category', models.CharField(choices=[('notes', 'Study Notes'), ('past_papers', 'Past Exam Papers'), ('assignments', 'Assignments'), ('tutorials', 'Tutorials'), ('hub_content', 'Hub Content'), ('other', 'Other')], max_length=20)),
-                ('language', models.CharField(choices=[('en', 'English'), ('sw', 'Swahili')], default='en', help_text='Content language', max_length=2)),
-                ('content_type', models.CharField(choices=[('file', 'File (PDF, DOC, etc)'), ('rich_text', 'Rich Text/HTML')], default='file', max_length=20)),
-                ('file', models.FileField(blank=True, help_text='File content (PDF, DOC, etc)', null=True, upload_to='learning_materials/')),
-                ('file_size', models.BigIntegerField(default=0, help_text='File size in bytes')),
-                ('rich_text_content', models.TextField(blank=True, help_text='Rich text/HTML content')),
-                ('is_downloadable', models.BooleanField(default=True, help_text='Allow users to download this material')),
-                ('price', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('downloads_count', models.IntegerField(default=0)),
-                ('total_revenue', models.DecimalField(decimal_places=2, default=Decimal('0'), max_digits=12)),
-                ('uploader_earnings', models.DecimalField(decimal_places=2, default=Decimal('0'), max_digits=12)),
-                ('is_approved', models.BooleanField(default=False, help_text='Admin approval required')),
-                ('is_active', models.BooleanField(default=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('subtopic', models.ForeignKey(blank=True, help_text='Link to hub subtopic', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='materials', to='hubs.legaledsubtopic')),
-                ('uploader', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='uploaded_materials', to=settings.AUTH_USER_MODEL)),
+        # Use RunPython to handle the case where tables already exist
+        migrations.RunPython(create_model_if_not_exists, noop),
+        
+        # These SeparateDatabaseAndState operations register the model
+        # in Django's state without creating the table (since it may exist)
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.CreateModel(
+                    name='LearningMaterial',
+                    fields=[
+                        ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                        ('uploader_type', models.CharField(choices=[('student', 'Student'), ('lecturer', 'Lecturer'), ('admin', 'Admin')], max_length=20)),
+                        ('title', models.CharField(max_length=255)),
+                        ('description', models.TextField()),
+                        ('category', models.CharField(choices=[('notes', 'Study Notes'), ('past_papers', 'Past Exam Papers'), ('assignments', 'Assignments'), ('tutorials', 'Tutorials'), ('hub_content', 'Hub Content'), ('other', 'Other')], max_length=20)),
+                        ('language', models.CharField(choices=[('en', 'English'), ('sw', 'Swahili')], default='en', help_text='Content language', max_length=2)),
+                        ('content_type', models.CharField(choices=[('file', 'File (PDF, DOC, etc)'), ('rich_text', 'Rich Text/HTML')], default='file', max_length=20)),
+                        ('file', models.FileField(blank=True, help_text='File content (PDF, DOC, etc)', null=True, upload_to='learning_materials/')),
+                        ('file_size', models.BigIntegerField(default=0, help_text='File size in bytes')),
+                        ('rich_text_content', models.TextField(blank=True, help_text='Rich text/HTML content')),
+                        ('is_downloadable', models.BooleanField(default=True, help_text='Allow users to download this material')),
+                        ('price', models.DecimalField(decimal_places=2, max_digits=10)),
+                        ('downloads_count', models.IntegerField(default=0)),
+                        ('total_revenue', models.DecimalField(decimal_places=2, default=Decimal('0'), max_digits=12)),
+                        ('uploader_earnings', models.DecimalField(decimal_places=2, default=Decimal('0'), max_digits=12)),
+                        ('is_approved', models.BooleanField(default=False, help_text='Admin approval required')),
+                        ('is_active', models.BooleanField(default=True)),
+                        ('created_at', models.DateTimeField(auto_now_add=True)),
+                        ('updated_at', models.DateTimeField(auto_now=True)),
+                        ('subtopic', models.ForeignKey(blank=True, help_text='Link to hub subtopic', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='materials', to='hubs.legaledsubtopic')),
+                        ('uploader', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='uploaded_materials', to=settings.AUTH_USER_MODEL)),
+                    ],
+                    options={
+                        'verbose_name': 'Learning Material',
+                        'verbose_name_plural': 'Learning Materials',
+                        'db_table': 'subscriptions_learningmaterial',
+                        'ordering': ['-created_at'],
+                    },
+                ),
+                migrations.CreateModel(
+                    name='LearningMaterialPurchase',
+                    fields=[
+                        ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                        ('amount_paid', models.DecimalField(decimal_places=2, max_digits=10)),
+                        ('purchase_date', models.DateTimeField(auto_now_add=True)),
+                        ('download_count', models.IntegerField(default=0)),
+                        ('last_downloaded', models.DateTimeField(blank=True, null=True)),
+                        ('buyer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='learning_purchases', to=settings.AUTH_USER_MODEL)),
+                        ('material', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='purchases', to='documents.learningmaterial')),
+                    ],
+                    options={
+                        'verbose_name': 'Learning Material Purchase',
+                        'verbose_name_plural': 'Learning Material Purchases',
+                        'db_table': 'subscriptions_learningmaterialpurchase',
+                        'ordering': ['-purchase_date'],
+                        'unique_together': {('buyer', 'material')},
+                    },
+                ),
             ],
-            options={
-                'verbose_name': 'Learning Material',
-                'verbose_name_plural': 'Learning Materials',
-                'db_table': 'subscriptions_learningmaterial',
-                'ordering': ['-created_at'],
-            },
-        ),
-        migrations.CreateModel(
-            name='LearningMaterialPurchase',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('amount_paid', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('purchase_date', models.DateTimeField(auto_now_add=True)),
-                ('download_count', models.IntegerField(default=0)),
-                ('last_downloaded', models.DateTimeField(blank=True, null=True)),
-                ('buyer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='learning_purchases', to=settings.AUTH_USER_MODEL)),
-                ('material', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='purchases', to='documents.learningmaterial')),
+            database_operations=[
+                # No database operations - tables already exist from subscriptions app
             ],
-            options={
-                'verbose_name': 'Learning Material Purchase',
-                'verbose_name_plural': 'Learning Material Purchases',
-                'db_table': 'subscriptions_learningmaterialpurchase',
-                'ordering': ['-purchase_date'],
-                'unique_together': {('buyer', 'material')},
-            },
         ),
     ]
