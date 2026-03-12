@@ -19,7 +19,7 @@ NC='\033[0m' # No Color
 PROJECT_NAME="pola-backend"
 DOMAIN="${DOMAIN:-yourdomain.com}"
 EMAIL="${EMAIL:-admin@yourdomain.com}"
-ENV_FILE="${ENV_FILE:-.env.production}"
+ENV_FILE="${ENV_FILE:-.env}"
 COMPOSE_FILE="docker-compose.prod.yml"
 
 # Functions
@@ -60,8 +60,8 @@ setup_environment() {
     
     if [[ ! -f "$ENV_FILE" ]]; then
         log_warning "$ENV_FILE not found. Creating from template..."
-        if [[ -f ".env.production.example" ]]; then
-            cp .env.production.example "$ENV_FILE"
+        if [[ -f ".env.example" ]]; then
+            cp .env.example "$ENV_FILE"
             log_info "Please edit $ENV_FILE with your production settings"
             log_info "Required variables: SECRET_KEY, DB_NAME, DB_USER, DB_PASSWORD, DOMAIN, EMAIL"
             read -p "Press Enter after editing the environment file..."
