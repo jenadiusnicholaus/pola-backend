@@ -336,9 +336,7 @@ show_deployment_info() {
     echo "========================================="
     echo "Deployment Information"
     echo "========================================="
-    echo "Domain: $DOMAIN"
     echo "Environment: Production"
-    echo "Nginx: External (VPS)"
     echo "Docker Compose: $COMPOSE_FILE"
     echo
     echo "Services Status:"
@@ -351,15 +349,8 @@ show_deployment_info() {
     echo "  Access container: sudo docker compose -f $COMPOSE_FILE exec web bash"
     echo
     echo "Next Steps:"
-    echo "1. Copy nginx-generated.conf to your VPS nginx"
-    echo "2. Setup SSL: sudo certbot --nginx -d $DOMAIN"
-    echo "3. Test: curl https://$DOMAIN/health"
-    echo
-    echo "Access URLs:"
-    echo "  HTTP: http://$DOMAIN (redirects to HTTPS)"
-    echo "  HTTPS: https://$DOMAIN"
-    echo "  Admin: https://$DOMAIN/admin/"
-    echo "  API: https://$DOMAIN/api/"
+    echo "1. Setup nginx manually if needed"
+    echo "2. Test application: curl http://localhost:8000/health"
     echo "========================================="
 }
 
@@ -388,7 +379,6 @@ main() {
     run_migrations
     collect_static
     create_superuser
-    generate_nginx_config
     health_check
     show_deployment_info
     
