@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Simple POLA Backend Deployment Script
+set -e
+
+echo "🚀 Starting POLA Backend deployment..."
+
+# Check if .env exists
+if [[ ! -f ".env" ]]; then
+    echo "❌ .env file not found. Please create it first."
+    exit 1
+fi
+
+# Stop existing services
+echo "🛑 Stopping existing services..."
+sudo docker compose -f docker-compose.prod.yml down --remove-orphans || true
+
+# Build and start services
+echo "🔨 Building and starting services..."
+sudo docker compose -f docker-compose.prod.yml build
+sudo docker compose -f docker-compose.prod.yml up -d
+
+# Wait for database
+echo "⏳ Waiting for database..."
+sleep 10
+
+# Run migrations
+echo "🗄️ Running migrations..."
+sudo docker compose -f docker-compose.prod.yml exec -T web python manage.py migrate --noinput
+
+# Collect static files
+echo "📁 Collecting static files..."
+sudo docker compose -f docker-compose.prod.yml exec -T web python manage.py collectstatic --noinput --clear
+
+# Show status
+echo "✅ Deployment completed!"
+echo "📊 Service status:"
+sudo docker compose -f docker-compose.prod.yml ps
