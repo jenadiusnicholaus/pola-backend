@@ -64,8 +64,8 @@ services:
       - media_data:/app/media
       - static_data:/app/static
       - ./logs:/app/logs
-    expose:
-      - "8000"
+    ports:
+      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
@@ -74,10 +74,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 2G
         reservations:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 512M
 
   # Nginx Reverse Proxy

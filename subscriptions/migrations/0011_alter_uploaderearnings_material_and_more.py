@@ -9,45 +9,10 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('documents', '0001_initial'),
-        ('subscriptions', '0010_learningmaterial_content_type_and_more'),
+        ('documents', '0002_initial'),
+        ('subscriptions', '0001_initial'),
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='uploaderearnings',
-            name='material',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='documents.learningmaterial'),
-        ),
-        # State-only operations - tables are now managed by documents app
-        migrations.SeparateDatabaseAndState(
-            state_operations=[
-                migrations.RemoveField(
-                    model_name='learningmaterialpurchase',
-                    name='material',
-                ),
-                migrations.AlterUniqueTogether(
-                    name='learningmaterialpurchase',
-                    unique_together=None,
-                ),
-                migrations.RemoveField(
-                    model_name='learningmaterialpurchase',
-                    name='buyer',
-                ),
-                migrations.DeleteModel(
-                    name='LearningMaterial',
-                ),
-                migrations.DeleteModel(
-                    name='LearningMaterialPurchase',
-                ),
-            ],
-            database_operations=[
-                # No database operations - tables are managed by documents app
-            ],
-        ),
-        migrations.AlterField(
-            model_name='materialpurchase',
-            name='material',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='material_purchases', to='documents.learningmaterial'),
-        ),
+        # No-op migration - models already moved to documents app
     ]
