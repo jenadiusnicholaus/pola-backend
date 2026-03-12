@@ -421,6 +421,21 @@ case "${1:-deploy}" in
         log_info "Creating database backup..."
         ./db_backup.sh
         ;;
+    "seed")
+        log_info "Seeding production data..."
+        sudo docker compose -f $COMPOSE_FILE exec -T web python seed_production.py
+        ;;
+    "seed-auth")
+        log_info "Seeding authentication data only..."
+        sudo docker compose -f $COMPOSE_FILE exec -T web python manage.py seed_user_roles
+        sudo docker compose -f $COMPOSE_FILE exec -T web python manage.py seed_regions_districts
+        sudo docker compose -f $COMPOSE_FILE exec -T web python manage.py seed_specializations
+        ;;
+    "seed-subs")
+        log_info "Seeding subscription data only..."
+        sudo docker compose -f $COMPOSE_FILE exec -T web python manage.py seed_subscription_plans
+        sudo docker compose -f $COMPOSE_FILE exec -T web python manage.py seed_consultants
+        ;;
     "help"|"-h"|"--help")
         echo "Usage: $0 [COMMAND]"
         echo
@@ -434,6 +449,9 @@ case "${1:-deploy}" in
         echo "  collectstatic  - Collect static files"
         echo "  nginx-config   - Generate nginx configuration"
         echo "  backup         - Create database backup"
+        echo "  seed           - Seed all production data"
+        echo "  seed-auth      - Seed authentication data only"
+        echo "  seed-subs      - Seed subscription data only"
         echo "  help           - Show this help message"
         echo
         echo "Files Used:"
