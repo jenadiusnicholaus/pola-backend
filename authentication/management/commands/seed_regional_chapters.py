@@ -21,14 +21,24 @@ class Command(BaseCommand):
                 
                 created_count = 0
                 
-                for region in regions:
+                for i, region in enumerate(regions):
+                    # Generate unique code
+                    base_code = region.name.replace(' ', '')[:3].upper()
+                    code = base_code
+                    counter = 1
+                    
+                    # Ensure code is unique
+                    while RegionalChapter.objects.filter(code=code).exists():
+                        code = f"{base_code}{counter}"
+                        counter += 1
+                    
                     # Check if chapter already exists
                     chapter, created = RegionalChapter.objects.get_or_create(
                         region=region,
                         defaults={
                             'name': f'{region.name} Chapter',
                             'description': f'Legal professionals chapter for {region.name} region. Advocates in this region can register and operate under this TLS chapter.',
-                            'code': region.name[:3].upper(),
+                            'code': code,
                             'is_active': True,
                         }
                     )
