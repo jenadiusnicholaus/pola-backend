@@ -104,7 +104,7 @@ create_directories() {
 stop_services() {
     log_info "Stopping existing services..."
     
-    docker compose -f $COMPOSE_FILE down --remove-orphans || true
+    sudo docker compose -f $COMPOSE_FILE down --remove-orphans || true
     
     log_success "Services stopped"
 }
@@ -114,10 +114,10 @@ build_and_start() {
     log_info "Building and starting services..."
     
     # Build images
-    docker compose -f $COMPOSE_FILE build
+    sudo docker compose -f $COMPOSE_FILE build
     
     # Start services
-    docker compose -f $COMPOSE_FILE up -d
+    sudo docker compose -f $COMPOSE_FILE up -d
     
     log_success "Services started"
 }
@@ -130,7 +130,7 @@ wait_for_database() {
     local attempt=1
     
     while [[ $attempt -le $max_attempts ]]; do
-        if docker compose -f $COMPOSE_FILE exec -T db pg_isready -U "$DB_USER" -d "$DB_NAME" &>/dev/null; then
+        if sudo docker compose -f $COMPOSE_FILE exec -T db pg_isready -U "$DB_USER" -d "$DB_NAME" &>/dev/null; then
             log_success "Database is ready"
             return 0
         fi
@@ -148,7 +148,7 @@ wait_for_database() {
 run_migrations() {
     log_info "Running database migrations..."
     
-    docker compose -f $COMPOSE_FILE exec -T web python manage.py migrate --noinput
+    sudo docker compose -f $COMPOSE_FILE exec -T web python manage.py migrate --noinput
     
     log_success "Migrations completed"
 }
@@ -157,7 +157,7 @@ run_migrations() {
 collect_static() {
     log_info "Collecting static files..."
     
-    docker compose -f $COMPOSE_FILE exec -T web python manage.py collectstatic --noinput --clear
+    sudo docker compose -f $COMPOSE_FILE exec -T web python manage.py collectstatic --noinput --clear
     
     log_success "Static files collected"
 }
@@ -167,7 +167,7 @@ create_superuser() {
     if [[ "$CREATE_SUPERUSER" == "true" ]]; then
         log_info "Creating superuser..."
         
-        docker compose -f $COMPOSE_FILE exec -T web python manage.py createsuperuser --noinput || {
+        sudo docker compose -f $COMPOSE_FILE exec -T web python manage.py createsuperuser --noinput || {
             log_warning "Superuser creation failed or already exists"
         }
         
@@ -298,7 +298,7 @@ health_check() {
     # Check if containers are running
     local containers=("db" "web" "nginx")
     for container in "${containers[@]}"; do
-        if docker compose -f $COMPOSE_FILE ps | grep -q "$container.*Up"; then
+        if sudo docker compose -f $COMPOSE_FILE ps | grep -q "$container.*Up"; then
             log_success "$container container is running"
         else
             log_error "$container container is not running"
@@ -342,13 +342,13 @@ show_deployment_info() {
     echo "Docker Compose: $COMPOSE_FILE"
     echo
     echo "Services Status:"
-    docker compose -f $COMPOSE_FILE ps
+    sudo docker compose -f $COMPOSE_FILE ps
     echo
     echo "Useful Commands:"
-    echo "  View logs: docker compose -f $COMPOSE_FILE logs -f"
-    echo "  Stop services: docker compose -f $COMPOSE_FILE down"
-    echo "  Restart services: docker compose -f $COMPOSE_FILE restart"
-    echo "  Access container: docker compose -f $COMPOSE_FILE exec web bash"
+    echo "  View logs: sudo docker compose -f $COMPOSE_FILE logs -f"
+    echo "  Stop services: sudo docker compose -f $COMPOSE_FILE down"
+    echo "  Restart services: sudo docker compose -f $COMPOSE_FILE restart"
+    echo "  Access container: sudo docker compose -f $COMPOSE_FILE exec web bash"
     echo
     echo "Next Steps:"
     echo "1. Copy nginx-generated.conf to your VPS nginx"
@@ -367,7 +367,7 @@ show_deployment_info() {
 cleanup() {
     if [[ $? -ne 0 ]]; then
         log_error "Deployment failed. Cleaning up..."
-        docker compose -f $COMPOSE_FILE down --remove-orphans || true
+        sudo docker compose -f $COMPOSE_FILE down --remove-orphans || true
     fi
 }
 
@@ -402,27 +402,27 @@ case "${1:-deploy}" in
         ;;
     "stop")
         log_info "Stopping services..."
-        docker compose -f $COMPOSE_FILE down --remove-orphans
+        sudo docker compose -f $COMPOSE_FILE down --remove-orphans
         log_success "Services stopped"
         ;;
     "restart")
         log_info "Restarting services..."
-        docker compose -f $COMPOSE_FILE restart
+        sudo docker compose -f $COMPOSE_FILE restart
         log_success "Services restarted"
         ;;
     "logs")
-        docker compose -f $COMPOSE_FILE logs -f
+        sudo docker compose -f $COMPOSE_FILE logs -f
         ;;
     "status")
-        docker compose -f $COMPOSE_FILE ps
+        sudo docker compose -f $COMPOSE_FILE ps
         ;;
     "migrate")
         log_info "Running migrations..."
-        docker compose -f $COMPOSE_FILE exec -T web python manage.py migrate
+        sudo docker compose -f $COMPOSE_FILE exec -T web python manage.py migrate
         ;;
     "collectstatic")
         log_info "Collecting static files..."
-        docker compose -f $COMPOSE_FILE exec -T web python manage.py collectstatic --noinput
+        sudo docker compose -f $COMPOSE_FILE exec -T web python manage.py collectstatic --noinput
         ;;
     "nginx-config")
         generate_nginx_config
