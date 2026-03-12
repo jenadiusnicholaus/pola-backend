@@ -442,6 +442,14 @@ case "${1:-deploy}" in
         sudo docker compose -f $COMPOSE_FILE exec -T web python manage.py create_initial_pricing
         sudo docker compose -f $COMPOSE_FILE exec -T web python manage.py update_bundle_descriptions
         ;;
+    "seed-chapters")
+        log_info "Seeding regional chapters..."
+        sudo docker compose -f $COMPOSE_FILE exec -T web python manage.py seed_regional_chapters
+        ;;
+    "seed-all")
+        log_info "Seeding all authentication data..."
+        sudo docker compose -f $COMPOSE_FILE exec -T web python manage.py seed_all
+        ;;
     "help"|"-h"|"--help")
         echo "Usage: $0 [COMMAND]"
         echo
@@ -459,6 +467,8 @@ case "${1:-deploy}" in
         echo "  seed-auth      - Seed authentication data only"
         echo "  seed-subs      - Seed subscription data only"
         echo "  seed-bundles   - Seed call credit bundles only"
+        echo "  seed-chapters  - Seed regional chapters only"
+        echo "  seed-all       - Seed all authentication data"
         echo "  help           - Show this help message"
         echo
         echo "Files Used:"
