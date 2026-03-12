@@ -212,6 +212,14 @@ USE_I18N = True
 
 USE_TZ = True
 
+# CSRF Trusted Origins for admin login
+CSRF_TRUSTED_ORIGINS = [
+    "https://api.pola.co.tz",
+    "http://api.pola.co.tz",
+]
+
+# Security settings for proxy (Nginx)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
