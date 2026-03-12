@@ -44,6 +44,8 @@ CORS_ALLOWED_ORIGINS = [
     "https://185.237.253.223:8000",  # Production server with SSL
     "http://185.237.253.223",  # Production server (port 80)
     "https://185.237.253.223",  # Production server with SSL (port 443)
+    "https://pola.co.tz",  # Frontend domain
+    "https://api.pola.co.tz",  # API domain
 ]
 CORS_ALLOW_CREDENTIALS = True
 # Allow all origins in development for mobile testing
