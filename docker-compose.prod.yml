@@ -80,37 +80,6 @@ services:
           cpus: "0.5"
           memory: 512M
 
-  # Nginx Reverse Proxy
-  nginx:
-    image: nginx:alpine
-    container_name: pola_nginx_prod
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - static_data:/app/static:ro
-      - media_data:/app/media:ro
-      - ./certbot/conf:/etc/letsencrypt:ro
-      - ./certbot/www:/var/www/certbot:ro
-    depends_on:
-      - web
-    networks:
-      - pola_network_prod
-
-  # Certbot for SSL certificates (optional)
-  certbot:
-    image: certbot/certbot
-    container_name: pola_certbot
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-    networks:
-      - pola_network_prod
-
 volumes:
   postgres_data_prod:
   media_data:

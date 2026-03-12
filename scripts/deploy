@@ -296,7 +296,7 @@ health_check() {
     log_info "Performing health checks..."
     
     # Check if containers are running
-    local containers=("db" "web" "nginx")
+    local containers=("db" "web")
     for container in "${containers[@]}"; do
         if sudo docker compose -f $COMPOSE_FILE ps | grep -q "$container.*Up"; then
             log_success "$container container is running"
