@@ -436,6 +436,12 @@ case "${1:-deploy}" in
         sudo docker compose -f $COMPOSE_FILE exec -T web python manage.py seed_subscription_plans
         sudo docker compose -f $COMPOSE_FILE exec -T web python manage.py seed_consultants
         ;;
+    "seed-bundles")
+        log_info "Seeding call credit bundles..."
+        sudo docker compose -f $COMPOSE_FILE exec -T web python manage.py create_call_credit_bundles
+        sudo docker compose -f $COMPOSE_FILE exec -T web python manage.py create_initial_pricing
+        sudo docker compose -f $COMPOSE_FILE exec -T web python manage.py update_bundle_descriptions
+        ;;
     "help"|"-h"|"--help")
         echo "Usage: $0 [COMMAND]"
         echo
@@ -452,6 +458,7 @@ case "${1:-deploy}" in
         echo "  seed           - Seed all production data"
         echo "  seed-auth      - Seed authentication data only"
         echo "  seed-subs      - Seed subscription data only"
+        echo "  seed-bundles   - Seed call credit bundles only"
         echo "  help           - Show this help message"
         echo
         echo "Files Used:"
