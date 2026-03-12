@@ -28,7 +28,7 @@ class Command(BaseCommand):
                         defaults={
                             'name': f'{region.name} Chapter',
                             'description': f'Legal professionals chapter for {region.name} region. Advocates in this region can register and operate under this TLS chapter.',
-                            'code': region.code[:3].upper() if region.code else None,
+                            'code': region.name[:3].upper(),
                             'is_active': True,
                         }
                     )
