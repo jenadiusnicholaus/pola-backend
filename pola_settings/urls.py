@@ -182,5 +182,17 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 # Media files (user uploads, profile pictures, etc.)
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+if settings.DEBUG:
+    # In development, Django serves both static and media
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# In production, we need to handle media serving differently
+# Static files are handled by WhiteNoise, but media files need custom handling
+if not settings.DEBUG:
+    from django.views.static import serve
+    from django.urls import path
+    
+    urlpatterns += [
+        path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
+    ]
