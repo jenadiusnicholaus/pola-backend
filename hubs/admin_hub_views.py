@@ -86,10 +86,20 @@ class AdminHubContentViewSet(viewsets.ModelViewSet):
     ordering = ['-created_at']
 
     def get_queryset(self):
-        """Filter by hub_type and other params"""
-        queryset = super().get_queryset().select_related(
-            'uploader', 'uploader__verification'
-        ).prefetch_related('likes', 'comments', 'bookmarks', 'ratings')
+        """Filter by hub_type and other params - works like public API"""
+        queryset = LearningMaterial.objects.all().select_related(
+            'uploader', 'uploader__verification', 'topic', 'subtopic'
+        ).prefetch_related('likes', 'comments', 'bookmarks', 'ratings', 'purchases')
+        
+        # Handle topic_slug parameter (like public API)
+        topic_slug = self.request.query_params.get('topic_slug')
+        if topic_slug:
+            queryset = queryset.filter(topic__slug=topic_slug)
+        
+        # Handle topic_id parameter (backward compatibility)
+        topic_id = self.request.query_params.get('topic') or self.request.query_params.get('topic_id')
+        if topic_id:
+            queryset = queryset.filter(topic_id=topic_id)
         
         # Filter by hub type (support both direct value and object format)
         hub_type = self.request.query_params.get('hub_type') or self.request.query_params.get('hub_type[value]')
