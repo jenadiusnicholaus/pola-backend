@@ -1061,7 +1061,9 @@ class AdminContentListSerializer(serializers.ModelSerializer):
         }
     
     def get_price_display(self, obj):
-        return f"TSH {int(float(obj.price)):,}" if obj.price else "TSH 0"
+        if float(obj.price) == 0:
+            return "FREE"
+        return f"TSH {int(float(obj.price)):,}"
     
     def get_is_free(self, obj):
         return float(obj.price) == 0

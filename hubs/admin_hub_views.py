@@ -92,9 +92,13 @@ class AdminHubContentViewSet(viewsets.ModelViewSet):
         ).prefetch_related('likes', 'comments', 'bookmarks', 'ratings', 'purchases')
         
         # Handle topic_slug parameter (like public API)
+        # Match materials via EITHER direct topic FK OR legacy subtopic->topic path
         topic_slug = self.request.query_params.get('topic_slug')
         if topic_slug:
-            queryset = queryset.filter(topic__slug=topic_slug)
+            queryset = queryset.filter(
+                Q(topic__slug=topic_slug) |  # Direct topic materials (new)
+                Q(subtopic__topic__slug=topic_slug, subtopic__is_active=True)  # Subtopic materials (legacy)
+            )
         
         # Handle topic_id parameter (backward compatibility)
         topic_id = self.request.query_params.get('topic') or self.request.query_params.get('topic_id')
