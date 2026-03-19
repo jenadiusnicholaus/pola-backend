@@ -74,6 +74,7 @@ service_account_file.json
 # ignore .md files except in docs folder
 *.md
 docs/*.md
+!docs/HUB_MATERIAL_API.md
 # !docs/**/*.md
 *.sh
 # Keep backup scripts tracked in Git

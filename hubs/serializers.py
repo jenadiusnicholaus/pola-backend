@@ -975,37 +975,124 @@ class AdminContentListSerializer(serializers.ModelSerializer):
     """
     Admin serializer for LISTING content (optimized for list view)
     
-    Lighter version with essential fields and basic stats
+    Full format with all required fields including revenue calculations
     """
+    uploader = serializers.PrimaryKeyRelatedField(read_only=True)
+    uploader_email = serializers.SerializerMethodField()
     uploader_name = serializers.SerializerMethodField()
-    likes_count = serializers.SerializerMethodField()
-    comments_count = serializers.SerializerMethodField()
-    engagement_score = serializers.SerializerMethodField()
+    uploader_type = serializers.SerializerMethodField()
+    file = serializers.SerializerMethodField()
+    file_size = serializers.SerializerMethodField()
+    total_revenue = serializers.SerializerMethodField()
+    uploader_earnings = serializers.SerializerMethodField()
+    revenue_split_info = serializers.SerializerMethodField()
+    price_display = serializers.SerializerMethodField()
+    is_free = serializers.SerializerMethodField()
+    downloads_count_display = serializers.SerializerMethodField()
+    is_purchased_by_user = serializers.SerializerMethodField()
+    can_download = serializers.SerializerMethodField()
     
     class Meta:
         model = LearningMaterial
         fields = [
-            'id', 'hub_type', 'content_type', 'title', 'uploader_name',
-            'uploader_type', 'price', 'views_count', 'downloads_count',
-            'likes_count', 'comments_count', 'engagement_score',
-            'is_pinned', 'is_active', 'is_approved', 'created_at', 'updated_at'
+            'id', 'uploader', 'uploader_email', 'uploader_name', 'uploader_type',
+            'title', 'description', 'content_type', 'file', 'file_size',
+            'price', 'total_revenue', 'uploader_earnings', 'revenue_split_info',
+            'is_approved', 'is_active', 'created_at', 'updated_at',
+            'price_display', 'is_free', 'downloads_count', 'downloads_count_display',
+            'is_purchased_by_user', 'can_download'
         ]
     
+    def get_uploader_email(self, obj):
+        return obj.uploader.email if obj.uploader else None
+    
     def get_uploader_name(self, obj):
-        return f"{obj.uploader.first_name} {obj.uploader.last_name}"
+        return f"{obj.uploader.first_name}\t{obj.uploader.last_name}" if obj.uploader else None
     
-    def get_likes_count(self, obj):
-        return obj.likes.count()
+    def get_uploader_type(self, obj):
+        return obj.uploader_type if obj.uploader_type else None
     
-    def get_comments_count(self, obj):
-        return obj.comments.count()
+    def get_file(self, obj):
+        if obj.file:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.file.url)
+            return obj.file.url
+        return None
     
-    def get_engagement_score(self, obj):
-        """Calculate engagement score"""
-        likes = self.get_likes_count(obj)
-        comments = self.get_comments_count(obj)
-        bookmarks = obj.bookmarks.count()
-        return (likes * 2) + (comments * 3) + (bookmarks * 4)
+    def get_file_size(self, obj):
+        return obj.file.size if obj.file else 0
+    
+    def get_total_revenue(self, obj):
+        """Calculate total revenue from purchases"""
+        purchases = obj.purchases.all()
+        total = sum(purchase.amount_paid for purchase in purchases)
+        return f"{total:.2f}"
+    
+    def get_uploader_earnings(self, obj):
+        """Calculate uploader earnings based on revenue split"""
+        purchases = obj.purchases.all()
+        total_revenue = sum(purchase.amount_paid for purchase in purchases)
+        # Assuming 70% to uploader, 30% to app (adjust as needed)
+        uploader_percentage = 0.7 if obj.uploader_type != 'admin' else 0
+        earnings = total_revenue * uploader_percentage
+        return f"{earnings:.2f}"
+    
+    def get_revenue_split_info(self, obj):
+        """Calculate revenue split information"""
+        purchases = obj.purchases.all()
+        total_revenue = sum(purchase.amount_paid for purchase in purchases)
+        
+        if obj.uploader_type == 'admin':
+            uploader_percentage = 0
+            app_percentage = 100
+        else:
+            uploader_percentage = 70
+            app_percentage = 30
+        
+        uploader_gets = total_revenue * (uploader_percentage / 100)
+        app_gets = total_revenue * (app_percentage / 100)
+        
+        return {
+            'uploader_percentage': uploader_percentage,
+            'app_percentage': app_percentage,
+            'uploader_gets': uploader_gets,
+            'app_gets': app_gets
+        }
+    
+    def get_price_display(self, obj):
+        return f"TSH {int(float(obj.price)):,}" if obj.price else "TSH 0"
+    
+    def get_is_free(self, obj):
+        return float(obj.price) == 0
+    
+    def get_downloads_count_display(self, obj):
+        count = obj.downloads_count or 0
+        return f"{count} downloads" if count > 0 else "No downloads"
+    
+    def get_is_purchased_by_user(self, obj):
+        """Check if current user has purchased this material"""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.purchases.filter(buyer=request.user).exists()
+        return False
+    
+    def get_can_download(self, obj):
+        """Check if current user can download this material"""
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+        
+        # Admins can download anything
+        if request.user.is_staff:
+            return True
+        
+        # Free materials can be downloaded by anyone
+        if self.get_is_free(obj):
+            return True
+        
+        # Paid materials require purchase
+        return self.get_is_purchased_by_user(obj)
 
 
 class BulkActionSerializer(serializers.Serializer):

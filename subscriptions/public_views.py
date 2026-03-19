@@ -358,14 +358,14 @@ class ConsultantViewSet(viewsets.ReadOnlyModelViewSet):
             }, status=status.HTTP_400_BAD_REQUEST)
         
         # Check if user is eligible
-        eligible_types = ['advocate', 'lawyer', 'paralegal']
+        eligible_types = ['advocate', 'lawyer', 'paralegal', 'law_firm']
         if request.user.user_role.role_name not in eligible_types:
             return Response({
-                'error': 'Only verified advocates, lawyers, and paralegals can apply to become consultants'
+                'error': 'Only verified advocates, lawyers, paralegals, and law firms can apply to become consultants'
             }, status=status.HTTP_403_FORBIDDEN)
         
-        # Check if user is verified
-        if not request.user.is_verified:
+        # Check if user is verified (law firms may have different verification logic)
+        if request.user.user_role.role_name != 'law_firm' and not request.user.is_verified:
             return Response({
                 'error': 'Your account must be verified before applying to become a consultant'
             }, status=status.HTTP_403_FORBIDDEN)

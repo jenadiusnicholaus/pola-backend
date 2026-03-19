@@ -129,6 +129,16 @@ class AdminHubContentViewSet(viewsets.ModelViewSet):
         if end_date:
             queryset = queryset.filter(created_at__lte=end_date)
         
+        # Filter by topic
+        topic = self.request.query_params.get('topic') or self.request.query_params.get('topic_id')
+        if topic:
+            queryset = queryset.filter(topic_id=topic)
+        
+        # Filter by language
+        language = self.request.query_params.get('language')
+        if language:
+            queryset = queryset.filter(language=language)
+        
         # Filter by uploader
         uploader_id = self.request.query_params.get('uploader_id')
         if uploader_id:
