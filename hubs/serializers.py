@@ -414,14 +414,20 @@ class HubContentCreateSerializer(serializers.ModelSerializer):
             })
         
         # Set pricing rules
-        if content_type in ['news', 'discussion', 'announcement', 'question', 'article', 'general']:
-            # These content types should be free
+        # If price is provided in data, keep it. 
+        # Only default to 0.00 if not provided or for specific hubs that MUST be free (none currently)
+        if 'price' not in data:
             data['price'] = Decimal('0.00')
-            data['is_downloadable'] = False
-        else:
-            # Set default price if not provided
-            if 'price' not in data:
-                data['price'] = Decimal('0.00')
+            
+        # Specific rule: if it's one of these types, it CAN be free by default, 
+        # but we no longer force it to be free if the user set a price.
+        if content_type in ['news', 'discussion', 'announcement', 'question', 'article', 'general']:
+            if not data.get('price') or data.get('price') == Decimal('0.00'):
+                data['is_downloadable'] = False
+            else:
+                # If they paid, it should probably be downloadable if there's a file
+                if 'file' in data and data['file']:
+                    data['is_downloadable'] = True
         
         # Legal education content should link to topics (subtopics are deprecated)
         if hub_type == 'legal_ed':

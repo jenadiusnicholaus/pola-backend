@@ -13,7 +13,6 @@ from django.utils import timezone
 import os
 import uuid
 import tempfile
-from django.conf import settings
 
 from .models import (
     DocumentTemplate,
@@ -50,19 +49,6 @@ class DocumentTemplateViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         """Only return active templates"""
         return DocumentTemplate.objects.filter(is_active=True)
-    
-    def retrieve(self, request, *args, **kwargs):
-        """Override retrieve to add better error logging"""
-        try:
-            return super().retrieve(request, *args, **kwargs)
-        except Exception as e:
-            import traceback
-            error_details = traceback.format_exc()
-            print(f"Error in DocumentTemplateViewSet.retrieve: {str(e)}\n{error_details}")
-            return Response({
-                'error': str(e),
-                'detail': error_details if settings.DEBUG else 'An internal error occurred while retrieving the template.'
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def get_serializer_class(self):
         """Use different serializers for list and detail"""

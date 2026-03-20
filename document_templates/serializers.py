@@ -54,7 +54,7 @@ class DocumentTemplateDetailSerializer(serializers.ModelSerializer):
     """Detailed serializer with sections and fields"""
     sections = TemplateSectionSerializer(many=True, read_only=True)
     fields_without_section = serializers.SerializerMethodField()
-    fields = serializers.SerializerMethodField()  # Add this for all fields
+    all_fields = serializers.SerializerMethodField()  # Renamed from 'fields'
     
     class Meta:
         model = DocumentTemplate
@@ -62,7 +62,7 @@ class DocumentTemplateDetailSerializer(serializers.ModelSerializer):
             'id', 'name', 'name_sw', 'description',
             'description_sw', 'category', 'is_free',
             'price', 'icon', 'usage_count',
-            'sections', 'fields_without_section', 'fields'  # Add fields
+            'sections', 'fields_without_section', 'all_fields'
         ]
     
     def get_fields_without_section(self, obj):
@@ -70,7 +70,7 @@ class DocumentTemplateDetailSerializer(serializers.ModelSerializer):
         fields = obj.fields.filter(section__isnull=True)
         return TemplateFieldSerializer(fields, many=True).data
     
-    def get_fields(self, obj):
+    def get_all_fields(self, obj):
         """Get all fields for this template"""
         all_fields = obj.fields.all().order_by('order')
         return TemplateFieldSerializer(all_fields, many=True).data
