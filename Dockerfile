@@ -71,29 +71,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # ==========================================
 # Stage 4: Production image
 # ==========================================
-FROM python:3.11-slim as production
+FROM base as production
 
 # Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PYTHONFAULTHANDLER=1 \
-    # Disable debug in production
-    DEBUG=False
-
-# Install runtime dependencies only
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq5 \
-    libjpeg62-turbo \
-    zlib1g \
-    libcairo2 \
-    libpango-1.0-0 \
-    libpangocairo-1.0-0 \
-    libgdk-pixbuf-xlib-2.0-0 \
-    libffi8 \
-    shared-mime-info \
-    libmagic1 \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+ENV DEBUG=False
 
 # Create non-root user for security
 RUN groupadd --gid 1000 pola \
