@@ -677,7 +677,7 @@ class VerificationSerializer(serializers.ModelSerializer):
             'advocate': [
                 {'type': 'roll_number_cert', 'label': 'Roll Number Certificate', 'required': True},
                 {'type': 'practice_license', 'label': 'Practice License', 'required': True},
-                {'type': 'work_certificate', 'label': 'Certificate of Work', 'required': True}
+                {'type': 'work_certificate', 'label': 'Certificate of Work (Optional)', 'required': False}
             ],
             'lawyer': [
                 {'type': 'professional_cert', 'label': 'Professional Certificate', 'required': True},

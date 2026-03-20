@@ -813,7 +813,7 @@ class VerificationViewSet(viewsets.ReadOnlyModelViewSet):
             return []
             
         requirements = {
-            'advocate': ['roll_number_cert', 'practice_license', 'work_certificate'],
+            'advocate': ['roll_number_cert', 'practice_license'],
             'lawyer': ['professional_cert', 'employment_letter'],
             'paralegal': ['professional_cert', 'employment_letter'],
             'law_firm': ['business_license', 'registration_cert'],
@@ -1021,7 +1021,7 @@ class AdminVerificationDashboardViewSet(viewsets.ViewSet):
             return []
             
         requirements = {
-            'advocate': ['roll_number_cert', 'practice_license', 'work_certificate'],
+            'advocate': ['roll_number_cert', 'practice_license'],
             'lawyer': ['professional_cert', 'employment_letter'],
             'paralegal': ['professional_cert', 'employment_letter'],
             'law_firm': ['business_license', 'registration_cert'],
