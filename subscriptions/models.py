@@ -484,6 +484,9 @@ class ConsultantRegistrationRequest(models.Model):
     
     CONSULTANT_TYPES = [
         ('law_firm', 'Law Firm'),
+        ('advocate', 'Advocate'),
+        ('lawyer', 'Lawyer'),
+        ('paralegal', 'Paralegal'),
     ]
     
     # User submitting the request (inherits all professional info from PolaUser)
@@ -499,6 +502,8 @@ class ConsultantRegistrationRequest(models.Model):
     )
     id_document = models.FileField(
         upload_to='consultant_ids/',
+        blank=True, 
+        null=True,
         help_text="National ID or Passport for identity verification"
     )
     cv_document = models.FileField(
@@ -608,6 +613,9 @@ class ConsultantProfile(models.Model):
     """
     CONSULTANT_TYPES = [
         ('law_firm', 'Law Firm'),
+        ('advocate', 'Advocate'),
+        ('lawyer', 'Lawyer'),
+        ('paralegal', 'Paralegal'),
     ]
     
     user = models.OneToOneField(PolaUser, on_delete=models.CASCADE, related_name='consultant_profile')
@@ -652,10 +660,17 @@ class ConsultantProfile(models.Model):
         try:
             pricing = {}
             
-            # Mobile consultation pricing (50/50 split) - Law Firm only
+            # Mobile consultation pricing (50/50 split)
             if self.offers_mobile_consultations:
+                # Use MOBILE_LAW_FIRM as the default pricing for now, 
+                # or match specifically if needed.
+                service_type = 'MOBILE_LAW_FIRM'
+                
+                # Check for specific deprecated types if we want to be backward compatible
+                # but MOBILE_LAW_FIRM is the current standard.
+                
                 mobile_pricing = PricingConfiguration.objects.get(
-                    service_type='MOBILE_LAW_FIRM',
+                    service_type=service_type,
                     is_active=True
                 )
                 pricing['mobile'] = {

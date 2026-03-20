@@ -412,12 +412,17 @@ class ConsultantViewSet(viewsets.ReadOnlyModelViewSet):
             registration = ConsultantRegistrationRequest.objects.create(
                 user=request.user,
                 consultant_type=consultant_type,
+                # Use validated documents if provided (ModelSerializer handle this)
+                license_document=validated_data.get('license_document'),
+                id_document=validated_data.get('id_document'),
+                cv_document=validated_data.get('cv_document'),
+                additional_documents=validated_data.get('additional_documents'),
                 # Consultation preferences from request
                 offers_physical_consultations=validated_data.get('offers_physical_consultations', False),
-                # Mobile consultations always offered by default
-                offers_mobile_consultations=True,
-                # Use law firm city, user district, or empty string
-                preferred_consultation_city=city,
+                # Mobile consultations offered by default unless explicitly False
+                offers_mobile_consultations=validated_data.get('offers_mobile_consultations', True),
+                # Use provided city, or fallback to calculated city
+                preferred_consultation_city=validated_data.get('preferred_consultation_city', city),
             )
             
             return Response({

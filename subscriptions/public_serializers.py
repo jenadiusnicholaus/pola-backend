@@ -275,11 +275,16 @@ class ConsultantRegistrationRequestSerializer(serializers.ModelSerializer):
 
 
 class ConsultantRegistrationCreateSerializer(serializers.ModelSerializer):
-    """Serializer for creating consultant registration requests"""
+    """
+    Serializer for creating consultant registration requests.
+    Allows advocates, lawyers, paralegals, and law firms to register.
+    Physical consultations are restricted to verified Law Firms.
+    """
     terms_accepted = serializers.BooleanField(write_only=True, required=True)
     
     class Meta:
         model = ConsultantRegistrationRequest
+        ref_name = 'PublicConsultantRegistrationCreate'
         fields = [
             'consultant_type', 'license_document', 'id_document',
             'cv_document', 'additional_documents',
@@ -293,93 +298,51 @@ class ConsultantRegistrationCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("You must accept the terms and conditions")
         return value
     
-    def validate_id_document(self, value):
-        """Validate ID document is provided"""
-        if not value:
-            raise serializers.ValidationError("ID document is required")
-        return value
     
     def validate_consultant_type(self, value):
-        """Validate consultant type - only law firms can register as consultants"""
+        """Validate consultant type eligibility"""
         user = self.context['request'].user
         
         if not user.user_role:
             raise serializers.ValidationError("User role not found")
         
-        # Only law firms can register as consultants
-        if user.user_role.role_name != 'law_firm':
+        eligible_roles = ['advocate', 'lawyer', 'paralegal', 'law_firm']
+        if user.user_role.role_name not in eligible_roles:
             raise serializers.ValidationError(
-                "Only Law Firms can register as consultants. Individual advocates, lawyers, and paralegals cannot be booked directly."
+                f"Your current role ({user.user_role.role_name}) is not eligible to register as a consultant."
             )
         
-        # Law firms can only register as 'law_firm' type
-        if value != 'law_firm':
+        # Ensure the requested consultant_type matches the user's role
+        if value != user.user_role.role_name:
             raise serializers.ValidationError(
-                "Consultant type must be 'law_firm'"
+                f"Consultant type must match your user role: {user.user_role.role_name}"
             )
         
         return value
     
     def validate(self, attrs):
-        """Validate consultant registration - only law firms allowed"""
+        """
+        Validate registration preferences based on role.
+        ONLY Law Firms can offer physical consultations.
+        """
         user = self.context['request'].user
         
-        if not user.user_role:
-            raise serializers.ValidationError("User role not found")
-        
-        # Only law firms can register as consultants
-        if user.user_role.role_name != 'law_firm':
-            raise serializers.ValidationError(
-                "Only Law Firms can register as consultants. Individual advocates, lawyers, and paralegals cannot be booked directly."
-            )
-        
-        # Law firms can offer both mobile and physical consultations
-        # If offering physical consultations, city is required
-        if attrs.get('offers_physical_consultations') and not attrs.get('preferred_consultation_city'):
-            raise serializers.ValidationError({
-                'preferred_consultation_city': 'City is required for physical consultations'
-            })
+        # Physical consultation restriction
+        if attrs.get('offers_physical_consultations'):
+            if user.user_role.role_name != 'law_firm':
+                raise serializers.ValidationError({
+                    'offers_physical_consultations': "Only Law Firms can offer physical consultations. Individual consultants (Advocates, Lawyers, Paralegals) are restricted to mobile consultations."
+                })
+            
+            # City is required for physical consultations
+            if not attrs.get('preferred_consultation_city'):
+                raise serializers.ValidationError({
+                    'preferred_consultation_city': "City is required for physical consultations"
+                })
         
         return attrs
 
 
-class ConsultantRegistrationCreateSerializer(serializers.Serializer):
-    """
-    Serializer for creating consultant registration requests.
-    ONLY Law Firms can register as consultants.
-    Individual advocates, lawyers, and paralegals cannot be booked directly.
-    """
-    offers_physical_consultations = serializers.BooleanField(default=False)
-    terms_accepted = serializers.BooleanField(required=True, write_only=True)
-    
-    def validate_terms_accepted(self, value):
-        """Ensure terms are accepted"""
-        if not value:
-            raise serializers.ValidationError("You must accept the terms and conditions")
-        return value
-    
-    def validate(self, data):
-        """
-        Validate that only Law Firms can register as consultants.
-        Individual advocates, lawyers, and paralegals cannot be booked directly.
-        """
-        request = self.context.get('request')
-        if not request or not request.user:
-            raise serializers.ValidationError("Authentication required")
-        
-        user = request.user
-        
-        # Check if user has a role
-        if not user.user_role:
-            raise serializers.ValidationError("User role not found")
-        
-        # Only law firms can register as consultants
-        if user.user_role.role_name != 'law_firm':
-            raise serializers.ValidationError(
-                "Only Law Firms can register as consultants. Individual advocates, lawyers, and paralegals cannot be booked directly."
-            )
-        
-        return data
 
 
 # ==============================================================================
