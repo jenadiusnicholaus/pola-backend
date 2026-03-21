@@ -98,37 +98,25 @@ class PhysicalConsultationViewSet(viewsets.ModelViewSet):
         validated_data = serializer.validated_data
         consultant_profile = validated_data['consultant_profile']
         
-        # Get pricing configuration for physical consultation
-        try:
-            pricing_config = PricingConfiguration.objects.get(
-                service_type='PHYSICAL_CONSULTATION',
-                is_active=True
-            )
-        except PricingConfiguration.DoesNotExist:
-            # Fallback to any physical pricing or create default
-            pricing_config = PricingConfiguration.objects.filter(
-                service_type__startswith='PHYSICAL',
-                is_active=True
-            ).first()
-            if not pricing_config:
-                return Response(
-                    {'error': 'Pricing configuration not found. Please contact support.'},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
+        # Get pricing for this consultant
+        consultant_pricing = consultant_profile.get_pricing()
+        physical_pricing = consultant_pricing.get('physical')
+        
+        if not physical_pricing:
+            return Response({
+                'error': 'Pricing not configured',
+                'message': 'This consultant is not configured for physical consultations.'
+            }, status=status.HTTP_400_BAD_REQUEST)
         
         # Calculate pricing
-        base_rate = pricing_config.price  # Price per 30 minutes
+        base_rate = physical_pricing['price']  # Price per 30 minutes
         duration_minutes = validated_data.get('scheduled_duration_minutes', 30)
         
         # Calculate total amount (base rate per 30 minutes)
         total_amount = (base_rate / 30) * duration_minutes
         
-        # Apply consultant multiplier if they have custom pricing
-        if hasattr(consultant_profile, 'pricing_multiplier') and consultant_profile.pricing_multiplier:
-            total_amount *= Decimal(str(consultant_profile.pricing_multiplier))
-        
         # Calculate platform commission
-        commission_percentage = pricing_config.platform_commission_percent
+        commission_percentage = physical_pricing['platform_share']
         platform_commission = total_amount * (commission_percentage / 100)
         consultant_earnings = total_amount - platform_commission
         

@@ -402,12 +402,16 @@ class ConsultantViewSet(viewsets.ReadOnlyModelViewSet):
             consultant_type = request.user.user_role.role_name
             
             # Create registration request with data from user profile
-            # Get city from law firm or user's address
+            # Auto-derive city: regional_chapter > address.district > law_firm.city
             city = ''
-            if request.user.associated_law_firm:
-                city = getattr(request.user.associated_law_firm, 'city', '')
+            if hasattr(request.user, 'regional_chapter') and request.user.regional_chapter:
+                # Primary source: TLS regional chapter set during registration
+                chapter = request.user.regional_chapter
+                city = chapter.region.name if chapter.region else chapter.name
             elif hasattr(request.user, 'address') and request.user.address:
                 city = getattr(request.user.address.district, 'name', '') if request.user.address.district else ''
+            elif request.user.associated_law_firm:
+                city = getattr(request.user.associated_law_firm, 'city', '')
             
             registration = ConsultantRegistrationRequest.objects.create(
                 user=request.user,
@@ -421,8 +425,8 @@ class ConsultantViewSet(viewsets.ReadOnlyModelViewSet):
                 offers_physical_consultations=validated_data.get('offers_physical_consultations', False),
                 # Mobile consultations offered by default unless explicitly False
                 offers_mobile_consultations=validated_data.get('offers_mobile_consultations', True),
-                # Use provided city, or fallback to calculated city
-                preferred_consultation_city=validated_data.get('preferred_consultation_city', city),
+                # City is auto-derived from regional chapter — never required in payload
+                preferred_consultation_city=city,
             )
             
             return Response({

@@ -38,6 +38,13 @@ class Command(BaseCommand):
                 'consultant_share_percent': Decimal('50.00'),
                 'description': 'Mobile consultation with paralegal via in-app call (50/50 split)',
             },
+            {
+                'service_type': 'MOBILE_LAW_FIRM',
+                'price': Decimal('0.00'),  # Paid via call credit bundles
+                'platform_commission_percent': Decimal('50.00'),
+                'consultant_share_percent': Decimal('50.00'),
+                'description': 'Mobile consultation with law firm via in-app call (50/50 split)',
+            },
             
             # Physical Consultations (60/40 split - App/Consultant)
             {
@@ -60,6 +67,20 @@ class Command(BaseCommand):
                 'platform_commission_percent': Decimal('60.00'),
                 'consultant_share_percent': Decimal('40.00'),
                 'description': 'Physical consultation with paralegal (60/40 split)',
+            },
+            {
+                'service_type': 'PHYSICAL_LAW_FIRM',
+                'price': Decimal('100000.00'),  # Higher price for law firms
+                'platform_commission_percent': Decimal('60.00'),
+                'consultant_share_percent': Decimal('40.00'),
+                'description': 'Physical consultation with law firm (60/40 split)',
+            },
+            {
+                'service_type': 'PHYSICAL_CONSULTATION',
+                'price': Decimal('50000.00'),  # General/Legacy fallback
+                'platform_commission_percent': Decimal('60.00'),
+                'consultant_share_percent': Decimal('40.00'),
+                'description': 'General physical consultation (60/40 split)',
             },
             
             # Document Generation

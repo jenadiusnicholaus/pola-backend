@@ -43,7 +43,11 @@ from authentication.models import PolaUser
 # ==============================================================================
 
 class PricingConfigurationSerializer(serializers.ModelSerializer):
-    """Serializer for pricing configuration"""
+    """
+    Serializer for pricing configuration.
+    NOTE: Advocates, lawyers, paralegals, and law firms can all be booked.
+    Physical consultations are restricted to law firms only.
+    """
     revenue_split = serializers.SerializerMethodField()
     formatted_price = serializers.SerializerMethodField()
     
@@ -278,7 +282,7 @@ class ConsultantRegistrationCreateSerializer(serializers.ModelSerializer):
     """
     Serializer for creating consultant registration requests.
     Allows advocates, lawyers, paralegals, and law firms to register.
-    Physical consultations are restricted to verified Law Firms.
+    The consultant_type is automatically derived from the authenticated user's role.
     """
     terms_accepted = serializers.BooleanField(write_only=True, required=True)
     
@@ -286,10 +290,10 @@ class ConsultantRegistrationCreateSerializer(serializers.ModelSerializer):
         model = ConsultantRegistrationRequest
         ref_name = 'PublicConsultantRegistrationCreate'
         fields = [
-            'consultant_type', 'license_document', 'id_document',
+            'license_document', 'id_document',
             'cv_document', 'additional_documents',
             'offers_mobile_consultations', 'offers_physical_consultations',
-            'preferred_consultation_city', 'terms_accepted'
+            'terms_accepted'
         ]
     
     def validate_terms_accepted(self, value):
@@ -298,46 +302,21 @@ class ConsultantRegistrationCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("You must accept the terms and conditions")
         return value
     
-    
-    def validate_consultant_type(self, value):
-        """Validate consultant type eligibility"""
-        user = self.context['request'].user
-        
-        if not user.user_role:
-            raise serializers.ValidationError("User role not found")
-        
-        eligible_roles = ['advocate', 'lawyer', 'paralegal', 'law_firm']
-        if user.user_role.role_name not in eligible_roles:
-            raise serializers.ValidationError(
-                f"Your current role ({user.user_role.role_name}) is not eligible to register as a consultant."
-            )
-        
-        # Ensure the requested consultant_type matches the user's role
-        if value != user.user_role.role_name:
-            raise serializers.ValidationError(
-                f"Consultant type must match your user role: {user.user_role.role_name}"
-            )
-        
-        return value
-    
+
     def validate(self, attrs):
         """
         Validate registration preferences based on role.
-        ONLY Law Firms can offer physical consultations.
+        Only Law Firms can offer physical consultations.
+        Other roles (advocate, lawyer, paralegal) can only offer mobile consultations.
+        The city is auto-derived from the user's regional chapter — no client input required.
         """
         user = self.context['request'].user
         
-        # Physical consultation restriction
+        # Only law firms can offer physical consultations
         if attrs.get('offers_physical_consultations'):
             if user.user_role.role_name != 'law_firm':
                 raise serializers.ValidationError({
-                    'offers_physical_consultations': "Only Law Firms can offer physical consultations. Individual consultants (Advocates, Lawyers, Paralegals) are restricted to mobile consultations."
-                })
-            
-            # City is required for physical consultations
-            if not attrs.get('preferred_consultation_city'):
-                raise serializers.ValidationError({
-                    'preferred_consultation_city': "City is required for physical consultations"
+                    'offers_physical_consultations': "Only Law Firms can offer physical consultations. Your role is: " + user.user_role.role_name
                 })
         
         return attrs
@@ -403,7 +382,7 @@ class ConsultationBookingSerializer(serializers.ModelSerializer):
 class ConsultationBookingCreateSerializer(serializers.Serializer):
     """
     Serializer for creating physical consultation bookings.
-    ONLY for in-person meetings with verified Law Firms.
+    ONLY for in-person meetings with verified Consultants.
     Mobile consultations are handled separately via CallSession/CallCredits.
     """
     consultant_profile_id = serializers.IntegerField(required=True)
@@ -426,8 +405,8 @@ class ConsultationBookingCreateSerializer(serializers.Serializer):
                 raise serializers.ValidationError("This law firm is not currently available")
             if not profile.offers_physical_consultations:
                 raise serializers.ValidationError("This law firm does not offer physical consultations")
-            if profile.consultant_type != 'law_firm':
-                raise serializers.ValidationError("Only Law Firms can be booked for physical consultations")
+            if profile.consultant_type not in ['law_firm', 'advocate', 'lawyer', 'paralegal']:
+                raise serializers.ValidationError("This consultant type cannot be booked for physical consultations")
         except ConsultantProfile.DoesNotExist:
             raise serializers.ValidationError("Law firm profile not found")
         return value

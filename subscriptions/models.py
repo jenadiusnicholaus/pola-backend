@@ -656,39 +656,68 @@ class ConsultantProfile(models.Model):
         return f"{self.user.get_full_name()} - {self.consultant_type}"
     
     def get_pricing(self):
-        """Get pricing for law firm consultations"""
+        """Get pricing for consultant consultations"""
         try:
             pricing = {}
             
             # Mobile consultation pricing (50/50 split)
             if self.offers_mobile_consultations:
-                # Use MOBILE_LAW_FIRM as the default pricing for now, 
-                # or match specifically if needed.
-                service_type = 'MOBILE_LAW_FIRM'
+                # Map consultant type to service type
+                service_mapping = {
+                    'law_firm': 'MOBILE_LAW_FIRM',
+                    'advocate': 'MOBILE_ADVOCATE',
+                    'lawyer': 'MOBILE_LAWYER',
+                    'paralegal': 'MOBILE_PARALEGAL'
+                }
+                service_type = service_mapping.get(self.consultant_type, 'MOBILE_LAW_FIRM')
                 
-                # Check for specific deprecated types if we want to be backward compatible
-                # but MOBILE_LAW_FIRM is the current standard.
-                
-                mobile_pricing = PricingConfiguration.objects.get(
-                    service_type=service_type,
-                    is_active=True
-                )
+                try:
+                    mobile_pricing = PricingConfiguration.objects.get(
+                        service_type=service_type,
+                        is_active=True
+                    )
+                except PricingConfiguration.DoesNotExist:
+                    # Fallback to MOBILE_LAW_FIRM if specific type missing
+                    mobile_pricing = PricingConfiguration.objects.get(
+                        service_type='MOBILE_LAW_FIRM',
+                        is_active=True
+                    )
+
                 pricing['mobile'] = {
                     'price': mobile_pricing.price,
                     'consultant_share': mobile_pricing.consultant_share_percent,
                     'platform_share': mobile_pricing.platform_commission_percent,
+                    'service_type': service_type
                 }
             
-            # Physical consultation pricing (60/40 split) - Law Firm only
+            # Physical consultation pricing (60/40 split)
             if self.offers_physical_consultations:
-                physical_pricing = PricingConfiguration.objects.get(
-                    service_type='PHYSICAL_LAW_FIRM',
-                    is_active=True
-                )
+                # Map consultant type to physical service type
+                service_mapping = {
+                    'law_firm': 'PHYSICAL_LAW_FIRM',
+                    'advocate': 'PHYSICAL_ADVOCATE',
+                    'lawyer': 'PHYSICAL_LAWYER',
+                    'paralegal': 'PHYSICAL_PARALEGAL'
+                }
+                service_type = service_mapping.get(self.consultant_type, 'PHYSICAL_LAW_FIRM')
+                
+                try:
+                    physical_pricing = PricingConfiguration.objects.get(
+                        service_type=service_type,
+                        is_active=True
+                    )
+                except PricingConfiguration.DoesNotExist:
+                    # Fallback to PHYSICAL_LAW_FIRM if specific type missing
+                    physical_pricing = PricingConfiguration.objects.get(
+                        service_type='PHYSICAL_LAW_FIRM',
+                        is_active=True
+                    )
+
                 pricing['physical'] = {
                     'price': physical_pricing.price,
                     'consultant_share': physical_pricing.consultant_share_percent,
                     'platform_share': physical_pricing.platform_commission_percent,
+                    'service_type': service_type
                 }
             
             return pricing
@@ -712,8 +741,8 @@ class PricingConfiguration(models.Model):
     - Lecturer materials: 40/60 (App/Uploader)
     - Admin materials: 100/0 (App/Uploader)
     
-    NOTE: Only Law Firms can be booked as consultants.
-    Individual advocates, lawyers, and paralegals cannot be booked directly.
+    NOTE: Advocates, lawyers, paralegals, and law firms can all be booked for mobile consultations.
+    Physical consultations are restricted to law firms only.
     """
     SERVICE_TYPES = [
         # Law Firm Consultations - Mobile (50/50 split)
