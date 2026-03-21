@@ -275,6 +275,91 @@ class TopicAdminViewSet(viewsets.ModelViewSet):
         return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(
+        operation_description="Get all materials in this topic (including subtopic materials)",
+        manual_parameters=[
+            openapi.Parameter(
+                'language',
+                openapi.IN_QUERY,
+                description="Filter by language (en, sw)",
+                type=openapi.TYPE_STRING,
+                enum=['en', 'sw']
+            ),
+            openapi.Parameter(
+                'ordering',
+                openapi.IN_QUERY,
+                description="Order by field (e.g., -created_at, created_at, title)",
+                type=openapi.TYPE_STRING
+            ),
+            openapi.Parameter(
+                'page',
+                openapi.IN_QUERY,
+                description="Page number",
+                type=openapi.TYPE_INTEGER
+            ),
+            openapi.Parameter(
+                'page_size',
+                openapi.IN_QUERY,
+                description="Items per page",
+                type=openapi.TYPE_INTEGER
+            )
+        ],
+        responses={200: 'Paginated list of materials'}
+    )
+    @action(detail=True, methods=['get'])
+    def materials(self, request, pk=None):
+        """Get all materials in this topic (including subtopic materials)"""
+        topic = self.get_object()
+        
+        # Get materials: direct topic materials + subtopic materials
+        materials = LearningMaterial.objects.filter(
+            Q(topic=topic) |  # Direct topic materials
+            Q(subtopic__topic=topic, subtopic__is_active=True),  # Subtopic materials
+            is_active=True,
+            is_approved=True
+        ).select_related('uploader', 'uploader__verification', 'topic', 'subtopic').order_by('-created_at')
+        
+        # Language filter
+        language = request.query_params.get('language')
+        if language:
+            materials = materials.filter(language=language)
+        
+        # Search filter
+        search = request.query_params.get('search')
+        if search:
+            materials = materials.filter(
+                Q(title__icontains=search) |
+                Q(description__icontains=search)
+            )
+        
+        # Pagination
+        from rest_framework.pagination import PageNumberPagination
+        paginator = PageNumberPagination()
+        paginator.page_size = int(request.query_params.get('page_size', 20))
+        page = paginator.paginate_queryset(materials)
+        
+        if page is not None:
+            from hubs.admin_hub_views import AdminContentListSerializer
+            serializer = AdminContentListSerializer(page, many=True, context={'request': request})
+            return paginator.get_paginated_response({
+                'topic_id': topic.id,
+                'topic_name': topic.name,
+                'topic_name_sw': topic.name_sw,
+                'materials_count': materials.count(),
+                'materials': serializer.data
+            })
+        
+        # If pagination is disabled
+        from hubs.admin_hub_views import AdminContentListSerializer
+        serializer = AdminContentListSerializer(materials, many=True, context={'request': request})
+        return Response({
+            'topic_id': topic.id,
+            'topic_name': topic.name,
+            'topic_name_sw': topic.name_sw,
+            'materials_count': materials.count(),
+            'materials': serializer.data
+        })
+
+    @swagger_auto_schema(
         operation_description="Get comprehensive statistics about topics, subtopics, and materials",
         responses={200: TopicStatsSerializer}
     )
@@ -339,19 +424,10 @@ class TopicAdminViewSet(viewsets.ModelViewSet):
         language = request.query_params.get('language')
         search = request.query_params.get('search')
         
-        # Get direct materials (NEW feature)
-        direct_materials = LearningMaterial.objects.filter(topic=topic).select_related('uploader')
-        
-        # Get subtopic materials (backward compatibility)
-        subtopic_materials = LearningMaterial.objects.filter(
-            subtopic__topic=topic
-        ).select_related('uploader', 'subtopic')
-        
-        # Combine querysets based on preference
-        if include_subtopic_materials:
-            materials = direct_materials.union(subtopic_materials)
-        else:
-            materials = direct_materials
+        # Build base query with OR conditions
+        materials = LearningMaterial.objects.filter(
+            Q(topic=topic) | (Q(subtopic__topic=topic) if include_subtopic_materials else Q())
+        ).select_related('uploader', 'uploader__verification', 'topic', 'subtopic')
         
         # Apply filters
         if is_approved is not None:
@@ -383,8 +459,8 @@ class TopicAdminViewSet(viewsets.ModelViewSet):
         serializer = LearningMaterialAdminSerializer(materials, many=True)
         
         # Get counts for response
-        direct_count = direct_materials.count()
-        subtopic_count = subtopic_materials.count()
+        direct_count = LearningMaterial.objects.filter(topic=topic).count()
+        subtopic_count = LearningMaterial.objects.filter(subtopic__topic=topic).count()
         
         return Response({
             'topic_id': topic.id,

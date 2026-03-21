@@ -82,11 +82,14 @@ class TopicAdminCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = LegalEdTopic
         fields = [
-            'name', 'name_sw', 'slug',
+            'id', 'name', 'name_sw', 'slug',
             'description', 'description_sw',
             'icon', 'display_order', 'is_active'
         ]
         ref_name = 'AdminTopicCreateUpdate'
+        extra_kwargs = {
+            'slug': {'required': False, 'allow_blank': True}
+        }
     
     def validate_name(self, value):
         """Ensure topic name is unique"""
@@ -204,11 +207,14 @@ class SubtopicAdminCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = LegalEdSubTopic
         fields = [
-            'topic', 'name', 'name_sw', 'slug',
+            'id', 'topic', 'name', 'name_sw', 'slug',
             'description', 'description_sw',
             'display_order', 'is_active'
         ]
         ref_name = 'AdminSubtopicCreateUpdate'
+        extra_kwargs = {
+            'slug': {'required': False, 'allow_blank': True}
+        }
     
     def validate_name(self, value):
         """Ensure subtopic name is unique within topic"""

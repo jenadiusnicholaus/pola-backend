@@ -75,6 +75,8 @@ service_account_file.json
 *.md
 docs/*.md
 !docs/HUB_MATERIAL_API.md
+!docs/ADMIN_FRONTEND_IMPLEMENTATION.md
+!docs/MOBILE_API_USAGE.md
 # !docs/**/*.md
 *.sh
 # Keep backup scripts tracked in Git

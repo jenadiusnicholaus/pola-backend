@@ -194,7 +194,7 @@ class HubContentSerializer(serializers.ModelSerializer):
             'likes_count', 'comments_count', 'bookmarks_count',
             'average_rating', 'ratings_count',
             'is_liked', 'is_bookmarked', 'has_purchased', 'can_download',
-            'is_approved', 'is_active', 'created_at', 'updated_at'
+            'is_approved', 'is_active', 'topic', 'subtopic', 'created_at', 'updated_at'
         ]
         read_only_fields = [
             'id', 'uploader_info', 'downloads_count', 'views_count',
@@ -334,7 +334,7 @@ class HubContentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = LearningMaterial
         fields = [
-            'hub_type', 'content_type', 'title', 'description', 'content',
+            'id', 'hub_type', 'content_type', 'title', 'description', 'content',
             'file', 'video_url', 'language', 'price', 'is_downloadable',
             'is_lecture_material', 'is_pinned', 'topic', 'subtopic'
         ]
@@ -429,12 +429,16 @@ class HubContentCreateSerializer(serializers.ModelSerializer):
                 if 'file' in data and data['file']:
                     data['is_downloadable'] = True
         
-        # Legal education content should link to topics (subtopics are deprecated)
+        # Legal education content should link to subtopics (restoring hierarchy)
         if hub_type == 'legal_ed':
-            if not data.get('topic') and not data.get('subtopic'):
+            subtopic = data.get('subtopic')
+            if not subtopic:
                 raise serializers.ValidationError({
-                    'topic': 'Legal education content must be linked to a topic'
+                    'subtopic': 'Legal education content must be linked to a subtopic'
                 })
+            # Auto-set topic from subtopic if not provided
+            if not data.get('topic'):
+                data['topic'] = subtopic.topic
         
         return data
     
@@ -820,9 +824,9 @@ class AdminContentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = LearningMaterial
         fields = [
-            'hub_type', 'content_type', 'title', 'description', 'content',
+            'id', 'hub_type', 'content_type', 'title', 'description', 'content',
             'file', 'video_url', 'language', 'price', 'is_downloadable',
-            'is_pinned', 'is_active', 'is_approved', 'topic', 'topic_name'
+            'is_pinned', 'is_active', 'is_approved', 'topic', 'subtopic', 'topic_name'
         ]
     
     def validate(self, data):
@@ -840,22 +844,24 @@ class AdminContentCreateSerializer(serializers.ModelSerializer):
             data['price'] = Decimal('0.00')
             data['is_downloadable'] = False
         
-        # Handle topic creation for legal_ed hub
+        # Handle topic/subtopic for legal_ed hub (Restored hierarchy)
         if data.get('hub_type') == 'legal_ed':
-            topic_name = data.pop('topic_name', None)
+            subtopic = data.get('subtopic')
             topic = data.get('topic')
+            topic_name = data.pop('topic_name', None)
             
-            if not topic and topic_name:
-                # Create new topic if it doesn't exist
+            if subtopic:
+                # If subtopic provided, always use its topic
+                data['topic'] = subtopic.topic
+            elif topic_name:
+                # Still support creating topic by name (falls back to direct topic if no subtopic)
                 from .models import LegalEdTopic
                 from django.utils.text import slugify
                 
-                # Check if topic already exists
                 existing_topic = LegalEdTopic.objects.filter(name__iexact=topic_name).first()
                 if existing_topic:
                     data['topic'] = existing_topic
                 else:
-                    # Create new topic
                     new_topic = LegalEdTopic.objects.create(
                         name=topic_name,
                         slug=slugify(topic_name),
@@ -864,10 +870,9 @@ class AdminContentCreateSerializer(serializers.ModelSerializer):
                         is_active=True
                     )
                     data['topic'] = new_topic
-            
-            elif not topic and not topic_name:
+            elif not topic:
                 raise serializers.ValidationError({
-                    'topic': 'Legal education content must have a topic. Provide topic ID or topic_name to create new topic.'
+                    'subtopic': 'Legal education content should ideally have a subtopic. Provide a subtopic ID or at least a topic.'
                 })
         
         return data
@@ -1004,7 +1009,7 @@ class AdminContentListSerializer(serializers.ModelSerializer):
             'id', 'uploader', 'uploader_email', 'uploader_name', 'uploader_type',
             'title', 'description', 'content_type', 'file', 'file_size',
             'price', 'total_revenue', 'uploader_earnings', 'revenue_split_info',
-            'is_approved', 'is_active', 'created_at', 'updated_at',
+            'is_approved', 'is_active', 'topic', 'subtopic', 'created_at', 'updated_at',
             'price_display', 'is_free', 'downloads_count', 'downloads_count_display',
             'is_purchased_by_user', 'can_download'
         ]

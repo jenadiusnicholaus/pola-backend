@@ -101,7 +101,7 @@ class LearningMaterial(models.Model):
         null=True, 
         blank=True, 
         related_name='materials',
-        help_text="Link to Legal Ed subtopic (for legal_ed hub only) - DEPRECATED: Use topic instead"
+        help_text="Link to Legal Ed subtopic (Primary categorization for legal_ed hub)"
     )
     topic = models.ForeignKey(
         'hubs.LegalEdTopic',
@@ -109,7 +109,7 @@ class LearningMaterial(models.Model):
         null=True,
         blank=True,
         related_name='materials',
-        help_text="Direct link to Legal Ed topic (NEW: recommended over subtopic)"
+        help_text="Direct link to Legal Ed topic (Optional: auto-derived from subtopic)"
     )
     
     # Content
