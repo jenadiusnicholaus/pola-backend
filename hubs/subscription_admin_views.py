@@ -168,7 +168,7 @@ class SubscriptionAdminViewSet(viewsets.ModelViewSet):
         subscription.save()
         
         # Log the change
-        from .subscription_models import SubscriptionLog
+        from .models import SubscriptionLog
         SubscriptionLog.objects.create(
             subscription=subscription,
             action='time_extended',
@@ -211,7 +211,7 @@ class SubscriptionAdminViewSet(viewsets.ModelViewSet):
         subscription.save()
         
         # Log the change
-        from .subscription_models import SubscriptionLog
+        from .models import SubscriptionLog
         SubscriptionLog.objects.create(
             subscription=subscription,
             action='end_date_changed',
@@ -260,7 +260,7 @@ class SubscriptionAdminViewSet(viewsets.ModelViewSet):
         subscription.save()
         
         # Log the change
-        from .subscription_models import SubscriptionLog
+        from .models import SubscriptionLog
         SubscriptionLog.objects.create(
             subscription=subscription,
             action='period_reset',
@@ -351,7 +351,7 @@ class SubscriptionAdminViewSet(viewsets.ModelViewSet):
         subscription.save()
         
         # Log the change
-        from .subscription_models import SubscriptionLog
+        from .models import SubscriptionLog
         SubscriptionLog.objects.create(
             subscription=subscription,
             action='status_changed',

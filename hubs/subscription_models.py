@@ -52,6 +52,18 @@ class SubscriptionLog(models.Model):
         blank=True,
         help_text="New end date after change"
     )
+    old_status = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True,
+        help_text="Previous status before change"
+    )
+    new_status = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True,
+        help_text="New status after change"
+    )
     reason = models.CharField(
         max_length=255,
         blank=True,
