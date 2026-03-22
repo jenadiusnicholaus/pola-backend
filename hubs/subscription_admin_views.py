@@ -327,38 +327,45 @@ class SubscriptionAdminViewSet(viewsets.ModelViewSet):
         })
 
     @action(detail=True, methods=['patch'])
-    def activate(self, request, pk=None):
-        """Simple patch to activate subscription only"""
+    def toggle(self, request, pk=None):
+        """Toggle subscription between active and inactive"""
         subscription = self.get_object()
         
-        if subscription.status != 'active':
-            old_status = subscription.status
-            subscription.status = 'active'
-            subscription.save()
-            
-            # Log the change
-            from .subscription_models import SubscriptionLog
-            SubscriptionLog.objects.create(
-                subscription=subscription,
-                action='status_changed',
-                old_status=old_status,
-                new_status='active',
-                reason='admin_activation',
-                admin_user=request.user
-            )
-            
+        # Get requested status from request body
+        requested_status = request.data.get('status')
+        if requested_status not in ['active', 'inactive']:
             return Response({
-                'success': True,
-                'message': f'Subscription activated (was {old_status})',
-                'subscription_id': subscription.id,
-                'user_email': subscription.user.email,
-                'new_status': 'active'
-            })
+                'error': 'Status must be either "active" or "inactive"'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        old_status = subscription.status
+        
+        # Toggle the status
+        if requested_status == 'active':
+            subscription.status = 'active'
+            action_desc = 'activated'
+        else:
+            subscription.status = 'inactive'
+            action_desc = 'deactivated'
+        
+        subscription.save()
+        
+        # Log the change
+        from .subscription_models import SubscriptionLog
+        SubscriptionLog.objects.create(
+            subscription=subscription,
+            action='status_changed',
+            old_status=old_status,
+            new_status=requested_status,
+            reason=f'admin_{action_desc}',
+            admin_user=request.user
+        )
         
         return Response({
             'success': True,
-            'message': 'Subscription is already active',
+            'message': f'Subscription {action_desc} (was {old_status})',
             'subscription_id': subscription.id,
             'user_email': subscription.user.email,
-            'status': subscription.status
+            'old_status': old_status,
+            'new_status': requested_status
         })
