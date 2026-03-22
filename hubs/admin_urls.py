@@ -11,6 +11,7 @@ from .admin_hub_views import (
     AdminHubUserActivityViewSet,
     AdminQuestionManagementViewSet
 )
+from .subscription_admin_views import SubscriptionAdminViewSet
 
 # Create router
 router = DefaultRouter()
@@ -26,6 +27,9 @@ router.register(r'user-activity', AdminHubUserActivityViewSet, basename='admin-u
 
 # Legal Question Management (Admin only)
 router.register(r'questions', AdminQuestionManagementViewSet, basename='admin-questions')
+
+# Subscription Management (Admin only)
+router.register(r'subscriptions', SubscriptionAdminViewSet, basename='admin-subscriptions')
 
 urlpatterns = [
     path('', include(router.urls)),

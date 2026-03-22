@@ -97,13 +97,16 @@ class SubscriptionPlanViewSet(viewsets.ModelViewSet):
         })
 
 
-class UserSubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
+class UserSubscriptionViewSet(viewsets.ModelViewSet):
     """
     Admin API for managing user subscriptions
     
     Endpoints:
     - GET    /admin/subscriptions/users/          - List all user subscriptions
     - GET    /admin/subscriptions/users/{id}/     - Get subscription details
+    - PUT    /admin/subscriptions/users/{id}/     - Update subscription details
+    - PATCH  /admin/subscriptions/users/{id}/     - Partially update subscription details
+    - DELETE /admin/subscriptions/users/{id}/     - Delete subscription
     - PATCH  /admin/subscriptions/users/{id}/extend/    - Extend subscription
     - PATCH  /admin/subscriptions/users/{id}/cancel/    - Cancel subscription
     - POST   /admin/subscriptions/users/grant/          - Grant free subscription
