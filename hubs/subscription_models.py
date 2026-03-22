@@ -26,7 +26,7 @@ class SubscriptionLog(models.Model):
     subscription = models.ForeignKey(
         'subscriptions.UserSubscription',
         on_delete=models.CASCADE,
-        related_name='logs'
+        related_name='subscription_logs'
     )
     action = models.CharField(
         max_length=50,
