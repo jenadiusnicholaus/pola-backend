@@ -42,37 +42,69 @@ class LearningMaterialMinimalSerializer(serializers.ModelSerializer):
 
 
 class SubtopicMinimalSerializer(serializers.ModelSerializer):
-    """Minimal subtopic info for topic listing"""
+    """Minimal subtopic info for topic listing with language support"""
+    name_localized = serializers.SerializerMethodField()
+    description_localized = serializers.SerializerMethodField()
     materials_count = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = LegalEdSubTopic
         fields = [
-            'id', 'name', 'name_sw', 'slug', 'description',
-            'description_sw', 'display_order', 'materials_count',
+            'id', 'name', 'name_sw', 'name_localized', 'slug', 'description',
+            'description_sw', 'description_localized', 'display_order', 'materials_count',
             'is_active'
         ]
-    
+
+    def get_name_localized(self, obj):
+        request = self.context.get('request')
+        language = request.GET.get('language', 'en') if request else 'en'
+        if language == 'sw' and obj.name_sw:
+            return obj.name_sw
+        return obj.name
+
+    def get_description_localized(self, obj):
+        request = self.context.get('request')
+        language = request.GET.get('language', 'en') if request else 'en'
+        if language == 'sw' and obj.description_sw:
+            return obj.description_sw
+        return obj.description
+
     def get_materials_count(self, obj):
         return obj.get_materials_count()
 
 
 class TopicListSerializer(serializers.ModelSerializer):
-    """Simple serializer for topic listing"""
+    """Simple serializer for topic listing with language support"""
+    name_localized = serializers.SerializerMethodField()
+    description_localized = serializers.SerializerMethodField()
     subtopics_count = serializers.SerializerMethodField()
     materials_count = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = LegalEdTopic
         fields = [
-            'id', 'name', 'name_sw', 'slug', 'description', 'description_sw',
-            'icon', 'display_order', 'is_active', 'subtopics_count',
+            'id', 'name', 'name_sw', 'name_localized', 'slug', 'description', 'description_sw',
+            'description_localized', 'icon', 'display_order', 'is_active', 'subtopics_count',
             'materials_count', 'created_at', 'last_updated'
         ]
-    
+
+    def get_name_localized(self, obj):
+        request = self.context.get('request')
+        language = request.GET.get('language', 'en') if request else 'en'
+        if language == 'sw' and obj.name_sw:
+            return obj.name_sw
+        return obj.name
+
+    def get_description_localized(self, obj):
+        request = self.context.get('request')
+        language = request.GET.get('language', 'en') if request else 'en'
+        if language == 'sw' and obj.description_sw:
+            return obj.description_sw
+        return obj.description
+
     def get_subtopics_count(self, obj):
         return obj.get_subtopics_count()
-    
+
     def get_materials_count(self, obj):
         return obj.get_materials_count()
 
@@ -99,37 +131,77 @@ class TopicDetailSerializer(serializers.ModelSerializer):
 
 
 class SubtopicListSerializer(serializers.ModelSerializer):
-    """Serializer for subtopic listing"""
-    topic_name = serializers.CharField(source='topic.name', read_only=True)
+    """Serializer for subtopic listing with language support"""
+    topic_name = serializers.SerializerMethodField()
     topic_name_sw = serializers.CharField(source='topic.name_sw', read_only=True)
+    name_localized = serializers.SerializerMethodField()
+    description_localized = serializers.SerializerMethodField()
     materials_count = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = LegalEdSubTopic
         fields = [
             'id', 'topic', 'topic_name', 'topic_name_sw', 'name', 'name_sw',
-            'slug', 'description', 'description_sw', 'display_order',
-            'is_active', 'materials_count', 'created_at', 'last_updated'
+            'name_localized', 'description', 'description_sw', 'description_localized',
+            'slug', 'display_order', 'is_active', 'materials_count', 'created_at', 'last_updated'
         ]
-    
+
+    def get_topic_name(self, obj):
+        language = self.context.get('request', {}).GET.get('language', 'en') if hasattr(self.context.get('request'), 'GET') else 'en'
+        if language == 'sw' and obj.topic.name_sw:
+            return obj.topic.name_sw
+        return obj.topic.name
+
+    def get_name_localized(self, obj):
+        language = self.context.get('request', {}).GET.get('language', 'en') if hasattr(self.context.get('request'), 'GET') else 'en'
+        if language == 'sw' and obj.name_sw:
+            return obj.name_sw
+        return obj.name
+
+    def get_description_localized(self, obj):
+        language = self.context.get('request', {}).GET.get('language', 'en') if hasattr(self.context.get('request'), 'GET') else 'en'
+        if language == 'sw' and obj.description_sw:
+            return obj.description_sw
+        return obj.description
+
     def get_materials_count(self, obj):
         return obj.get_materials_count()
 
 
 class SubtopicDetailSerializer(serializers.ModelSerializer):
-    """Detailed subtopic serializer with materials"""
-    topic_name = serializers.CharField(source='topic.name', read_only=True)
+    """Detailed subtopic serializer with materials and language support"""
+    topic_name = serializers.SerializerMethodField()
     topic_name_sw = serializers.CharField(source='topic.name_sw', read_only=True)
+    name_localized = serializers.SerializerMethodField()
+    description_localized = serializers.SerializerMethodField()
     materials = LearningMaterialMinimalSerializer(many=True, read_only=True)
     materials_count = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = LegalEdSubTopic
         fields = [
             'id', 'topic', 'topic_name', 'topic_name_sw', 'name', 'name_sw',
-            'slug', 'description', 'description_sw', 'display_order',
-            'is_active', 'materials', 'materials_count', 'created_at', 'last_updated'
+            'name_localized', 'description', 'description_sw', 'description_localized',
+            'slug', 'display_order', 'is_active', 'materials', 'materials_count', 'created_at', 'last_updated'
         ]
+
+    def get_topic_name(self, obj):
+        language = self.context.get('request', {}).GET.get('language', 'en') if hasattr(self.context.get('request'), 'GET') else 'en'
+        if language == 'sw' and obj.topic.name_sw:
+            return obj.topic.name_sw
+        return obj.topic.name
+
+    def get_name_localized(self, obj):
+        language = self.context.get('request', {}).GET.get('language', 'en') if hasattr(self.context.get('request'), 'GET') else 'en'
+        if language == 'sw' and obj.name_sw:
+            return obj.name_sw
+        return obj.name
+
+    def get_description_localized(self, obj):
+        language = self.context.get('request', {}).GET.get('language', 'en') if hasattr(self.context.get('request'), 'GET') else 'en'
+        if language == 'sw' and obj.description_sw:
+            return obj.description_sw
+        return obj.description
 
 
 # ============================================================================

@@ -158,25 +158,34 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
     
     def get_queryset(self):
         queryset = super().get_queryset()
-        
+
         # Filter by topic
         topic_id = self.request.query_params.get('topic_id', None)
         topic_slug = self.request.query_params.get('topic_slug', None)
-        
+
         if topic_id:
             queryset = queryset.filter(topic_id=topic_id)
         elif topic_slug:
             queryset = queryset.filter(topic__slug=topic_slug)
-        
+
+        # Filter by language - prioritize content with translations
+        language = self.request.query_params.get('language', None)
+        if language == 'sw':
+            # For Swahili, prioritize items with Swahili names
+            queryset = queryset.filter(name_sw__isnull=False)
+        elif language == 'en':
+            # English is default, show all
+            pass
+
         # Search
         search = self.request.query_params.get('search', None)
         if search:
             queryset = queryset.filter(
-                Q(name__icontains=search) | 
+                Q(name__icontains=search) |
                 Q(name_sw__icontains=search) |
                 Q(description__icontains=search)
             )
-        
+
         return queryset.order_by('topic__display_order', 'display_order', 'name')
     
     @action(detail=True, methods=['get'])
