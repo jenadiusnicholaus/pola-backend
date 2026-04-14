@@ -20,11 +20,15 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD:-pola_password}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backups:/backups  # Mount backup directory
+      - ./backups:/backups # Mount backup directory
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-pola_user} -d ${DB_NAME:-pola_db}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${DB_USER:-pola_user} -d ${DB_NAME:-pola_db}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -47,7 +51,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-pola_password}
       - DB_HOST=db
       - DB_PORT=5432
-      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,192.168.1.133
       - CORS_ALLOW_ALL_ORIGINS=True
       # AzamPay settings
       - AZAM_PAY_APP_NAME=${AZAM_PAY_APP_NAME:-}
@@ -55,7 +59,7 @@ services:
       - AZAM_PAY_CLIENT_SECRET=${AZAM_PAY_CLIENT_SECRET:-}
       - AZAM_PAY_PRODUCTION=False
     volumes:
-      - .:/app  # Mount source code for hot reload
+      - .:/app # Mount source code for hot reload
       - ./media:/app/media
       - ./logs:/app/logs
       - ./static:/app/static
