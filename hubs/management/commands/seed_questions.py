@@ -141,7 +141,8 @@ class Command(BaseCommand):
                         password='testpass123',
                         first_name='Test',
                         last_name='Student',
-                        user_role=student_role
+                        user_role=student_role,
+                        agreed_to_Terms=True
                     )
                     students = [test_student]
 
