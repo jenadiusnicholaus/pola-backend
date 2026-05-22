@@ -4,7 +4,7 @@
 # Usage: make <command>
 # ==========================================
 
-.PHONY: help build up down logs shell migrate test clean prod-up prod-down prod-logs backup restore deploy
+.PHONY: help build up down logs shell migrate test clean prod-up prod-down prod-logs backup restore deploy seed
 
 # Default target
 help:
@@ -19,6 +19,7 @@ help:
 	@echo "  make bash         - Open bash in web container"
 	@echo "  make migrate      - Run database migrations"
 	@echo "  make makemigrations - Create new migrations"
+	@echo "  make seed         - Seed all production data (admin, roles, etc.)"
 	@echo "  make test         - Run tests"
 	@echo "  make clean        - Remove all containers and volumes"
 	@echo ""
@@ -88,6 +89,9 @@ restart:
 rebuild:
 	docker compose up -d --build
 
+seed:
+	docker compose exec -T web python seed_production.py
+
 # ==========================================
 # Production Commands
 # ==========================================
@@ -130,6 +134,9 @@ prod-shell:
 
 prod-migrate:
 	docker compose -f docker-compose.prod.yml exec web python manage.py migrate
+
+prod-seed:
+	docker compose -f docker-compose.prod.yml exec -T web python seed_production.py
 
 prod-restart:
 	docker compose -f docker-compose.prod.yml restart
