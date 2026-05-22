@@ -94,7 +94,7 @@ seed:
 	docker compose exec -T web python seed_production.py
 
 createsuperadmin:
-	docker compose exec -T web python -c "from authentication.models import PolaUser; u = PolaUser.objects.create_superuser('admin@gmail.com', '1234', first_name='Super', last_name='Admin') if not PolaUser.objects.filter(email='admin@gmail.com').exists() else print('Super admin already exists'); print('✅ Super admin: admin@gmail.com / 1234')"
+	docker compose exec -T web python manage.py shell -c "from authentication.models import PolaUser; u = PolaUser.objects.create_superuser('admin@gmail.com', '1234', first_name='Super', last_name='Admin') if not PolaUser.objects.filter(email='admin@gmail.com').exists() else print('Super admin already exists'); print('✅ Super admin: admin@gmail.com / 1234')"
 
 # ==========================================
 # Production Commands
@@ -143,7 +143,7 @@ prod-seed:
 	docker compose -f docker-compose.prod.yml exec -T web python seed_production.py
 
 prod-createsuperadmin:
-	docker compose -f docker-compose.prod.yml exec -T web python -c "from authentication.models import PolaUser; u = PolaUser.objects.create_superuser('admin@gmail.com', '1234', first_name='Super', last_name='Admin') if not PolaUser.objects.filter(email='admin@gmail.com').exists() else print('Super admin already exists'); print('✅ Super admin: admin@gmail.com / 1234')"
+	docker compose -f docker-compose.prod.yml exec -T web python manage.py shell -c "from authentication.models import PolaUser; u = PolaUser.objects.create_superuser('admin@gmail.com', '1234', first_name='Super', last_name='Admin') if not PolaUser.objects.filter(email='admin@gmail.com').exists() else print('Super admin already exists'); print('✅ Super admin: admin@gmail.com / 1234')"
 
 prod-restart:
 	docker compose -f docker-compose.prod.yml restart
