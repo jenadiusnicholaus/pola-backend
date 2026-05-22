@@ -171,19 +171,22 @@ class Command(BaseCommand):
                 for i, question_text in enumerate(selected_questions):
                     asker = random.choice(students)
                     material = random.choice(materials)
-                    
+
                     # Create question with random created date (last 30 days)
                     days_ago = random.randint(0, 30)
                     created_at = timezone.now() - timedelta(days=days_ago)
-                    
-                    question = MaterialQuestion.objects.create(
+
+                    question, created = MaterialQuestion.objects.get_or_create(
                         material=material,
                         asker=asker,
                         question_text=question_text,
-                        created_at=created_at,
-                        status='open'
+                        defaults={
+                            'created_at': created_at,
+                            'status': 'open'
+                        }
                     )
-                    created_count += 1
+                    if created:
+                        created_count += 1
 
                     # Randomly answer some questions (60% chance)
                     if admin_user and random.random() < 0.6:

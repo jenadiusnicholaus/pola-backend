@@ -86,7 +86,14 @@ def run_seed_commands():
         print(f"❌ Error seeding subscription plans: {e}")
 
     try:
-        print("👨‍⚖️ Seeding consultants...")
+        print("� Seeding call credit bundles...")
+        call_command('create_call_credit_bundles')
+        print("✅ Call credit bundles seeded")
+    except Exception as e:
+        print(f"❌ Error seeding call credit bundles: {e}")
+
+    try:
+        print("�‍⚖️ Seeding consultants...")
         call_command('seed_consultants')
         print("✅ Consultants seeded")
     except Exception as e:
@@ -95,7 +102,7 @@ def run_seed_commands():
     # Document templates
     try:
         print("📄 Seeding document templates...")
-        call_command('seed_templates')
+        call_command('seed_templates', '--clear')
         print("✅ Document templates seeded")
     except Exception as e:
         print(f"❌ Error seeding templates: {e}")
@@ -110,7 +117,7 @@ def run_seed_commands():
 
     try:
         print("❓ Seeding hub questions...")
-        call_command('seed_questions')
+        call_command('seed_questions', '--clear')
         print("✅ Hub questions seeded")
     except Exception as e:
         print(f"❌ Error seeding questions: {e}")
@@ -138,6 +145,7 @@ def run_seed_commands():
     print("  - Legal specializations")
     print("  - Place of work")
     print("  - Subscription plans")
+    print("  - Call credit bundles")
     print("  - Test consultants")
     print("  - Document templates")
     print("  - Hub data and questions")
