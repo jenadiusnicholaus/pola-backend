@@ -4,7 +4,7 @@
 # Usage: make <command>
 # ==========================================
 
-.PHONY: help build up down logs shell migrate test clean prod-up prod-down prod-logs backup restore
+.PHONY: help build up down logs shell migrate test clean prod-up prod-down prod-logs backup restore deploy
 
 # Default target
 help:
@@ -23,6 +23,7 @@ help:
 	@echo "  make clean        - Remove all containers and volumes"
 	@echo ""
 	@echo "Production:"
+	@echo "  make deploy       - Deploy to production (build + up + migrate)"
 	@echo "  make prod-build   - Build production images"
 	@echo "  make prod-up      - Start production services"
 	@echo "  make prod-down    - Stop production services"
@@ -90,6 +91,25 @@ rebuild:
 # ==========================================
 # Production Commands
 # ==========================================
+
+deploy:
+	@echo "🚀 Deploying to production..."
+	@echo "📥 Pulling latest code..."
+	git pull
+	@echo "🔨 Building production images..."
+	docker-compose -f docker-compose.prod.yml build
+	@echo "🛑 Stopping old containers..."
+	docker-compose -f docker-compose.prod.yml down
+	@echo "▶️  Starting new containers..."
+	docker-compose -f docker-compose.prod.yml up -d
+	@echo "🗄️  Running migrations..."
+	docker-compose -f docker-compose.prod.yml exec -T web python manage.py migrate --noinput
+	@echo "📦 Collecting static files..."
+	docker-compose -f docker-compose.prod.yml exec -T web python manage.py collectstatic --noinput
+	@echo "🔄 Restarting services..."
+	docker-compose -f docker-compose.prod.yml restart
+	@echo ""
+	@echo "✅ Production deployed successfully!"
 
 prod-build:
 	docker-compose -f docker-compose.prod.yml build
