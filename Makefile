@@ -104,18 +104,12 @@ deploy:
 	@echo "🚀 Deploying to production..."
 	@echo "📥 Pulling latest code..."
 	git pull
-	@echo "🔨 Building production images..."
-	docker compose -f docker-compose.prod.yml build
-	@echo "🛑 Stopping old containers..."
-	docker compose -f docker-compose.prod.yml down
-	@echo "▶️  Starting new containers..."
-	docker compose -f docker-compose.prod.yml up -d
+	@echo "🔨 Building and starting production images..."
+	docker compose -f docker-compose.prod.yml up -d --build
 	@echo "🗄️  Running migrations..."
 	docker compose -f docker-compose.prod.yml exec -T web python manage.py migrate --noinput
 	@echo "📦 Collecting static files..."
 	docker compose -f docker-compose.prod.yml exec -T web python manage.py collectstatic --noinput
-	@echo "🔄 Restarting services..."
-	docker compose -f docker-compose.prod.yml restart
 	@echo ""
 	@echo "✅ Production deployed successfully!"
 
