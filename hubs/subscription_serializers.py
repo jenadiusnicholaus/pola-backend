@@ -37,25 +37,22 @@ class SubscriptionAdminListSerializer(serializers.ModelSerializer):
 
 class SubscriptionAdminDetailSerializer(SubscriptionAdminListSerializer):
     """Detailed serializer for subscription view"""
-    renewal_count = serializers.IntegerField(read_only=True)
-    last_renewal_date = serializers.DateTimeField(read_only=True)
-    payment_method_display = serializers.CharField(source='get_payment_method_display', read_only=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True)
-    
+
     class Meta(SubscriptionAdminListSerializer.Meta):
         fields = SubscriptionAdminListSerializer.Meta.fields + [
-            'renewal_count', 'last_renewal_date', 'payment_method_display', 'status_display'
+            'status_display'
         ]
 
 
 class SubscriptionAdminCreateUpdateSerializer(serializers.ModelSerializer):
     """Serializer for creating and updating subscriptions"""
-    
+
     class Meta:
         model = UserSubscription
         fields = [
-            'user', 'plan', 'start_date', 'end_date', 'status', 
-            'auto_renew', 'payment_method', 'amount', 'currency'
+            'user', 'plan', 'start_date', 'end_date', 'status',
+            'auto_renew'
         ]
     
     def validate(self, data):
