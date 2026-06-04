@@ -136,6 +136,9 @@ prod-migrate:
 prod-seed:
 	docker compose -f docker-compose.prod.yml exec -T web python seed_production.py
 
+prod-seed-document-content:
+	docker compose -f docker-compose.prod.yml exec -T web python manage.py seed_document_content
+
 prod-createsuperadmin:
 	docker compose -f docker-compose.prod.yml exec -T web python manage.py shell -c "from authentication.models import PolaUser; u = PolaUser.objects.create_superuser('admin@gmail.com', '1234', first_name='Super', last_name='Admin') if not PolaUser.objects.filter(email='admin@gmail.com').exists() else print('Super admin already exists'); print('✅ Super admin: admin@gmail.com / 1234')"
 
