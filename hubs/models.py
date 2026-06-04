@@ -299,7 +299,7 @@ class LegalEdSubTopic(models.Model):
     
     name = models.CharField(max_length=255, help_text="Subtopic name in English")
     name_sw = models.CharField(max_length=255, blank=True, null=True, help_text="Subtopic name in Swahili")
-    slug = models.SlugField(max_length=255, blank=True, help_text="URL-friendly identifier")
+    slug = models.SlugField(max_length=255, blank=True, null=True, help_text="URL-friendly identifier")
     
     description = models.TextField(blank=True, null=True, help_text="Subtopic description in English")
     description_sw = models.TextField(blank=True, null=True, help_text="Subtopic description in Swahili")

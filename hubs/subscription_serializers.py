@@ -21,8 +21,8 @@ class SubscriptionAdminListSerializer(serializers.ModelSerializer):
         model = UserSubscription
         fields = [
             'id', 'user', 'user_email', 'user_name', 'plan', 'plan_name',
-            'start_date', 'end_date', 'status', 'auto_renew', 'amount',
-            'currency', 'days_remaining', 'is_active', 'created_at', 'updated_at'
+            'start_date', 'end_date', 'status', 'auto_renew',
+            'days_remaining', 'is_active', 'created_at', 'updated_at'
         ]
     
     def get_days_remaining(self, obj):
