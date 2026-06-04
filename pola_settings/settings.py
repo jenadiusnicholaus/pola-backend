@@ -36,6 +36,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,192.168.1.1
 # CORS Settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "http://localhost:5174",
     "http://192.168.1.181:8000",
     "http://192.168.1.181:8081",  # Expo default port
     "http://192.168.1.181:19000",  # Expo alternate port
