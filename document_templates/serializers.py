@@ -7,7 +7,8 @@ from .models import (
     TemplateSection,
     TemplateField,
     UserDocument,
-    UserDocumentData
+    UserDocumentData,
+    DocumentContent
 )
 
 
@@ -152,7 +153,7 @@ class ValidateDocumentDataSerializer(serializers.Serializer):
     template_id = serializers.IntegerField(required=True)
     language = serializers.ChoiceField(choices=['en', 'sw'], default='en')
     data = serializers.JSONField(required=True)
-    
+
     def validate_template_id(self, value):
         """Validate template exists"""
         try:
@@ -160,3 +161,86 @@ class ValidateDocumentDataSerializer(serializers.Serializer):
         except DocumentTemplate.DoesNotExist:
             raise serializers.ValidationError("Template not found")
         return value
+
+
+class DocumentContentListSerializer(serializers.ModelSerializer):
+    """Serializer for document content list view"""
+
+    class Meta:
+        model = DocumentContent
+        fields = [
+            'id', 'title', 'title_sw', 'slug', 'category',
+            'is_active', 'is_public', 'display_order',
+            'created_at', 'updated_at'
+        ]
+
+
+class DocumentContentDetailSerializer(serializers.ModelSerializer):
+    """Detailed serializer for document content"""
+
+    class Meta:
+        model = DocumentContent
+        fields = [
+            'id', 'title', 'title_sw', 'slug', 'category',
+            'content', 'content_sw', 'is_active', 'is_public',
+            'display_order', 'created_at', 'updated_at'
+        ]
+
+
+class DocumentContentCreateUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for creating and updating document content"""
+    slug = serializers.SlugField(required=False, allow_blank=True, help_text="Auto-generated from title if not provided")
+
+    class Meta:
+        model = DocumentContent
+        fields = [
+            'id', 'title', 'title_sw', 'slug', 'category',
+            'content', 'content_sw', 'is_active', 'is_public',
+            'display_order'
+        ]
+        extra_kwargs = {
+            'slug': {'required': False, 'allow_blank': True}
+        }
+
+    def validate_slug(self, value):
+        """Ensure slug is unique if provided"""
+        if not value:
+            return value
+        instance_id = self.instance.id if self.instance else None
+        if DocumentContent.objects.filter(slug=value).exclude(id=instance_id).exists():
+            raise serializers.ValidationError("A document with this slug already exists.")
+        return value
+
+    def create(self, validated_data):
+        """Auto-generate slug from title if not provided"""
+        from django.utils.text import slugify
+
+        if not validated_data.get('slug'):
+            base_slug = slugify(validated_data['title'])
+            slug = base_slug
+            counter = 1
+
+            while DocumentContent.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+
+            validated_data['slug'] = slug
+
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        """Auto-generate slug from title if not provided and title changed"""
+        from django.utils.text import slugify
+
+        if not validated_data.get('slug') and validated_data.get('title') != instance.title:
+            base_slug = slugify(validated_data['title'])
+            slug = base_slug
+            counter = 1
+
+            while DocumentContent.objects.filter(slug=slug).exclude(id=instance.id).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+
+            validated_data['slug'] = slug
+
+        return super().update(instance, validated_data)

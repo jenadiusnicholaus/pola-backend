@@ -403,18 +403,18 @@ class UserDocumentData(models.Model):
         on_delete=models.CASCADE,
         related_name='field_data'
     )
-    
+
     field = models.ForeignKey(
         TemplateField,
         on_delete=models.CASCADE,
         related_name='user_data'
     )
-    
+
     value = models.TextField(help_text="User's input for this field")
-    
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         unique_together = ['user_document', 'field']
         verbose_name = 'User Document Data'
@@ -422,6 +422,70 @@ class UserDocumentData(models.Model):
         indexes = [
             models.Index(fields=['user_document', 'field']),
         ]
-    
+
     def __str__(self):
         return f"{self.user_document} - {self.field.field_name}: {self.value[:50]}"
+
+
+class DocumentContent(models.Model):
+    """
+    Markdown-based documents for policies, terms, conditions, and general content
+    Content is stored in Markdown format for easy editing and rendering
+    """
+    CATEGORY_CHOICES = [
+        ('policy', 'Policy'),
+        ('terms', 'Terms of Service'),
+        ('conditions', 'Conditions'),
+        ('privacy', 'Privacy Policy'),
+        ('faq', 'FAQ'),
+        ('help', 'Help Documentation'),
+        ('about', 'About Us'),
+        ('general', 'General Content'),
+    ]
+
+    title = models.CharField(max_length=255, help_text="Document title in English")
+    title_sw = models.CharField(max_length=255, blank=True, null=True, help_text="Document title in Swahili")
+
+    slug = models.SlugField(max_length=255, unique=True, help_text="URL-friendly identifier")
+
+    category = models.CharField(
+        max_length=50,
+        choices=CATEGORY_CHOICES,
+        default='general',
+        help_text="Document category"
+    )
+
+    content = models.TextField(help_text="Markdown content in English")
+    content_sw = models.TextField(blank=True, null=True, help_text="Markdown content in Swahili")
+
+    is_active = models.BooleanField(default=True, help_text="Whether this document is active/visible")
+    is_public = models.BooleanField(default=True, help_text="Whether this document is publicly accessible")
+
+    display_order = models.IntegerField(default=0, help_text="Display order within category")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Document Content'
+        verbose_name_plural = 'Document Contents'
+        ordering = ['category', 'display_order', 'title']
+        indexes = [
+            models.Index(fields=['category', 'is_active']),
+            models.Index(fields=['slug']),
+        ]
+
+    def __str__(self):
+        return f"{self.title} ({self.category})"
+
+    def get_content(self, language='en'):
+        """Get content based on language preference"""
+        if language == 'sw' and self.content_sw:
+            return self.content_sw
+        return self.content
+
+    def get_title(self, language='en'):
+        """Get title based on language preference"""
+        if language == 'sw' and self.title_sw:
+            return self.title_sw
+        return self.title

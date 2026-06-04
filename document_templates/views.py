@@ -18,14 +18,18 @@ from .models import (
     DocumentTemplate,
     TemplateField,
     UserDocument,
-    UserDocumentData
+    UserDocumentData,
+    DocumentContent
 )
 from .serializers import (
     DocumentTemplateListSerializer,
     DocumentTemplateDetailSerializer,
     UserDocumentSerializer,
     GenerateDocumentSerializer,
-    ValidateDocumentDataSerializer
+    ValidateDocumentDataSerializer,
+    DocumentContentListSerializer,
+    DocumentContentDetailSerializer,
+    DocumentContentCreateUpdateSerializer
 )
 from .utils.pdf_generator import PDFGenerator, validate_field_data
 
@@ -325,4 +329,52 @@ class UserDocumentViewSet(viewsets.ModelViewSet):
             'download_url': request.build_absolute_uri(user_document.generated_file.url),
             'filename': os.path.basename(user_document.generated_file.name),
             'file_size': user_document.generated_file.size
+        })
+
+
+class DocumentContentAdminViewSet(viewsets.ModelViewSet):
+    """
+    Admin API for managing Markdown-based document content
+    (policies, terms, conditions, FAQs, etc.)
+
+    Endpoints:
+    - GET    /api/v1/admin/document-content/                - List all documents
+    - POST   /api/v1/admin/document-content/                - Create new document
+    - GET    /api/v1/admin/document-content/{id}/           - Get document details
+    - PUT    /api/v1/admin/document-content/{id}/           - Update document
+    - PATCH  /api/v1/admin/document-content/{id}/           - Partial update document
+    - DELETE /api/v1/admin/document-content/{id}/           - Delete document
+    - POST   /api/v1/admin/document-content/{id}/toggle/    - Toggle active status
+    """
+    queryset = DocumentContent.objects.all()
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['category', 'is_active', 'is_public']
+    search_fields = ['title', 'title_sw', 'content', 'content_sw']
+    ordering_fields = ['category', 'display_order', 'created_at', 'updated_at']
+    ordering = ['category', 'display_order', 'title']
+
+    def get_serializer_class(self):
+        """Return appropriate serializer based on action"""
+        if self.action == 'retrieve':
+            return DocumentContentDetailSerializer
+        elif self.action in ['create', 'update', 'partial_update']:
+            return DocumentContentCreateUpdateSerializer
+        return DocumentContentListSerializer
+
+    @action(detail=True, methods=['post'])
+    def toggle(self, request, pk=None):
+        """
+        Toggle active status of document
+
+        POST /api/v1/admin/document-content/{id}/toggle/
+        """
+        document = self.get_object()
+        document.is_active = not document.is_active
+        document.save()
+        serializer = DocumentContentListSerializer(document)
+        return Response({
+            'success': True,
+            'is_active': document.is_active,
+            'document': serializer.data
         })
