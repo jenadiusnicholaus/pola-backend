@@ -378,3 +378,31 @@ class DocumentContentAdminViewSet(viewsets.ModelViewSet):
             'is_active': document.is_active,
             'document': serializer.data
         })
+
+
+class DocumentContentPublicViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Public API for accessing document content without authentication
+    Only returns documents that are active and public
+
+    Endpoints:
+    - GET /api/v1/document-content/                - List all public documents
+    - GET /api/v1/document-content/{slug}/         - Get document by slug
+    """
+    permission_classes = [AllowAny]
+    lookup_field = 'slug'
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['category']
+    search_fields = ['title', 'title_sw']
+    ordering_fields = ['category', 'display_order', 'title']
+    ordering = ['category', 'display_order', 'title']
+
+    def get_queryset(self):
+        """Only return active and public documents"""
+        return DocumentContent.objects.filter(is_active=True, is_public=True)
+
+    def get_serializer_class(self):
+        """Return appropriate serializer based on action"""
+        if self.action == 'retrieve':
+            return DocumentContentDetailSerializer
+        return DocumentContentListSerializer
