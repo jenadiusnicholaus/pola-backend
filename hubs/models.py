@@ -315,7 +315,7 @@ class LegalEdSubTopic(models.Model):
         verbose_name = "SubTopic"
         verbose_name_plural = "SubTopics"
         ordering = ['topic', 'display_order', 'name']
-        unique_together = ['topic', 'slug']
+        unique_together = ['topic', 'name']
 
     def __str__(self):
         return f"{self.topic.name} - {self.name}"
