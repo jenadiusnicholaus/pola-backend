@@ -148,19 +148,17 @@ class TopicAdminCreateUpdateSerializer(serializers.ModelSerializer):
 
 
 class SubtopicAdminListSerializer(serializers.ModelSerializer):
-    """Serializer for listing subtopics in admin"""
+    """Serializer for listing subtopics in admin - returns language-specific fields only"""
     topic_name = serializers.SerializerMethodField()
-    topic_name_sw = serializers.CharField(source='topic.name_sw', read_only=True)
-    display_name = serializers.SerializerMethodField()
-    display_description = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
     materials_count = serializers.SerializerMethodField()
 
     class Meta:
         model = LegalEdSubTopic
         fields = [
-            'id', 'topic', 'topic_name', 'topic_name_sw',
-            'name', 'name_sw', 'display_name', 'slug', 'language',
-            'description', 'description_sw', 'display_description',
+            'id', 'topic', 'topic_name',
+            'name', 'description', 'slug', 'language',
             'display_order', 'is_active', 'materials_count',
             'created_at', 'last_updated'
         ]
@@ -177,13 +175,13 @@ class SubtopicAdminListSerializer(serializers.ModelSerializer):
             return obj.topic.name_sw
         return obj.topic.name
 
-    def get_display_name(self, obj):
+    def get_name(self, obj):
         lang = self._get_language(obj)
         if lang == 'sw' and obj.name_sw:
             return obj.name_sw
         return obj.name
 
-    def get_display_description(self, obj):
+    def get_description(self, obj):
         lang = self._get_language(obj)
         if lang == 'sw' and obj.description_sw:
             return obj.description_sw
