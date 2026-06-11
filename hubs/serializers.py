@@ -143,24 +143,22 @@ class SubtopicListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'topic', 'topic_name', 'topic_name_sw', 'name', 'name_sw',
             'name_localized', 'description', 'description_sw', 'description_localized',
-            'slug', 'display_order', 'is_active', 'materials_count', 'created_at', 'last_updated'
+            'slug', 'language', 'display_order', 'is_active', 'materials_count', 'created_at', 'last_updated'
         ]
 
     def get_topic_name(self, obj):
-        language = self.context.get('request', {}).GET.get('language', 'en') if hasattr(self.context.get('request'), 'GET') else 'en'
-        if language == 'sw' and obj.topic.name_sw:
+        if obj.language == 'sw' and obj.topic.name_sw:
             return obj.topic.name_sw
         return obj.topic.name
 
     def get_name_localized(self, obj):
-        language = self.context.get('request', {}).GET.get('language', 'en') if hasattr(self.context.get('request'), 'GET') else 'en'
-        if language == 'sw' and obj.name_sw:
+        # Use language field (new), fallback to name_sw presence (legacy)
+        if (obj.language == 'sw' or obj.name_sw) and obj.name_sw:
             return obj.name_sw
         return obj.name
 
     def get_description_localized(self, obj):
-        language = self.context.get('request', {}).GET.get('language', 'en') if hasattr(self.context.get('request'), 'GET') else 'en'
-        if language == 'sw' and obj.description_sw:
+        if (obj.language == 'sw' or obj.description_sw) and obj.description_sw:
             return obj.description_sw
         return obj.description
 
@@ -182,24 +180,22 @@ class SubtopicDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'topic', 'topic_name', 'topic_name_sw', 'name', 'name_sw',
             'name_localized', 'description', 'description_sw', 'description_localized',
-            'slug', 'display_order', 'is_active', 'materials', 'materials_count', 'created_at', 'last_updated'
+            'slug', 'language', 'display_order', 'is_active', 'materials', 'materials_count', 'created_at', 'last_updated'
         ]
 
     def get_topic_name(self, obj):
-        language = self.context.get('request', {}).GET.get('language', 'en') if hasattr(self.context.get('request'), 'GET') else 'en'
-        if language == 'sw' and obj.topic.name_sw:
+        if obj.language == 'sw' and obj.topic.name_sw:
             return obj.topic.name_sw
         return obj.topic.name
 
     def get_name_localized(self, obj):
-        language = self.context.get('request', {}).GET.get('language', 'en') if hasattr(self.context.get('request'), 'GET') else 'en'
-        if language == 'sw' and obj.name_sw:
+        # Use language field (new), fallback to name_sw presence (legacy)
+        if (obj.language == 'sw' or obj.name_sw) and obj.name_sw:
             return obj.name_sw
         return obj.name
 
     def get_description_localized(self, obj):
-        language = self.context.get('request', {}).GET.get('language', 'en') if hasattr(self.context.get('request'), 'GET') else 'en'
-        if language == 'sw' and obj.description_sw:
+        if (obj.language == 'sw' or obj.description_sw) and obj.description_sw:
             return obj.description_sw
         return obj.description
 

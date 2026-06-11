@@ -159,26 +159,28 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
 
-        # Filter by topic
-        topic_id = self.request.query_params.get('topic_id', None)
-        topic_slug = self.request.query_params.get('topic_slug', None)
+        # Filter by topic - support both ?topic=1 and ?topic_id=1 and ?topic_slug=xxx
+        topic_id = self.request.query_params.get('topic') or self.request.query_params.get('topic_id')
+        topic_slug = self.request.query_params.get('topic_slug')
 
         if topic_id:
             queryset = queryset.filter(topic_id=topic_id)
         elif topic_slug:
             queryset = queryset.filter(topic__slug=topic_slug)
 
-        # Filter by language - prioritize content with translations
-        language = self.request.query_params.get('language', None)
+        # Filter by language - support new language field AND legacy name_sw approach
+        language = self.request.query_params.get('language')
         if language == 'sw':
-            # For Swahili, prioritize items with Swahili names
-            queryset = queryset.filter(name_sw__isnull=False)
+            # New: subtopics with language=sw, OR legacy: subtopics with name_sw set
+            queryset = queryset.filter(
+                Q(language='sw') | Q(name_sw__isnull=False)
+            )
         elif language == 'en':
-            # English is default, show all
-            pass
+            # New: subtopics with language=en, OR legacy: subtopics without name_sw
+            queryset = queryset.filter(language='en')
 
         # Search
-        search = self.request.query_params.get('search', None)
+        search = self.request.query_params.get('search')
         if search:
             queryset = queryset.filter(
                 Q(name__icontains=search) |
