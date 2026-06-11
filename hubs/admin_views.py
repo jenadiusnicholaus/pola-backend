@@ -517,17 +517,26 @@ class SubtopicAdminViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Filter and search subtopics"""
         queryset = super().get_queryset()
-        
-        # Filter by topic
-        topic_id = self.request.query_params.get('topic_id')
+
+        # Filter by topic - support both ?topic=1 and ?topic_id=1
+        topic_id = self.request.query_params.get('topic') or self.request.query_params.get('topic_id')
         if topic_id:
             queryset = queryset.filter(topic_id=topic_id)
-        
+
+        # Filter by language - strictly by language field, fallback to name_sw for legacy
+        language = self.request.query_params.get('language')
+        if language == 'sw':
+            queryset = queryset.filter(
+                Q(language='sw') | Q(name_sw__isnull=False)
+            )
+        elif language == 'en':
+            queryset = queryset.filter(language='en')
+
         # Filter by active status
         is_active = self.request.query_params.get('is_active')
         if is_active is not None:
             queryset = queryset.filter(is_active=is_active.lower() == 'true')
-        
+
         # Search by name or description
         search = self.request.query_params.get('search')
         if search:
@@ -538,7 +547,7 @@ class SubtopicAdminViewSet(viewsets.ModelViewSet):
                 Q(description_sw__icontains=search) |
                 Q(topic__name__icontains=search)
             )
-        
+
         # Filter subtopics without materials
         no_materials = self.request.query_params.get('no_materials')
         if no_materials == 'true':
@@ -546,7 +555,7 @@ class SubtopicAdminViewSet(viewsets.ModelViewSet):
                 'subtopic', flat=True
             ).distinct()
             queryset = queryset.exclude(id__in=subtopics_with_materials)
-        
+
         return queryset.select_related('topic').order_by(
             'topic__display_order', 'display_order', 'name'
         )
