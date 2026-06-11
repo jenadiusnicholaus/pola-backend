@@ -253,15 +253,22 @@ class LegalEdTopic(models.Model):
     name = models.CharField(max_length=255, help_text="Topic name in English")
     name_sw = models.CharField(max_length=255, blank=True, null=True, help_text="Topic name in Swahili")
     slug = models.SlugField(max_length=255, unique=True, blank=True, help_text="URL-friendly identifier")
-    
+
     description = models.TextField(blank=True, null=True, help_text="Topic description in English")
     description_sw = models.TextField(blank=True, null=True, help_text="Topic description in Swahili")
-    
+
+    language = models.CharField(
+        max_length=2,
+        choices=[('en', 'English'), ('sw', 'Swahili')],
+        default='en',
+        help_text="Primary language of this topic (all subtopics will inherit this language)"
+    )
+
     icon = models.CharField(max_length=100, blank=True, help_text="Icon for this topic")
     display_order = models.IntegerField(default=0, help_text="Display order")
-    
+
     is_active = models.BooleanField(default=True)
-    
+
     last_updated = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)    
 
@@ -296,18 +303,25 @@ class LegalEdSubTopic(models.Model):
     Each subtopic contains learning materials
     """
     topic = models.ForeignKey(LegalEdTopic, on_delete=models.CASCADE, related_name='subtopics')
-    
+
     name = models.CharField(max_length=255, help_text="Subtopic name in English")
     name_sw = models.CharField(max_length=255, blank=True, null=True, help_text="Subtopic name in Swahili")
     slug = models.SlugField(max_length=255, blank=True, null=True, help_text="URL-friendly identifier")
-    
+
     description = models.TextField(blank=True, null=True, help_text="Subtopic description in English")
     description_sw = models.TextField(blank=True, null=True, help_text="Subtopic description in Swahili")
-    
+
+    language = models.CharField(
+        max_length=2,
+        choices=[('en', 'English'), ('sw', 'Swahili')],
+        default='en',
+        help_text="Primary language of this subtopic"
+    )
+
     display_order = models.IntegerField(default=0, help_text="Display order within topic")
-    
+
     is_active = models.BooleanField(default=True)
-    
+
     last_updated = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)    
 

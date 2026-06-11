@@ -417,7 +417,22 @@ class HubContentCreateSerializer(serializers.ModelSerializer):
         content_type = data.get('content_type')
         request = self.context.get('request')
         user = request.user if request else None
-        
+
+        # Validate language matches topic/subtopic language
+        subtopic = data.get('subtopic')
+        topic = data.get('topic')
+        language = data.get('language')
+
+        if subtopic:
+            # Material language must match its subtopic language
+            if subtopic.language and language != subtopic.language:
+                raise serializers.ValidationError({
+                    'language': f'Material language must be "{subtopic.language}" to match the subtopic language'
+                })
+            # Auto-set topic from subtopic if not provided
+            if not topic:
+                data['topic'] = subtopic.topic
+
         # Validate user permissions for each hub
         if hub_type == 'advocates':
             # Only verified advocates and admins
@@ -474,10 +489,10 @@ class HubContentCreateSerializer(serializers.ModelSerializer):
         
         # Validate content type for hub
         valid_content_types = {
-            'advocates': ['discussion', 'article', 'news', 'case_study', 'legal_update'],
-            'students': ['notes', 'past_papers', 'assignment', 'discussion', 'question', 'tutorial'],
-            'forum': ['discussion', 'question', 'news', 'general'],
-            'legal_ed': ['lecture', 'article', 'tutorial', 'case_study', 'legal_update']
+            'advocates': ['discussion', 'article', 'news', 'case_study', 'legal_update', 'document'],
+            'students': ['notes', 'past_papers', 'assignment', 'discussion', 'question', 'tutorial', 'document'],
+            'forum': ['discussion', 'question', 'news', 'general', 'document'],
+            'legal_ed': ['lecture', 'article', 'tutorial', 'case_study', 'legal_update', 'document']
         }
         
         if content_type not in valid_content_types.get(hub_type, []):

@@ -83,7 +83,7 @@ class TopicAdminCreateUpdateSerializer(serializers.ModelSerializer):
         model = LegalEdTopic
         fields = [
             'id', 'name', 'name_sw', 'slug',
-            'description', 'description_sw',
+            'description', 'description_sw', 'language',
             'icon', 'display_order', 'is_active'
         ]
         ref_name = 'AdminTopicCreateUpdate'
@@ -208,7 +208,7 @@ class SubtopicAdminCreateUpdateSerializer(serializers.ModelSerializer):
         model = LegalEdSubTopic
         fields = [
             'id', 'topic', 'name', 'name_sw', 'slug',
-            'description', 'description_sw',
+            'description', 'description_sw', 'language',
             'display_order', 'is_active'
         ]
         ref_name = 'AdminSubtopicCreateUpdate'
@@ -276,8 +276,27 @@ class SubtopicAdminCreateUpdateSerializer(serializers.ModelSerializer):
                     counter += 1
                 
                 validated_data['slug'] = slug
-        
+
         return super().update(instance, validated_data)
+
+    def validate(self, data):
+        """Validate subtopic data - topic is bilingual, subtopic specifies its own language"""
+        language = data.get('language')
+        if not language and self.instance:
+            language = self.instance.language
+
+        # If subtopic is Swahili, require name_sw field
+        if language == 'sw':
+            if not data.get('name_sw') and not (self.instance and self.instance.name_sw):
+                raise serializers.ValidationError({
+                    'name_sw': 'Swahili name is required when language is Swahili'
+                })
+            if not data.get('description_sw') and data.get('description') and not (self.instance and self.instance.description_sw):
+                raise serializers.ValidationError({
+                    'description_sw': 'Swahili description is required when language is Swahili'
+                })
+
+        return data
 
 
 class ReorderSerializer(serializers.Serializer):
