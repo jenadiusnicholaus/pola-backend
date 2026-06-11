@@ -305,21 +305,17 @@ class SubtopicAdminCreateUpdateSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def validate(self, data):
-        """Validate subtopic data - topic is bilingual, subtopic specifies its own language"""
+        """Validate subtopic data - when language=sw, name/description are treated as Swahili fields"""
         language = data.get('language')
         if not language and self.instance:
             language = self.instance.language
 
-        # If subtopic is Swahili, require name_sw field
+        # When language=sw, auto-populate name_sw/description_sw from name/description
         if language == 'sw':
-            if not data.get('name_sw') and not (self.instance and self.instance.name_sw):
-                raise serializers.ValidationError({
-                    'name_sw': 'Swahili name is required when language is Swahili'
-                })
-            if not data.get('description_sw') and data.get('description') and not (self.instance and self.instance.description_sw):
-                raise serializers.ValidationError({
-                    'description_sw': 'Swahili description is required when language is Swahili'
-                })
+            if not data.get('name_sw'):
+                data['name_sw'] = data.get('name') or (self.instance.name_sw if self.instance else None)
+            if not data.get('description_sw') and data.get('description'):
+                data['description_sw'] = data.get('description')
 
         return data
 
