@@ -523,14 +523,15 @@ class SubtopicAdminViewSet(viewsets.ModelViewSet):
         if topic_id:
             queryset = queryset.filter(topic_id=topic_id)
 
-        # Filter by language - strictly by language field, fallback to name_sw for legacy
-        language = self.request.query_params.get('language')
-        if language == 'sw':
-            queryset = queryset.filter(
-                Q(language='sw') | Q(name_sw__isnull=False)
-            )
-        elif language == 'en':
-            queryset = queryset.filter(language='en')
+        # Filter by language only on list action - not on detail/materials (would break get_object)
+        if self.action == 'list':
+            language = self.request.query_params.get('language')
+            if language == 'sw':
+                queryset = queryset.filter(
+                    Q(language='sw') | Q(name_sw__isnull=False)
+                )
+            elif language == 'en':
+                queryset = queryset.filter(language='en')
 
         # Filter by active status
         is_active = self.request.query_params.get('is_active')

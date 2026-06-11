@@ -168,16 +168,15 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
         elif topic_slug:
             queryset = queryset.filter(topic__slug=topic_slug)
 
-        # Filter by language - support new language field AND legacy name_sw approach
-        language = self.request.query_params.get('language')
-        if language == 'sw':
-            # New: subtopics with language=sw, OR legacy: subtopics with name_sw set
-            queryset = queryset.filter(
-                Q(language='sw') | Q(name_sw__isnull=False)
-            )
-        elif language == 'en':
-            # New: subtopics with language=en, OR legacy: subtopics without name_sw
-            queryset = queryset.filter(language='en')
+        # Filter by language only on list action - not on detail/materials (would break get_object)
+        if self.action == 'list':
+            language = self.request.query_params.get('language')
+            if language == 'sw':
+                queryset = queryset.filter(
+                    Q(language='sw') | Q(name_sw__isnull=False)
+                )
+            elif language == 'en':
+                queryset = queryset.filter(language='en')
 
         # Search
         search = self.request.query_params.get('search')
