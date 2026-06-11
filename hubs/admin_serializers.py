@@ -149,7 +149,7 @@ class TopicAdminCreateUpdateSerializer(serializers.ModelSerializer):
 
 class SubtopicAdminListSerializer(serializers.ModelSerializer):
     """Serializer for listing subtopics in admin - returns language-specific fields only"""
-    topic_name = serializers.SerializerMethodField()
+    topic = serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
     materials_count = serializers.SerializerMethodField()
@@ -157,7 +157,7 @@ class SubtopicAdminListSerializer(serializers.ModelSerializer):
     class Meta:
         model = LegalEdSubTopic
         fields = [
-            'id', 'topic', 'topic_name',
+            'id', 'topic',
             'name', 'description', 'slug', 'language',
             'display_order', 'is_active', 'materials_count',
             'created_at', 'last_updated'
@@ -169,11 +169,13 @@ class SubtopicAdminListSerializer(serializers.ModelSerializer):
         lang = request.query_params.get('language') if request else None
         return lang or obj.language or 'en'
 
-    def get_topic_name(self, obj):
+    def get_topic(self, obj):
         lang = self._get_language(obj)
-        if lang == 'sw' and obj.topic.name_sw:
-            return obj.topic.name_sw
-        return obj.topic.name
+        return {
+            'id': obj.topic.id,
+            'name': obj.topic.name_sw if lang == 'sw' and obj.topic.name_sw else obj.topic.name,
+            'slug': obj.topic.slug,
+        }
 
     def get_name(self, obj):
         lang = self._get_language(obj)
