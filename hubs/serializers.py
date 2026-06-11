@@ -146,8 +146,13 @@ class SubtopicListSerializer(serializers.ModelSerializer):
             'slug', 'language', 'display_order', 'is_active', 'materials_count', 'created_at', 'last_updated'
         ]
 
+    def _req_lang(self):
+        request = self.context.get('request')
+        return request.query_params.get('language', 'en') if request else 'en'
+
     def get_topic_name(self, obj):
-        if obj.language == 'sw' and obj.topic.name_sw:
+        lang = self._req_lang()
+        if lang == 'sw' and obj.topic.name_sw:
             return obj.topic.name_sw
         return obj.topic.name
 
@@ -183,8 +188,13 @@ class SubtopicDetailSerializer(serializers.ModelSerializer):
             'slug', 'language', 'display_order', 'is_active', 'materials', 'materials_count', 'created_at', 'last_updated'
         ]
 
+    def _req_lang(self):
+        request = self.context.get('request')
+        return request.query_params.get('language', 'en') if request else 'en'
+
     def get_topic_name(self, obj):
-        if obj.language == 'sw' and obj.topic.name_sw:
+        lang = self._req_lang()
+        if lang == 'sw' and obj.topic.name_sw:
             return obj.topic.name_sw
         return obj.topic.name
 
