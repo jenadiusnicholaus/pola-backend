@@ -718,28 +718,50 @@ class SubtopicAdminViewSet(viewsets.ModelViewSet):
     def materials(self, request, pk=None):
         """Get all materials in this subtopic"""
         subtopic = self.get_object()
-        
+        language = request.query_params.get('language')
+
         materials = LearningMaterial.objects.filter(subtopic=subtopic).select_related(
             'uploader'
         ).order_by('-created_at')
-        
+
+        # Filter by language
+        if language in ('en', 'sw'):
+            materials = materials.filter(language=language)
+
         # Filter by status
         is_approved = request.query_params.get('is_approved')
         if is_approved is not None:
             materials = materials.filter(is_approved=is_approved.lower() == 'true')
-        
+
         is_active = request.query_params.get('is_active')
         if is_active is not None:
             materials = materials.filter(is_active=is_active.lower() == 'true')
-        
-        # Import serializer to avoid circular import
-        from subscriptions.admin_document_serializers import LearningMaterialAdminSerializer
-        serializer = LearningMaterialAdminSerializer(materials, many=True)
-        
+
+        # Filter by content type
+        content_type = request.query_params.get('content_type')
+        if content_type:
+            materials = materials.filter(content_type=content_type)
+
+        # Search
+        search = request.query_params.get('search')
+        if search:
+            materials = materials.filter(
+                Q(title__icontains=search) | Q(description__icontains=search)
+            )
+
+        # Language-specific names for response metadata
+        subtopic_name = subtopic.name_sw if language == 'sw' and subtopic.name_sw else subtopic.name
+        topic_name = subtopic.topic.name_sw if language == 'sw' and subtopic.topic.name_sw else subtopic.topic.name
+
+        from hubs.serializers import AdminContentListSerializer
+        serializer = AdminContentListSerializer(materials, many=True, context={'request': request})
+
         return Response({
             'subtopic_id': subtopic.id,
-            'subtopic_name': subtopic.name,
-            'topic_name': subtopic.topic.name,
+            'subtopic_name': subtopic_name,
+            'topic_id': subtopic.topic.id,
+            'topic_name': topic_name,
+            'language': language or subtopic.language,
             'materials_count': materials.count(),
             'materials': serializer.data
         })
