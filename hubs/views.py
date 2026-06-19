@@ -199,6 +199,7 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
         For free trial users, tracks and limits subtopic access.
         """
         from subscriptions.permissions import check_legal_education_access
+        from rest_framework.pagination import PageNumberPagination
 
         subtopic = self.get_object()
         language = request.query_params.get('language')
@@ -229,14 +230,31 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
                 Q(description__icontains=search)
             )
 
+        # Pagination
+        paginator = PageNumberPagination()
+        paginator.page_size = int(request.query_params.get('page_size', 20))
+        page = paginator.paginate_queryset(materials, request)
+
         # Language-specific names for response metadata
         subtopic_name = subtopic.name_sw if language == 'sw' and subtopic.name_sw else subtopic.name
         topic_name = subtopic.topic.name_sw if language == 'sw' and subtopic.topic.name_sw else subtopic.topic.name
 
         # Import serializer here to avoid circular import
         from subscriptions.serializers import LearningMaterialSerializer
-        serializer = LearningMaterialSerializer(materials, many=True, context={'request': request})
 
+        if page is not None:
+            serializer = LearningMaterialSerializer(page, many=True, context={'request': request})
+            return paginator.get_paginated_response({
+                'subtopic_id': subtopic.id,
+                'subtopic_name': subtopic_name,
+                'topic_id': subtopic.topic.id,
+                'topic_name': topic_name,
+                'language': language or subtopic.language,
+                'materials_count': materials.count(),
+            })
+
+        # Fallback if pagination is disabled
+        serializer = LearningMaterialSerializer(materials, many=True, context={'request': request})
         return Response({
             'subtopic_id': subtopic.id,
             'subtopic_name': subtopic_name,
