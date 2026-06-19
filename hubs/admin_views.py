@@ -526,12 +526,8 @@ class SubtopicAdminViewSet(viewsets.ModelViewSet):
         # Filter by language only on list action - not on detail/materials (would break get_object)
         if self.action == 'list':
             language = self.request.query_params.get('language')
-            if language == 'sw':
-                queryset = queryset.filter(
-                    Q(language='sw') | Q(name_sw__isnull=False)
-                )
-            elif language == 'en':
-                queryset = queryset.filter(language='en')
+            if language in ('en', 'sw'):
+                queryset = queryset.filter(language=language)
 
         # Filter by active status
         is_active = self.request.query_params.get('is_active')

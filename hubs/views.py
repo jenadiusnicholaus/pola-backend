@@ -171,12 +171,8 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
         # Filter by language only on list action - not on detail/materials (would break get_object)
         if self.action == 'list':
             language = self.request.query_params.get('language')
-            if language == 'sw':
-                queryset = queryset.filter(
-                    Q(language='sw') | Q(name_sw__isnull=False)
-                )
-            elif language == 'en':
-                queryset = queryset.filter(language='en')
+            if language in ('en', 'sw'):
+                queryset = queryset.filter(language=language)
 
         # Search
         search = self.request.query_params.get('search')

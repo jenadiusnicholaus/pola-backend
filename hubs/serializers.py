@@ -157,13 +157,12 @@ class SubtopicListSerializer(serializers.ModelSerializer):
         return obj.topic.name
 
     def get_name_localized(self, obj):
-        # Use language field (new), fallback to name_sw presence (legacy)
-        if (obj.language == 'sw' or obj.name_sw) and obj.name_sw:
+        if obj.language == 'sw' and obj.name_sw:
             return obj.name_sw
         return obj.name
 
     def get_description_localized(self, obj):
-        if (obj.language == 'sw' or obj.description_sw) and obj.description_sw:
+        if obj.language == 'sw' and obj.description_sw:
             return obj.description_sw
         return obj.description
 
@@ -199,13 +198,12 @@ class SubtopicDetailSerializer(serializers.ModelSerializer):
         return obj.topic.name
 
     def get_name_localized(self, obj):
-        # Use language field (new), fallback to name_sw presence (legacy)
-        if (obj.language == 'sw' or obj.name_sw) and obj.name_sw:
+        if obj.language == 'sw' and obj.name_sw:
             return obj.name_sw
         return obj.name
 
     def get_description_localized(self, obj):
-        if (obj.language == 'sw' or obj.description_sw) and obj.description_sw:
+        if obj.language == 'sw' and obj.description_sw:
             return obj.description_sw
         return obj.description
 
