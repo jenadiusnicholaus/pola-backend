@@ -51,9 +51,16 @@ class TopicViewSet(viewsets.ReadOnlyModelViewSet):
     def subtopics(self, request, slug=None):
         """Get all subtopics in a topic"""
         topic = self.get_object()
-        subtopics = topic.subtopics.filter(is_active=True).order_by('display_order', 'name')
-        
-        serializer = SubtopicListSerializer(subtopics, many=True)
+        subtopics = topic.subtopics.filter(is_active=True)
+
+        # Language filter
+        language = request.query_params.get('language')
+        if language in ('en', 'sw'):
+            subtopics = subtopics.filter(language=language)
+
+        subtopics = subtopics.order_by('display_order', 'name')
+
+        serializer = SubtopicListSerializer(subtopics, many=True, context={'request': request})
         return Response({
             'topic_id': topic.id,
             'topic_name': topic.name,
