@@ -53,10 +53,14 @@ class TopicViewSet(viewsets.ReadOnlyModelViewSet):
         topic = self.get_object()
         subtopics = topic.subtopics.filter(is_active=True)
 
-        # Language filter
+        # Language filter - with legacy fallback for name_sw
         language = request.query_params.get('language')
-        if language in ('en', 'sw'):
-            subtopics = subtopics.filter(language=language)
+        if language == 'sw':
+            subtopics = subtopics.filter(
+                Q(language='sw') | Q(name_sw__isnull=False)
+            )
+        elif language == 'en':
+            subtopics = subtopics.filter(language='en')
 
         subtopics = subtopics.order_by('display_order', 'name')
 
@@ -178,8 +182,12 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
         # Filter by language only on list action - not on detail/materials (would break get_object)
         if self.action == 'list':
             language = self.request.query_params.get('language')
-            if language in ('en', 'sw'):
-                queryset = queryset.filter(language=language)
+            if language == 'sw':
+                queryset = queryset.filter(
+                    Q(language='sw') | Q(name_sw__isnull=False)
+                )
+            elif language == 'en':
+                queryset = queryset.filter(language='en')
 
         # Search
         search = self.request.query_params.get('search')

@@ -169,8 +169,13 @@ class SubtopicListSerializer(serializers.ModelSerializer):
     def get_materials_count(self, obj):
         request = self.context.get('request')
         language = request.query_params.get('language') if request else None
-        if language in ('en', 'sw'):
-            return obj.materials.filter(language=language, is_active=True, is_approved=True).count()
+        if language == 'sw':
+            # Legacy: count materials with language=sw OR subtopic has name_sw
+            if obj.name_sw:
+                return obj.materials.filter(is_active=True, is_approved=True).count()
+            return obj.materials.filter(language='sw', is_active=True, is_approved=True).count()
+        elif language == 'en':
+            return obj.materials.filter(language='en', is_active=True, is_approved=True).count()
         return obj.get_materials_count()
 
 
@@ -214,8 +219,13 @@ class SubtopicDetailSerializer(serializers.ModelSerializer):
     def get_materials_count(self, obj):
         request = self.context.get('request')
         language = request.query_params.get('language') if request else None
-        if language in ('en', 'sw'):
-            return obj.materials.filter(language=language, is_active=True, is_approved=True).count()
+        if language == 'sw':
+            # Legacy: count materials with language=sw OR subtopic has name_sw
+            if obj.name_sw:
+                return obj.materials.filter(is_active=True, is_approved=True).count()
+            return obj.materials.filter(language='sw', is_active=True, is_approved=True).count()
+        elif language == 'en':
+            return obj.materials.filter(language='en', is_active=True, is_approved=True).count()
         return obj.get_materials_count()
 
 
