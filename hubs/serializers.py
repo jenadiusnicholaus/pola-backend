@@ -167,6 +167,10 @@ class SubtopicListSerializer(serializers.ModelSerializer):
         return obj.description
 
     def get_materials_count(self, obj):
+        request = self.context.get('request')
+        language = request.query_params.get('language') if request else None
+        if language in ('en', 'sw'):
+            return obj.materials.filter(language=language, is_active=True, is_approved=True).count()
         return obj.get_materials_count()
 
 
@@ -206,6 +210,13 @@ class SubtopicDetailSerializer(serializers.ModelSerializer):
         if obj.language == 'sw' and obj.description_sw:
             return obj.description_sw
         return obj.description
+
+    def get_materials_count(self, obj):
+        request = self.context.get('request')
+        language = request.query_params.get('language') if request else None
+        if language in ('en', 'sw'):
+            return obj.materials.filter(language=language, is_active=True, is_approved=True).count()
+        return obj.get_materials_count()
 
 
 # ============================================================================

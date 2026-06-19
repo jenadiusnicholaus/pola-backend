@@ -190,6 +190,9 @@ class SubtopicAdminListSerializer(serializers.ModelSerializer):
         return obj.description
 
     def get_materials_count(self, obj):
+        lang = self._get_language(obj)
+        if lang in ('en', 'sw'):
+            return obj.materials.filter(language=lang, is_active=True, is_approved=True).count()
         return obj.get_materials_count()
 
 
