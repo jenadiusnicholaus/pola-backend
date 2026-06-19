@@ -196,27 +196,27 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
         For free trial users, tracks and limits subtopic access.
         """
         from subscriptions.permissions import check_legal_education_access
-        
+
         subtopic = self.get_object()
-        
+        language = request.query_params.get('language')
+
         # Check if user can access this subtopic (Free trial limit)
         if not request.user.is_staff and not request.user.is_superuser:
             can_access, error_response = check_legal_education_access(request.user, subtopic.id)
             if not can_access:
                 return Response(error_response, status=status.HTTP_403_FORBIDDEN)
-        
+
         # Get materials with basic filtering
         materials = LearningMaterial.objects.filter(
             subtopic=subtopic,
             is_active=True,
             is_approved=True
         ).select_related('uploader').order_by('-created_at')
-        
+
         # Language filter
-        language = request.query_params.get('language')
-        if language:
+        if language in ('en', 'sw'):
             materials = materials.filter(language=language)
-        
+
         # Basic search if provided
         search = request.query_params.get('search')
         if search:
@@ -225,17 +225,21 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
                 Q(title__icontains=search) |
                 Q(description__icontains=search)
             )
-        
+
+        # Language-specific names for response metadata
+        subtopic_name = subtopic.name_sw if language == 'sw' and subtopic.name_sw else subtopic.name
+        topic_name = subtopic.topic.name_sw if language == 'sw' and subtopic.topic.name_sw else subtopic.topic.name
+
         # Import serializer here to avoid circular import
         from subscriptions.serializers import LearningMaterialSerializer
         serializer = LearningMaterialSerializer(materials, many=True, context={'request': request})
-        
+
         return Response({
             'subtopic_id': subtopic.id,
-            'subtopic_name': subtopic.name,
-            'subtopic_name_sw': subtopic.name_sw,
-            'topic_name': subtopic.topic.name,
-            'topic_name_sw': subtopic.topic.name_sw,
+            'subtopic_name': subtopic_name,
+            'topic_id': subtopic.topic.id,
+            'topic_name': topic_name,
+            'language': language or subtopic.language,
             'materials_count': materials.count(),
             'materials': serializer.data
         })
