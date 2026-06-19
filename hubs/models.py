@@ -285,16 +285,20 @@ class LegalEdTopic(models.Model):
         return self.subtopics.count()
     
     def get_materials_count(self):
-        """Count total materials: direct topic materials + all subtopic materials"""
+        """Count total active and approved materials: direct topic materials + all subtopic materials"""
         from documents.models import LearningMaterial
-        
+
         # Count direct materials linked to this topic
-        direct_materials_count = LearningMaterial.objects.filter(topic=self).count()
-        
+        direct_materials_count = LearningMaterial.objects.filter(
+            topic=self, is_active=True, is_approved=True
+        ).count()
+
         # Count materials in subtopics (for backward compatibility)
         subtopic_ids = self.subtopics.values_list('id', flat=True)
-        subtopic_materials_count = LearningMaterial.objects.filter(subtopic_id__in=subtopic_ids).count()
-        
+        subtopic_materials_count = LearningMaterial.objects.filter(
+            subtopic_id__in=subtopic_ids, is_active=True, is_approved=True
+        ).count()
+
         return direct_materials_count + subtopic_materials_count
     
 class LegalEdSubTopic(models.Model):
@@ -335,8 +339,8 @@ class LegalEdSubTopic(models.Model):
         return f"{self.topic.name} - {self.name}"
     
     def get_materials_count(self):
-        """Get number of materials in this subtopic"""
-        return self.materials.count()
+        """Get number of active and approved materials in this subtopic"""
+        return self.materials.filter(is_active=True, is_approved=True).count()
     
     def get_materials_by_language(self, language='en'):
         """Get materials filtered by language"""
