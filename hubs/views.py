@@ -240,7 +240,10 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
 
         # Pagination
         paginator = PageNumberPagination()
-        paginator.page_size = int(request.query_params.get('page_size', 20))
+        try:
+            paginator.page_size = int(request.query_params.get('page_size', 20))
+        except (ValueError, TypeError):
+            paginator.page_size = 20
         page = paginator.paginate_queryset(materials, request)
 
         # Language-specific names for response metadata
