@@ -206,56 +206,70 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
         Get all materials in a subtopic.
         For free trial users, tracks and limits subtopic access.
         """
+        import traceback
         from subscriptions.permissions import check_legal_education_access
         from rest_framework.pagination import PageNumberPagination
 
-        subtopic = self.get_object()
-        language = request.query_params.get('language')
-
-        # Check if user can access this subtopic (Free trial limit)
-        if not request.user.is_staff and not request.user.is_superuser:
-            can_access, error_response = check_legal_education_access(request.user, subtopic.id)
-            if not can_access:
-                return Response(error_response, status=status.HTTP_403_FORBIDDEN)
-
-        # Get materials with basic filtering
-        materials = LearningMaterial.objects.filter(
-            subtopic=subtopic,
-            is_active=True,
-            is_approved=True
-        ).select_related('uploader').order_by('-created_at')
-
-        # Language filter
-        if language in ('en', 'sw'):
-            materials = materials.filter(language=language)
-
-        # Basic search if provided
-        search = request.query_params.get('search')
-        if search:
-            from django.db.models import Q
-            materials = materials.filter(
-                Q(title__icontains=search) |
-                Q(description__icontains=search)
-            )
-
-        # Pagination
-        paginator = PageNumberPagination()
         try:
-            paginator.page_size = int(request.query_params.get('page_size', 20))
-        except (ValueError, TypeError):
-            paginator.page_size = 20
-        page = paginator.paginate_queryset(materials, request)
+            subtopic = self.get_object()
+            language = request.query_params.get('language')
 
-        # Language-specific names for response metadata
-        subtopic_name = subtopic.name_sw if language == 'sw' and subtopic.name_sw else subtopic.name
-        topic_name = subtopic.topic.name_sw if language == 'sw' and subtopic.topic.name_sw else subtopic.topic.name
+            # Check if user can access this subtopic (Free trial limit)
+            if not request.user.is_staff and not request.user.is_superuser:
+                can_access, error_response = check_legal_education_access(request.user, subtopic.id)
+                if not can_access:
+                    return Response(error_response, status=status.HTTP_403_FORBIDDEN)
 
-        # Import serializer here to avoid circular import
-        from subscriptions.serializers import LearningMaterialSerializer
+            # Get materials with basic filtering
+            materials = LearningMaterial.objects.filter(
+                subtopic=subtopic,
+                is_active=True,
+                is_approved=True
+            ).select_related('uploader').order_by('-created_at')
 
-        if page is not None:
-            serializer = LearningMaterialSerializer(page, many=True, context={'request': request})
-            return paginator.get_paginated_response({
+            # Language filter
+            if language in ('en', 'sw'):
+                materials = materials.filter(language=language)
+
+            # Basic search if provided
+            search = request.query_params.get('search')
+            if search:
+                from django.db.models import Q
+                materials = materials.filter(
+                    Q(title__icontains=search) |
+                    Q(description__icontains=search)
+                )
+
+            # Pagination
+            paginator = PageNumberPagination()
+            try:
+                paginator.page_size = int(request.query_params.get('page_size', 20))
+            except (ValueError, TypeError):
+                paginator.page_size = 20
+            page = paginator.paginate_queryset(materials, request)
+
+            # Language-specific names for response metadata
+            subtopic_name = subtopic.name_sw if language == 'sw' and subtopic.name_sw else subtopic.name
+            topic_name = subtopic.topic.name_sw if language == 'sw' and subtopic.topic.name_sw else subtopic.topic.name
+
+            # Import serializer here to avoid circular import
+            from subscriptions.serializers import LearningMaterialSerializer
+
+            if page is not None:
+                serializer = LearningMaterialSerializer(page, many=True, context={'request': request})
+                return paginator.get_paginated_response({
+                    'subtopic_id': subtopic.id,
+                    'subtopic_name': subtopic_name,
+                    'topic_id': subtopic.topic.id,
+                    'topic_name': topic_name,
+                    'language': language or subtopic.language,
+                    'materials_count': materials.count(),
+                    'materials': serializer.data
+                })
+
+            # Fallback if pagination is disabled
+            serializer = LearningMaterialSerializer(materials, many=True, context={'request': request})
+            return Response({
                 'subtopic_id': subtopic.id,
                 'subtopic_name': subtopic_name,
                 'topic_id': subtopic.topic.id,
@@ -265,14 +279,5 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
                 'materials': serializer.data
             })
 
-        # Fallback if pagination is disabled
-        serializer = LearningMaterialSerializer(materials, many=True, context={'request': request})
-        return Response({
-            'subtopic_id': subtopic.id,
-            'subtopic_name': subtopic_name,
-            'topic_id': subtopic.topic.id,
-            'topic_name': topic_name,
-            'language': language or subtopic.language,
-            'materials_count': materials.count(),
-            'materials': serializer.data
-        })
+        except Exception as e:
+            return Response({'error': str(e), 'type': type(e).__name__}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
