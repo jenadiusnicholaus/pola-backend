@@ -201,7 +201,7 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
         return queryset.order_by('topic__display_order', 'display_order', 'name')
     
     @action(detail=True, methods=['get'])
-    def materials(self, request, slug=None):
+    def materials(self, request, id=None):
         """
         Get all materials in a subtopic.
         For free trial users, tracks and limits subtopic access.
