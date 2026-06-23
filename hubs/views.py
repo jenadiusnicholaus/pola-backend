@@ -142,7 +142,7 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = LegalEdSubTopic.objects.filter(is_active=True).select_related('topic')
     permission_classes = [IsAuthenticated]
-    lookup_field = 'slug'
+    lookup_field = 'id'
     
     def get_serializer_class(self):
         if self.action == 'retrieve':
