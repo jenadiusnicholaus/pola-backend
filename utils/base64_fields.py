@@ -125,18 +125,24 @@ class Base64AnyFileField(serializers.FileField):
                         }
                     )
 
-                # Additional check for extension vs detected type mismatch
+                # Auto-correct extension based on detected MIME type if mismatch
                 expected_mime = self.MIME_TYPES.get(actual_extension)
                 if (
                     expected_mime
                     and detected_file_type
                     and expected_mime != detected_file_type
                 ):
-                    raise serializers.ValidationError(
-                        {
-                            "file_format": f"File extension '{actual_extension}' doesn't match detected file type '{detected_file_type}'. Expected: {expected_mime}"
-                        }
-                    )
+                    # Find the correct extension for the detected MIME type
+                    correct_ext = None
+                    for ext, mime in self.MIME_TYPES.items():
+                        if mime == detected_file_type:
+                            correct_ext = ext
+                            break
+                    
+                    if correct_ext:
+                        # Update filename with correct extension
+                        filename = f"{uuid.uuid4()}.{correct_ext}"
+                        logger.info(f"Auto-corrected file extension from '{actual_extension}' to '{correct_ext}' based on detected type '{detected_file_type}'")
 
                 return ContentFile(binary_data, name=filename)
 
