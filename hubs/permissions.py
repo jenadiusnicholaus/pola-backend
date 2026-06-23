@@ -171,12 +171,12 @@ class CanCreateContent(BasePermission):
                     self.message = "You must be verified"
                     return False
         
-        # Students Hub - students, lecturers, admins (advocates can view but not create)
-        if hub_type == 'students':
-            user_role_name = request.user.user_role.role_name if request.user.user_role else None
-            if user_role_name not in ['student', 'lecturer', 'admin']:
-                self.message = "Only students, lecturers, and admins can post in Students Hub"
-                return False
+        # Students Hub - any verified user can post (removed role restriction)
+        # if hub_type == 'students':
+        #     user_role_name = request.user.user_role.role_name if request.user.user_role else None
+        #     if user_role_name not in ['student', 'lecturer', 'admin']:
+        #         self.message = "Only students, lecturers, and admins can post in Students Hub"
+        #         return False
         
         return True
 

@@ -395,12 +395,12 @@ class HubContentSerializer(serializers.ModelSerializer):
                     'hub_type': 'You must be an advocate to post here'
                 })
         
-        # Students Hub - students, lecturers, admins can post
-        elif hub_type == 'students':
-            if uploader_type not in ['student', 'lecturer', 'admin']:
-                raise serializers.ValidationError({
-                    'uploader_type': 'Only students, lecturers, and admins can post in Students Hub'
-                })
+        # Students Hub - any verified user can post (removed role restriction)
+        # elif hub_type == 'students':
+        #     if uploader_type not in ['student', 'lecturer', 'admin']:
+        #         raise serializers.ValidationError({
+        #             'uploader_type': 'Only students, lecturers, and admins can post in Students Hub'
+        #         })
         
         return data
 
@@ -476,14 +476,15 @@ class HubContentCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({'detail': 'Authentication required'})
             
             user_role = getattr(user, 'user_role', None) 
-            role_name = user_role.role_name if user_role else None
+            role_name = user_role.role_name if user_role else 'citizen'
             
-            if role_name not in ['student', 'lecturer'] and not user.is_staff:
-                raise serializers.ValidationError({
-                    'hub_type': 'Only students, lecturers, and admins can post in Students Hub'
-                })
+            # Any verified user can post in students hub (removed role restriction)
+            # if role_name not in ['student', 'lecturer'] and not user.is_staff:
+            #     raise serializers.ValidationError({
+            #         'hub_type': 'Only students, lecturers, and admins can post in Students Hub'
+            #             })
             
-            data['uploader_type'] = role_name if role_name in ['student', 'lecturer'] else 'admin'
+            data['uploader_type'] = role_name if role_name in ['student', 'lecturer', 'citizen'] else 'admin'
             
         elif hub_type == 'forum':
             # Everyone can post in forum
