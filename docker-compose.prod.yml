@@ -41,7 +41,7 @@ services:
     container_name: pola_web_prod
     restart: always
     environment:
-      - DEBUG=False
+      - DEBUG=True
       - SECRET_KEY=${SECRET_KEY}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
