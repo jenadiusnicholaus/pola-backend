@@ -238,11 +238,6 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
                 Q(description__icontains=search)
             )
 
-        # Debug: log what we're returning
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.info(f"Subtopic {subtopic.id} materials: language={language}, count={materials.count()}, materials_ids={list(materials.values_list('id', flat=True))}")
-
         # Pagination
         paginator = PageNumberPagination()
         paginator.page_size = int(request.query_params.get('page_size', 20))
