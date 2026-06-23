@@ -264,6 +264,7 @@ class SubtopicViewSet(viewsets.ReadOnlyModelViewSet):
                 'topic_name': topic_name,
                 'language': language or subtopic.language,
                 'materials_count': materials.count(),
+                'materials': serializer.data
             })
 
         # Fallback if pagination is disabled
