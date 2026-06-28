@@ -198,12 +198,18 @@ class CallManagementViewSet(viewsets.ViewSet):
                 
                 # Send notification
                 fcm = FCM(project_id, access_token)
+                caller_phone = ''
+                try:
+                    caller_phone = user.contact.phone_number or ''
+                except Exception:
+                    pass
                 call_data = {
                     'call_id': call_session.id,
                     'channel_name': channel_name,
                     'caller_id': user.id,
                     'caller_name': user.get_full_name() or user.email,
                     'caller_photo': user.profile_picture.url if hasattr(user, 'profile_picture') and user.profile_picture else '',
+                    'caller_phone': caller_phone,
                     'call_type': call_type,
                     'timestamp': int(timezone.now().timestamp() * 1000)
                 }

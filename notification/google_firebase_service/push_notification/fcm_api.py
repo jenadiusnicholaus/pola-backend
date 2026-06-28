@@ -75,6 +75,7 @@ class FCM:
             'caller_id': str(call_data.get('caller_id', '')),
             'caller_name': str(call_data.get('caller_name', '')),
             'caller_photo': str(call_data.get('caller_photo', '')),
+            'caller_phone': str(call_data.get('caller_phone', '')),
             'call_type': str(call_data.get('call_type', 'voice')),
             'timestamp': str(call_data.get('timestamp', ''))
         }
