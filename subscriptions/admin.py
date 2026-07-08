@@ -367,8 +367,17 @@ class UserCallCreditAdmin(admin.ModelAdmin):
     ]
     list_filter = ['status', 'bundle']
     search_fields = ['user__email']
-    readonly_fields = ['purchase_date', 'total_minutes']
+    readonly_fields = ['purchase_date']
     date_hierarchy = 'purchase_date'
+
+    def save_model(self, request, obj, form, change):
+        # Automatically set total_minutes from bundle if not already set
+        if not change and not obj.total_minutes and obj.bundle:
+            obj.total_minutes = obj.bundle.minutes
+            # Also set remaining_minutes to total_minutes for new credits
+            if not obj.remaining_minutes:
+                obj.remaining_minutes = obj.bundle.minutes
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(ConsultationBooking)
