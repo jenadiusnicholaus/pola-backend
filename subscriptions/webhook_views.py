@@ -69,16 +69,32 @@ def azampay_webhook(request):
         logger.info(f"Received AzamPay webhook: {payload}")
         
         # Extract transaction details from AzamPay payload format
-        # AzamPay sends: transid, reference, transactionstatus, externalreference, message, operator
-        transaction_id = payload.get('transid') or payload.get('reference') or payload.get('transactionId') or payload.get('transaction_id')
-        azam_status = payload.get('transactionstatus', payload.get('status', '')).lower()
-        external_reference = payload.get('externalreference') or payload.get('externalId') or payload.get('external_reference')
+        # AzamPay sends multiple formats:
+        # Format 1: transid, reference, transactionstatus, externalreference
+        # Format 2: pgReferenceId, initiatorReferenceId, status, fspReferenceId
+        transaction_id = (
+            payload.get('transid') or 
+            payload.get('reference') or 
+            payload.get('pgReferenceId') or 
+            payload.get('transactionId') or 
+            payload.get('transaction_id')
+        )
+        azam_status = (
+            payload.get('transactionstatus', '') or 
+            payload.get('status', '')
+        ).lower()
+        external_reference = (
+            payload.get('externalreference') or 
+            payload.get('initiatorReferenceId') or 
+            payload.get('externalId') or 
+            payload.get('external_reference')
+        )
         
         if not transaction_id:
-            logger.warning("No transaction ID (transid/reference) in webhook payload")
+            logger.warning("No transaction ID in webhook payload")
             return Response({
                 'success': False,
-                'message': 'Missing transaction ID (transid/reference)'
+                'message': 'Missing transaction ID'
             }, status=status.HTTP_400_BAD_REQUEST)
         
         # Process based on transaction type (payment or disbursement)
