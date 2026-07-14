@@ -57,6 +57,8 @@ services:
       - AZAM_PAY_APP_NAME=${AZAM_PAY_APP_NAME:-}
       - AZAM_PAY_CLIENT_ID=${AZAM_PAY_CLIENT_ID:-}
       - AZAM_PAY_CLIENT_SECRET=${AZAM_PAY_CLIENT_SECRET:-}
+      - AZAM_PAY_AUTH=${AZAM_PAY_AUTH:-https://authenticator-sandbox.azampay.co.tz}
+      - AZAM_PAY_CHECKOUT_URL=${AZAM_PAY_CHECKOUT_URL:-https://sandbox.azampay.co.tz}
       - AZAM_PAY_PRODUCTION=False
     volumes:
       - .:/app # Mount source code for hot reload

@@ -58,6 +58,8 @@ services:
       - AZAM_PAY_APP_NAME=${AZAM_PAY_APP_NAME}
       - AZAM_PAY_CLIENT_ID=${AZAM_PAY_CLIENT_ID}
       - AZAM_PAY_CLIENT_SECRET=${AZAM_PAY_CLIENT_SECRET}
+      - AZAM_PAY_AUTH=${AZAM_PAY_AUTH:-https://authenticator.azampay.co.tz}
+      - AZAM_PAY_CHECKOUT_URL=${AZAM_PAY_CHECKOUT_URL:-https://checkout.azampay.co.tz}
       - AZAM_PAY_PRODUCTION=True
       - AZAM_PAY_WEBHOOK_URL=${AZAM_PAY_WEBHOOK_URL}
     volumes:
