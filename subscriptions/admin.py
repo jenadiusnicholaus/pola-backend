@@ -525,14 +525,16 @@ class PaymentTransactionAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     
     def payment_method_display(self, obj):
-        if obj.payment_method == 'mobile_money' or not obj.payment_method:
+        if obj.payment_method == 'mobile_money':
+            return 'AzamPay'
+        if not obj.payment_method:
             return 'AzamPay'
         return obj.get_payment_method_display()
     payment_method_display.short_description = 'Payment Method'
     
     def save_model(self, request, obj, form, change):
-        if obj.payment_method == 'mobile_money' or not obj.payment_method:
-            obj.payment_method = 'azampay'
+        if obj.payment_method in ('mobile_money', 'azampay', '', None):
+            obj.payment_method = 'Azampesa'
         super().save_model(request, obj, form, change)
     
     fieldsets = (

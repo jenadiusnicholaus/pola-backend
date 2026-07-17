@@ -78,7 +78,7 @@ class PaymentService:
             user: PolaUser instance
             payment_category: 'subscription', 'call_credit', 'document', 'material'
             item_id: ID of the item being purchased
-            payment_method: 'mobile_money' or 'bank'
+            payment_method: 'azampay' or 'bank' (actual provider stored in payment_method field)
             **kwargs: phone_number, provider, bank_name, otp, merchant_mobile, etc.
         
         Returns:
@@ -116,6 +116,23 @@ class PaymentService:
             # Generate unique payment reference
             payment_reference = self._generate_reference(payment_category)
             
+            # Resolve actual provider for payment_method field
+            actual_method = payment_method
+            if payment_method in ('azampay', 'mobile_money'):
+                provider = kwargs.get('provider')
+                if provider:
+                    actual_method = provider
+                else:
+                    phone_number = kwargs.get('phone_number')
+                    if phone_number:
+                        try:
+                            formatted_phone = format_phone_number(phone_number)
+                            detected = detect_mobile_provider(formatted_phone)
+                            if detected:
+                                actual_method = detected
+                        except Exception:
+                            pass
+            
             # Create payment transaction in database
             with transaction.atomic():
                 payment_txn = PaymentTransaction.objects.create(
@@ -123,7 +140,7 @@ class PaymentService:
                     transaction_type=payment_category,
                     amount=amount,
                     currency=currency,
-                    payment_method=payment_method,
+                    payment_method=actual_method,
                     payment_reference=payment_reference,
                     description=description,
                     item_metadata=item_metadata,

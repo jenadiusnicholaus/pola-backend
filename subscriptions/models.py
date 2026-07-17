@@ -1519,10 +1519,13 @@ class PaymentTransaction(models.Model):
     ]
     
     PAYMENT_METHODS = [
-        ('azampay', 'AzamPay'),
-        ('mpesa', 'M-Pesa'),
-        ('tigopesa', 'Tigo Pesa'),
-        ('card', 'Card Payment'),
+        ('Mpesa', 'Mpesa'),
+        ('Airtel', 'Airtel'),
+        ('Tigo', 'Tigo'),
+        ('Halopesa', 'Halopesa'),
+        ('Azampesa', 'Azampesa'),
+        ('CRDB', 'CRDB Bank'),
+        ('NMB', 'NMB Bank'),
         ('bank', 'Bank Transfer'),
     ]
     
