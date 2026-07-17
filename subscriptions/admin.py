@@ -516,13 +516,24 @@ class MaterialPurchaseAdmin(admin.ModelAdmin):
 @admin.register(PaymentTransaction)
 class PaymentTransactionAdmin(admin.ModelAdmin):
     list_display = [
-        'user', 'transaction_type', 'amount', 'payment_method',
+        'user', 'transaction_type', 'amount', 'payment_method_display',
         'status', 'payment_reference', 'created_at'
     ]
     list_filter = ['transaction_type', 'status', 'payment_method']
     search_fields = ['payment_reference', 'gateway_reference', 'user__email']
     readonly_fields = ['created_at', 'updated_at', 'payment_reference']
     date_hierarchy = 'created_at'
+    
+    def payment_method_display(self, obj):
+        if obj.payment_method == 'mobile_money' or not obj.payment_method:
+            return 'AzamPay'
+        return obj.get_payment_method_display()
+    payment_method_display.short_description = 'Payment Method'
+    
+    def save_model(self, request, obj, form, change):
+        if obj.payment_method == 'mobile_money' or not obj.payment_method:
+            obj.payment_method = 'azampay'
+        super().save_model(request, obj, form, change)
     
     fieldsets = (
         ('Transaction Details', {
