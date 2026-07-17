@@ -61,7 +61,7 @@ class PaymentViewSet(viewsets.ViewSet):
         # Extract parameters
         payment_category = request.data.get('payment_category')
         item_id = request.data.get('item_id')
-        payment_method = request.data.get('payment_method', 'mobile_money')
+        payment_method = request.data.get('payment_method', 'azampay')
         phone_number = request.data.get('phone_number')
         provider = request.data.get('provider')
         
@@ -77,7 +77,7 @@ class PaymentViewSet(viewsets.ViewSet):
                 'error': 'item_id is required'
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        if payment_method == 'mobile_money' and not phone_number:
+        if payment_method in ('mobile_money', 'azampay') and not phone_number:
             return Response({
                 'error': 'phone_number is required for mobile money payments'
             }, status=status.HTTP_400_BAD_REQUEST)
@@ -240,7 +240,7 @@ class PaymentViewSet(viewsets.ViewSet):
     # Helper methods
     def _get_next_steps(self, payment_method, transaction):
         """Generate next steps instructions for user"""
-        if payment_method == 'mobile_money':
+        if payment_method in ('mobile_money', 'azampay'):
             return [
                 "Check your phone for payment prompt",
                 "Enter your PIN to confirm payment",

@@ -89,6 +89,7 @@ def azampay_webhook(request):
             payload.get('externalId') or 
             payload.get('external_reference')
         )
+        utility_ref = payload.get('utilityref') or payload.get('utility_ref')
         
         if not transaction_id:
             logger.warning("No transaction ID in webhook payload")
@@ -102,6 +103,8 @@ def azampay_webhook(request):
         from .payment_service import payment_service, PaymentServiceError
         
         # Try to find payment transaction by gateway_reference or payment_reference
+        # AzamPay sends utilityref = our externalId (payment_reference)
+        # and externalreference = transid (AzamPay's own ID)
         try:
             # First try by gateway reference (AzamPay transaction ID)
             try:
@@ -109,10 +112,16 @@ def azampay_webhook(request):
                     gateway_reference=transaction_id
                 )
             except PaymentTransaction.DoesNotExist:
-                # Try by payment reference (external_reference)
-                payment_transaction = PaymentTransaction.objects.get(
-                    payment_reference=external_reference
-                )
+                # Try by utility_ref (our payment_reference sent as externalId)
+                try:
+                    payment_transaction = PaymentTransaction.objects.get(
+                        payment_reference=utility_ref
+                    )
+                except PaymentTransaction.DoesNotExist:
+                    # Try by external_reference as fallback
+                    payment_transaction = PaymentTransaction.objects.get(
+                        payment_reference=external_reference
+                    )
             
             # Update payment status based on AzamPay response
             if azam_status in ['success', 'completed', 'successful']:
@@ -150,18 +159,28 @@ def azampay_webhook(request):
                     azampay_transaction_id=transaction_id
                 )
             except Disbursement.DoesNotExist:
-                # Try finding by external reference
+                # Try finding by utility_ref first (our external reference)
                 try:
                     disbursement = Disbursement.objects.get(
-                        external_reference=external_reference
+                        external_reference=utility_ref
                     )
                     # Update the AzamPay transaction ID if it wasn't set
                     if not disbursement.azampay_transaction_id:
                         disbursement.azampay_transaction_id = transaction_id
                         disbursement.save()
                 except Disbursement.DoesNotExist:
-                    logger.warning(f"Transaction {transaction_id} / {external_reference} not found in database")
-                    disbursement = None
+                    # Try finding by external_reference as fallback
+                    try:
+                        disbursement = Disbursement.objects.get(
+                            external_reference=external_reference
+                        )
+                        # Update the AzamPay transaction ID if it wasn't set
+                        if not disbursement.azampay_transaction_id:
+                            disbursement.azampay_transaction_id = transaction_id
+                            disbursement.save()
+                    except Disbursement.DoesNotExist:
+                        logger.warning(f"Transaction {transaction_id} / {utility_ref} / {external_reference} not found in database")
+                        disbursement = None
             
             if disbursement:
                 # Update disbursement status based on AzamPay response

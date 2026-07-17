@@ -70,7 +70,7 @@ class PaymentService:
     def __init__(self):
         self.azampay = azampay_client
     
-    def initiate_payment(self, user, payment_category, item_id, payment_method='mobile_money', **kwargs):
+    def initiate_payment(self, user, payment_category, item_id, payment_method='azampay', **kwargs):
         """
         Universal payment initiation
         
@@ -144,8 +144,8 @@ class PaymentService:
                 )
                 
                 if payment_result.get('success'):
-                    # Update with gateway reference
-                    payment_txn.gateway_reference = payment_result.get('transaction_id', '')
+                    # Update with gateway reference (AzamPay returns transactionId)
+                    payment_txn.gateway_reference = payment_result.get('transaction_id') or payment_result.get('transactionId', '')
                     payment_txn.save()
                     
                     logger.info(f"✅ AzamPay payment initiated: {payment_result.get('transaction_id')}")
@@ -384,7 +384,7 @@ class PaymentService:
     
     def _initiate_azampay(self, payment_txn, payment_method, **kwargs):
         """Initiate payment with AzamPay"""
-        if payment_method == 'mobile_money':
+        if payment_method in ('mobile_money', 'azampay'):
             phone_number = kwargs.get('phone_number')
             if not phone_number:
                 raise PaymentServiceError("phone_number is required for mobile money payments")
