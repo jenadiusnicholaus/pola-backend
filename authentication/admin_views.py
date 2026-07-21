@@ -441,11 +441,23 @@ class AdminUserManagementViewSet(viewsets.ModelViewSet):
         
         user.is_staff = True
         user.save()
-        
-        # Run seed_permissions to assign admin permissions
-        from django.core.management import call_command
-        call_command('seed_permissions')
-        
+
+        # Assign admin permissions directly (avoid call_command/seed_permissions —
+        # that command is slow and used to crash on Windows with emoji stdout).
+        admin_permission_codenames = [
+            'view_polauser', 'add_polauser', 'change_polauser', 'delete_polauser',
+            'view_document', 'add_document', 'change_document', 'delete_document',
+            'can_approve_documents',
+            'view_verification', 'add_verification', 'change_verification', 'delete_verification',
+            'can_verify_others',
+            'view_contact', 'add_contact', 'change_contact', 'delete_contact',
+            'view_address', 'add_address', 'change_address', 'delete_address',
+        ]
+        for codename in admin_permission_codenames:
+            permission = Permission.objects.filter(codename=codename).first()
+            if permission:
+                user.user_permissions.add(permission)
+
         return Response({
             'message': f'User {user.email} is now a staff member with admin permissions',
             'user': UserDetailSerializer(user).data

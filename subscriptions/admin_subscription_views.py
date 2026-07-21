@@ -117,22 +117,27 @@ class UserSubscriptionViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Filter queryset based on query params"""
-        queryset = super().get_queryset()
+        queryset = super().get_queryset().select_related('user', 'plan')
         
         # Filter by status
         status_filter = self.request.query_params.get('status')
         if status_filter:
             queryset = queryset.filter(status=status_filter)
         
-        # Filter by plan
-        plan_id = self.request.query_params.get('plan_id')
+        # Filter by plan (accept plan_id or plan)
+        plan_id = self.request.query_params.get('plan_id') or self.request.query_params.get('plan')
         if plan_id:
             queryset = queryset.filter(plan_id=plan_id)
         
-        # Filter by user
-        user_id = self.request.query_params.get('user_id')
+        # Filter by user (accept user_id or user)
+        user_id = self.request.query_params.get('user_id') or self.request.query_params.get('user')
         if user_id:
             queryset = queryset.filter(user_id=user_id)
+
+        # Filter by email (partial match)
+        email = self.request.query_params.get('email')
+        if email:
+            queryset = queryset.filter(user__email__icontains=email.strip())
         
         # Filter active subscriptions
         active_only = self.request.query_params.get('active_only')
@@ -144,7 +149,7 @@ class UserSubscriptionViewSet(viewsets.ModelViewSet):
         
         return queryset.order_by('-created_at')
     
-    @action(detail=True, methods=['patch'])
+    @action(detail=True, methods=['patch', 'post'])
     def extend(self, request, pk=None):
         """Extend a user's subscription"""
         subscription = self.get_object()
@@ -166,7 +171,7 @@ class UserSubscriptionViewSet(viewsets.ModelViewSet):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    @action(detail=True, methods=['patch'])
+    @action(detail=True, methods=['patch', 'post'])
     def cancel(self, request, pk=None):
         """Cancel a user's subscription"""
         subscription = self.get_object()
@@ -180,7 +185,69 @@ class UserSubscriptionViewSet(viewsets.ModelViewSet):
             'reason': reason,
             'subscription': UserSubscriptionAdminSerializer(subscription).data
         })
-    
+
+    @action(detail=True, methods=['patch', 'post'])
+    def toggle(self, request, pk=None):
+        """Toggle subscription between active and cancelled (UI deactivate/activate)."""
+        subscription = self.get_object()
+        new_status = request.data.get('status')
+
+        if new_status in ('inactive', 'cancelled'):
+            subscription.cancel_subscription()
+        elif new_status == 'active':
+            subscription.activate_subscription()
+        else:
+            return Response(
+                {'error': 'status must be active or inactive'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return Response(UserSubscriptionAdminSerializer(subscription).data)
+
+    @action(detail=False, methods=['post'], url_path='create_for_user')
+    def create_for_user(self, request):
+        """Create or replace subscription for a user (admin UI create modal)."""
+        user_id = request.data.get('user_id')
+        plan_id = request.data.get('plan_id')
+        auto_renew = request.data.get('auto_renew', False)
+
+        if not user_id or not plan_id:
+            return Response(
+                {'error': 'user_id and plan_id are required'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            user = PolaUser.objects.get(id=user_id)
+            plan = SubscriptionPlan.objects.get(id=plan_id)
+        except (PolaUser.DoesNotExist, SubscriptionPlan.DoesNotExist) as e:
+            return Response({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+        existing = UserSubscription.objects.filter(user=user).first()
+        if existing:
+            existing.plan = plan
+            existing.status = 'active'
+            existing.start_date = timezone.now()
+            existing.end_date = timezone.now() + timedelta(days=plan.duration_days)
+            existing.auto_renew = bool(auto_renew)
+            existing.save()
+            subscription = existing
+            created = False
+        else:
+            subscription = UserSubscription.objects.create(
+                user=user,
+                plan=plan,
+                status='active',
+                end_date=timezone.now() + timedelta(days=plan.duration_days),
+                auto_renew=bool(auto_renew),
+            )
+            created = True
+
+        return Response(
+            UserSubscriptionAdminSerializer(subscription).data,
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )
+
     @action(detail=False, methods=['post'])
     def grant(self, request):
         """Grant free subscription to a user"""

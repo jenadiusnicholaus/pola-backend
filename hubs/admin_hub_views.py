@@ -492,6 +492,7 @@ class AdminHubContentViewSet(viewsets.ModelViewSet):
             'inactive_content': queryset.filter(is_active=False).count(),
             'pinned_content': queryset.filter(is_pinned=True).count(),
             'recent_content': recent_queryset.count(),
+            'total_views': int(queryset.aggregate(total=Sum('views_count'))['total'] or 0),
             
             # By hub type
             'by_hub_type': {},
@@ -1621,8 +1622,55 @@ class AdminQuestionManagementViewSet(viewsets.ModelViewSet):
         unanswered = self.request.query_params.get('unanswered')
         if unanswered and unanswered.lower() == 'true':
             queryset = queryset.filter(status='open', answer_text='')
+
+        # Search question text / asker / material
+        search = self.request.query_params.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(question_text__icontains=search)
+                | Q(asker__email__icontains=search)
+                | Q(asker__first_name__icontains=search)
+                | Q(asker__last_name__icontains=search)
+                | Q(material__title__icontains=search)
+            )
         
         return queryset.select_related('asker', 'answered_by', 'material')
+
+    def create(self, request, *args, **kwargs):
+        """
+        Admin can seed/create a question on behalf of a user.
+        Body: { asker_id, question_text, material? }
+        """
+        asker_id = request.data.get('asker_id') or request.data.get('asker')
+        question_text = (request.data.get('question_text') or '').strip()
+
+        if not asker_id:
+            return Response({'error': 'asker_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        if not question_text:
+            return Response({'error': 'question_text is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        from authentication.models import PolaUser
+        try:
+            asker = PolaUser.objects.get(id=asker_id)
+        except PolaUser.DoesNotExist:
+            return Response({'error': 'Asker user not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        material = None
+        material_id = request.data.get('material')
+        if material_id:
+            try:
+                material = LearningMaterial.objects.get(id=material_id)
+            except LearningMaterial.DoesNotExist:
+                return Response({'error': 'Material not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        question = MaterialQuestion.objects.create(
+            asker=asker,
+            question_text=question_text,
+            material=material,
+            status='open',
+        )
+        serializer = self.get_serializer(question)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     @swagger_auto_schema(
         operation_description="Answer a legal question (Admin only)",

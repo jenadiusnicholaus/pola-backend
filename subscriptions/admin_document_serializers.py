@@ -41,6 +41,7 @@ class LearningMaterialAdminSerializer(serializers.ModelSerializer):
     hub_type_display = serializers.CharField(source='get_hub_type_display', read_only=True)
     language_display = serializers.CharField(source='get_language_display', read_only=True)
     content_type_display = serializers.CharField(source='get_content_type_display', read_only=True)
+    category_display = serializers.CharField(source='get_content_type_display', read_only=True)
     file_size_mb = serializers.SerializerMethodField()
     file_url = serializers.SerializerMethodField()  # Add absolute URL field
     
@@ -58,14 +59,16 @@ class LearningMaterialAdminSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'description', 'uploader', 'uploader_type', 'uploader_type_display',
             'subtopic', 'hub_type', 'hub_type_display', 'language', 'language_display',
-            'content_type', 'content_type_display', 'file', 'file_url', 'file_size', 'file_size_mb',
+            'content_type', 'content_type_display', 'category_display',
+            'file', 'file_url', 'file_size', 'file_size_mb',
             'content', 'is_downloadable', 'price',
             'downloads_count', 'views_count', 'is_lecture_material', 'is_verified_quality',
-            'is_active', 'is_pinned', 'created_at', 'updated_at'
+            'is_active', 'is_approved', 'is_pinned', 'created_at', 'updated_at'
         ]
         extra_kwargs = {
             'content': {'required': False},
             'file_size': {'read_only': True},
+            'is_approved': {'required': False},
         }
         ref_name = 'AdminLearningMaterial'
     
@@ -137,8 +140,8 @@ class LearningMaterialAdminSerializer(serializers.ModelSerializer):
 
 
 class ApproveMaterialSerializer(serializers.Serializer):
-    """Serializer for material approval"""
-    is_approved = serializers.BooleanField(required=True)
+    """Serializer for material approval / rejection via approve action"""
+    is_approved = serializers.BooleanField(required=False, default=True)
     admin_note = serializers.CharField(required=False, allow_blank=True)
 
 

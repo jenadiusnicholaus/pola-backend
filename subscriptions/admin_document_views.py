@@ -79,36 +79,53 @@ class LearningMaterialViewSet(viewsets.ModelViewSet):
         """Filter queryset based on query params"""
         queryset = super().get_queryset()
         
-        # Filter by approval status
+        # Filter by approval status (bool or UI status labels)
         is_approved = self.request.query_params.get('is_approved')
         if is_approved is not None:
             queryset = queryset.filter(is_approved=is_approved.lower() == 'true')
+
+        status_filter = self.request.query_params.get('status')
+        if status_filter:
+            status_filter = status_filter.lower()
+            if status_filter == 'approved':
+                queryset = queryset.filter(is_approved=True)
+            elif status_filter in ('rejected', 'pending'):
+                # Model has no null pending — both map to not approved
+                queryset = queryset.filter(is_approved=False)
         
         # Filter by active status
         is_active = self.request.query_params.get('is_active')
         if is_active is not None:
             queryset = queryset.filter(is_active=is_active.lower() == 'true')
         
-        # Filter by material type
-        material_type = self.request.query_params.get('material_type')
+        # Filter by material type / content type / category (UI uses category)
+        material_type = (
+            self.request.query_params.get('material_type')
+            or self.request.query_params.get('content_type')
+            or self.request.query_params.get('category')
+        )
         if material_type:
-            queryset = queryset.filter(material_type=material_type)
+            queryset = queryset.filter(content_type=material_type)
         
         # Filter by uploader
         uploader_id = self.request.query_params.get('uploader_id')
         if uploader_id:
             queryset = queryset.filter(uploader_id=uploader_id)
+
+        email = self.request.query_params.get('email')
+        if email:
+            queryset = queryset.filter(uploader__email__icontains=email.strip())
         
         return queryset.order_by('-created_at')
     
     @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):
-        """Approve or reject a material"""
+        """Approve a material (default) or set is_approved from body"""
         material = self.get_object()
         serializer = ApproveMaterialSerializer(data=request.data)
         
         if serializer.is_valid():
-            is_approved = serializer.validated_data['is_approved']
+            is_approved = serializer.validated_data.get('is_approved', True)
             admin_note = serializer.validated_data.get('admin_note', '')
             
             material.is_approved = is_approved
@@ -118,12 +135,26 @@ class LearningMaterialViewSet(viewsets.ModelViewSet):
                 'success': True,
                 'message': f"Material {'approved' if is_approved else 'rejected'}",
                 'admin_note': admin_note,
-                'material': LearningMaterialAdminSerializer(material).data
+                'material': LearningMaterialAdminSerializer(material, context={'request': request}).data
             })
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     @action(detail=True, methods=['post'])
+    def reject(self, request, pk=None):
+        """Reject a material (sets is_approved=False)"""
+        material = self.get_object()
+        admin_note = request.data.get('admin_note', '') or request.data.get('reason', '')
+        material.is_approved = False
+        material.save()
+        return Response({
+            'success': True,
+            'message': 'Material rejected',
+            'admin_note': admin_note,
+            'material': LearningMaterialAdminSerializer(material, context={'request': request}).data
+        })
+    
+    @action(detail=True, methods=['post'], url_path='update-price')
     def update_price(self, request, pk=None):
         """Update material price"""
         material = self.get_object()
@@ -141,7 +172,7 @@ class LearningMaterialViewSet(viewsets.ModelViewSet):
                 'success': True,
                 'message': f"Price updated from {old_price} to {new_price}",
                 'reason': reason,
-                'material': LearningMaterialAdminSerializer(material).data
+                'material': LearningMaterialAdminSerializer(material, context={'request': request}).data
             })
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
