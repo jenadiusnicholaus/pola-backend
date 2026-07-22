@@ -195,6 +195,14 @@ class AdminConsultantRegistrationViewSet(viewsets.ModelViewSet):
         total_consultants = ConsultantProfile.objects.count()
         
         return Response({
+            'total_requests': total,
+            'by_status': {
+                'pending': status_counts['pending'],
+                'approved': status_counts['approved'],
+                'rejected': status_counts['rejected'],
+            },
+            'approval_rate': f"{(status_counts['approved'] / total * 100):.1f}%" if total else '0%',
+            'rejection_rate': f"{(status_counts['rejected'] / total * 100):.1f}%" if total else '0%',
             'requests': {
                 'total': total,
                 'pending': status_counts['pending'],
@@ -209,6 +217,54 @@ class AdminConsultantRegistrationViewSet(viewsets.ModelViewSet):
                 'unavailable': total_consultants - active_consultants
             }
         })
+    
+    def create(self, request, *args, **kwargs):
+        """
+        Admin can create a pending registration request for a user.
+        Body: { user_id, consultant_type?, offers_mobile_consultations?, offers_physical_consultations?, preferred_consultation_city? }
+        """
+        user_id = request.data.get('user_id')
+        if not user_id:
+            return Response({'error': 'user_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = PolaUser.objects.get(id=user_id)
+        except PolaUser.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        if hasattr(user, 'consultant_profile'):
+            return Response(
+                {'error': 'User already has an active consultant profile'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        
+        if ConsultantRegistrationRequest.objects.filter(user=user, status='pending').exists():
+            return Response(
+                {'error': 'User already has a pending consultant registration request'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        
+        consultant_type = request.data.get('consultant_type', 'advocate')
+        valid_types = [c[0] for c in ConsultantRegistrationRequest.CONSULTANT_TYPES]
+        if consultant_type not in valid_types:
+            return Response(
+                {'error': f'Invalid consultant_type. Choose from: {", ".join(valid_types)}'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        
+        registration = ConsultantRegistrationRequest.objects.create(
+            user=user,
+            consultant_type=consultant_type,
+            offers_mobile_consultations=bool(request.data.get('offers_mobile_consultations', True)),
+            offers_physical_consultations=bool(request.data.get('offers_physical_consultations', False)),
+            preferred_consultation_city=request.data.get('preferred_consultation_city', '') or '',
+            status='pending',
+        )
+        
+        return Response(
+            ConsultantRegistrationRequestSerializer(registration, context={'request': request}).data,
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class AdminConsultantProfileViewSet(viewsets.ModelViewSet):

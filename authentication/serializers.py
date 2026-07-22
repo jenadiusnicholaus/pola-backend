@@ -476,16 +476,20 @@ class UserDetailSerializer(serializers.ModelSerializer):
         role_name = instance.user_role.role_name
         
         # Define fields for each role
+        # Always expose admin flags so the admin UI can show Make/Remove staff correctly
+        admin_flags = ['is_staff', 'is_superuser']
         role_fields = {
             'citizen': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
                 'user_role', 'gender', 'profile_picture', 'profile_picture_url', 'is_active', 'is_verified',
+                *admin_flags,
                 'contact', 'address', 'verification_status', 'permissions', 'subscription', 'id_number', 'occupation',
                 'date_joined', 'last_login'
             ],
             'advocate': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
                 'user_role', 'gender', 'profile_picture', 'profile_picture_url', 'is_active', 'is_verified',
+                *admin_flags,
                 'contact', 'address', 'verification_status', 'permissions', 'subscription',
                 'roll_number', 'practice_status', 'year_established', 'regional_chapter',
                 'operating_regions', 'specializations', 'associated_law_firm',
@@ -494,6 +498,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'lawyer': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
                 'user_role', 'gender', 'profile_picture', 'profile_picture_url', 'is_active', 'is_verified',
+                *admin_flags,
                 'contact', 'address', 'verification_status', 'permissions', 'subscription',
                 'bar_membership_number', 'years_of_experience', 'place_of_work',
                 'operating_regions', 'operating_districts', 'specializations',
@@ -502,6 +507,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'paralegal': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
                 'user_role', 'gender', 'profile_picture', 'profile_picture_url', 'is_active', 'is_verified',
+                *admin_flags,
                 'contact', 'address', 'verification_status', 'permissions', 'subscription',
                 'years_of_experience', 'place_of_work', 'operating_regions',
                 'operating_districts', 'associated_law_firm',
@@ -509,6 +515,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             ],
             'law_firm': [
                 'id', 'email', 'user_role', 'profile_picture', 'profile_picture_url', 'is_active', 'is_verified',
+                *admin_flags,
                 'contact', 'address', 'verification_status', 'permissions', 'subscription',
                 'firm_name', 'managing_partner', 'number_of_lawyers', 'year_established',
                 'specializations', 'date_joined', 'last_login'
@@ -516,6 +523,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'law_student': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
                 'user_role', 'gender', 'profile_picture', 'profile_picture_url', 'is_active', 'is_verified',
+                *admin_flags,
                 'contact', 'verification_status', 'permissions', 'subscription',
                 'university_name', 'academic_role', 'year_of_study', 'academic_qualification',
                 'date_joined', 'last_login'
@@ -532,8 +540,9 @@ class UserDetailSerializer(serializers.ModelSerializer):
         cleaned_data = {}
         for key, value in filtered_data.items():
             # Keep these fields even if null/empty
-            if key in ['id', 'email', 'user_role', 'is_active', 'is_verified', 
-                      'verification_status', 'permissions', 'profile_picture', 'profile_picture_url', 
+            if key in ['id', 'email', 'user_role', 'is_active', 'is_verified',
+                      'is_staff', 'is_superuser',
+                      'verification_status', 'permissions', 'profile_picture', 'profile_picture_url',
                       'date_joined', 'last_login']:
                 cleaned_data[key] = value
             # Remove null values

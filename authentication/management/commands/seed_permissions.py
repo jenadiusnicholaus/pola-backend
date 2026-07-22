@@ -1,4 +1,4 @@
-"""
+﻿"""
 Management command to seed role-based permissions using Django's model permissions
 Run: python manage.py seed_permissions
 
@@ -20,7 +20,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         self.stdout.write("=" * 70)
-        self.stdout.write(self.style.SUCCESS("  🔐 Seeding Role-Based Permissions (Model-Based)"))
+        self.stdout.write(self.style.SUCCESS("  Seeding Role-Based Permissions (Model-Based)"))
         self.stdout.write("=" * 70)
         
         # Django automatically creates these permissions for each model:
@@ -29,7 +29,7 @@ class Command(BaseCommand):
         # - delete_<modelname>
         # - view_<modelname>
         
-        self.stdout.write("\n📋 Available Model Permissions:")
+        self.stdout.write("\nAvailable Model Permissions:")
         self.stdout.write("-" * 70)
         
         models = [PolaUser, Document, Verification, Contact, Address]
@@ -38,7 +38,7 @@ class Command(BaseCommand):
             perms = Permission.objects.filter(content_type=content_type)
             self.stdout.write(f"\n{model.__name__}:")
             for perm in perms:
-                self.stdout.write(f"  • {perm.codename} - {perm.name}")
+                self.stdout.write(f"  - {perm.codename} - {perm.name}")
         
         # Define additional custom permissions if needed (beyond model permissions)
         custom_permissions_data = [
@@ -58,7 +58,7 @@ class Command(BaseCommand):
         created_count = 0
         
         self.stdout.write("\n\n" + "=" * 70)
-        self.stdout.write(self.style.SUCCESS("  🔧 Creating Custom Permissions"))
+        self.stdout.write(self.style.SUCCESS("  Creating Custom Permissions"))
         self.stdout.write("=" * 70)
         
         for perm_data in custom_permissions_data:
@@ -70,10 +70,10 @@ class Command(BaseCommand):
             )
             if created:
                 created_count += 1
-                self.stdout.write(f"  ✅ Created custom: {perm_data['name']}")
+                self.stdout.write(f"  [OK] Created custom: {perm_data['name']}")
         
         self.stdout.write("\n" + "=" * 70)
-        self.stdout.write(self.style.SUCCESS("  📊 Assigning Permissions to Roles"))
+        self.stdout.write(self.style.SUCCESS("  Assigning Permissions to Roles"))
         self.stdout.write("=" * 70)
         
         # Define role-permission mappings using model permissions
@@ -191,20 +191,20 @@ class Command(BaseCommand):
                 for codename in perm_codenames:
                     result = role.assign_permission(codename)
                     if result:
-                        self.stdout.write(f"  ✅ {role_name}: {codename}")
+                        self.stdout.write(f"  [OK] {role_name}: {codename}")
                     else:
                         self.stdout.write(
-                            self.style.WARNING(f"  ⚠️  {role_name}: {codename} (permission not found)")
+                            self.style.WARNING(f"  [WARN] {role_name}: {codename} (permission not found)")
                         )
                         
             except UserRole.DoesNotExist:
                 self.stdout.write(
-                    self.style.ERROR(f"  ❌ Role '{role_name}' does not exist. Run seed_user_roles first.")
+                    self.style.ERROR(f"  [ERROR] Role '{role_name}' does not exist. Run seed_user_roles first.")
                 )
         
         # Assign permissions to staff (admin) users
         self.stdout.write("\n" + "=" * 70)
-        self.stdout.write(self.style.SUCCESS("  👤 Assigning Admin Permissions (is_staff=True)"))
+        self.stdout.write(self.style.SUCCESS("  Assigning Admin Permissions (is_staff=True)"))
         self.stdout.write("=" * 70)
         
         admin_permissions = [
@@ -249,26 +249,26 @@ class Command(BaseCommand):
                             admin_user.user_permissions.add(permission)
                     except Exception as e:
                         self.stdout.write(
-                            self.style.WARNING(f"  ⚠️  Could not assign {codename}: {str(e)}")
+                            self.style.WARNING(f"  [WARN] Could not assign {codename}: {str(e)}")
                         )
                 
-                self.stdout.write(f"  ✅ Assigned {len(admin_permissions)} permissions to admin: {admin_user.email}")
+                self.stdout.write(f"  [OK] Assigned {len(admin_permissions)} permissions to admin: {admin_user.email}")
         else:
-            self.stdout.write(self.style.WARNING("  ℹ️  No staff users found (is_staff=True, is_superuser=False)"))
+            self.stdout.write(self.style.WARNING("  [INFO] No staff users found (is_staff=True, is_superuser=False)"))
         
         # Note about superusers
         self.stdout.write("\n" + "=" * 70)
-        self.stdout.write(self.style.SUCCESS("  🔑 Superuser Permissions"))
+        self.stdout.write(self.style.SUCCESS("  Superuser Permissions"))
         self.stdout.write("=" * 70)
         superuser_count = PolaUser.objects.filter(is_superuser=True).count()
-        self.stdout.write(f"  ℹ️  Superusers ({superuser_count}) automatically have ALL permissions")
-        self.stdout.write("  ℹ️  No explicit permission assignment needed for is_superuser=True")
+        self.stdout.write(f"  [INFO] Superusers ({superuser_count}) automatically have ALL permissions")
+        self.stdout.write("  [INFO] No explicit permission assignment needed for is_superuser=True")
         
         self.stdout.write("\n" + "=" * 70)
-        self.stdout.write(self.style.SUCCESS("  ✅ Permission Seeding Complete!"))
+        self.stdout.write(self.style.SUCCESS("  [OK] Permission Seeding Complete!"))
         self.stdout.write("=" * 70)
-        self.stdout.write(f"  🎯 Custom permissions created: {created_count}")
-        self.stdout.write(f"  📊 Permissions assigned to {len(role_permissions)} roles")
-        self.stdout.write(f"  👤 Admin users (staff) with permissions: {staff_count}")
-        self.stdout.write(f"  🔑 Superusers (auto all permissions): {superuser_count}")
+        self.stdout.write(f"  Custom permissions created: {created_count}")
+        self.stdout.write(f"  Permissions assigned to {len(role_permissions)} roles")
+        self.stdout.write(f"  Admin users (staff) with permissions: {staff_count}")
+        self.stdout.write(f"  Superusers (auto all permissions): {superuser_count}")
         self.stdout.write("=" * 70)

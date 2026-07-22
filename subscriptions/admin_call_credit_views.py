@@ -86,20 +86,33 @@ class CallCreditBundleViewSet(viewsets.ModelViewSet):
         })
 
 
-class UserCallCreditViewSet(viewsets.ReadOnlyModelViewSet):
+class UserCallCreditViewSet(viewsets.ModelViewSet):
     """
     Admin API for managing user call credits
     
     Endpoints:
     - GET    /admin/call-credits/users/          - List all user credits
     - GET    /admin/call-credits/users/{id}/     - Get credit details
+    - DELETE /admin/call-credits/users/{id}/     - Delete a credit assignment
     - POST   /admin/call-credits/users/grant/    - Grant free credits
+    - PATCH  /admin/call-credits/users/{id}/extend/ - Extend expiry
     - GET    /admin/call-credits/stats/          - Statistics
     - GET    /admin/call-credits/usage/          - Usage reports
     """
     queryset = UserCallCredit.objects.all()
     serializer_class = UserCallCreditAdminSerializer
     permission_classes = [IsAdminUser]
+    http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
+    
+    def destroy(self, request, *args, **kwargs):
+        credit = self.get_object()
+        credit_id = credit.id
+        user_email = credit.user.email
+        credit.delete()
+        return Response({
+            'success': True,
+            'message': f'Call credit #{credit_id} for {user_email} deleted',
+        }, status=status.HTTP_200_OK)
     
     def get_queryset(self):
         """Filter queryset based on query params"""
@@ -119,6 +132,11 @@ class UserCallCreditViewSet(viewsets.ReadOnlyModelViewSet):
         user_id = self.request.query_params.get('user_id')
         if user_id:
             queryset = queryset.filter(user_id=user_id)
+
+        # Filter by email (partial match)
+        email = self.request.query_params.get('email')
+        if email:
+            queryset = queryset.filter(user__email__icontains=email.strip())
         
         # Filter active credits
         active_only = self.request.query_params.get('active_only')
@@ -130,6 +148,34 @@ class UserCallCreditViewSet(viewsets.ReadOnlyModelViewSet):
             )
         
         return queryset.order_by('-purchase_date')
+
+    @action(detail=True, methods=['patch', 'post'])
+    def extend(self, request, pk=None):
+        """Extend a user credit expiry by N days."""
+        credit = self.get_object()
+        try:
+            days = int(request.data.get('days', 0))
+        except (TypeError, ValueError):
+            days = 0
+        reason = request.data.get('reason', '')
+
+        if days < 1:
+            return Response(
+                {'error': 'days must be a positive integer'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        credit.expiry_date = credit.expiry_date + timedelta(days=days)
+        if credit.status == 'expired' and credit.expiry_date > timezone.now() and credit.remaining_minutes > 0:
+            credit.status = 'active'
+        credit.save()
+
+        return Response({
+            'success': True,
+            'message': f'Credit extended by {days} days',
+            'reason': reason,
+            'credit': UserCallCreditAdminSerializer(credit).data,
+        })
     
     @action(detail=False, methods=['post'])
     def grant(self, request):

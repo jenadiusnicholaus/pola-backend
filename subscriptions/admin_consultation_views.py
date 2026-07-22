@@ -86,6 +86,25 @@ class ConsultantProfileViewSet(viewsets.ModelViewSet):
         specialization = self.request.query_params.get('specialization')
         if specialization:
             queryset = queryset.filter(specialization__icontains=specialization)
+
+        # Filter by consultant type
+        consultant_type = self.request.query_params.get('consultant_type')
+        if consultant_type:
+            queryset = queryset.filter(consultant_type=consultant_type)
+
+        # Filter by city
+        city = self.request.query_params.get('city')
+        if city:
+            queryset = queryset.filter(city__icontains=city)
+
+        # Search by email / name
+        search = self.request.query_params.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(user__email__icontains=search)
+                | Q(user__first_name__icontains=search)
+                | Q(user__last_name__icontains=search)
+            )
         
         return queryset.order_by('-created_at')
     

@@ -495,7 +495,7 @@ class SubtopicAdminViewSet(viewsets.ModelViewSet):
     - GET    /admin/hubs/subtopics/{id}/           - Get subtopic details
     - PUT    /admin/hubs/subtopics/{id}/           - Update subtopic
     - PATCH  /admin/hubs/subtopics/{id}/           - Partial update subtopic
-    - DELETE /admin/hubs/subtopics/{id}/           - Delete subtopic
+    - DELETE /admin/hubs/subtopics/{id}/           - Soft-delete subtopic (deactivates linked materials)
     - POST   /admin/hubs/subtopics/{id}/toggle/    - Toggle active status
     - POST   /admin/hubs/subtopics/reorder/        - Reorder subtopics
     - POST   /admin/hubs/subtopics/bulk-toggle/    - Bulk toggle active
@@ -560,16 +560,36 @@ class SubtopicAdminViewSet(viewsets.ModelViewSet):
         return queryset.select_related('topic').order_by(
             'topic__display_order', 'display_order', 'name'
         )
-    
-    def perform_destroy(self, instance):
-        """Check if subtopic can be deleted"""
-        materials_count = LearningMaterial.objects.filter(subtopic=instance).count()
-        if materials_count > 0:
-            raise serializers.ValidationError(
-                f"Cannot delete subtopic with {materials_count} materials. "
-                "Delete or reassign materials first."
+
+    def _deactivate_subtopic_with_materials(self, subtopic):
+        """Soft-delete subtopic and cascade deactivation to linked materials."""
+        materials_qs = LearningMaterial.objects.filter(subtopic=subtopic)
+        with transaction.atomic():
+            subtopic.is_active = False
+            subtopic.save(update_fields=['is_active', 'last_updated'])
+            affected_materials = materials_qs.update(is_active=False)
+        return affected_materials
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        Hard-delete subtopic so topics can be removed afterward.
+        Linked materials cascade-delete via FK (on_delete=CASCADE).
+        """
+        subtopic = self.get_object()
+        subtopic_id = subtopic.id
+        affected_materials = LearningMaterial.objects.filter(subtopic=subtopic).count()
+        subtopic.delete()
+        message = "Subtopic deleted."
+        if affected_materials:
+            message = (
+                f"Subtopic deleted. {affected_materials} linked materials also removed."
             )
-        instance.delete()
+        return Response({
+            'success': True,
+            'message': message,
+            'subtopic_id': subtopic_id,
+            'affected_materials': affected_materials,
+        }, status=status.HTTP_200_OK)
     
     @swagger_auto_schema(
         operation_description="Toggle subtopic active status",
@@ -589,14 +609,25 @@ class SubtopicAdminViewSet(viewsets.ModelViewSet):
         
         if is_active is None:
             is_active = not subtopic.is_active
-        
-        subtopic.is_active = is_active
-        subtopic.save()
+
+        affected_materials = 0
+        if is_active:
+            subtopic.is_active = True
+            subtopic.save(update_fields=['is_active', 'last_updated'])
+            message = "Subtopic activated."
+        else:
+            affected_materials = self._deactivate_subtopic_with_materials(subtopic)
+            message = "Subtopic deactivated."
+            if affected_materials:
+                message = (
+                    f"Subtopic deactivated. {affected_materials} materials also deactivated."
+                )
         
         serializer = SubtopicAdminDetailSerializer(subtopic)
         return Response({
             'success': True,
-            'message': f"Subtopic {'activated' if is_active else 'deactivated'}",
+            'message': message,
+            'affected_materials': affected_materials,
             'subtopic': serializer.data
         })
     
@@ -659,13 +690,22 @@ class SubtopicAdminViewSet(viewsets.ModelViewSet):
         
         ids = serializer.validated_data['ids']
         is_active = serializer.validated_data['is_active']
-        
-        updated_count = LegalEdSubTopic.objects.filter(id__in=ids).update(is_active=is_active)
+
+        affected_materials = 0
+        if is_active:
+            updated_count = LegalEdSubTopic.objects.filter(id__in=ids).update(is_active=True)
+        else:
+            with transaction.atomic():
+                updated_count = LegalEdSubTopic.objects.filter(id__in=ids).update(is_active=False)
+                affected_materials = LearningMaterial.objects.filter(
+                    subtopic_id__in=ids
+                ).update(is_active=False)
         
         return Response({
             'success': True,
             'message': f"Updated {updated_count} subtopics",
             'updated_count': updated_count,
+            'affected_materials': affected_materials,
             'is_active': is_active
         })
     
