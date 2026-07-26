@@ -105,13 +105,18 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                 if existing_device:
                     logger.info(f"🔍 Found device by FCM token (ID: {existing_device.id})")
             
-            # 2. Fallback to device_id
+            # 2. Fallback to device_id (check globally since device_id is unique)
             if not existing_device:
                 existing_device = UserDevice.objects.filter(
-                    user=request.user,
                     device_id=device_id
                 ).first()
                 if existing_device:
+                    if existing_device.user != request.user:
+                        logger.warning(f"⚠️  Device {device_id} belongs to user {existing_device.user.id}, not {request.user.id}")
+                        return Response({
+                            'error': 'This device is already registered to another account',
+                            'message': 'Please use a different device or contact support'
+                        }, status=status.HTTP_400_BAD_REQUEST)
                     logger.info(f"🔍 Found device by device_id (ID: {existing_device.id})")
             
             # 3. Fingerprint match as last resort (prevent duplicates from same physical device)
@@ -421,13 +426,17 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
             if key not in device_data or not device_data.get(key):
                 device_data[key] = value
         
-        # Check if device already exists
+        # Check if device already exists (globally, since device_id is unique)
         existing_device = UserDevice.objects.filter(
-            user=request.user,
             device_id=device_id
         ).first()
         
         if existing_device:
+            if existing_device.user != request.user:
+                return Response({
+                    'error': 'This device is already registered to another account',
+                    'message': 'Please use a different device or contact support'
+                }, status=status.HTTP_400_BAD_REQUEST)
             return Response({
                 'error': 'Device already registered',
                 'device_id': device_id

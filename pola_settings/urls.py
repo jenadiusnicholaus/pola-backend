@@ -21,6 +21,7 @@ from django.http import JsonResponse
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from subscriptions.webhook_views import azampay_webhook
 
 
 # Health check endpoint for Docker/Kubernetes
@@ -149,6 +150,9 @@ For API support and inquiries, contact: **support@pola.co.tz**
 urlpatterns = [
     # Health check endpoint (for Docker/Kubernetes)
     path('api/health/', health_check, name='health-check'),
+    
+    # Webhook endpoints (for external payment providers)
+    path('webhooks/azampay/', azampay_webhook, name='azampay-webhook'),
     
     # Admin
     path('admin/', admin.site.urls),

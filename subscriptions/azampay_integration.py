@@ -224,6 +224,9 @@ class AzamPayAuth:
         self.client_secret = getattr(settings, 'AZAM_PAY_CLIENT_SECRET', '')
         self.app_name = getattr(settings, 'AZAM_PAY_APP_NAME', '')
         self.auth_url = getattr(settings, 'AZAM_PAY_AUTH', 'https://authenticator-sandbox.azampay.co.tz')
+        # Strip path if already included in the URL
+        if '/AppRegistration' in self.auth_url:
+            self.auth_url = self.auth_url.split('/AppRegistration')[0]
         self.is_production = getattr(settings, 'AZAM_PAY_PRODUCTION', False)
         
         # Don't raise error on initialization, just log warning
@@ -345,6 +348,9 @@ class AzamPayCheckout:
     
     def __init__(self):
         self.checkout_url = getattr(settings, 'AZAM_PAY_CHECKOUT_URL', 'https://sandbox.azampay.co.tz')
+        # Strip path if already included in the URL
+        if '/azampay' in self.checkout_url:
+            self.checkout_url = self.checkout_url.split('/azampay')[0]
         self.auth_service = AzamPayAuth()
         
         # Check if we're in development mode with placeholder credentials
@@ -352,33 +358,18 @@ class AzamPayCheckout:
         if self.is_mock_mode:
             logger.warning("AzamPay running in MOCK MODE - using simulated responses for development")
         
-        # Provider mappings for different payment methods (exact enum values from AzamPay API)
-        # Accept both exact AzamPay names AND our internal names for flexibility
+        # AzamPay exact enum values only
         self.mobile_providers = {
-            # AzamPay exact enum values (frontend should send these)
             'Mpesa': 'Mpesa',
             'Airtel': 'Airtel',
             'Tigo': 'Tigo',
             'Halopesa': 'Halopesa',
             'Azampesa': 'Azampesa',
-            # Legacy/internal names (for backward compatibility)
-            'mpesa': 'Mpesa',
-            'airtel_money': 'Airtel',
-            'airtel': 'Airtel',
-            'tigo_pesa': 'Tigo',
-            'tigo': 'Tigo',
-            'tigopesa': 'Tigo',
-            'halopesa': 'Halopesa',
-            'azampesa': 'Azampesa'
         }
         
         self.bank_providers = {
-            # AzamPay exact enum values (frontend should send these)
             'CRDB': 'CRDB',
             'NMB': 'NMB',
-            # Legacy/internal names (for backward compatibility)
-            'crdb': 'CRDB',
-            'nmb': 'NMB'
         }
     
     def _is_mock_mode(self) -> bool:
@@ -414,18 +405,13 @@ class AzamPayCheckout:
             logger.info(f"AzamPay running in MOCK MODE - returning simulated response")
             return self._mock_mobile_checkout(account_number, amount, external_id, provider)
         
-        # Validate and normalize provider (accept exact AzamPay names OR internal names)
-        # Try exact match first (case-sensitive), then try lowercase
-        if provider in self.mobile_providers:
-            azam_provider = self.mobile_providers[provider]
-        else:
-            provider_key = provider.lower().replace('-', '_')
-            if provider_key not in self.mobile_providers:
-                raise AzamPayError(
-                    f"Unsupported mobile provider: {provider}. "
-                    f"Use: Mpesa, Airtel, Tigo, Halopesa, or Azampesa"
-                )
-            azam_provider = self.mobile_providers[provider_key]
+        # Validate provider (AzamPay exact enum values only)
+        if provider not in self.mobile_providers:
+            raise AzamPayError(
+                f"Unsupported mobile provider: {provider}. "
+                f"Use: {', '.join(self.mobile_providers.keys())}"
+            )
+        azam_provider = self.mobile_providers[provider]
         
         # Normalize phone number
         normalized_phone = self._normalize_phone_number(account_number)
@@ -456,11 +442,9 @@ class AzamPayCheckout:
         import time
         import random
         
-        # Validate basic inputs (accept exact AzamPay names OR internal names)
+        # Validate provider (AzamPay exact enum values only)
         if provider not in self.mobile_providers:
-            provider_key = provider.lower().replace('-', '_')
-            if provider_key not in self.mobile_providers:
-                raise AzamPayError(f"Unsupported mobile provider: {provider}")
+            raise AzamPayError(f"Unsupported mobile provider: {provider}")
         
         normalized_phone = self._normalize_phone_number(account_number)
         
@@ -491,14 +475,10 @@ class AzamPayCheckout:
                      merchant_account_number: str, merchant_mobile_number: str, 
                      otp: str, provider: str) -> Dict[str, Any]:
         """Initialize bank checkout with OTP support"""
-        # Validate provider (accept exact AzamPay names OR internal names)
-        if provider in self.bank_providers:
-            azam_provider = self.bank_providers[provider]
-        else:
-            provider_key = provider.lower()
-            if provider_key not in self.bank_providers:
-                raise AzamPayError(f"Unsupported bank provider: {provider}. Use: CRDB or NMB")
-            azam_provider = self.bank_providers[provider_key]
+        # Validate provider (AzamPay exact enum values only)
+        if provider not in self.bank_providers:
+            raise AzamPayError(f"Unsupported bank provider: {provider}. Use: {', '.join(self.bank_providers.keys())}")
+        azam_provider = self.bank_providers[provider]
         
         token = self.auth_service.get_token()
         url = f"{self.checkout_url}/azampay/bank/checkout"
@@ -750,6 +730,9 @@ class AzamPayDisbursement:
     
     def __init__(self):
         self.checkout_url = getattr(settings, 'AZAM_PAY_CHECKOUT_URL', 'https://sandbox.azampay.co.tz')
+        # Strip path if already included in the URL
+        if '/azampay' in self.checkout_url:
+            self.checkout_url = self.checkout_url.split('/azampay')[0]
         self.auth_service = AzamPayAuth()
         self.is_mock_mode = AzamPayCheckout()._is_mock_mode()
     

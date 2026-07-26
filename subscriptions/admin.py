@@ -367,8 +367,17 @@ class UserCallCreditAdmin(admin.ModelAdmin):
     ]
     list_filter = ['status', 'bundle']
     search_fields = ['user__email']
-    readonly_fields = ['purchase_date', 'total_minutes']
+    readonly_fields = ['purchase_date']
     date_hierarchy = 'purchase_date'
+
+    def save_model(self, request, obj, form, change):
+        # Automatically set total_minutes from bundle if not already set
+        if not change and not obj.total_minutes and obj.bundle:
+            obj.total_minutes = obj.bundle.minutes
+            # Also set remaining_minutes to total_minutes for new credits
+            if not obj.remaining_minutes:
+                obj.remaining_minutes = obj.bundle.minutes
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(ConsultationBooking)
@@ -507,13 +516,26 @@ class MaterialPurchaseAdmin(admin.ModelAdmin):
 @admin.register(PaymentTransaction)
 class PaymentTransactionAdmin(admin.ModelAdmin):
     list_display = [
-        'user', 'transaction_type', 'amount', 'payment_method',
+        'user', 'transaction_type', 'amount', 'payment_method_display',
         'status', 'payment_reference', 'created_at'
     ]
     list_filter = ['transaction_type', 'status', 'payment_method']
     search_fields = ['payment_reference', 'gateway_reference', 'user__email']
     readonly_fields = ['created_at', 'updated_at', 'payment_reference']
     date_hierarchy = 'created_at'
+    
+    def payment_method_display(self, obj):
+        if obj.payment_method == 'mobile_money':
+            return 'AzamPay'
+        if not obj.payment_method:
+            return 'AzamPay'
+        return obj.get_payment_method_display()
+    payment_method_display.short_description = 'Payment Method'
+    
+    def save_model(self, request, obj, form, change):
+        if obj.payment_method in ('mobile_money', 'azampay', '', None):
+            obj.payment_method = 'Azampesa'
+        super().save_model(request, obj, form, change)
     
     fieldsets = (
         ('Transaction Details', {
