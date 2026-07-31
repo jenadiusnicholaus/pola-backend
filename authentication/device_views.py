@@ -219,6 +219,9 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
             logger.info(f"  - latitude: {device_data.get('latitude')}")
             logger.info(f"  - longitude: {device_data.get('longitude')}")
             
+            # Check if this is the user's first device (new device detected)
+            is_first_device = (user_device_count == 0)
+            
             try:
                 device = UserDevice.objects.create(
                     user=request.user,
@@ -238,10 +241,20 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                     longitude=device_data.get('longitude'),
                     is_active=True,
                     is_current_device=True,  # Mark as current device
+                    is_verified=False,  # New devices require verification
                 )
                 
                 logger.info(f"✅ Device created successfully (ID: {device.id})")
                 logger.info(f"🎯 Marked as current device")
+                
+                # Auto-send OTP for new device verification
+                if is_first_device:
+                    logger.info(f"📱 First device detected - sending OTP for verification")
+                    otp_result = OTPService.generate_and_send_otp(request.user, device, method='email')
+                    if otp_result.get('success'):
+                        logger.info(f"✅ OTP sent successfully to {request.user.email}")
+                    else:
+                        logger.warning(f"⚠️  Failed to send OTP: {otp_result.get('message')}")
             except IntegrityError:
                 # Race condition: device was created between check and create
                 logger.warning(f"⚠️  Race condition detected - device was just created")
@@ -271,11 +284,19 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
             serializer = UserDeviceSerializer(device, context={'request': request})
             logger.info(f"🎊 Returning success response (201 CREATED)")
             logger.info("=" * 80)
-            return Response({
+            
+            response_data = {
                 'is_registered': True,
                 'device': serializer.data,
-                'message': 'Device registered successfully'
-            }, status=status.HTTP_201_CREATED)
+                'message': 'Device registered successfully',
+                'is_verified': device.is_verified,
+            }
+            
+            if is_first_device and not device.is_verified:
+                response_data['verification_required'] = True
+                response_data['verification_message'] = 'OTP has been sent to your email for device verification'
+            
+            return Response(response_data, status=status.HTTP_201_CREATED)
             
         except Exception as e:
             # If any error occurs, don't register the device
