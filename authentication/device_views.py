@@ -220,33 +220,87 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
             logger.info(f"  - longitude: {device_data.get('longitude')}")
             
             # Check if this is the user's first device (no verification needed)
-            # If user already has devices, ask for confirmation before registering new device
+            # If user already has devices, create device (unverified) and send OTP
             is_first_device = (user_device_count == 0)
             is_device_change = (user_device_count > 0)
             
-            # If user already has devices, return confirmation request instead of auto-registering
+            # If user already has devices, create device and send OTP
             if is_device_change:
-                logger.info(f"📱 Device change detected - asking for confirmation")
+                logger.info(f"📱 Device change detected - will create device and send OTP")
                 current_device = UserDevice.objects.filter(
                     user=request.user,
                     is_current_device=True
                 ).first()
                 
-                return Response({
-                    'device_change_detected': True,
-                    'current_device': {
-                        'device_id': current_device.device_id if current_device else None,
-                        'device_name': current_device.device_name if current_device else None,
-                        'device_type': current_device.device_type if current_device else None,
-                    },
-                    'new_device': {
-                        'device_id': device_id,
-                        'device_name': device_data.get('device_name', ''),
-                        'device_type': device_data.get('device_type', 'unknown'),
-                    },
-                    'message': 'You are trying to register a new device. Please confirm if you want to change your current device.',
-                    'action_required': 'confirm_device_change'
-                }, status=status.HTTP_200_OK)
+                # Unmark current device
+                UserDevice.objects.filter(
+                    user=request.user,
+                    is_current_device=True
+                ).update(is_current_device=False)
+                
+                # Create new device (unverified)
+                try:
+                    device = UserDevice.objects.create(
+                        user=request.user,
+                        device_id=device_id,
+                        device_name=device_data.get('device_name', ''),
+                        device_type=device_data.get('device_type', 'unknown'),
+                        os_name=device_data.get('os_name', 'unknown'),
+                        os_version=device_data.get('os_version', ''),
+                        browser_name=device_data.get('browser_name', ''),
+                        browser_version=device_data.get('browser_version', ''),
+                        app_version=device_data.get('app_version', ''),
+                        device_model=device_data.get('device_model', ''),
+                        device_manufacturer=device_data.get('device_manufacturer', ''),
+                        fcm_token=device_data.get('fcm_token', ''),
+                        last_ip=ip_address,
+                        latitude=device_data.get('latitude'),
+                        longitude=device_data.get('longitude'),
+                        is_active=True,
+                        is_current_device=True,
+                        is_verified=False,  # Requires OTP verification
+                    )
+                    
+                    logger.info(f"✅ Device created (unverified) - sending OTP")
+                    
+                    # Send OTP for verification
+                    otp_result = OTPService.generate_and_send_otp(request.user, device, method='email')
+                    
+                    serializer = UserDeviceSerializer(device, context={'request': request})
+                    
+                    response_data = {
+                        'device': serializer.data,
+                        'message': 'Device registered. OTP sent to your email for verification.',
+                        'is_verified': False,
+                        'verification_required': True,
+                        'current_device': {
+                            'device_id': current_device.device_id if current_device else None,
+                            'device_name': current_device.device_name if current_device else None,
+                        }
+                    }
+                    
+                    if otp_result.get('success'):
+                        response_data['otp_sent'] = True
+                    else:
+                        response_data['otp_sent'] = False
+                        response_data['otp_error'] = otp_result.get('message')
+                    
+                    return Response(response_data, status=status.HTTP_201_CREATED)
+                    
+                except IntegrityError:
+                    # Race condition
+                    existing_device = UserDevice.objects.get(device_id=device_id)
+                    if existing_device.user != request.user:
+                        return Response({
+                            'error': 'This device is already registered to another account'
+                        }, status=status.HTTP_400_BAD_REQUEST)
+                    # Device already exists
+                    serializer = UserDeviceSerializer(existing_device, context={'request': request})
+                    return Response({
+                        'device': serializer.data,
+                        'message': 'Device already registered',
+                        'is_verified': existing_device.is_verified
+                    }, status=status.HTTP_200_OK)
             
             # First device - auto-register and auto-verify
             try:
@@ -552,85 +606,6 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                 {'error': 'Device not found'},
                 status=status.HTTP_404_NOT_FOUND
             )
-    
-    @action(detail=False, methods=['post'])
-    def confirm_device_change(self, request):
-        """Confirm device change and create device record (unverified)"""
-        serializer = RegisterDeviceSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response({
-                'error': 'Validation failed',
-                'details': serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        device_data = serializer.validated_data
-        device_id = device_data['device_id']
-        
-        # Check if device already exists
-        existing_device = UserDevice.objects.filter(
-            device_id=device_id
-        ).first()
-        
-        if existing_device:
-            if existing_device.user != request.user:
-                return Response({
-                    'error': 'This device is already registered to another account',
-                    'message': 'Please use a different device or contact support'
-                }, status=status.HTTP_400_BAD_REQUEST)
-            # Device already exists for this user
-            return Response({
-                'error': 'Device already registered',
-                'device_id': device_id
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Get IP and location
-        ip_address = get_client_ip(request)
-        user_agent = request.META.get('HTTP_USER_AGENT', '')
-        location_data = get_location_from_ip(ip_address)
-        ua_data = parse_user_agent(user_agent)
-        
-        for key, value in ua_data.items():
-            if key not in device_data or not device_data.get(key):
-                device_data[key] = value
-        
-        # Unmark current device
-        UserDevice.objects.filter(
-            user=request.user,
-            is_current_device=True
-        ).update(is_current_device=False)
-        
-        # Create new device (unverified)
-        device = UserDevice.objects.create(
-            user=request.user,
-            device_id=device_id,
-            device_name=device_data.get('device_name', ''),
-            device_type=device_data.get('device_type', 'unknown'),
-            os_name=device_data.get('os_name', 'unknown'),
-            os_version=device_data.get('os_version', ''),
-            browser_name=device_data.get('browser_name', ''),
-            browser_version=device_data.get('browser_version', ''),
-            app_version=device_data.get('app_version', ''),
-            device_model=device_data.get('device_model', ''),
-            device_manufacturer=device_data.get('device_manufacturer', ''),
-            fcm_token=device_data.get('fcm_token', ''),
-            last_ip=ip_address,
-            latitude=device_data.get('latitude'),
-            longitude=device_data.get('longitude'),
-            is_active=True,
-            is_current_device=True,
-            is_verified=False,  # Requires OTP verification
-        )
-        
-        serializer = UserDeviceSerializer(device, context={'request': request})
-        
-        return Response({
-            'device': serializer.data,
-            'message': 'Device created. Please call send_verification_otp to get OTP.',
-            'is_verified': False,
-            'verification_required': True,
-            'next_action': 'send_verification_otp',
-            'device_id': device.id
-        }, status=status.HTTP_201_CREATED)
     
     @action(detail=True, methods=['post'])
     def send_verification_otp(self, request, pk=None):
