@@ -672,19 +672,58 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        # Get method (sms or email)
-        method = request.data.get('method', 'sms')
+        # Get method (sms or email) - default to email
+        method = request.data.get('method', 'email')
         if method not in ['sms', 'email']:
             return Response(
                 {'error': 'Invalid method. Use "sms" or "email"'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Generate and send OTP
-        result = OTPService.generate_and_send_otp(request.user, device, method)
+        # Generate and send OTP (force=True to always generate new OTP)
+        result = OTPService.generate_and_send_otp(request.user, device, method, force=True)
         
         if result.get('success'):
             return Response(result, status=status.HTTP_200_OK)
+        else:
+            return Response(result, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['post'])
+    def resend_otp(self, request):
+        """Resend OTP for a device using device_id"""
+        device_id = request.data.get('device_id')
+        if not device_id:
+            return Response({
+                'error': 'device_id is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        device = UserDevice.objects.filter(
+            user=request.user,
+            device_id=device_id
+        ).first()
+        if not device:
+            return Response({
+                'error': 'Device not found for this user'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        if device.is_verified:
+            return Response({
+                'error': 'Device is already verified'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        method = request.data.get('method', 'email')
+        if method not in ['sms', 'email']:
+            method = 'email'
+        
+        # Generate new OTP and send
+        result = OTPService.generate_and_send_otp(request.user, device, method, force=True)
+        
+        if result.get('success'):
+            return Response({
+                'success': True,
+                'message': 'OTP resent successfully',
+                'device_id': device_id,
+            }, status=status.HTTP_200_OK)
         else:
             return Response(result, status=status.HTTP_400_BAD_REQUEST)
     
