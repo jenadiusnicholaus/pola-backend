@@ -204,21 +204,6 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
             user_device_count = UserDevice.objects.filter(user=request.user).count()
             logger.info(f"📊 User has {user_device_count} devices registered")
             
-            # Unmark all other devices as current for this user
-            if user_device_count > 0:
-                logger.info(f"🔄 Unmarking {user_device_count} existing device(s) as current")
-                UserDevice.objects.filter(user=request.user, is_current_device=True).update(is_current_device=False)
-            
-            # Register new device (no verification required)
-            logger.info(f"🎉 Registering new device (total devices will be {user_device_count + 1})")
-            logger.info(f"Creating device with:")
-            logger.info(f"  - device_id: {device_id}")
-            logger.info(f"  - device_name: {device_data.get('device_name', '')}")
-            logger.info(f"  - device_type: {device_data.get('device_type', 'unknown')}")
-            logger.info(f"  - os_name: {device_data.get('os_name', 'unknown')}")
-            logger.info(f"  - latitude: {device_data.get('latitude')}")
-            logger.info(f"  - longitude: {device_data.get('longitude')}")
-            
             # Check if this is the user's first device (no verification needed)
             # If user already has devices, create device (unverified) and send OTP
             is_first_device = (user_device_count == 0)
@@ -232,13 +217,8 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                     is_current_device=True
                 ).first()
                 
-                # Unmark current device
-                UserDevice.objects.filter(
-                    user=request.user,
-                    is_current_device=True
-                ).update(is_current_device=False)
-                
-                # Create new device (unverified)
+                # Create new device (unverified, NOT current yet)
+                # Old device stays as current until new one is verified
                 try:
                     device = UserDevice.objects.create(
                         user=request.user,
@@ -257,7 +237,7 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                         latitude=device_data.get('latitude'),
                         longitude=device_data.get('longitude'),
                         is_active=True,
-                        is_current_device=True,
+                        is_current_device=False,  # NOT current until verified
                         is_verified=False,  # Requires OTP verification
                     )
                     
@@ -303,6 +283,7 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                     }, status=status.HTTP_200_OK)
             
             # First device - auto-register and auto-verify
+            logger.info(f"🎉 Registering first device (auto-verified)")
             try:
                 device = UserDevice.objects.create(
                     user=request.user,
@@ -658,6 +639,16 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
         result = OTPService.validate_otp(device, otp_code)
         
         if result.get('success'):
+            # OTP verified - switch current device to this one
+            UserDevice.objects.filter(
+                user=request.user,
+                is_current_device=True
+            ).update(is_current_device=False)
+            
+            device.is_current_device = True
+            device.save(update_fields=['is_current_device'])
+            
+            result['message'] = 'Device verified and set as current device'
             return Response(result, status=status.HTTP_200_OK)
         else:
             return Response(result, status=status.HTTP_400_BAD_REQUEST)
