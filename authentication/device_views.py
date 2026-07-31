@@ -114,10 +114,21 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                 if existing_device:
                     if existing_device.user != request.user:
                         logger.warning(f"⚠️  Device {device_id} belongs to user {existing_device.user.id}, not {request.user.id}")
+                        # Device belongs to another account - send OTP to current owner for takeover
+                        otp_result = OTPService.generate_and_send_otp(
+                            existing_device.user, existing_device, method='email', force=True
+                        )
                         return Response({
-                            'error': 'This device is already registered to another account',
-                            'message': 'Please use a different device or contact support'
-                        }, status=status.HTTP_400_BAD_REQUEST)
+                            'device_takeover_required': True,
+                            'message': 'This device is registered to another account. OTP sent to the current owner for verification.',
+                            'action_required': 'verify_otp_for_takeover',
+                            'device_id': device_id,
+                            'new_user_email': request.user.email,
+                            'current_owner_email': existing_device.user.email,
+                            'device_data': device_data,
+                            'otp_sent': otp_result.get('success', False),
+                            'otp_error': otp_result.get('message') if not otp_result.get('success') else None
+                        }, status=status.HTTP_200_OK)
                     logger.info(f"🔍 Found device by device_id (ID: {existing_device.id})")
             
             # 3. Fingerprint match as last resort (prevent duplicates from same physical device)
@@ -652,6 +663,79 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
             return Response(result, status=status.HTTP_200_OK)
         else:
             return Response(result, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'])
+    def verify_otp_for_takeover(self, request):
+        """Verify OTP from current owner and transfer device to new user"""
+        otp_code = request.data.get('otp')
+        device_id = request.data.get('device_id')
+        new_user_email = request.data.get('new_user_email')
+        
+        if not otp_code:
+            return Response({
+                'error': 'OTP code is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not device_id:
+            return Response({
+                'error': 'device_id is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not new_user_email:
+            return Response({
+                'error': 'new_user_email is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Find the device
+        device = UserDevice.objects.filter(device_id=device_id).first()
+        if not device:
+            return Response({
+                'error': 'Device not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Only the current owner can verify the takeover OTP
+        if device.user != request.user:
+            return Response({
+                'error': 'You are not the current owner of this device'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        # Validate OTP (force=True for takeover - device may already be verified)
+        result = OTPService.validate_otp(device, otp_code, force=True)
+        if not result.get('success'):
+            return Response(result, status=status.HTTP_400_BAD_REQUEST)
+        
+        # OTP valid - transfer device to new user
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        
+        new_user = User.objects.filter(email=new_user_email).first()
+        if not new_user:
+            return Response({
+                'error': 'New user not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Unmark current device for new user
+        UserDevice.objects.filter(
+            user=new_user,
+            is_current_device=True
+        ).update(is_current_device=False)
+        
+        # Transfer device to new user
+        device.user = new_user
+        device.is_verified = True
+        device.is_current_device = True
+        device.verification_otp = None
+        device.otp_expires_at = None
+        device.otp_attempts = 0
+        device.save()
+        
+        serializer = UserDeviceSerializer(device, context={'request': request})
+        
+        return Response({
+            'device': serializer.data,
+            'message': 'Device transferred successfully',
+            'is_verified': True
+        }, status=status.HTTP_200_OK)
 
 
 class UserSessionViewSet(viewsets.ReadOnlyModelViewSet):

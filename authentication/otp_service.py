@@ -43,7 +43,7 @@ class OTPService:
         return EmailService.send_otp_email(email, otp, OTPService.OTP_EXPIRY_MINUTES)
     
     @classmethod
-    def generate_and_send_otp(cls, user, device, method='sms'):
+    def generate_and_send_otp(cls, user, device, method='sms', force=False):
         """
         Generate OTP and send to user via specified method
         
@@ -51,12 +51,13 @@ class OTPService:
             user: User instance
             device: UserDevice instance
             method: 'sms' or 'email'
+            force: If True, generate OTP even if device is already verified (for takeover)
         
         Returns:
             dict: {'success': bool, 'message': str, 'otp': str (for testing)}
         """
-        # Check if device is already verified
-        if device.is_verified:
+        # Check if device is already verified (skip if force=True for takeover)
+        if device.is_verified and not force:
             return {
                 'success': False,
                 'message': 'Device is already verified'
@@ -106,19 +107,20 @@ class OTPService:
             }
     
     @classmethod
-    def validate_otp(cls, device, otp_code):
+    def validate_otp(cls, device, otp_code, force=False):
         """
         Validate OTP code for device verification
         
         Args:
             device: UserDevice instance
             otp_code: OTP code to validate
+            force: If True, allow validation even if device is already verified (for takeover)
         
         Returns:
             dict: {'success': bool, 'message': str}
         """
-        # Check if device is already verified
-        if device.is_verified:
+        # Check if device is already verified (skip if force=True for takeover)
+        if device.is_verified and not force:
             return {
                 'success': False,
                 'message': 'Device is already verified'
