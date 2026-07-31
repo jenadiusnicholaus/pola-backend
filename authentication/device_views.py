@@ -115,34 +115,37 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                     if existing_device.user != request.user:
                         logger.warning(f"⚠️  Device {device_id} belongs to user {existing_device.user.id}, not {request.user.id}")
                         # Device belongs to another account - send OTP to BOTH parties
-                        # 1. Send OTP to current owner (for approval)
+                        # 1. Send OTP to current owner (stored on device record)
                         owner_otp_result = OTPService.generate_and_send_otp(
                             existing_device.user, existing_device, method='email', force=True
                         )
-                        # 2. Send OTP to new user (who wants the device)
-                        # Create a temporary unverified device entry for new user to store OTP
-                        temp_device, created = UserDevice.objects.get_or_create(
-                            user=request.user,
-                            device_id=f"pending_{device_id}",
-                            defaults={
-                                'device_name': device_data.get('device_name', ''),
-                                'device_type': device_data.get('device_type', 'unknown'),
-                                'os_name': device_data.get('os_name', 'unknown'),
-                                'is_active': False,
-                                'is_verified': False,
-                                'is_current_device': False,
-                            }
-                        )
-                        new_user_otp_result = OTPService.generate_and_send_otp(
-                            request.user, temp_device, method='email', force=True
-                        )
+                        # 2. Send OTP to new user (stored in cache, no duplicate device)
+                        new_user_otp = OTPService.generate_otp()
+                        cache_key = f"takeover_otp_{device_id}_{request.user.id}"
+                        cache.set(cache_key, {
+                            'otp': new_user_otp,
+                            'device_id': device_id,
+                            'new_user_id': request.user.id,
+                            'new_user_email': request.user.email,
+                            'device_data': device_data,
+                        }, timeout=600)  # 10 minutes expiry
                         
-                        otp_sent = owner_otp_result.get('success', False) or new_user_otp_result.get('success', False)
+                        new_user_sent = False
+                        if request.user.email:
+                            new_user_sent = OTPService.send_otp_via_email(
+                                request.user.email, new_user_otp
+                            )
+                            if new_user_sent:
+                                logger.info(f"✅ Takeover OTP sent to new user {request.user.email}")
+                            else:
+                                logger.warning(f"❌ Failed to send takeover OTP to new user")
+                        
+                        otp_sent = owner_otp_result.get('success', False) or new_user_sent
                         otp_errors = []
                         if not owner_otp_result.get('success'):
                             otp_errors.append(f"Owner: {owner_otp_result.get('message')}")
-                        if not new_user_otp_result.get('success'):
-                            otp_errors.append(f"New user: {new_user_otp_result.get('message')}")
+                        if not new_user_sent:
+                            otp_errors.append("New user: Failed to send OTP")
                         
                         return Response({
                             'device_takeover_required': True,
@@ -154,7 +157,7 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                             'device_data': device_data,
                             'otp_sent': otp_sent,
                             'otp_sent_to_owner': owner_otp_result.get('success', False),
-                            'otp_sent_to_new_user': new_user_otp_result.get('success', False),
+                            'otp_sent_to_new_user': new_user_sent,
                             'otp_error': '; '.join(otp_errors) if otp_errors else None
                         }, status=status.HTTP_200_OK)
                     logger.info(f"🔍 Found device by device_id (ID: {existing_device.id})")
@@ -307,7 +310,7 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                     return Response(response_data, status=status.HTTP_201_CREATED)
                     
                 except IntegrityError:
-                    # Race condition or duplicate pending device
+                    # Race condition - device was created between check and create
                     existing_device = UserDevice.objects.filter(device_id=device_id).first()
                     if existing_device and existing_device.user != request.user:
                         return Response({
@@ -319,17 +322,6 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                             'device': serializer.data,
                             'message': 'Device already registered',
                             'is_verified': existing_device.is_verified
-                        }, status=status.HTTP_200_OK)
-                    # Check if it's a pending device conflict
-                    pending = UserDevice.objects.filter(device_id=f"pending_{device_id}").first()
-                    if pending:
-                        # Already has a pending takeover - return takeover response
-                        return Response({
-                            'device_takeover_required': True,
-                            'message': 'Device takeover already initiated. Please verify your OTP.',
-                            'action_required': 'verify_otp_for_takeover',
-                            'device_id': device_id,
-                            'new_user_email': request.user.email,
                         }, status=status.HTTP_200_OK)
                     return Response({
                         'error': 'Device registration failed'
@@ -367,16 +359,6 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                 existing_device = UserDevice.objects.filter(device_id=device_id).first()
                 
                 if not existing_device:
-                    # Check if it's a pending device conflict
-                    pending = UserDevice.objects.filter(device_id=f"pending_{device_id}").first()
-                    if pending:
-                        return Response({
-                            'device_takeover_required': True,
-                            'message': 'Device takeover already initiated. Please verify your OTP.',
-                            'action_required': 'verify_otp_for_takeover',
-                            'device_id': device_id,
-                            'new_user_email': request.user.email,
-                        }, status=status.HTTP_200_OK)
                     return Response({
                         'error': 'Device registration failed'
                     }, status=status.HTTP_400_BAD_REQUEST)
@@ -690,21 +672,22 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
             owner_otp_result = OTPService.generate_and_send_otp(
                 device.user, device, method='email', force=True
             )
-            temp_device, created = UserDevice.objects.get_or_create(
-                user=request.user,
-                device_id=f"pending_{device_id}",
-                defaults={
-                    'device_name': request.data.get('device_name', ''),
-                    'device_type': request.data.get('device_type', 'unknown'),
-                    'os_name': request.data.get('os_name', 'unknown'),
-                    'is_active': False,
-                    'is_verified': False,
-                    'is_current_device': False,
-                }
-            )
-            new_user_otp_result = OTPService.generate_and_send_otp(
-                request.user, temp_device, method='email', force=True
-            )
+            # New user OTP stored in cache (no duplicate device entries)
+            new_user_otp = OTPService.generate_otp()
+            cache_key = f"takeover_otp_{device_id}_{request.user.id}"
+            cache.set(cache_key, {
+                'otp': new_user_otp,
+                'device_id': device_id,
+                'new_user_id': request.user.id,
+                'new_user_email': request.user.email,
+                'device_data': request.data,
+            }, timeout=600)
+            
+            new_user_sent = False
+            if request.user.email:
+                new_user_sent = OTPService.send_otp_via_email(
+                    request.user.email, new_user_otp
+                )
             
             return Response({
                 'device_registered': True,
@@ -717,7 +700,7 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                 'current_owner_email': device.user.email,
                 'message': 'This device is registered to another account. OTP sent to both you and the current owner.',
                 'otp_sent_to_owner': owner_otp_result.get('success', False),
-                'otp_sent_to_new_user': new_user_otp_result.get('success', False),
+                'otp_sent_to_new_user': new_user_sent,
             }, status=status.HTTP_200_OK)
         
         # Device belongs to this user
@@ -852,11 +835,6 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                 'error': 'Device not found'
             }, status=status.HTTP_404_NOT_FOUND)
         
-        # Also find the pending device for new user
-        pending_device = UserDevice.objects.filter(
-            device_id=f"pending_{device_id}"
-        ).first()
-        
         # Check if the requester is the current owner or the new user
         is_owner = (device.user == request.user)
         
@@ -876,7 +854,6 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                 'error': 'You are not authorized to verify this takeover'
             }, status=status.HTTP_403_FORBIDDEN)
         
-        # Validate OTP against the appropriate device
         if is_owner:
             # Owner validates against the real device
             result = OTPService.validate_otp(device, otp_code, force=True)
@@ -899,9 +876,9 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
             device.otp_attempts = 0
             device.save()
             
-            # Clean up pending device
-            if pending_device:
-                pending_device.delete()
+            # Clean up cache
+            cache_key = f"takeover_otp_{device_id}_{new_user.id}"
+            cache.delete(cache_key)
             
             serializer = UserDeviceSerializer(device, context={'request': request})
             
@@ -912,15 +889,20 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_200_OK)
         
         else:
-            # New user validates against their pending device
-            if not pending_device:
+            # New user validates against cache
+            cache_key = f"takeover_otp_{device_id}_{request.user.id}"
+            cached_data = cache.get(cache_key)
+            
+            if not cached_data:
                 return Response({
-                    'error': 'Pending device not found. Please register again.'
+                    'error': 'No OTP found. Please request device takeover again.'
                 }, status=status.HTTP_404_NOT_FOUND)
             
-            result = OTPService.validate_otp(pending_device, otp_code, force=True)
-            if not result.get('success'):
-                return Response(result, status=status.HTTP_400_BAD_REQUEST)
+            if cached_data.get('otp') != otp_code:
+                return Response({
+                    'success': False,
+                    'message': 'Invalid OTP. Please try again.'
+                }, status=status.HTTP_400_BAD_REQUEST)
             
             # New user verified - still need owner approval
             return Response({
