@@ -219,8 +219,10 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
             logger.info(f"  - latitude: {device_data.get('latitude')}")
             logger.info(f"  - longitude: {device_data.get('longitude')}")
             
-            # Check if this is the user's first device (new device detected)
+            # Check if this is the user's first device (no verification needed)
+            # If user already has devices, this is a device change (verification required)
             is_first_device = (user_device_count == 0)
+            is_device_change = (user_device_count > 0)
             
             try:
                 device = UserDevice.objects.create(
@@ -241,15 +243,15 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                     longitude=device_data.get('longitude'),
                     is_active=True,
                     is_current_device=True,  # Mark as current device
-                    is_verified=False,  # New devices require verification
+                    is_verified=is_first_device,  # First device auto-verified, new devices require verification
                 )
                 
                 logger.info(f"✅ Device created successfully (ID: {device.id})")
                 logger.info(f"🎯 Marked as current device")
                 
-                # Auto-send OTP for new device verification
-                if is_first_device:
-                    logger.info(f"📱 First device detected - sending OTP for verification")
+                # Send OTP for device change verification
+                if is_device_change:
+                    logger.info(f"📱 Device change detected - sending OTP for verification")
                     otp_result = OTPService.generate_and_send_otp(request.user, device, method='email')
                     if otp_result.get('success'):
                         logger.info(f"✅ OTP sent successfully to {request.user.email}")
@@ -292,7 +294,7 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                 'is_verified': device.is_verified,
             }
             
-            if is_first_device and not device.is_verified:
+            if is_device_change and not device.is_verified:
                 response_data['verification_required'] = True
                 response_data['verification_message'] = 'OTP has been sent to your email for device verification'
             
