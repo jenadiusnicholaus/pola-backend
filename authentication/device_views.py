@@ -307,19 +307,33 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                     return Response(response_data, status=status.HTTP_201_CREATED)
                     
                 except IntegrityError:
-                    # Race condition
-                    existing_device = UserDevice.objects.get(device_id=device_id)
-                    if existing_device.user != request.user:
+                    # Race condition or duplicate pending device
+                    existing_device = UserDevice.objects.filter(device_id=device_id).first()
+                    if existing_device and existing_device.user != request.user:
                         return Response({
                             'error': 'This device is already registered to another account'
                         }, status=status.HTTP_400_BAD_REQUEST)
-                    # Device already exists
-                    serializer = UserDeviceSerializer(existing_device, context={'request': request})
+                    if existing_device:
+                        serializer = UserDeviceSerializer(existing_device, context={'request': request})
+                        return Response({
+                            'device': serializer.data,
+                            'message': 'Device already registered',
+                            'is_verified': existing_device.is_verified
+                        }, status=status.HTTP_200_OK)
+                    # Check if it's a pending device conflict
+                    pending = UserDevice.objects.filter(device_id=f"pending_{device_id}").first()
+                    if pending:
+                        # Already has a pending takeover - return takeover response
+                        return Response({
+                            'device_takeover_required': True,
+                            'message': 'Device takeover already initiated. Please verify your OTP.',
+                            'action_required': 'verify_otp_for_takeover',
+                            'device_id': device_id,
+                            'new_user_email': request.user.email,
+                        }, status=status.HTTP_200_OK)
                     return Response({
-                        'device': serializer.data,
-                        'message': 'Device already registered',
-                        'is_verified': existing_device.is_verified
-                    }, status=status.HTTP_200_OK)
+                        'error': 'Device registration failed'
+                    }, status=status.HTTP_400_BAD_REQUEST)
             
             # First device - auto-register and auto-verify
             logger.info(f"🎉 Registering first device (auto-verified)")
@@ -350,7 +364,22 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
             except IntegrityError:
                 # Race condition: device was created between check and create
                 logger.warning(f"⚠️  Race condition detected - device was just created")
-                existing_device = UserDevice.objects.get(device_id=device_id)
+                existing_device = UserDevice.objects.filter(device_id=device_id).first()
+                
+                if not existing_device:
+                    # Check if it's a pending device conflict
+                    pending = UserDevice.objects.filter(device_id=f"pending_{device_id}").first()
+                    if pending:
+                        return Response({
+                            'device_takeover_required': True,
+                            'message': 'Device takeover already initiated. Please verify your OTP.',
+                            'action_required': 'verify_otp_for_takeover',
+                            'device_id': device_id,
+                            'new_user_email': request.user.email,
+                        }, status=status.HTTP_200_OK)
+                    return Response({
+                        'error': 'Device registration failed'
+                    }, status=status.HTTP_400_BAD_REQUEST)
                 
                 # Check if device belongs to current user
                 if existing_device.user != request.user:
