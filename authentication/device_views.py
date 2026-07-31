@@ -132,14 +132,25 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                         }, timeout=600)  # 10 minutes expiry
                         
                         new_user_sent = False
+                        # Try email first, then SMS fallback
                         if request.user.email:
                             new_user_sent = OTPService.send_otp_via_email(
                                 request.user.email, new_user_otp
                             )
-                            if new_user_sent:
-                                logger.info(f"✅ Takeover OTP sent to new user {request.user.email}")
+                        if not new_user_sent:
+                            logger.warning(f"📧 Email failed for new user, trying SMS fallback")
+                            if hasattr(request.user, 'phone_number') and request.user.phone_number:
+                                new_user_sent = OTPService.send_otp_via_sms(
+                                    request.user.phone_number, new_user_otp
+                                )
                             else:
-                                logger.warning(f"❌ Failed to send takeover OTP to new user")
+                                # No phone either - log OTP for testing
+                                logger.info(f"🔢 Takeover OTP for {request.user.email}: {new_user_otp}")
+                        
+                        if new_user_sent:
+                            logger.info(f"✅ Takeover OTP sent to new user {request.user.email}")
+                        else:
+                            logger.warning(f"❌ Failed to send takeover OTP to new user")
                         
                         # Save device_data in cache for later transfer
                         device_data_cache_key = f"takeover_device_data_{device_id}_{request.user.id}"
@@ -689,10 +700,23 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
             }, timeout=600)
             
             new_user_sent = False
+            # Try email first, then SMS fallback
             if request.user.email:
                 new_user_sent = OTPService.send_otp_via_email(
                     request.user.email, new_user_otp
                 )
+            if not new_user_sent:
+                logger.warning(f"📧 Email failed for new user, trying SMS fallback")
+                if hasattr(request.user, 'phone_number') and request.user.phone_number:
+                    new_user_sent = OTPService.send_otp_via_sms(
+                        request.user.phone_number, new_user_otp
+                    )
+                else:
+                    logger.info(f"🔢 Takeover OTP for {request.user.email}: {new_user_otp}")
+            
+            # Save device_data in cache for later transfer
+            device_data_cache_key = f"takeover_device_data_{device_id}_{request.user.id}"
+            cache.set(device_data_cache_key, request.data, timeout=600)
             
             return Response({
                 'device_registered': True,
