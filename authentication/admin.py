@@ -6,7 +6,6 @@ from .models import (
     ProfessionalSpecialization, RegionalChapter, DeviceToken, NotificationPreference
 )
 from .device_models import UserDevice, UserSession, LoginHistory, SecurityAlert
-from .device_models import UserDevice, UserSession, LoginHistory, SecurityAlert
 
 @admin.register(PolaUser)
 class PolaUserAdmin(admin.ModelAdmin):
@@ -230,10 +229,10 @@ class NotificationPreferenceAdmin(admin.ModelAdmin):
 # Device and Security Tracking Admin
 @admin.register(UserDevice)
 class UserDeviceAdmin(admin.ModelAdmin):
-    list_display = ('user', 'device_name', 'device_type', 'os_name', 'is_trusted', 'is_active', 'last_seen')
-    list_filter = ('device_type', 'os_name', 'is_trusted', 'is_active', 'first_seen')
+    list_display = ('user', 'device_name', 'device_type', 'os_name', 'is_verified', 'is_current_device', 'is_trusted', 'is_active', 'last_seen')
+    list_filter = ('device_type', 'os_name', 'is_verified', 'is_current_device', 'is_trusted', 'is_active', 'first_seen')
     search_fields = ('user__email', 'device_id', 'device_name', 'device_model', 'last_ip')
-    readonly_fields = ('device_id', 'first_seen', 'last_seen', 'created_at', 'updated_at')
+    readonly_fields = ('device_id', 'first_seen', 'last_seen', 'created_at', 'updated_at', 'verification_otp', 'otp_expires_at', 'otp_attempts')
     date_hierarchy = 'last_seen'
     ordering = ('-last_seen',)
     fieldsets = (
@@ -251,6 +250,9 @@ class UserDeviceAdmin(admin.ModelAdmin):
         }),
         ('Location', {
             'fields': ('latitude', 'longitude')
+        }),
+        ('Verification', {
+            'fields': ('is_verified', 'is_current_device', 'verification_otp', 'otp_expires_at', 'otp_attempts')
         }),
         ('Security', {
             'fields': ('is_trusted', 'is_active', 'fcm_token')
