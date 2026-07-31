@@ -854,85 +854,70 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
         
         is_new_user = (request.user == new_user)
         
-        if not is_owner and not is_new_user:
+        # Only the new user can verify (no owner approval needed)
+        if not is_new_user:
             return Response({
-                'error': 'You are not authorized to verify this takeover'
+                'error': 'Only the new user can verify this takeover'
             }, status=status.HTTP_403_FORBIDDEN)
         
-        if is_owner:
-            # Owner validates against the real device
-            result = OTPService.validate_otp(device, otp_code, force=True)
-            if not result.get('success'):
-                return Response(result, status=status.HTTP_400_BAD_REQUEST)
-            
-            # Owner approved - transfer device to new user
-            # Unmark current device for new user
-            UserDevice.objects.filter(
-                user=new_user,
-                is_current_device=True
-            ).update(is_current_device=False)
-            
-            # Transfer device to new user - update with new device data
-            device_data_cache_key = f"takeover_device_data_{device_id}_{new_user.id}"
-            cached_device_data = cache.get(device_data_cache_key) or {}
-            
-            device.user = new_user
-            device.is_verified = True
-            device.is_current_device = True
-            device.verification_otp = None
-            device.otp_expires_at = None
-            device.otp_attempts = 0
-            # Update device info from the new user's registration data
-            if cached_device_data:
-                device.device_name = cached_device_data.get('device_name', device.device_name)
-                device.device_type = cached_device_data.get('device_type', device.device_type)
-                device.os_name = cached_device_data.get('os_name', device.os_name)
-                device.os_version = cached_device_data.get('os_version', device.os_version)
-                device.app_version = cached_device_data.get('app_version', device.app_version)
-                device.device_model = cached_device_data.get('device_model', device.device_model)
-                device.device_manufacturer = cached_device_data.get('device_manufacturer', device.device_manufacturer)
-                device.fcm_token = cached_device_data.get('fcm_token', device.fcm_token)
-                device.latitude = cached_device_data.get('latitude', device.latitude)
-                device.longitude = cached_device_data.get('longitude', device.longitude)
-            device.is_active = True
-            device.save()
-            
-            # Clean up cache
-            cache_key = f"takeover_otp_{device_id}_{new_user.id}"
-            cache.delete(cache_key)
-            cache.delete(device_data_cache_key)
-            
-            serializer = UserDeviceSerializer(device, context={'request': request})
-            
-            return Response({
-                'device': serializer.data,
-                'message': 'Device transferred successfully. Owner approved the takeover.',
-                'is_verified': True
-            }, status=status.HTTP_200_OK)
+        # New user validates against cache
+        cache_key = f"takeover_otp_{device_id}_{request.user.id}"
+        cached_data = cache.get(cache_key)
         
-        else:
-            # New user validates against cache
-            cache_key = f"takeover_otp_{device_id}_{request.user.id}"
-            cached_data = cache.get(cache_key)
-            
-            if not cached_data:
-                return Response({
-                    'error': 'No OTP found. Please request device takeover again.'
-                }, status=status.HTTP_404_NOT_FOUND)
-            
-            if cached_data.get('otp') != otp_code:
-                return Response({
-                    'success': False,
-                    'message': 'Invalid OTP. Please try again.'
-                }, status=status.HTTP_400_BAD_REQUEST)
-            
-            # New user verified - still need owner approval
+        if not cached_data:
             return Response({
-                'success': True,
-                'message': 'Your OTP verified. Waiting for current owner to approve the device transfer.',
-                'owner_approval_required': True,
-                'current_owner_email': device.user.email
-            }, status=status.HTTP_200_OK)
+                'error': 'No OTP found. Please request device takeover again.'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        if cached_data.get('otp') != otp_code:
+            return Response({
+                'success': False,
+                'message': 'Invalid OTP. Please try again.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # OTP valid - transfer device to new user immediately
+        # Unmark current device for new user
+        UserDevice.objects.filter(
+            user=new_user,
+            is_current_device=True
+        ).update(is_current_device=False)
+        
+        # Transfer device to new user - update with new device data
+        device_data_cache_key = f"takeover_device_data_{device_id}_{new_user.id}"
+        cached_device_data = cache.get(device_data_cache_key) or {}
+        
+        device.user = new_user
+        device.is_verified = True
+        device.is_current_device = True
+        device.verification_otp = None
+        device.otp_expires_at = None
+        device.otp_attempts = 0
+        # Update device info from the new user's registration data
+        if cached_device_data:
+            device.device_name = cached_device_data.get('device_name', device.device_name)
+            device.device_type = cached_device_data.get('device_type', device.device_type)
+            device.os_name = cached_device_data.get('os_name', device.os_name)
+            device.os_version = cached_device_data.get('os_version', device.os_version)
+            device.app_version = cached_device_data.get('app_version', device.app_version)
+            device.device_model = cached_device_data.get('device_model', device.device_model)
+            device.device_manufacturer = cached_device_data.get('device_manufacturer', device.device_manufacturer)
+            device.fcm_token = cached_device_data.get('fcm_token', device.fcm_token)
+            device.latitude = cached_device_data.get('latitude', device.latitude)
+            device.longitude = cached_device_data.get('longitude', device.longitude)
+        device.is_active = True
+        device.save()
+        
+        # Clean up cache
+        cache.delete(cache_key)
+        cache.delete(device_data_cache_key)
+        
+        serializer = UserDeviceSerializer(device, context={'request': request})
+        
+        return Response({
+            'device': serializer.data,
+            'message': 'Device transferred successfully.',
+            'is_verified': True
+        }, status=status.HTTP_200_OK)
 
 
 class UserSessionViewSet(viewsets.ReadOnlyModelViewSet):
