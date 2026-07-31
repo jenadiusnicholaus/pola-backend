@@ -121,8 +121,8 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                             existing_device.user, existing_device, method='email', force=True
                         )
                         # 2. Send OTP to new user (stored in cache, no duplicate device)
-                        new_user_otp = OTPService.generate_otp()
                         cache_key = f"takeover_otp_{device_id}_{request.user.id}"
+                        new_user_otp = OTPService.generate_otp()
                         cache.set(cache_key, {
                             'otp': new_user_otp,
                             'device_id': device_id,
@@ -140,6 +140,10 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                                 logger.info(f"✅ Takeover OTP sent to new user {request.user.email}")
                             else:
                                 logger.warning(f"❌ Failed to send takeover OTP to new user")
+                        
+                        # Save device_data in cache for later transfer
+                        device_data_cache_key = f"takeover_device_data_{device_id}_{request.user.id}"
+                        cache.set(device_data_cache_key, device_data, timeout=600)
                         
                         otp_sent = owner_otp_result.get('success', False) or new_user_sent
                         otp_errors = []
@@ -868,18 +872,35 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                 is_current_device=True
             ).update(is_current_device=False)
             
-            # Transfer device to new user
+            # Transfer device to new user - update with new device data
+            device_data_cache_key = f"takeover_device_data_{device_id}_{new_user.id}"
+            cached_device_data = cache.get(device_data_cache_key) or {}
+            
             device.user = new_user
             device.is_verified = True
             device.is_current_device = True
             device.verification_otp = None
             device.otp_expires_at = None
             device.otp_attempts = 0
+            # Update device info from the new user's registration data
+            if cached_device_data:
+                device.device_name = cached_device_data.get('device_name', device.device_name)
+                device.device_type = cached_device_data.get('device_type', device.device_type)
+                device.os_name = cached_device_data.get('os_name', device.os_name)
+                device.os_version = cached_device_data.get('os_version', device.os_version)
+                device.app_version = cached_device_data.get('app_version', device.app_version)
+                device.device_model = cached_device_data.get('device_model', device.device_model)
+                device.device_manufacturer = cached_device_data.get('device_manufacturer', device.device_manufacturer)
+                device.fcm_token = cached_device_data.get('fcm_token', device.fcm_token)
+                device.latitude = cached_device_data.get('latitude', device.latitude)
+                device.longitude = cached_device_data.get('longitude', device.longitude)
+            device.is_active = True
             device.save()
             
             # Clean up cache
             cache_key = f"takeover_otp_{device_id}_{new_user.id}"
             cache.delete(cache_key)
+            cache.delete(device_data_cache_key)
             
             serializer = UserDeviceSerializer(device, context={'request': request})
             
