@@ -107,75 +107,13 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                 if existing_device:
                     logger.info(f"🔍 Found device by FCM token (ID: {existing_device.id})")
             
-            # 2. Fallback to device_id (check globally since device_id is unique)
+            # 2. Fallback to device_id (check for this user only)
             if not existing_device:
                 existing_device = UserDevice.objects.filter(
+                    user=request.user,
                     device_id=device_id
                 ).first()
                 if existing_device:
-                    if existing_device.user != request.user:
-                        logger.warning(f"⚠️  Device {device_id} belongs to user {existing_device.user.id}, not {request.user.id}")
-                        # Device belongs to another account - send OTP to BOTH parties
-                        # 1. Send OTP to current owner (stored on device record)
-                        owner_otp_result = OTPService.generate_and_send_otp(
-                            existing_device.user, existing_device, method='email', force=True
-                        )
-                        # 2. Send OTP to new user (stored in cache, no duplicate device)
-                        cache_key = f"takeover_otp_{device_id}_{request.user.id}"
-                        new_user_otp = OTPService.generate_otp()
-                        cache.set(cache_key, {
-                            'otp': new_user_otp,
-                            'device_id': device_id,
-                            'new_user_id': request.user.id,
-                            'new_user_email': request.user.email,
-                            'device_data': device_data,
-                        }, timeout=600)  # 10 minutes expiry
-                        
-                        new_user_sent = False
-                        # Try email first, then SMS fallback
-                        if request.user.email:
-                            new_user_sent = OTPService.send_otp_via_email(
-                                request.user.email, new_user_otp
-                            )
-                        if not new_user_sent:
-                            logger.warning(f"📧 Email failed for new user, trying SMS fallback")
-                            if hasattr(request.user, 'phone_number') and request.user.phone_number:
-                                new_user_sent = OTPService.send_otp_via_sms(
-                                    request.user.phone_number, new_user_otp
-                                )
-                            else:
-                                # No phone either - log OTP for testing
-                                logger.info(f"🔢 Takeover OTP for {request.user.email}: {new_user_otp}")
-                        
-                        if new_user_sent:
-                            logger.info(f"✅ Takeover OTP sent to new user {request.user.email}")
-                        else:
-                            logger.warning(f"❌ Failed to send takeover OTP to new user")
-                        
-                        # Save device_data in cache for later transfer
-                        device_data_cache_key = f"takeover_device_data_{device_id}_{request.user.id}"
-                        cache.set(device_data_cache_key, device_data, timeout=600)
-                        
-                        otp_sent = owner_otp_result.get('success', False) or new_user_sent
-                        otp_errors = []
-                        if not owner_otp_result.get('success'):
-                            otp_errors.append(f"Owner: {owner_otp_result.get('message')}")
-                        if not new_user_sent:
-                            otp_errors.append("New user: Failed to send OTP")
-                        
-                        return Response({
-                            'device_takeover_required': True,
-                            'message': 'This device is registered to another account. OTP sent to both you and the current owner for verification.',
-                            'action_required': 'verify_otp_for_takeover',
-                            'device_id': device_id,
-                            'new_user_email': request.user.email,
-                            'current_owner_email': existing_device.user.email,
-                            'device_data': device_data,
-                            'otp_sent': otp_sent,
-                            'otp_sent_to_owner': owner_otp_result.get('success', False),
-                            'otp_sent_to_new_user': new_user_sent,
-                            'otp_error': '; '.join(otp_errors) if otp_errors else None
-                        }, status=status.HTTP_200_OK)
                     logger.info(f"🔍 Found device by device_id (ID: {existing_device.id})")
             
             # 3. Fingerprint match as last resort (prevent duplicates from same physical device)
@@ -668,68 +606,20 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                 'error': 'device_id is required'
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        # Check if device exists globally
-        device = UserDevice.objects.filter(device_id=device_id).first()
+        # Check if device exists for this user
+        device = UserDevice.objects.filter(
+            user=request.user,
+            device_id=device_id
+        ).first()
         
         if not device:
-            # Device not registered to anyone
+            # Device not registered for this user - need to register
             return Response({
                 'device_registered': False,
                 'is_verified': False,
                 'is_current_device': False,
                 'action_required': 'register',
                 'message': 'Device not registered. Please register this device.'
-            }, status=status.HTTP_200_OK)
-        
-        # Check if device belongs to another user
-        if device.user != request.user:
-            logger.warning(f"⚠️  Device {device_id} belongs to user {device.user.id}, not {request.user.id}")
-            # Send OTP to both current owner and new user for takeover
-            owner_otp_result = OTPService.generate_and_send_otp(
-                device.user, device, method='email', force=True
-            )
-            # New user OTP stored in cache (no duplicate device entries)
-            new_user_otp = OTPService.generate_otp()
-            cache_key = f"takeover_otp_{device_id}_{request.user.id}"
-            cache.set(cache_key, {
-                'otp': new_user_otp,
-                'device_id': device_id,
-                'new_user_id': request.user.id,
-                'new_user_email': request.user.email,
-                'device_data': request.data,
-            }, timeout=600)
-            
-            new_user_sent = False
-            # Try email first, then SMS fallback
-            if request.user.email:
-                new_user_sent = OTPService.send_otp_via_email(
-                    request.user.email, new_user_otp
-                )
-            if not new_user_sent:
-                logger.warning(f"📧 Email failed for new user, trying SMS fallback")
-                if hasattr(request.user, 'phone_number') and request.user.phone_number:
-                    new_user_sent = OTPService.send_otp_via_sms(
-                        request.user.phone_number, new_user_otp
-                    )
-                else:
-                    logger.info(f"🔢 Takeover OTP for {request.user.email}: {new_user_otp}")
-            
-            # Save device_data in cache for later transfer
-            device_data_cache_key = f"takeover_device_data_{device_id}_{request.user.id}"
-            cache.set(device_data_cache_key, request.data, timeout=600)
-            
-            return Response({
-                'device_registered': True,
-                'is_verified': False,
-                'is_current_device': False,
-                'device_takeover_required': True,
-                'action_required': 'verify_otp_for_takeover',
-                'device_id': device_id,
-                'new_user_email': request.user.email,
-                'current_owner_email': device.user.email,
-                'message': 'This device is registered to another account. OTP sent to both you and the current owner.',
-                'otp_sent_to_owner': owner_otp_result.get('success', False),
-                'otp_sent_to_new_user': new_user_sent,
             }, status=status.HTTP_200_OK)
         
         # Device belongs to this user
@@ -834,114 +724,6 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
             return Response(result, status=status.HTTP_200_OK)
         else:
             return Response(result, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=False, methods=['post'])
-    def verify_otp_for_takeover(self, request):
-        """Verify OTP from current owner and transfer device to new user"""
-        otp_code = request.data.get('otp')
-        device_id = request.data.get('device_id')
-        new_user_email = request.data.get('new_user_email')
-        
-        if not otp_code:
-            return Response({
-                'error': 'OTP code is required'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        if not device_id:
-            return Response({
-                'error': 'device_id is required'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        if not new_user_email:
-            return Response({
-                'error': 'new_user_email is required'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Find the device (current owner's device)
-        device = UserDevice.objects.filter(device_id=device_id).first()
-        if not device:
-            return Response({
-                'error': 'Device not found'
-            }, status=status.HTTP_404_NOT_FOUND)
-        
-        # Check if the requester is the current owner or the new user
-        is_owner = (device.user == request.user)
-        
-        # Find new user
-        from django.contrib.auth import get_user_model
-        User = get_user_model()
-        new_user = User.objects.filter(email=new_user_email).first()
-        if not new_user:
-            return Response({
-                'error': 'New user not found'
-            }, status=status.HTTP_404_NOT_FOUND)
-        
-        is_new_user = (request.user == new_user)
-        
-        # Only the new user can verify (no owner approval needed)
-        if not is_new_user:
-            return Response({
-                'error': 'Only the new user can verify this takeover'
-            }, status=status.HTTP_403_FORBIDDEN)
-        
-        # New user validates against cache
-        cache_key = f"takeover_otp_{device_id}_{request.user.id}"
-        cached_data = cache.get(cache_key)
-        
-        if not cached_data:
-            return Response({
-                'error': 'No OTP found. Please request device takeover again.'
-            }, status=status.HTTP_404_NOT_FOUND)
-        
-        if cached_data.get('otp') != otp_code:
-            return Response({
-                'success': False,
-                'message': 'Invalid OTP. Please try again.'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        # OTP valid - transfer device to new user immediately
-        # Unmark current device for new user
-        UserDevice.objects.filter(
-            user=new_user,
-            is_current_device=True
-        ).update(is_current_device=False)
-        
-        # Transfer device to new user - update with new device data
-        device_data_cache_key = f"takeover_device_data_{device_id}_{new_user.id}"
-        cached_device_data = cache.get(device_data_cache_key) or {}
-        
-        device.user = new_user
-        device.is_verified = True
-        device.is_current_device = True
-        device.verification_otp = None
-        device.otp_expires_at = None
-        device.otp_attempts = 0
-        # Update device info from the new user's registration data
-        if cached_device_data:
-            device.device_name = cached_device_data.get('device_name', device.device_name)
-            device.device_type = cached_device_data.get('device_type', device.device_type)
-            device.os_name = cached_device_data.get('os_name', device.os_name)
-            device.os_version = cached_device_data.get('os_version', device.os_version)
-            device.app_version = cached_device_data.get('app_version', device.app_version)
-            device.device_model = cached_device_data.get('device_model', device.device_model)
-            device.device_manufacturer = cached_device_data.get('device_manufacturer', device.device_manufacturer)
-            device.fcm_token = cached_device_data.get('fcm_token', device.fcm_token)
-            device.latitude = cached_device_data.get('latitude', device.latitude)
-            device.longitude = cached_device_data.get('longitude', device.longitude)
-        device.is_active = True
-        device.save()
-        
-        # Clean up cache
-        cache.delete(cache_key)
-        cache.delete(device_data_cache_key)
-        
-        serializer = UserDeviceSerializer(device, context={'request': request})
-        
-        return Response({
-            'device': serializer.data,
-            'message': 'Device transferred successfully.',
-            'is_verified': True
-        }, status=status.HTTP_200_OK)
 
 
 class UserSessionViewSet(viewsets.ReadOnlyModelViewSet):
