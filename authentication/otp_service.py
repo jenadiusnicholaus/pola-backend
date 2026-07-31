@@ -5,6 +5,8 @@ from datetime import timedelta
 from django.utils import timezone
 from django.core.cache import cache
 
+from utils.email_service import EmailService
+
 logger = logging.getLogger(__name__)
 
 
@@ -36,12 +38,9 @@ class OTPService:
     def send_otp_via_email(email, otp):
         """
         Send OTP via email
-        TODO: Integrate with email service
-        For now, this is a placeholder that logs the OTP
         """
-        logger.info(f"📧 OTP for {email}: {otp}")
-        # TODO: Implement actual email sending
-        return True
+        logger.info(f"📧 Sending OTP to {email}")
+        return EmailService.send_otp_email(email, otp, OTPService.OTP_EXPIRY_MINUTES)
     
     @classmethod
     def generate_and_send_otp(cls, user, device, method='sms'):
