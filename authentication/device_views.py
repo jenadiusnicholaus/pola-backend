@@ -18,6 +18,7 @@ from .device_utils import (
     generate_device_fingerprint, detect_suspicious_activity,
     create_security_alert, calculate_session_expiry
 )
+from .otp_service import OTPService
 
 logger = logging.getLogger(__name__)
 
@@ -518,6 +519,61 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                 {'error': 'Device not found'},
                 status=status.HTTP_404_NOT_FOUND
             )
+    
+    @action(detail=True, methods=['post'])
+    def send_verification_otp(self, request, pk=None):
+        """Send OTP to verify device"""
+        device = self.get_object()
+        
+        # Check if device belongs to current user
+        if device.user != request.user:
+            return Response(
+                {'error': 'Device does not belong to you'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Get method (sms or email)
+        method = request.data.get('method', 'sms')
+        if method not in ['sms', 'email']:
+            return Response(
+                {'error': 'Invalid method. Use "sms" or "email"'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Generate and send OTP
+        result = OTPService.generate_and_send_otp(request.user, device, method)
+        
+        if result.get('success'):
+            return Response(result, status=status.HTTP_200_OK)
+        else:
+            return Response(result, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=True, methods=['post'])
+    def verify_otp(self, request, pk=None):
+        """Verify OTP code for device"""
+        device = self.get_object()
+        
+        # Check if device belongs to current user
+        if device.user != request.user:
+            return Response(
+                {'error': 'Device does not belong to you'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        otp_code = request.data.get('otp')
+        if not otp_code:
+            return Response(
+                {'error': 'OTP code is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Validate OTP
+        result = OTPService.validate_otp(device, otp_code)
+        
+        if result.get('success'):
+            return Response(result, status=status.HTTP_200_OK)
+        else:
+            return Response(result, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserSessionViewSet(viewsets.ReadOnlyModelViewSet):
