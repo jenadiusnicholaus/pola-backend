@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from django.db.models import Q
 from django.db import IntegrityError
+from django.core.cache import cache
 import logging
 
 from .device_models import UserDevice, UserSession, LoginHistory, SecurityAlert
