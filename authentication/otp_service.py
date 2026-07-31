@@ -80,12 +80,38 @@ class OTPService:
         device.otp_attempts = 0
         device.save(update_fields=['verification_otp', 'otp_expires_at', 'otp_attempts'])
         
-        # Send OTP
+        # Send OTP - try requested method first, fallback to the other
         sent = False
-        if method == 'sms' and user.phone_number:
-            sent = cls.send_otp_via_sms(user.phone_number, otp)
-        elif method == 'email' and user.email:
+        sent_via = None
+        
+        if method == 'email' and user.email:
             sent = cls.send_otp_via_email(user.email, otp)
+            sent_via = 'email'
+            if not sent:
+                logger.warning(f"📧 Email failed, trying SMS fallback")
+                # Fallback to SMS if email fails
+                if hasattr(user, 'phone_number') and user.phone_number:
+                    sent = cls.send_otp_via_sms(user.phone_number, otp)
+                    sent_via = 'sms'
+        elif method == 'sms' and hasattr(user, 'phone_number') and user.phone_number:
+            sent = cls.send_otp_via_sms(user.phone_number, otp)
+            sent_via = 'sms'
+            if not sent:
+                logger.warning(f"📱 SMS failed, trying email fallback")
+                # Fallback to email if SMS fails
+                if user.email:
+                    sent = cls.send_otp_via_email(user.email, otp)
+                    sent_via = 'email'
+        elif method == 'email' and not user.email:
+            # No email, try SMS
+            if hasattr(user, 'phone_number') and user.phone_number:
+                sent = cls.send_otp_via_sms(user.phone_number, otp)
+                sent_via = 'sms'
+        elif method == 'sms' and not hasattr(user, 'phone_number'):
+            # No phone, try email
+            if user.email:
+                sent = cls.send_otp_via_email(user.email, otp)
+                sent_via = 'email'
         else:
             return {
                 'success': False,
@@ -93,17 +119,18 @@ class OTPService:
             }
         
         if sent:
-            logger.info(f"✅ OTP sent to {user.email} via {method}")
+            logger.info(f"✅ OTP sent to user via {sent_via}")
             return {
                 'success': True,
-                'message': f'OTP sent via {method}',
+                'message': f'OTP sent via {sent_via}',
+                'sent_via': sent_via,
                 'expires_in': cls.OTP_EXPIRY_MINUTES,
                 'otp': otp  # Only for testing/dev - remove in production
             }
         else:
             return {
                 'success': False,
-                'message': f'Failed to send OTP via {method}'
+                'message': f'Failed to send OTP via email and SMS'
             }
     
     @classmethod
