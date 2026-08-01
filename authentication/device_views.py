@@ -132,6 +132,41 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
             if existing_device:
                 logger.info(f"🔄 Device already exists (ID: {existing_device.id}) - updating")
                 
+                # If device is not verified, resend OTP
+                if not existing_device.is_verified:
+                    logger.info(f"📧 Device not verified - resending OTP")
+                    otp_result = OTPService.generate_and_send_otp(
+                        request.user, existing_device, method='email', force=True
+                    )
+                    
+                    # Update device fields with new data
+                    existing_device.last_ip = ip_address
+                    existing_device.is_active = True
+                    if device_data.get('device_name'):
+                        existing_device.device_name = device_data.get('device_name')
+                    if fcm_token:
+                        existing_device.fcm_token = fcm_token
+                    if device_data.get('latitude'):
+                        existing_device.latitude = device_data.get('latitude')
+                    if device_data.get('longitude'):
+                        existing_device.longitude = device_data.get('longitude')
+                    if device_data.get('app_version'):
+                        existing_device.app_version = device_data.get('app_version')
+                    existing_device.save()
+                    
+                    serializer = UserDeviceSerializer(existing_device, context={'request': request})
+                    response_data = {
+                        'device': serializer.data,
+                        'message': 'Device not verified. OTP resent to your email.',
+                        'is_verified': False,
+                        'verification_required': True,
+                        'otp_sent': otp_result.get('success', False),
+                    }
+                    if not otp_result.get('success'):
+                        response_data['otp_error'] = otp_result.get('message')
+                    
+                    return Response(response_data, status=status.HTTP_200_OK)
+                
                 # Unmark all other devices as current
                 UserDevice.objects.filter(
                     user=request.user,
@@ -265,17 +300,22 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                     
                 except IntegrityError:
                     # Race condition - device was created between check and create
-                    existing_device = UserDevice.objects.filter(device_id=device_id).first()
-                    if existing_device and existing_device.user != request.user:
-                        return Response({
-                            'error': 'This device is already registered to another account'
-                        }, status=status.HTTP_400_BAD_REQUEST)
+                    existing_device = UserDevice.objects.filter(
+                        user=request.user,
+                        device_id=device_id
+                    ).first()
                     if existing_device:
+                        # Resend OTP if not verified
+                        if not existing_device.is_verified:
+                            OTPService.generate_and_send_otp(
+                                request.user, existing_device, method='email', force=True
+                            )
                         serializer = UserDeviceSerializer(existing_device, context={'request': request})
                         return Response({
                             'device': serializer.data,
                             'message': 'Device already registered',
-                            'is_verified': existing_device.is_verified
+                            'is_verified': existing_device.is_verified,
+                            'verification_required': not existing_device.is_verified,
                         }, status=status.HTTP_200_OK)
                     return Response({
                         'error': 'Device registration failed'
@@ -310,19 +350,14 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
             except IntegrityError:
                 # Race condition: device was created between check and create
                 logger.warning(f"⚠️  Race condition detected - device was just created")
-                existing_device = UserDevice.objects.filter(device_id=device_id).first()
+                existing_device = UserDevice.objects.filter(
+                    user=request.user,
+                    device_id=device_id
+                ).first()
                 
                 if not existing_device:
                     return Response({
                         'error': 'Device registration failed'
-                    }, status=status.HTTP_400_BAD_REQUEST)
-                
-                # Check if device belongs to current user
-                if existing_device.user != request.user:
-                    logger.error(f"❌ Device belongs to different user (User ID: {existing_device.user.id})")
-                    return Response({
-                        'error': 'This device is already registered to another account',
-                        'message': 'Please use a different device or contact support'
                     }, status=status.HTTP_400_BAD_REQUEST)
                 
                 # Update existing device
