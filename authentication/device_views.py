@@ -37,6 +37,7 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
     serializer_class = UserDeviceSerializer
     permission_classes = [IsAuthenticated]
     lookup_field = 'device_id'
+    lookup_url_kwarg = 'pk'
     lookup_value_regex = '[^/]+'
     
     def get_queryset(self):
