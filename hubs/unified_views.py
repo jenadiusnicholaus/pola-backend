@@ -22,6 +22,7 @@ from .serializers import (
     CreateCommentWithMentionsSerializer
 )
 from authentication.models import PolaUser
+from authentication.device_models import UserDevice
 from .permissions import (
     CanAccessHub, IsOwnerOrReadOnly, CanCreateContent,
     CanPurchaseContent, CanFollowLecturer
@@ -849,7 +850,29 @@ class HubMessageViewSet(viewsets.ModelViewSet):
         ).select_related('sender', 'recipient')
     
     def perform_create(self, serializer):
-        """Set sender to current user"""
+        """Set sender to current user and check device verification"""
+        # Check if user's current device is verified
+        try:
+            current_device = UserDevice.objects.filter(
+                user=self.request.user,
+                is_current_device=True
+            ).first()
+            
+            if not current_device or not current_device.is_verified:
+                return Response(
+                    {
+                        'error': 'Device verification required',
+                        'message': 'Please verify your device before sending messages',
+                        'device_id': current_device.device_id if current_device else None
+                    },
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        except Exception as e:
+            # Log error but don't block if device check fails
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Device verification check failed: {e}")
+        
         serializer.save(sender=self.request.user)
     
     @action(detail=False, methods=['get'])

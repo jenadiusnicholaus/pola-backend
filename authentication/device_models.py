@@ -29,7 +29,7 @@ class UserDevice(models.Model):
     ]
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='devices')
-    device_id = models.CharField(max_length=255, unique=True, help_text="Unique device identifier")
+    device_id = models.CharField(max_length=255, help_text="Unique device identifier per user")
     device_name = models.CharField(max_length=255, blank=True, help_text="User-friendly device name")
     device_type = models.CharField(max_length=20, choices=DEVICE_TYPE_CHOICES, default='unknown')
     
@@ -48,8 +48,14 @@ class UserDevice(models.Model):
     
     # Security
     is_trusted = models.BooleanField(default=False, help_text="User has marked this device as trusted")
+    is_verified = models.BooleanField(default=False, help_text="Device has been verified via 2FA")
     is_active = models.BooleanField(default=True)
     is_current_device = models.BooleanField(default=False, help_text="Currently active device for this user")
+    
+    # OTP for device verification
+    verification_otp = models.CharField(max_length=6, blank=True, null=True, help_text="OTP code for device verification")
+    otp_expires_at = models.DateTimeField(null=True, blank=True, help_text="OTP expiration timestamp")
+    otp_attempts = models.IntegerField(default=0, help_text="Number of failed OTP attempts")
     
     # FCM Token for push notifications
     fcm_token = models.TextField(blank=True, help_text="Firebase Cloud Messaging token")
@@ -71,6 +77,7 @@ class UserDevice(models.Model):
         verbose_name = _('User Device')
         verbose_name_plural = _('User Devices')
         ordering = ['-last_seen']
+        unique_together = [('user', 'device_id')]
         indexes = [
             models.Index(fields=['user', 'is_active']),
             models.Index(fields=['device_id']),
