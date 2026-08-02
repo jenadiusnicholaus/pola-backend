@@ -122,15 +122,18 @@ class Command(BaseCommand):
         material, created = LearningMaterial.objects.get_or_create(
             subtopic=subtopic,
             title=data['title'],
+            language=data.get('language', 'en'),
             uploader=uploader,
             defaults={
+                'topic': subtopic.topic,
                 'description': data.get('description', ''),
+                'content': data.get('content', ''),
                 'hub_type': 'legal_ed',
-                'content_type': 'file',
+                'content_type': data.get('content_type', 'tutorial'),
                 'price': data.get('price', 0),
                 'is_approved': True,
                 'is_active': True,
-                'uploader_type': 'admin'
+                'uploader_type': 'admin',
             }
         )
         

@@ -86,6 +86,7 @@ class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
         fields = ['phone_number', 'phone_is_verified', 'website']
+        read_only_fields = ['phone_is_verified']
 
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -288,8 +289,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
     """Serializer for user detail view - shows only role-relevant fields"""
     user_role = UserRoleSerializer(read_only=True)
-    contact = ContactSerializer(read_only=True)
-    address = AddressSerializer(read_only=True)
+    contact = ContactSerializer(required=False)
+    address = AddressSerializer(required=False)
     verification_status = serializers.ReadOnlyField()
     permissions = serializers.SerializerMethodField()
     subscription = serializers.SerializerMethodField()
@@ -464,7 +465,49 @@ class UserDetailSerializer(serializers.ModelSerializer):
             
             'date_joined', 'last_login',
         ]
-        read_only_fields = ['id', 'date_joined', 'last_login', 'is_verified', 'is_staff', 'is_superuser']
+        read_only_fields = [
+            'id', 'email', 'date_joined', 'last_login',
+            'is_verified', 'is_staff', 'is_superuser',
+        ]
+
+    def update(self, instance, validated_data):
+        """Update user profile including nested contact and address. Email is never changed."""
+        contact_data = validated_data.pop('contact', None)
+        address_data = validated_data.pop('address', None)
+        validated_data.pop('email', None)
+
+        instance = super().update(instance, validated_data)
+
+        if contact_data is not None:
+            try:
+                contact = instance.contact
+                old_phone = contact.phone_number
+            except Contact.DoesNotExist:
+                contact = Contact(user=instance)
+                old_phone = None
+
+            for attr, value in contact_data.items():
+                setattr(contact, attr, value)
+
+            if (
+                'phone_number' in contact_data
+                and contact_data['phone_number'] != old_phone
+            ):
+                contact.phone_is_verified = False
+
+            contact.save()
+
+        if address_data is not None:
+            try:
+                address = instance.address
+            except Address.DoesNotExist:
+                address = Address(user=instance)
+
+            for attr, value in address_data.items():
+                setattr(address, attr, value)
+            address.save()
+
+        return instance
     
     def to_representation(self, instance):
         """Filter fields based on user role - only show relevant fields"""

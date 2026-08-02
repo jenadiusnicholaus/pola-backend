@@ -3,7 +3,8 @@ from .models import (
     AcademicRole, LegalSpecialization, PlaceOfWork, UserRole, RolePermission,
     Contact, Address, Verification, VerificationDocument, Document, PolaUser,
     Region, District, OperatingRegion, OperatingDistrict, Specialization,
-    ProfessionalSpecialization, RegionalChapter, DeviceToken, NotificationPreference
+    ProfessionalSpecialization, RegionalChapter, DeviceToken, NotificationPreference,
+    PasswordResetOTP,
 )
 from .device_models import UserDevice, UserSession, LoginHistory, SecurityAlert
 from .device_models import UserDevice, UserSession, LoginHistory, SecurityAlert
@@ -343,3 +344,11 @@ class SecurityAlertAdmin(admin.ModelAdmin):
             'fields': ('created_at', 'updated_at')
         }),
     )
+
+
+@admin.register(PasswordResetOTP)
+class PasswordResetOTPAdmin(admin.ModelAdmin):
+    list_display = ('user', 'otp', 'created_at', 'expires_at', 'is_used', 'attempts')
+    list_filter = ('is_used', 'created_at')
+    search_fields = ('user__email', 'otp')
+    readonly_fields = ('otp', 'otp_hash', 'created_at', 'expires_at', 'attempts')
