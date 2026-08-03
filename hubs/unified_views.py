@@ -100,16 +100,33 @@ class HubContentViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def like(self, request, pk=None):
-        """Like content"""
+        """Toggle like/unlike on content and return updated state."""
         content = self.get_object()
-        like, created = ContentLike.objects.get_or_create(
+        existing = ContentLike.objects.filter(
             user=request.user,
             content=content
+        ).first()
+
+        if existing:
+            existing.delete()
+            is_liked = False
+            message = 'Content unliked'
+        else:
+            ContentLike.objects.create(user=request.user, content=content)
+            is_liked = True
+            message = 'Content liked'
+
+        # Query the table directly — content.likes.count() would use a stale
+        # prefetch_related cache from get_queryset() and return 0 right after create.
+        likes_count = ContentLike.objects.filter(content_id=content.pk).count()
+        return Response(
+            {
+                'message': message,
+                'is_liked': is_liked,
+                'likes_count': likes_count,
+            },
+            status=status.HTTP_200_OK,
         )
-        
-        if created:
-            return Response({'message': 'Content liked'}, status=status.HTTP_201_CREATED)
-        return Response({'message': 'Already liked'}, status=status.HTTP_200_OK)
     
     @action(detail=True, methods=['delete'], permission_classes=[IsAuthenticated])
     def unlike(self, request, pk=None):
@@ -121,8 +138,15 @@ class HubContentViewSet(viewsets.ModelViewSet):
         ).delete()
         
         if deleted_count > 0:
-            return Response({'message': 'Content unliked'}, status=status.HTTP_204_NO_CONTENT)
-        return Response({'message': 'Not liked'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {
+                    'message': 'Content unliked',
+                    'is_liked': False,
+                    'likes_count': ContentLike.objects.filter(content_id=content.pk).count(),
+                },
+                status=status.HTTP_200_OK,
+            )
+        return Response({'message': 'Not liked', 'is_liked': False}, status=status.HTTP_404_NOT_FOUND)
     
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def bookmark(self, request, pk=None):

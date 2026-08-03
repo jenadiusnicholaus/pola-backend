@@ -1515,3 +1515,7 @@ class UserPrivacySettings(models.Model):
         # This would require a Following/Connection model (to be implemented if needed)
         # For now, we'll return True to avoid breaking functionality
         return True
+
+
+# Re-export password reset model so Django discovers migrations
+from .password_reset_models import PasswordResetOTP  # noqa: E402,F401
