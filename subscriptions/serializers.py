@@ -280,7 +280,9 @@ class LearningMaterialSerializer(serializers.ModelSerializer):
         return obj.id in request.user.purchased_material_ids
     
     def get_can_download(self, obj):
-        """Check if user can download (free or purchased)"""
+        """Check if user can download (downloadable + free or purchased)"""
+        if not obj.is_downloadable:
+            return False
         if obj.price == 0:  # Free material
             return True
         request = self.context.get('request')
