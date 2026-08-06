@@ -170,22 +170,6 @@ REST_FRAMEWORK = {
     },
 }
 
-# ==============================================================================
-# Email (password reset OTP, etc.)
-# ==============================================================================
-EMAIL_BACKEND = config(
-    'EMAIL_BACKEND',
-    default='django.core.mail.backends.console.EmailBackend',
-)
-EMAIL_HOST = config('EMAIL_HOST', default='localhost')
-EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=False, cast=bool)
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@pola.co.tz')
-PASSWORD_RESET_OTP_TTL_MINUTES = config('PASSWORD_RESET_OTP_TTL_MINUTES', default=15, cast=int)   
-
 API_VERSION = config('API_VERSION', default='v1')
 
 
@@ -355,5 +339,6 @@ EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=False, cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='polatanzania@gmail.com')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='vqnglfidgpfqezrx')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='polatanzania@gmail.com')
+PASSWORD_RESET_OTP_TTL_MINUTES = config('PASSWORD_RESET_OTP_TTL_MINUTES', default=15, cast=int)
 APP_NAME = config('APP_NAME', default='POLA')
 
