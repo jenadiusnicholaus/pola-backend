@@ -20,6 +20,7 @@ from .device_utils import (
     create_security_alert, calculate_session_expiry
 )
 from .otp_service import OTPService
+from .device_session_service import make_device_current
 
 logger = logging.getLogger(__name__)
 
@@ -169,14 +170,41 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                         response_data['otp_error'] = otp_result.get('message')
                     
                     return Response(response_data, status=status.HTTP_200_OK)
+
+                # Verified but not current — require OTP to reclaim (do not auto-promote)
+                if not existing_device.is_current_device:
+                    logger.info(
+                        "📧 Device verified but not current — requiring OTP to reclaim"
+                    )
+                    otp_result = OTPService.generate_and_send_otp(
+                        request.user, existing_device, method='email', force=True
+                    )
+                    existing_device.last_ip = ip_address
+                    existing_device.is_active = True
+                    if fcm_token:
+                        existing_device.fcm_token = fcm_token
+                    existing_device.save()
+
+                    serializer = UserDeviceSerializer(
+                        existing_device, context={'request': request}
+                    )
+                    response_data = {
+                        'device': serializer.data,
+                        'message': (
+                            'This account is active on another device. '
+                            'OTP sent to your email to sign in here.'
+                        ),
+                        'is_verified': True,
+                        'is_current_device': False,
+                        'verification_required': True,
+                        'device_replaced': True,
+                        'otp_sent': otp_result.get('success', False),
+                    }
+                    if not otp_result.get('success'):
+                        response_data['otp_error'] = otp_result.get('message')
+                    return Response(response_data, status=status.HTTP_200_OK)
                 
-                # Unmark all other devices as current
-                UserDevice.objects.filter(
-                    user=request.user,
-                    is_current_device=True
-                ).exclude(id=existing_device.id).update(is_current_device=False)
-                
-                # Update all fields with new data
+                # Already current — refresh metadata only (no session steal)
                 update_fields = []
                 
                 if device_data.get('latitude') and device_data.get('latitude') != existing_device.latitude:
@@ -199,18 +227,14 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                     existing_device.app_version = device_data.get('app_version')
                     update_fields.append('app_version')
                 
-                # Always update these
                 existing_device.last_ip = ip_address
                 existing_device.is_active = True
-                existing_device.is_current_device = True
                 existing_device.last_seen = timezone.now()
-                update_fields.extend(['last_ip', 'is_active', 'is_current_device', 'last_seen'])
+                update_fields.extend(['last_ip', 'is_active', 'last_seen'])
                 
                 existing_device.save()
-                logger.info(f"💾 Updated existing device. Fields changed: {', '.join(update_fields) if update_fields else 'none (just refreshed)'}")
-                logger.info(f"🎯 Marked as current device")
+                logger.info(f"💾 Updated existing current device. Fields: {', '.join(update_fields) if update_fields else 'none'}")
                 
-                # Check what's still missing
                 missing_fields = []
                 if not existing_device.latitude:
                     missing_fields.append('latitude')
@@ -677,17 +701,26 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                 'otp_error': otp_result.get('message') if not otp_result.get('success') else None
             }, status=status.HTTP_200_OK)
         
-        # Device is verified
-        # Check if it's the current device
+        # Verified but not current — require OTP to reclaim (do not auto-promote)
         if not device.is_current_device:
-            # Make it current
-            UserDevice.objects.filter(
-                user=request.user,
-                is_current_device=True
-            ).update(is_current_device=False)
-            device.is_current_device = True
-            device.save(update_fields=['is_current_device'])
-        
+            otp_result = OTPService.generate_and_send_otp(
+                request.user, device, method='email', force=True
+            )
+            return Response({
+                'device_registered': True,
+                'is_verified': True,
+                'is_current_device': False,
+                'action_required': 'verify_otp',
+                'device_id': device_id,
+                'device_replaced': True,
+                'message': (
+                    'This account is active on another device. '
+                    'OTP sent to your email to sign in here.'
+                ),
+                'otp_sent': otp_result.get('success', False),
+                'otp_error': otp_result.get('message') if not otp_result.get('success') else None,
+            }, status=status.HTTP_200_OK)
+
         serializer = UserDeviceSerializer(device, context={'request': request})
         return Response({
             'device_registered': True,
@@ -744,7 +777,8 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                 'error': 'Device not found for this user'
             }, status=status.HTTP_404_NOT_FOUND)
         
-        if device.is_verified:
+        # Allow resend when reclaiming a demoted (verified but not current) device
+        if device.is_verified and device.is_current_device:
             return Response({
                 'error': 'Device is already verified'
             }, status=status.HTTP_400_BAD_REQUEST)
@@ -753,7 +787,7 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
         if method not in ['sms', 'email']:
             method = 'email'
         
-        # Generate new OTP and send
+        # Generate new OTP and send (force=True for reclaim of verified devices)
         result = OTPService.generate_and_send_otp(request.user, device, method, force=True)
         
         if result.get('success'):
@@ -784,20 +818,14 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Validate OTP
-        result = OTPService.validate_otp(device, otp_code)
+        # force=True allows reclaim OTP on an already-verified demoted device
+        result = OTPService.validate_otp(device, otp_code, force=True)
         
         if result.get('success'):
-            # OTP verified - switch current device to this one
-            UserDevice.objects.filter(
-                user=request.user,
-                is_current_device=True
-            ).update(is_current_device=False)
-            
-            device.is_current_device = True
-            device.save(update_fields=['is_current_device'])
-            
+            # Promote this device; demote others, terminate sessions, FCM force_logout
+            make_device_current(request.user, device)
             result['message'] = 'Device verified and set as current device'
+            result['is_current_device'] = True
             return Response(result, status=status.HTTP_200_OK)
         else:
             return Response(result, status=status.HTTP_400_BAD_REQUEST)
