@@ -751,7 +751,13 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Generate and send OTP (force=True to always generate new OTP)
+        # Block if device is already verified and current
+        if device.is_verified and device.is_current_device:
+            return Response({
+                'error': 'Device is already verified'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Generate and send OTP (force=True to bypass verified/attempts checks)
         result = OTPService.generate_and_send_otp(request.user, device, method, force=True)
         
         if result.get('success'):

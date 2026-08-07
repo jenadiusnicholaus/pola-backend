@@ -63,8 +63,8 @@ class OTPService:
                 'message': 'Device is already verified'
             }
         
-        # Check if too many failed attempts
-        if device.otp_attempts >= cls.MAX_ATTEMPTS:
+        # Check if too many failed attempts (skip if force=True — user explicitly requested resend)
+        if device.otp_attempts >= cls.MAX_ATTEMPTS and not force:
             return {
                 'success': False,
                 'message': f'Too many failed attempts. Please contact support.'
