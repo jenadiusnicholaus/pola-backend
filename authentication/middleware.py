@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -16,20 +17,35 @@ from .device_utils import (
 from notification.models import UserOnlineStatus
 
 
+# Paths where a demoted device may still call APIs (login / reclaim OTP)
+_DEVICE_ENFORCEMENT_EXEMPT_SUFFIXES = (
+    '/authentication/login/',
+    '/authentication/register/',
+    '/authentication/refresh/',
+    '/authentication/admin-login/',
+    '/authentication/logout/',
+    '/authentication/password/',
+    '/security/devices/',  # list/create register
+    '/check_device/',
+    '/verify_otp/',
+    '/resend_otp/',
+    '/send_verification_otp/',
+    '/verify_otp_for_takeover/',
+)
+
+
 class SecurityTrackingMiddleware(MiddlewareMixin):
     """
     Automatically track user devices, sessions, and activity.
-    
-    This middleware:
-    - Creates/updates UserDevice on authenticated requests
-    - Creates/updates UserSession for authenticated users
-    - Updates last_activity timestamp on sessions
-    - Tracks device location changes
+
+    Also enforces single-device login: if ``X-Device-Id`` identifies a
+    verified device that is no longer ``is_current_device``, return 401
+    ``device_replaced`` so the client can force logout.
     """
-    
+
     def process_request(self, request):
         """Process incoming request to track security information."""
-        
+
         # Skip tracking for non-authenticated requests
         if not hasattr(request, 'user') or not request.user.is_authenticated:
             # Try to authenticate using JWT
@@ -42,81 +58,100 @@ class SecurityTrackingMiddleware(MiddlewareMixin):
                     return None
             except (AuthenticationFailed, Exception):
                 return None
-        
+
         # Get user
         user = request.user
         if not user.is_authenticated:
             return None
-        
+
+        # Single-device enforcement via X-Device-Id (Flutter UUID)
+        blocked = self._enforce_current_device(request, user)
+        if blocked is not None:
+            return blocked
+
         # Update user online status FIRST (regardless of device registration)
         try:
             online_status, created = UserOnlineStatus.objects.get_or_create(
                 user=user
             )
-            
+
             # Update last heartbeat
             online_status.last_heartbeat = timezone.now()
-            
+
             # Only mark as online if not currently busy (in a call)
             if online_status.status != 'busy':
                 online_status.is_online = True
                 online_status.status = 'available'
-            
+
             online_status.save(update_fields=['last_heartbeat', 'is_online', 'status'])
-            
+
         except Exception as e:
             # Don't break the request if online status tracking fails
             import logging
             logger = logging.getLogger(__name__)
             logger.error(f"Error updating online status for user {user.id}: {e}")
-        
+
         # Wrap everything in try-except to prevent errors from blocking requests
         try:
-            # Extract request information
+            # Prefer explicit app device id over UA fingerprint
+            header_device_id = request.META.get('HTTP_X_DEVICE_ID', '').strip()
             ip_address = get_client_ip(request)
             user_agent = request.META.get('HTTP_USER_AGENT', '')
-            
+
             # Parse user agent
             device_info = parse_user_agent(user_agent)
-            
+
             # Get location from IP
             location_data = get_location_from_ip(ip_address)
-            
+
             # Generate device fingerprint
             device_fingerprint = generate_device_fingerprint(request, device_info)
-            
-            # Check if device exists (DON'T create, only use registered devices)
-            device = UserDevice.objects.filter(
-                user=user,
-                device_id=device_fingerprint,
-                is_active=True
-            ).first()
-            
+
+            device = None
+            if header_device_id:
+                device = UserDevice.objects.filter(
+                    user=user,
+                    device_id=header_device_id,
+                    is_active=True,
+                ).first()
+
+            # Fallback to fingerprint (legacy / admin clients)
+            if not device:
+                device = UserDevice.objects.filter(
+                    user=user,
+                    device_id=device_fingerprint,
+                    is_active=True,
+                ).first()
+
             # If device not registered, skip session tracking
             # Device must be registered via /api/v1/security/devices/ first
             if not device:
                 return None
-            
+
+            # Do not track/create sessions for demoted devices
+            if device.is_verified and not device.is_current_device:
+                return None
+
             # Update device last seen
             device.mark_as_seen(ip_address)
-            
-            # Get or create session (use device_fingerprint + user as session key)
-            session_key = f"{user.id}_{device_fingerprint}"
-            
+
+            # Get or create session (use device_id + user as session key)
+            session_key = f"{user.id}_{device.device_id}"
+
             # Try to get existing session
             session = UserSession.objects.filter(
                 session_key=session_key
             ).first()
-            
+
             session_created = False
-            
+
             if session:
-                # Reactivate if expired or terminated
-                if session.status != 'active':
-                    session.status = 'active'
-                    session.expires_at = calculate_session_expiry(remember_me=False)
-                    session.save()
-            else:
+                # Do NOT auto-reactivate terminated sessions (e.g. device_replaced)
+                if session.status == 'active':
+                    session.update_activity()
+                else:
+                    session = None
+            if session is None and device.is_current_device:
                 # Create new session
                 session = UserSession.objects.create(
                     user=user,
@@ -137,11 +172,8 @@ class SecurityTrackingMiddleware(MiddlewareMixin):
                     expires_at=calculate_session_expiry(remember_me=False),
                 )
                 session_created = True
-            
-            # Update session activity
-            if not session_created:
-                session.update_activity()
-                
+
+            if session and not session_created:
                 # Check if location changed significantly
                 if location_data.get('country') and session.country != location_data.get('country'):
                     create_security_alert(
@@ -158,7 +190,7 @@ class SecurityTrackingMiddleware(MiddlewareMixin):
                             'ip_address': ip_address,
                         }
                     )
-                    
+
                     # Update session location
                     session.ip_address = ip_address
                     session.country = location_data.get('country', '')
@@ -168,11 +200,12 @@ class SecurityTrackingMiddleware(MiddlewareMixin):
                     session.latitude = location_data.get('latitude')
                     session.longitude = location_data.get('longitude')
                     session.save()
-            
+
             # Attach session and device to request for use in views
-            request.user_session = session
+            if session:
+                request.user_session = session
             request.user_device = device
-            
+
         except Exception as e:
             # Log the error but don't block the request
             import logging
@@ -180,9 +213,43 @@ class SecurityTrackingMiddleware(MiddlewareMixin):
             logger.error(f"Security tracking middleware error: {str(e)}")
             # Don't attach anything to request if there was an error
             pass
-        
+
         return None
-    
+
+    def _enforce_current_device(self, request, user):
+        """Return 401 JsonResponse if this device was replaced; else None."""
+        path = request.path or ''
+        if any(path.endswith(s) or s in path for s in _DEVICE_ENFORCEMENT_EXEMPT_SUFFIXES):
+            return None
+
+        # Skip non-API / admin / docs
+        if not path.startswith('/api/'):
+            return None
+
+        device_id = request.META.get('HTTP_X_DEVICE_ID', '').strip()
+        if not device_id:
+            return None
+
+        device = UserDevice.objects.filter(
+            user=user,
+            device_id=device_id,
+            is_active=True,
+        ).first()
+
+        if device and device.is_verified and not device.is_current_device:
+            return JsonResponse(
+                {
+                    'error': 'device_replaced',
+                    'code': 'device_replaced',
+                    'detail': (
+                        'Your account was signed in on another device. '
+                        'Please log in again.'
+                    ),
+                },
+                status=401,
+            )
+        return None
+
     def process_response(self, request, response):
         """Process response (no action needed)."""
         return response
