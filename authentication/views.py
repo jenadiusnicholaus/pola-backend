@@ -11,6 +11,7 @@ from drf_yasg import openapi
 from .serializers import (
     UserRegistrationSerializer,
     UserDetailSerializer,
+    UserSearchSerializer,
 )
 from .models import UserRole, Verification, Document
 
@@ -484,3 +485,46 @@ def professional_consultations(request):
         },
         status=status.HTTP_200_OK
     )
+
+
+class UserSearchView(APIView):
+    """
+    Search users by first name, last name, username, email, or phone number.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Search users by name, username, email, or phone number",
+        manual_parameters=[
+            openapi.Parameter(
+                'q', openapi.IN_QUERY,
+                description="Search query (first name, last name, username, email, or phone number)",
+                type=openapi.TYPE_STRING,
+                required=True,
+            ),
+        ],
+        responses={200: UserSearchSerializer(many=True)},
+        tags=['Users']
+    )
+    def get(self, request):
+        from django.db.models import Q
+
+        query = request.query_params.get('q', '').strip()
+        if not query or len(query) < 2:
+            return Response({
+                'error': 'Search query must be at least 2 characters'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        users = User.objects.filter(
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query) |
+            Q(username__icontains=query) |
+            Q(email__icontains=query) |
+            Q(contact__phone_number__icontains=query)
+        ).filter(is_active=True).distinct()[:20]
+
+        serializer = UserSearchSerializer(users, many=True, context={'request': request})
+        return Response({
+            'count': len(users),
+            'results': serializer.data
+        }, status=status.HTTP_200_OK)

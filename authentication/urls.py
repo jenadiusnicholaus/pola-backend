@@ -43,6 +43,9 @@ urlpatterns = [
     path('profile-picture/', views.UpdateProfilePictureView.as_view(), name='update-profile-picture'),
     path('change-role/', views.change_user_role, name='change-role'),
     
+    # User search
+    path('users/search/', views.UserSearchView.as_view(), name='user-search'),
+    
     # Consultations
     path('consultations/', views.professional_consultations, name='professional-consultations'),
     
