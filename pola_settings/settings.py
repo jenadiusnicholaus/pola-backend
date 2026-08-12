@@ -74,7 +74,8 @@ INSTALLED_APPS = [
     'notification',  # FCM push notifications and online status
     'django_filters',
     'corsheaders',
-    'hubs'
+    'hubs',
+    'statutes',  # Sheria za Nchi / Tanzania Statutes
 ]
 
 MIDDLEWARE = [

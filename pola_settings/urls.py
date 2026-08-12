@@ -169,6 +169,7 @@ urlpatterns = [
     path(f"api/{API_VERSION}/consultants/", include("subscriptions.consultant_urls")),  # Consultant-specific endpoints
     path(f"api/{API_VERSION}/lookups/", include("lookups.urls")),
     path(f"api/{API_VERSION}/hubs/", include("hubs.urls")),  # Hubs APIs
+    path(f"api/{API_VERSION}/statutes/", include("statutes.urls")),  # Sheria za Nchi
     path(f"api/{API_VERSION}/doc-templates/", include("document_templates.urls")),  # Document Template APIs
     path(f"api/{API_VERSION}/security/", include("authentication.device_urls")),  # Security & Device Tracking APIs
     path(f"api/{API_VERSION}/notifications/", include("notification.urls")),  # Notification APIs
