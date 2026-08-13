@@ -43,6 +43,13 @@ class SecurityTrackingMiddleware(MiddlewareMixin):
     ``device_replaced`` so the client can force logout.
     """
 
+    # High-frequency endpoints that skip heavy tracking
+    _LIGHTWEIGHT_SUFFIXES = (
+        '/heartbeat/',
+        '/online-status/',
+        '/notifications/',
+    )
+
     def process_request(self, request):
         """Process incoming request to track security information."""
 
@@ -69,27 +76,28 @@ class SecurityTrackingMiddleware(MiddlewareMixin):
         if blocked is not None:
             return blocked
 
-        # Update user online status FIRST (regardless of device registration)
+        # Check if this is a high-frequency endpoint — only update heartbeat
+        path = request.path or ''
+        is_lightweight = any(path.endswith(s) for s in self._LIGHTWEIGHT_SUFFIXES)
+
+        # Update user online status (lightweight, always needed)
         try:
             online_status, created = UserOnlineStatus.objects.get_or_create(
                 user=user
             )
-
-            # Update last heartbeat
             online_status.last_heartbeat = timezone.now()
-
-            # Only mark as online if not currently busy (in a call)
             if online_status.status != 'busy':
                 online_status.is_online = True
                 online_status.status = 'available'
-
             online_status.save(update_fields=['last_heartbeat', 'is_online', 'status'])
-
         except Exception as e:
-            # Don't break the request if online status tracking fails
             import logging
             logger = logging.getLogger(__name__)
             logger.error(f"Error updating online status for user {user.id}: {e}")
+
+        # Skip heavy device/session tracking for high-frequency endpoints
+        if is_lightweight:
+            return None
 
         # Wrap everything in try-except to prevent errors from blocking requests
         try:

@@ -4,10 +4,14 @@ Utility functions for device and location tracking
 """
 import requests
 from django.conf import settings
+from django.core.cache import cache
 from user_agents import parse
 from datetime import timedelta
 from django.utils import timezone
 import hashlib
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def get_client_ip(request):
@@ -69,7 +73,7 @@ def parse_user_agent(user_agent_string):
 def get_location_from_ip(ip_address):
     """
     Get location information from IP address using ipapi.co
-    Free tier: 1000 requests per day
+    Results are cached for 24 hours to avoid repeated external calls.
     """
     # Return empty data for local/private IPs
     if not ip_address or ip_address in ['127.0.0.1', 'localhost'] or ip_address.startswith('192.168.') or ip_address.startswith('10.'):
@@ -83,17 +87,22 @@ def get_location_from_ip(ip_address):
             'timezone': 'UTC',
             'isp': 'Local'
         }
-    
+
+    # Check cache first
+    cache_key = f'ip_location:{ip_address}'
+    cached = cache.get(cache_key)
+    if cached:
+        return cached
+
     try:
-        # Using ipapi.co (free tier) with shorter timeout
         response = requests.get(
             f'https://ipapi.co/{ip_address}/json/',
-            timeout=2  # Reduced from 5 to 2 seconds
+            timeout=2
         )
-        
+
         if response.status_code == 200:
             data = response.json()
-            return {
+            result = {
                 'country': data.get('country_name', ''),
                 'country_code': data.get('country_code', ''),
                 'city': data.get('city', ''),
@@ -103,13 +112,16 @@ def get_location_from_ip(ip_address):
                 'timezone': data.get('timezone', ''),
                 'isp': data.get('org', ''),
             }
+            # Cache for 24 hours
+            cache.set(cache_key, result, 86400)
+            return result
     except requests.exceptions.Timeout:
-        print(f"Location API timeout for IP: {ip_address}")
+        logger.warning(f"Location API timeout for IP: {ip_address}")
     except Exception as e:
-        print(f"Error getting location from IP: {e}")
-    
+        logger.warning(f"Error getting location from IP: {e}")
+
     # Return empty data on error (don't block the request)
-    return {
+    result = {
         'country': '',
         'country_code': '',
         'city': '',
