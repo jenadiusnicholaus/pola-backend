@@ -305,9 +305,11 @@ class ConsultantViewSet(viewsets.ReadOnlyModelViewSet):
     
     def get_permissions(self):
         """Override permissions for specific actions"""
-        if self.action in ['register', 'my_profile']:
-            return [IsAuthenticated()]
-        return [AllowAny()]
+        # Public browsing
+        if self.action in ['list', 'retrieve', 'search']:
+            return [AllowAny()]
+        # All other actions require authentication
+        return [IsAuthenticated()]
     
     @action(detail=False, methods=['get'])
     def search(self, request):
