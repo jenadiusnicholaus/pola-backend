@@ -448,41 +448,50 @@ class ConsultantViewSet(viewsets.ReadOnlyModelViewSet):
         Check current consultant application status
         Requires authentication
         """
-        # Check if user has a consultant profile
-        if hasattr(request.user, 'consultant_profile'):
-            profile = request.user.consultant_profile
-            return Response({
-                'is_consultant': True,
-                'status': 'approved',
-                'profile_id': profile.id,
-                'consultant_type': profile.consultant_type,
-                'is_available': profile.is_available
-            })
-        
-        # Check for pending/rejected applications
-        application = ConsultantRegistrationRequest.objects.filter(
-            user=request.user
-        ).order_by('-created_at').first()
-        
-        if application:
+        try:
+            # Check if user has a consultant profile
+            if hasattr(request.user, 'consultant_profile'):
+                profile = request.user.consultant_profile
+                return Response({
+                    'is_consultant': True,
+                    'status': 'approved',
+                    'profile_id': profile.id,
+                    'consultant_type': profile.consultant_type,
+                    'is_available': profile.is_available
+                })
+            
+            # Check for pending/rejected applications
+            application = ConsultantRegistrationRequest.objects.filter(
+                user=request.user
+            ).order_by('-created_at').first()
+            
+            if application:
+                return Response({
+                    'is_consultant': False,
+                    'status': application.status,
+                    'application': ConsultantRegistrationRequestSerializer(application, context={'request': request}).data
+                })
+            
+            # Check if user is eligible
+            eligible_types = ['advocate', 'lawyer', 'paralegal', 'law_firm']
+            can_apply = (request.user.user_role and 
+                        request.user.user_role.role_name in eligible_types and 
+                        request.user.is_verified)
+            
             return Response({
                 'is_consultant': False,
-                'status': application.status,
-                'application': ConsultantRegistrationRequestSerializer(application, context={'request': request}).data
+                'status': 'not_applied',
+                'can_apply': can_apply,
+                'message': 'No consultant application found' if can_apply else 'You are not eligible to apply as a consultant'
             })
-        
-        # Check if user is eligible
-        eligible_types = ['advocate', 'lawyer', 'paralegal', 'law_firm']
-        can_apply = (request.user.user_role and 
-                    request.user.user_role.role_name in eligible_types and 
-                    request.user.is_verified)
-        
-        return Response({
-            'is_consultant': False,
-            'status': 'not_applied',
-            'can_apply': can_apply,
-            'message': 'No consultant application found' if can_apply else 'You are not eligible to apply as a consultant'
-        })
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"check_application_status error for user {getattr(request.user, 'id', 'unknown')}: {e}", exc_info=True)
+            return Response({
+                'error': 'Internal server error',
+                'detail': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     @action(detail=False, methods=['get', 'patch'], url_path='my-profile')
     def my_consultant_profile(self, request):
