@@ -4,7 +4,7 @@
 # Usage: make <command>
 # ==========================================
 
-.PHONY: help build up down logs shell migrate test clean prod-up prod-down prod-logs backup restore deploy seed
+.PHONY: help build up down logs shell migrate test clean prod-up prod-down prod-logs backup restore deploy seed test-email prod-test-email
 
 # Default target
 help:
@@ -31,6 +31,10 @@ help:
 	@echo "  make prod-down    - Stop production services"
 	@echo "  make prod-logs    - View production logs"
 	@echo "  make init-ssl     - Initialize SSL certificates"
+	@echo ""
+	@echo "Email:"
+	@echo "  make test-email   - Test sending email (local)"
+	@echo "  make prod-test-email - Test sending email (production)"
 	@echo ""
 	@echo "Database:"
 	@echo "  make backup       - Backup local database"
@@ -151,6 +155,16 @@ prod-restart:
 init-ssl:
 	chmod +x scripts/init-ssl.sh
 	./scripts/init-ssl.sh
+
+# ==========================================
+# Email Test Commands
+# ==========================================
+
+test-email:
+	docker compose exec -T web python manage.py test_email --to $(TO)
+
+prod-test-email:
+	docker compose -f docker-compose.prod.yml exec -T web python manage.py test_email --to $(TO)
 
 # ==========================================
 # Database Backup Commands

@@ -63,22 +63,38 @@ class OTPService:
                 'message': 'Device is already verified'
             }
         
-        # Check if too many failed attempts
-        if device.otp_attempts >= cls.MAX_ATTEMPTS:
+        # Check if too many failed attempts (skip if force=True — user explicitly requested resend)
+        if device.otp_attempts >= cls.MAX_ATTEMPTS and not force:
             return {
                 'success': False,
                 'message': f'Too many failed attempts. Please contact support.'
             }
         
-        # Generate OTP
-        otp = cls.generate_otp()
-        expiry_time = timezone.now() + timedelta(minutes=cls.OTP_EXPIRY_MINUTES)
-        
-        # Store OTP on device
-        device.verification_otp = otp
-        device.otp_expires_at = expiry_time
-        device.otp_attempts = 0
-        device.save(update_fields=['verification_otp', 'otp_expires_at', 'otp_attempts'])
+        # Reuse existing OTP if still valid (not expired) — prevents OTP mismatch
+        # when register is called multiple times before user verifies
+        if device.verification_otp and device.otp_expires_at:
+            if timezone.now() < device.otp_expires_at:
+                otp = device.verification_otp
+                expiry_time = device.otp_expires_at
+                logger.info(f"♻️  Reusing existing OTP (still valid, expires at {expiry_time})")
+            else:
+                # Expired — generate new OTP
+                otp = cls.generate_otp()
+                expiry_time = timezone.now() + timedelta(minutes=cls.OTP_EXPIRY_MINUTES)
+                device.verification_otp = otp
+                device.otp_expires_at = expiry_time
+                device.otp_attempts = 0
+                device.save(update_fields=['verification_otp', 'otp_expires_at', 'otp_attempts'])
+                logger.info(f"🔄 Generated new OTP (previous one expired)")
+        else:
+            # No existing OTP — generate new one
+            otp = cls.generate_otp()
+            expiry_time = timezone.now() + timedelta(minutes=cls.OTP_EXPIRY_MINUTES)
+            device.verification_otp = otp
+            device.otp_expires_at = expiry_time
+            device.otp_attempts = 0
+            device.save(update_fields=['verification_otp', 'otp_expires_at', 'otp_attempts'])
+            logger.info(f"🆕 Generated new OTP (no existing OTP)")
         
         # Send OTP - try requested method first, fallback to the other
         sent = False

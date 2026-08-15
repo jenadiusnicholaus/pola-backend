@@ -599,3 +599,35 @@ class UserDetailSerializer(serializers.ModelSerializer):
                 cleaned_data[key] = value
         
         return cleaned_data
+
+
+class UserSearchSerializer(serializers.ModelSerializer):
+    """Lightweight serializer for user search results"""
+    full_name = serializers.SerializerMethodField()
+    user_role = UserRoleSerializer(read_only=True)
+    profile_picture_url = serializers.SerializerMethodField()
+    phone_number = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            'id', 'email', 'username', 'first_name', 'last_name', 'full_name',
+            'phone_number', 'user_role', 'profile_picture_url', 'is_verified',
+            'is_active'
+        ]
+
+    def get_full_name(self, obj):
+        parts = [obj.first_name or '', obj.last_name or '']
+        return ' '.join(parts).strip() or None
+
+    def get_phone_number(self, obj):
+        contact = getattr(obj, 'contact', None)
+        return contact.phone_number if contact else None
+
+    def get_profile_picture_url(self, obj):
+        if obj.profile_picture:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.profile_picture.url)
+            return obj.profile_picture.url
+        return None
