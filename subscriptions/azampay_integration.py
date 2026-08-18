@@ -28,6 +28,7 @@ from typing import Dict, Optional, Any
 from django.conf import settings
 from django.utils import timezone
 from django.core.cache import cache
+from .models import PaymentProvider
 
 logger = logging.getLogger(__name__)
 
@@ -66,51 +67,7 @@ class AzamPayError(Exception):
 # UTILITY FUNCTIONS
 # ============================================================================
 
-def detect_mobile_provider(phone_number: str) -> str:
-    """
-    Detect mobile money provider from phone number
-    
-    Args:
-        phone_number: Phone number (can be in any format)
-    
-    Returns:
-        Provider name: 'tigo_pesa', 'airtel_money', 'mpesa', 'halopesa', or 'unknown'
-    """
-    # Extract digits only
-    digits = ''.join(filter(str.isdigit, phone_number))
-    
-    # Normalize to 255XXXXXXXXX format
-    if digits.startswith('255'):
-        normalized = digits
-    elif digits.startswith('0'):
-        normalized = '255' + digits[1:]
-    elif len(digits) == 9:
-        normalized = '255' + digits
-    else:
-        normalized = digits
-    
-    # Check prefixes
-    if len(normalized) >= 5:
-        prefix = normalized[3:6]  # Get the 3 digits after 255
-        
-        # Tigo Pesa: 071, 065, 067
-        if prefix in ['071', '065', '067']:
-            return 'tigo_pesa'
-        
-        # Airtel Money: 068, 069, 078
-        elif prefix in ['068', '069', '078']:
-            return 'airtel_money'
-        
-        # M-Pesa (Vodacom): 074, 075, 076
-        elif prefix in ['074', '075', '076']:
-            return 'mpesa'
-        
-        # Halopesa: 062
-        elif prefix in ['062']:
-            return 'halopesa'
-    
-    logger.warning(f"Could not detect provider for phone: {phone_number}")
-    return 'unknown'
+
 
 
 def get_azampay_timeout() -> tuple:
@@ -360,16 +317,16 @@ class AzamPayCheckout:
         
         # AzamPay exact enum values only
         self.mobile_providers = {
-            'Mpesa': 'Mpesa',
-            'Airtel': 'Airtel',
-            'Tigo': 'Tigo',
-            'Halopesa': 'Halopesa',
-            'Azampesa': 'Azampesa',
+            PaymentProvider.MPESA.value: PaymentProvider.MPESA.value,
+            PaymentProvider.AIRTEL.value: PaymentProvider.AIRTEL.value,
+            PaymentProvider.TIGO.value: PaymentProvider.TIGO.value,
+            PaymentProvider.HALOPESA.value: PaymentProvider.HALOPESA.value,
+            PaymentProvider.AZAMPESA.value: PaymentProvider.AZAMPESA.value,
         }
         
         self.bank_providers = {
-            'CRDB': 'CRDB',
-            'NMB': 'NMB',
+            PaymentProvider.CRDB.value: PaymentProvider.CRDB.value,
+            PaymentProvider.NMB.value: PaymentProvider.NMB.value,
         }
     
     def _is_mock_mode(self) -> bool:
@@ -716,6 +673,17 @@ class AzamPayCheckout:
             logger.error(f"Bank OTP generation failed: {e}")
             raise AzamPayError(f"Failed to generate bank OTP: {str(e)}")
 
+    def initiate_checkout(self, phone_number: str, amount: float, external_reference: str, provider: str, currency: str = 'TZS') -> Dict[str, Any]:
+        """Backward compatibility / unified checkout initiator"""
+        return self.mobile_checkout(
+            account_number=phone_number,
+            amount=amount,
+            external_id=external_reference,
+            provider=provider,
+            currency=currency
+        )
+
+
 
 # ============================================================================
 # DISBURSEMENT SERVICE (SENDING PAYMENTS/PAYOUTS)
@@ -933,9 +901,9 @@ class AzamPayDisbursement:
         if self.is_mock_mode:
             return self._mock_disbursement(destination_account, amount, external_reference)
         
-        # Auto-detect provider if not specified
+        # Default to Mpesa if not specified
         if not provider:
-            provider = detect_mobile_provider(destination_account)
+            provider = 'Mpesa'
         
         token = self.auth_service.get_token()
         # Updated to official AzamPay disbursement endpoint per docs
@@ -1258,6 +1226,12 @@ class AzamPayDisbursement:
 # UNIFIED SERVICE
 # ============================================================================
 
+class AzamPayConfig:
+    """Configuration helper for AzamPay"""
+    def is_configured(self) -> bool:
+        return validate_azampay_config()
+
+
 class AzamPayService:
     """Sophisticated AzamPay service with comprehensive payment processing"""
     
@@ -1265,6 +1239,7 @@ class AzamPayService:
         self.auth = AzamPayAuth()
         self.checkout = AzamPayCheckout()
         self.disbursement = AzamPayDisbursement()
+        self.config = AzamPayConfig()
     
     def initiate_checkout(self, *args, **kwargs):
         """Delegate to checkout service"""
@@ -1278,9 +1253,13 @@ class AzamPayService:
         """Delegate to bank checkout"""
         return self.checkout.bank_checkout(*args, **kwargs)
     
+    def check_payment_status(self, *args, **kwargs):
+        """Delegate to checkout service status check"""
+        return self.checkout.check_payment_status(*args, **kwargs)
+    
     def check_transaction_status(self, *args, **kwargs):
         """Delegate to checkout for transaction status"""
-        return self.checkout.check_transaction_status(*args, **kwargs)
+        return self.checkout.check_payment_status(*args, **kwargs)
     
     def process_disbursement(self, *args, **kwargs):
         """Delegate to disbursement service"""
@@ -1310,6 +1289,5 @@ __all__ = [
     'AzamPayDisbursement',
     'AzamPayError',
     'azampay_client',
-    'detect_mobile_provider',
     'format_phone_number',
 ]

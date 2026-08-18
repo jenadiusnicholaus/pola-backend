@@ -38,7 +38,7 @@ from .serializers import (
     LearningMaterialSerializer,
     LearningMaterialPurchaseSerializer,
 )
-from .azampay_integration import azampay_client, format_phone_number, detect_mobile_provider
+from .azampay_integration import azampay_client, format_phone_number
 
 logger = logging.getLogger(__name__)
 
@@ -232,13 +232,8 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
                 # Format phone number
                 formatted_phone = format_phone_number(phone_number)
                 
-                # Detect provider
-                provider = detect_mobile_provider(formatted_phone)
-                if provider == 'unknown':
-                    return Response(
-                        {'error': 'Could not detect mobile money provider from phone number'},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
+                # Get provider
+                provider = request.data.get('provider') or 'Mpesa'
                 
                 # Generate external ID
                 external_id = f"SUB-{uuid.uuid4().hex[:12].upper()}"

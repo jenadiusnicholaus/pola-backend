@@ -6,6 +6,17 @@ from datetime import timedelta
 from authentication.models import PolaUser
 
 
+class PaymentProvider(models.TextChoices):
+    AIRTEL = 'Airtel', 'Airtel Money'
+    TIGO = 'Tigo', 'Tigo Pesa'
+    HALOPESA = 'Halopesa', 'Halopesa'
+    AZAMPESA = 'Azampesa', 'Azam Pesa'
+    MPESA = 'Mpesa', 'M-Pesa'
+    CRDB = 'CRDB', 'CRDB Bank'
+    NMB = 'NMB', 'NMB Bank'
+    BANK = 'bank', 'Bank Transfer'
+
+
 # ============================================================================
 # SUBSCRIPTION MODELS (Monthly Platform Access - 3,000 TZS)
 # ============================================================================
@@ -1308,13 +1319,7 @@ class Disbursement(models.Model):
         ('other', 'Other'),
     ]
     
-    PAYMENT_METHOD = [
-        ('tigo_pesa', 'Tigo Pesa'),
-        ('airtel_money', 'Airtel Money'),
-        ('mpesa', 'M-Pesa'),
-        ('halopesa', 'Halopesa'),
-        ('bank_transfer', 'Bank Transfer'),
-    ]
+    PAYMENT_METHOD = PaymentProvider.choices
     
     # Recipient information
     recipient = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='disbursements')
@@ -1518,16 +1523,7 @@ class PaymentTransaction(models.Model):
         ('refunded', 'Refunded'),
     ]
     
-    PAYMENT_METHODS = [
-        ('Mpesa', 'Mpesa'),
-        ('Airtel', 'Airtel'),
-        ('Tigo', 'Tigo'),
-        ('Halopesa', 'Halopesa'),
-        ('Azampesa', 'Azampesa'),
-        ('CRDB', 'CRDB Bank'),
-        ('NMB', 'NMB Bank'),
-        ('bank', 'Bank Transfer'),
-    ]
+    PAYMENT_METHODS = PaymentProvider.choices
     
     user = models.ForeignKey(PolaUser, on_delete=models.CASCADE, related_name='payment_transactions')
     transaction_type = models.CharField(max_length=50, choices=TRANSACTION_TYPES)

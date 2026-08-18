@@ -22,7 +22,7 @@ from .models import (
     PaymentTransaction, SubscriptionPlan, CallCreditBundle,
     UserSubscription, UserCallCredit
 )
-from .azampay_integration import azampay_client, format_phone_number, detect_mobile_provider
+from .azampay_integration import azampay_client, format_phone_number
 
 logger = logging.getLogger(__name__)
 
@@ -120,18 +120,7 @@ class PaymentService:
             actual_method = payment_method
             if payment_method in ('azampay', 'mobile_money'):
                 provider = kwargs.get('provider')
-                if provider:
-                    actual_method = provider
-                else:
-                    phone_number = kwargs.get('phone_number')
-                    if phone_number:
-                        try:
-                            formatted_phone = format_phone_number(phone_number)
-                            detected = detect_mobile_provider(formatted_phone)
-                            if detected:
-                                actual_method = detected
-                        except Exception:
-                            pass
+                actual_method = provider if provider else 'Mpesa'
             
             # Create payment transaction in database
             with transaction.atomic():
@@ -406,9 +395,9 @@ class PaymentService:
             if not phone_number:
                 raise PaymentServiceError("phone_number is required for mobile money payments")
             
-            # Format and detect provider
+            # Format provider
             formatted_phone = format_phone_number(phone_number)
-            provider = kwargs.get('provider') or detect_mobile_provider(formatted_phone)
+            provider = kwargs.get('provider') or 'Mpesa'
             
             try:
                 result = self.azampay.mobile_checkout(

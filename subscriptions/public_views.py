@@ -49,7 +49,6 @@ from .public_serializers import (
 )
 from .azampay_integration import (
     azampay_client,
-    detect_mobile_provider,
     format_phone_number,
 )
 
@@ -180,7 +179,7 @@ class CallCreditViewSet(viewsets.ReadOnlyModelViewSet):
             # Initiate AzamPay payment
             if payment_method == 'mobile_money':
                 formatted_phone = format_phone_number(phone_number)
-                provider = detect_mobile_provider(formatted_phone)
+                provider = request.data.get('provider') or 'Mpesa'
                 
                 # Check if AzamPay is configured
                 if not azampay_client.config.is_configured():
@@ -1035,7 +1034,7 @@ class ConsultationBookingViewSet(viewsets.ModelViewSet):
                 # Check if AzamPay is configured
                 if azampay_client.config.is_configured():
                     formatted_phone = format_phone_number(phone_number)
-                    provider = detect_mobile_provider(formatted_phone)
+                    provider = request.data.get('provider') or 'Mpesa'
                     
                     # Initiate payment
                     payment_result = azampay_client.initiate_checkout(

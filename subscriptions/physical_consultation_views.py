@@ -24,7 +24,7 @@ from .serializers import (
     ConsultationBookingSerializer,
     ConsultationBookingCreateSerializer
 )
-from .azampay_integration import azampay_client, AzamPayError, format_phone_number, detect_mobile_provider
+from .azampay_integration import azampay_client, AzamPayError, format_phone_number
 
 
 class PhysicalConsultationViewSet(viewsets.ModelViewSet):
@@ -253,12 +253,13 @@ class PhysicalConsultationViewSet(viewsets.ModelViewSet):
                 item_id=booking.id,
                 payment_method=payment_method,
                 phone_number=phone_number,
+                provider=request.data.get('provider') or 'Mpesa',
             )
             
             if result['success']:
                 # Get formatted phone and provider for response
                 formatted_phone = format_phone_number(phone_number)
-                provider = detect_mobile_provider(formatted_phone)
+                provider = request.data.get('provider') or 'Mpesa'
                 
                 return Response({
                     'success': True,

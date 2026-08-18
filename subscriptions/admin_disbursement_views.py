@@ -17,6 +17,7 @@ from .models import (
     Disbursement,
     ConsultantEarnings,
     UploaderEarnings,
+    PaymentProvider,
 )
 from .serializers import (
     DisbursementSerializer,
@@ -279,16 +280,17 @@ class AdminDisbursementViewSet(viewsets.ModelViewSet):
                 {'error': 'Minimum disbursement amount is 1,000 TZS'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
         try:
+            is_bank = disbursement.payment_method == PaymentProvider.BANK
+
             # Initiate disbursement through AzamPay
             result = azampay_client.process_disbursement(
                 destination_account=disbursement.recipient_phone,
                 amount=float(disbursement.amount),
                 external_reference=disbursement.external_reference,
                 recipient_name=disbursement.recipient_name,
-                disbursement_type=disbursement.payment_method if disbursement.payment_method != 'bank_transfer' else 'bank_transfer',
-                provider=disbursement.payment_method if disbursement.payment_method != 'bank_transfer' else None,
+                disbursement_type=disbursement.payment_method,
+                provider=None if is_bank else disbursement.payment_method,
                 remarks=f"{disbursement.disbursement_type.title()} earnings payout to {disbursement.recipient.email}"
             )
             
