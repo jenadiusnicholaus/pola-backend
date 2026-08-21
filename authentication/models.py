@@ -616,6 +616,13 @@ class PolaUser(AbstractUser):
         limit_choices_to={'user_role__role_name': 'law_firm'},
         related_name='associated_professionals'
     )
+    associated_law_firm_name = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        verbose_name=_("Associated Law Firm Name"),
+        help_text=_("Name of the law firm the professional is associated with (if not registered on the platform).")
+    )
     
     # Fields specific to Law Firm
     firm_name = models.CharField(max_length=255, null=True)

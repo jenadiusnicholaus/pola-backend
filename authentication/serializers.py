@@ -152,7 +152,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             # Professional fields (Advocate/Lawyer)
             'roll_number', 'bar_membership_number', 'practice_status', 'years_of_experience',
             'year_of_admission_to_bar', 'year_established', 'regional_chapter', 'place_of_work', 
-            'associated_law_firm', 'operating_regions', 'operating_districts', 'specializations',
+            'associated_law_firm', 'associated_law_firm_name', 'operating_regions', 'operating_districts', 'specializations',
             
             # Law Firm fields
             'firm_name', 'managing_partner', 'number_of_lawyers',
@@ -171,6 +171,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             'date_of_birth': {'required': False},  # Optional for law firms
             'agreed_to_Terms': {'required': True},
             'user_role': {'required': True},
+            'associated_law_firm': {'required': False},
+            'associated_law_firm_name': {'required': False},
         }
 
     def validate(self, attrs):
@@ -303,6 +305,8 @@ class UserDetailSerializer(serializers.ModelSerializer):
     specializations = serializers.SerializerMethodField()
     place_of_work = PlaceOfWorkSerializer(read_only=True)
     academic_role = AcademicRoleSerializer(read_only=True)
+    associated_law_firm_name = serializers.CharField(read_only=True)
+    associated_law_firm_display = serializers.SerializerMethodField()
     
     def get_profile_picture_url(self, obj):
         """Get full URL for profile picture"""
@@ -312,6 +316,12 @@ class UserDetailSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(obj.profile_picture.url)
             return obj.profile_picture.url
         return None
+    
+    def get_associated_law_firm_display(self, obj):
+        """Return the associated law firm name, whether from a registered firm or free-text"""
+        if obj.associated_law_firm:
+            return getattr(obj.associated_law_firm, 'firm_name', None) or obj.associated_law_firm.get_full_name() or obj.associated_law_firm.email
+        return obj.associated_law_firm_name or 'Independent Practitioner'
     
     def get_permissions(self, obj):
         """Get user permissions for frontend access control"""
@@ -535,7 +545,8 @@ class UserDetailSerializer(serializers.ModelSerializer):
                 *admin_flags,
                 'contact', 'address', 'verification_status', 'permissions', 'subscription',
                 'roll_number', 'practice_status', 'year_established', 'regional_chapter',
-                'operating_regions', 'specializations', 'associated_law_firm',
+                'operating_regions', 'specializations',
+                'associated_law_firm', 'associated_law_firm_name', 'associated_law_firm_display',
                 'date_joined', 'last_login'
             ],
             'lawyer': [
@@ -545,7 +556,8 @@ class UserDetailSerializer(serializers.ModelSerializer):
                 'contact', 'address', 'verification_status', 'permissions', 'subscription',
                 'bar_membership_number', 'years_of_experience', 'place_of_work',
                 'operating_regions', 'operating_districts', 'specializations',
-                'associated_law_firm', 'date_joined', 'last_login'
+                'associated_law_firm', 'associated_law_firm_name', 'associated_law_firm_display',
+                'date_joined', 'last_login'
             ],
             'paralegal': [
                 'id', 'email', 'first_name', 'last_name', 'date_of_birth',
@@ -553,7 +565,8 @@ class UserDetailSerializer(serializers.ModelSerializer):
                 *admin_flags,
                 'contact', 'address', 'verification_status', 'permissions', 'subscription',
                 'years_of_experience', 'place_of_work', 'operating_regions',
-                'operating_districts', 'associated_law_firm',
+                'operating_districts',
+                'associated_law_firm', 'associated_law_firm_name', 'associated_law_firm_display',
                 'date_joined', 'last_login'
             ],
             'law_firm': [
