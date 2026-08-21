@@ -316,10 +316,10 @@ class UserDetailSerializer(serializers.ModelSerializer):
         return None
     
     def get_associated_law_firm_display(self, obj):
-        """Return the associated law firm name, whether from a registered firm or free-text"""
+        """Return the associated law firm display name"""
         if obj.associated_law_firm:
             return getattr(obj.associated_law_firm, 'firm_name', None) or obj.associated_law_firm.get_full_name() or obj.associated_law_firm.email
-        return obj.associated_law_firm_name or 'Independent Practitioner'
+        return 'Independent Practitioner'
     
     def get_permissions(self, obj):
         """Get user permissions for frontend access control"""

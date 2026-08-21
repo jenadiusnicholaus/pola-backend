@@ -131,6 +131,7 @@ def get_location_from_ip(ip_address):
         'timezone': '',
         'isp': '',
     }
+    return result
 
 
 def generate_device_fingerprint(request, device_data):
