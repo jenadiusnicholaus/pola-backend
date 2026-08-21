@@ -459,7 +459,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             # Professional fields
             'roll_number', 'bar_membership_number', 'practice_status',
             'years_of_experience', 'year_of_admission_to_bar', 'year_established', 
-            'regional_chapter', 'place_of_work', 'associated_law_firm', 'operating_regions',
+            'regional_chapter', 'place_of_work', 'associated_law_firm', 'associated_law_firm_display', 'operating_regions',
             'operating_districts', 'specializations',
             
             # Law Firm fields
