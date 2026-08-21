@@ -304,6 +304,11 @@ class UserDetailSerializer(serializers.ModelSerializer):
     specializations = serializers.SerializerMethodField()
     place_of_work = PlaceOfWorkSerializer(read_only=True)
     academic_role = AcademicRoleSerializer(read_only=True)
+    associated_law_firm = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.filter(user_role__role_name='law_firm', is_active=True),
+        required=False,
+        allow_null=True,
+    )
     associated_law_firm_display = serializers.SerializerMethodField()
     
     def get_profile_picture_url(self, obj):
