@@ -556,7 +556,7 @@ class UpdateAssociatedLawFirmView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        law_firm_id = request.data.get('associated_law_firm', request.data.get('law_firm_id'))
+        law_firm_id = request.data.get('law_firm_id')
 
         if law_firm_id is None:
             user.associated_law_firm = None
