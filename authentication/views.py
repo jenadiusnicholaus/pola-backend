@@ -527,3 +527,63 @@ class UserSearchView(APIView):
             'count': len(users),
             'results': serializer.data
         }, status=status.HTTP_200_OK)
+
+
+class UpdateAssociatedLawFirmView(APIView):
+    """Update the associated law firm for the authenticated professional"""
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Update associated law firm (advocates, lawyers, paralegals). Pass law_firm_id or null to remove association.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'law_firm_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='ID of the law firm user, or null to clear'),
+            },
+        ),
+        responses={
+            200: openapi.Response('Updated successfully'),
+            400: 'Bad request',
+        },
+        tags=['User Profile']
+    )
+    def patch(self, request):
+        user = request.user
+
+        if not user.user_role or user.user_role.role_name not in ['advocate', 'lawyer', 'paralegal']:
+            return Response(
+                {'error': 'Only advocates, lawyers, and paralegals can associate with a law firm'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        law_firm_id = request.data.get('law_firm_id')
+
+        if law_firm_id is None:
+            user.associated_law_firm = None
+            user.save(update_fields=['associated_law_firm'])
+            return Response({
+                'success': True,
+                'message': 'Associated law firm removed',
+                'associated_law_firm': None,
+                'associated_law_firm_display': 'Independent Practitioner'
+            }, status=status.HTTP_200_OK)
+
+        try:
+            law_firm = User.objects.get(id=law_firm_id, user_role__role_name='law_firm', is_active=True)
+        except User.DoesNotExist:
+            return Response(
+                {'error': 'Law firm not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        user.associated_law_firm = law_firm
+        user.save(update_fields=['associated_law_firm'])
+
+        display = getattr(law_firm, 'firm_name', None) or law_firm.get_full_name() or law_firm.email
+
+        return Response({
+            'success': True,
+            'message': 'Associated law firm updated',
+            'associated_law_firm': law_firm.id,
+            'associated_law_firm_display': display
+        }, status=status.HTTP_200_OK)
