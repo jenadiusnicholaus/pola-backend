@@ -527,24 +527,3 @@ class UserSearchView(APIView):
             'count': len(users),
             'results': serializer.data
         }, status=status.HTTP_200_OK)
-
-
-class LawFirmListView(APIView):
-    """List all registered law firms for association selection"""
-    permission_classes = [permissions.IsAuthenticated]
-
-    @swagger_auto_schema(
-        operation_description="List all registered law firms for associated_law_firm selection",
-        responses={200: openapi.Response('List of law firms')},
-        tags=['Authentication']
-    )
-    def get(self, request):
-        law_firms = User.objects.filter(
-            user_role__role_name='law_firm',
-            is_active=True
-        ).values('id', 'firm_name', 'email', 'profile_picture').order_by('firm_name')
-
-        return Response({
-            'count': len(law_firms),
-            'results': list(law_firms)
-        }, status=status.HTTP_200_OK)

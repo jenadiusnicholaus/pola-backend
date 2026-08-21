@@ -45,9 +45,6 @@ urlpatterns = [
     
     # User search
     path('users/search/', views.UserSearchView.as_view(), name='user-search'),
-
-    # Law firms list (for associated_law_firm selection)
-    path('law-firms/', views.LawFirmListView.as_view(), name='law-firms'),
     
     # Consultations
     path('consultations/', views.professional_consultations, name='professional-consultations'),
