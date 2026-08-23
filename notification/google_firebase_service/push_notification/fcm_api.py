@@ -84,21 +84,20 @@ class FCM:
         
         # Data-only message: no "notification" field so Android always
         # triggers the background handler (firebaseMessagingBackgroundHandler)
-        # which shows a full-screen call notification.
+        # which shows a full-screen call notification via flutter_callkit_incoming.
         payload = {
             "message": {
                 "token": device_registration_token,
                 "data": data_payload,
                 "android": {
                     "priority": "high",
-                    "notification": {
-                        "channel_id": "incoming_calls",
-                        "default_vibrate_timings": True
-                    }
+                    "ttl": "60s",
+                    "direct_boot_ok": True
                 },
                 "apns": {
                     "headers": {
-                        "apns-priority": "10"
+                        "apns-priority": "10",
+                        "apns-push-type": "background"
                     },
                     "payload": {
                         "aps": {
