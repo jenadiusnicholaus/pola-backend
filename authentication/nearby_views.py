@@ -97,7 +97,7 @@ def nearby_legal_professionals(request):
     results = []
     
     for professional in legal_professionals:
-        # Get their current device location (prioritize current device)
+        # Get their latest active device location (prioritize current device, then most recent last_seen)
         device = professional.devices.filter(
             is_current_device=True,
             is_active=True,
@@ -105,13 +105,13 @@ def nearby_legal_professionals(request):
             longitude__isnull=False
         ).first()
         
-        # Fallback to any active device with location
+        # Fallback to any active device with location (ordered by most recent)
         if not device:
             device = professional.devices.filter(
                 is_active=True,
                 latitude__isnull=False,
                 longitude__isnull=False
-            ).first()
+            ).order_by('-last_seen').first()
         
         if not device or not device.latitude or not device.longitude:
             logger.info(f"🔍 [NEARBY] Skipping {professional.email} - no device location")
@@ -161,17 +161,33 @@ def nearby_legal_professionals(request):
         if professional.profile_picture:
             profile_picture_url = request.build_absolute_uri(professional.profile_picture.url)
         
-        # Get consultant profile if exists
+        # Get or auto-create consultant profile for this legal professional
         from subscriptions.models import ConsultantProfile
         consultant_profile = ConsultantProfile.objects.filter(
             user=professional,
-            is_available=True
         ).first()
+
+        if not consultant_profile:
+            role = professional.user_role.role_name if professional.user_role else 'advocate'
+            years_exp = getattr(professional, 'years_of_experience', 0) or 0
+            try:
+                consultant_profile = ConsultantProfile.objects.create(
+                    user=professional,
+                    consultant_type=role,
+                    is_available=True,
+                    offers_physical_consultations=True,
+                    offers_mobile_consultations=True,
+                    years_of_experience=years_exp,
+                    specialization=specialization_string or 'General Practice',
+                )
+                logger.info(f"✨ [NEARBY] Auto-created ConsultantProfile {consultant_profile.id} for {professional.email}")
+            except Exception as e:
+                logger.warning(f"⚠️ [NEARBY] Could not auto-create ConsultantProfile for {professional.email}: {e}")
+                consultant_profile = None
         
         # Build result matching consultant API structure
-        # Use consultant_profile.id as the primary ID (same as Talk to Lawyer API)
         result = {
-            'id': consultant_profile.id if consultant_profile else None,  # ConsultantProfile ID
+            'id': consultant_profile.id if consultant_profile else professional.id,
             'user': professional.id,
             'user_details': {
                 'id': professional.id,
@@ -214,25 +230,35 @@ def nearby_legal_professionals(request):
             'updated_at': consultant_profile.updated_at.isoformat() if consultant_profile and consultant_profile.updated_at else (professional.last_login.isoformat() if professional.last_login else None),
         }
         
-        # Only include if they have a consultant profile (so they can be called)
-        if consultant_profile:
-            results.append(result)
-            logger.info(f"✅ [NEARBY] Added {professional.email} (ConsultantProfile ID: {consultant_profile.id})")
-        else:
-            logger.info(f"⚠️ [NEARBY] Skipping {professional.email} - no ConsultantProfile")
+        results.append(result)
+        logger.info(f"✅ [NEARBY] Added {professional.email} (distance={distance_km:.2f}km)")
     
     # Sort by distance (nearest first)
     results.sort(key=lambda x: x['distance_km'])
     
-    # Apply limit
-    results = results[:limit]
+    # Apply pagination
+    try:
+        page = int(request.query_params.get('page', 1))
+        page_size = int(request.query_params.get('page_size', request.query_params.get('limit', 50)))
+        page = max(1, page)
+        page_size = max(1, min(100, page_size))
+    except (ValueError, TypeError):
+        page = 1
+        page_size = 50
+    
+    total_count = len(results)
+    start_idx = (page - 1) * page_size
+    end_idx = start_idx + page_size
+    paginated_results = results[start_idx:end_idx]
     
     return Response({
-        'count': len(results),
+        'count': total_count,
         'radius_km': radius_km,
+        'page': page,
+        'page_size': page_size,
         'your_location': {
             'latitude': float(user_device.latitude),
             'longitude': float(user_device.longitude),
         },
-        'results': results
+        'results': paginated_results
     }, status=status.HTTP_200_OK)

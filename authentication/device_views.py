@@ -450,10 +450,17 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
         device_id = request.data.get('device_id')
         
         if device_id:
-            device = UserDevice.objects.filter(
+            device, created = UserDevice.objects.get_or_create(
                 user=request.user,
-                device_id=device_id
-            ).first()
+                device_id=device_id,
+                defaults={
+                    'is_current_device': True,
+                    'is_active': True,
+                    'is_verified': True,
+                    'device_type': request.data.get('device_type', 'mobile'),
+                    'os_name': request.data.get('os_name', 'unknown'),
+                }
+            )
         else:
             # Fall back to current device
             device = UserDevice.objects.filter(
@@ -461,19 +468,31 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
                 is_current_device=True,
                 is_active=True
             ).first()
+            if not device:
+                device = UserDevice.objects.filter(
+                    user=request.user,
+                    is_active=True
+                ).order_by('-last_seen').first()
+            if not device:
+                import uuid
+                device = UserDevice.objects.create(
+                    user=request.user,
+                    device_id=str(uuid.uuid4()),
+                    is_current_device=True,
+                    is_active=True,
+                    is_verified=True,
+                )
         
-        if not device:
-            return Response(
-                {'error': 'Device not found. Provide device_id or ensure you have a current device.'},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        
+        # Set as current device
+        UserDevice.objects.filter(user=request.user).exclude(id=device.id).update(is_current_device=False)
+        device.is_current_device = True
+        device.is_active = True
         device.latitude = serializer.validated_data['latitude']
         device.longitude = serializer.validated_data['longitude']
         device.last_seen = timezone.now()
         ip_address = get_client_ip(request)
         device.last_ip = ip_address
-        device.save(update_fields=['latitude', 'longitude', 'last_seen', 'last_ip', 'updated_at'])
+        device.save(update_fields=['latitude', 'longitude', 'last_seen', 'last_ip', 'is_current_device', 'is_active', 'updated_at'])
         
         logger.info(f"📍 Location updated for device {device.id} (user: {request.user.email}): lat={device.latitude}, lon={device.longitude}")
         
