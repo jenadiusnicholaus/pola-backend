@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.db import transaction
 from django.utils import timezone
-from django.shortcuts import get_object_or_404
 import logging
 
 from .models import CallSession, UserCallCredit
@@ -251,7 +250,13 @@ class CallManagementViewSet(viewsets.ViewSet):
         
         POST /api/v1/subscriptions/calls/{call_id}/accept/
         """
-        call_session = get_object_or_404(CallSession, pk=pk)
+        call_session = CallSession.objects.filter(pk=pk).first()
+        
+        if not call_session:
+            return Response({
+                'error': 'not_found',
+                'message': f'Call session with id {pk} not found'
+            }, status=status.HTTP_404_NOT_FOUND)
         
         # Verify request user is the consultant
         if call_session.consultant != request.user:
@@ -330,7 +335,13 @@ class CallManagementViewSet(viewsets.ViewSet):
             "reason": "busy"  // optional
         }
         """
-        call_session = get_object_or_404(CallSession, pk=pk)
+        call_session = CallSession.objects.filter(pk=pk).first()
+        
+        if not call_session:
+            return Response({
+                'error': 'not_found',
+                'message': f'Call session with id {pk} not found'
+            }, status=status.HTTP_404_NOT_FOUND)
         
         # Verify request user is the consultant
         if call_session.consultant != request.user:
@@ -405,7 +416,13 @@ class CallManagementViewSet(viewsets.ViewSet):
             "duration_seconds": 120  // optional, will calculate if not provided
         }
         """
-        call_session = get_object_or_404(CallSession, pk=pk)
+        call_session = CallSession.objects.filter(pk=pk).first()
+        
+        if not call_session:
+            return Response({
+                'error': 'not_found',
+                'message': f'Call session with id {pk} not found'
+            }, status=status.HTTP_404_NOT_FOUND)
         
         # Verify request user is either caller or consultant
         if call_session.caller != request.user and call_session.consultant != request.user:
@@ -414,12 +431,23 @@ class CallManagementViewSet(viewsets.ViewSet):
                 'message': 'Only call participants can end this call'
             }, status=status.HTTP_403_FORBIDDEN)
         
-        # Check if call is active
-        if call_session.status not in ['active', 'ringing']:
+        # If call is already ended, return success (idempotent)
+        if call_session.status in ['ended', 'completed', 'missed', 'cancelled', 'rejected']:
+            remaining_minutes = 0
+            if call_session.call_credit:
+                call_session.call_credit.refresh_from_db()
+                remaining_minutes = call_session.call_credit.remaining_minutes
             return Response({
-                'error': 'invalid_status',
-                'message': f'Call cannot be ended. Current status: {call_session.status}'
-            }, status=status.HTTP_400_BAD_REQUEST)
+                'success': True,
+                'call_summary': {
+                    'call_id': call_session.id,
+                    'duration_seconds': call_session.get_duration_seconds(),
+                    'duration_minutes': call_session.duration_minutes,
+                    'credits_deducted': float(call_session.credits_deducted),
+                    'credits_remaining': remaining_minutes
+                },
+                'message': f'Call was already ended (status: {call_session.status})'
+            }, status=status.HTTP_200_OK)
         
         # End the call
         duration_seconds = request.data.get('duration_seconds')
@@ -498,7 +526,13 @@ class CallManagementViewSet(viewsets.ViewSet):
         
         POST /api/v1/subscriptions/calls/{call_id}/missed/
         """
-        call_session = get_object_or_404(CallSession, pk=pk)
+        call_session = CallSession.objects.filter(pk=pk).first()
+        
+        if not call_session:
+            return Response({
+                'error': 'not_found',
+                'message': f'Call session with id {pk} not found'
+            }, status=status.HTTP_404_NOT_FOUND)
         
         # Can be called by either caller or system
         if call_session.caller != request.user and not request.user.is_staff:
@@ -560,7 +594,13 @@ class CallManagementViewSet(viewsets.ViewSet):
         
         POST /api/v1/subscriptions/calls/{call_id}/cancel/
         """
-        call_session = get_object_or_404(CallSession, pk=pk)
+        call_session = CallSession.objects.filter(pk=pk).first()
+        
+        if not call_session:
+            return Response({
+                'error': 'not_found',
+                'message': f'Call session with id {pk} not found'
+            }, status=status.HTTP_404_NOT_FOUND)
         
         # Only the caller can cancel
         if call_session.caller != request.user:
