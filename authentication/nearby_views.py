@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from geopy.distance import geodesic
 import logging
 
@@ -69,10 +70,19 @@ def nearby_legal_professionals(request):
         }, status=status.HTTP_400_BAD_REQUEST)
     
     user_location = (float(user_device.latitude), float(user_device.longitude))
-    
+
+    debug_mode = str(request.query_params.get('debug', '')).lower() in ('1', 'true', 'yes')
+    diagnostics = []
+
+    # Match role names case-insensitively so DB values like "Advocate" still match
+    role_filter = Q()
+    for t in user_types:
+        if t:
+            role_filter |= Q(user_role__role_name__iexact=t)
+
     # Get all legal professionals with devices
     legal_professionals = User.objects.filter(
-        user_role__role_name__in=user_types,
+        role_filter,
         is_active=True
     ).exclude(
         id=request.user.id  # Exclude current user
@@ -115,6 +125,14 @@ def nearby_legal_professionals(request):
         
         if not device or not device.latitude or not device.longitude:
             logger.info(f"🔍 [NEARBY] Skipping {professional.email} - no device location")
+            if debug_mode:
+                diagnostics.append({
+                    'email': professional.email,
+                    'role': professional.user_role.role_name if professional.user_role else None,
+                    'skipped_reason': 'no_device_location',
+                    'device_count': professional.devices.count(),
+                    'active_device_count': professional.devices.filter(is_active=True).count(),
+                })
             continue
         
         professional_location = (float(device.latitude), float(device.longitude))
@@ -127,6 +145,15 @@ def nearby_legal_professionals(request):
         # Filter by radius
         if distance_km > radius_km:
             logger.info(f"🔍 [NEARBY] Skipping {professional.email} - outside radius")
+            if debug_mode:
+                diagnostics.append({
+                    'email': professional.email,
+                    'role': professional.user_role.role_name if professional.user_role else None,
+                    'skipped_reason': 'outside_radius',
+                    'distance_km': round(distance_km, 2),
+                    'radius_km': radius_km,
+                    'their_location': professional_location,
+                })
             continue
         
         # Get contact info
@@ -251,7 +278,7 @@ def nearby_legal_professionals(request):
     end_idx = start_idx + page_size
     paginated_results = results[start_idx:end_idx]
     
-    return Response({
+    payload = {
         'count': total_count,
         'radius_km': radius_km,
         'page': page,
@@ -261,4 +288,18 @@ def nearby_legal_professionals(request):
             'longitude': float(user_device.longitude),
         },
         'results': paginated_results
-    }, status=status.HTTP_200_OK)
+    }
+
+    if debug_mode:
+        payload['debug'] = {
+            'requested_types': user_types,
+            'matched_by_role': legal_professionals.count(),
+            'all_role_names_in_db': list(
+                User.objects.exclude(user_role__isnull=True)
+                .values_list('user_role__role_name', flat=True)
+                .distinct()
+            ),
+            'skipped': diagnostics,
+        }
+
+    return Response(payload, status=status.HTTP_200_OK)
