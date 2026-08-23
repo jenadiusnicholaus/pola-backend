@@ -443,33 +443,47 @@ class UserDeviceViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['post'])
     def update_location(self, request):
-        """Update current device location"""
+        """Update current device live location"""
         serializer = LocationUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
         device_id = request.data.get('device_id')
-        if not device_id:
-            return Response(
-                {'error': 'device_id is required'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
         
-        try:
-            device = UserDevice.objects.get(
+        if device_id:
+            device = UserDevice.objects.filter(
                 user=request.user,
                 device_id=device_id
-            )
-            device.mark_as_seen(get_client_ip(request))
-            
-            return Response({
-                'message': 'Location updated successfully',
-                'device_id': device.device_id
-            })
-        except UserDevice.DoesNotExist:
+            ).first()
+        else:
+            # Fall back to current device
+            device = UserDevice.objects.filter(
+                user=request.user,
+                is_current_device=True,
+                is_active=True
+            ).first()
+        
+        if not device:
             return Response(
-                {'error': 'Device not found'},
+                {'error': 'Device not found. Provide device_id or ensure you have a current device.'},
                 status=status.HTTP_404_NOT_FOUND
             )
+        
+        device.latitude = serializer.validated_data['latitude']
+        device.longitude = serializer.validated_data['longitude']
+        device.last_seen = timezone.now()
+        ip_address = get_client_ip(request)
+        device.last_ip = ip_address
+        device.save(update_fields=['latitude', 'longitude', 'last_seen', 'last_ip', 'updated_at'])
+        
+        logger.info(f"📍 Location updated for device {device.id} (user: {request.user.email}): lat={device.latitude}, lon={device.longitude}")
+        
+        return Response({
+            'success': True,
+            'message': 'Location updated successfully',
+            'device_id': device.device_id,
+            'latitude': str(device.latitude),
+            'longitude': str(device.longitude)
+        })
     
     @action(detail=False, methods=['post'])
     def check_device(self, request):
