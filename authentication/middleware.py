@@ -140,8 +140,15 @@ class SecurityTrackingMiddleware(MiddlewareMixin):
             if device.is_verified and not device.is_current_device:
                 return None
 
-            # Update device last seen
+            # Update device last seen and location from IP
             device.mark_as_seen(ip_address)
+
+            # Update device GPS coordinates from IP geolocation if not already set
+            if location_data.get('latitude') and location_data.get('longitude'):
+                if not device.latitude or not device.longitude:
+                    device.latitude = location_data.get('latitude')
+                    device.longitude = location_data.get('longitude')
+                    device.save(update_fields=['latitude', 'longitude', 'updated_at'])
 
             # Get or create session (use device_id + user as session key)
             session_key = f"{user.id}_{device.device_id}"

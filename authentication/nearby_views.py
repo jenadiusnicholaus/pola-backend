@@ -44,32 +44,47 @@ def nearby_legal_professionals(request):
     except ValueError:
         limit = 50
     
-    # Get current user's device location (prioritize current device)
-    user_device = UserDevice.objects.filter(
-        user=request.user,
-        is_current_device=True,
-        is_active=True,
-        latitude__isnull=False,
-        longitude__isnull=False
-    ).first()
+    # Get user location: 1) query params, 2) current device, 3) any active device
+    query_lat = request.query_params.get('latitude')
+    query_lon = request.query_params.get('longitude')
     
-    # Fallback to any active device with location if no current device
-    if not user_device:
+    user_location = None
+    user_device = None
+    
+    if query_lat and query_lon:
+        try:
+            user_location = (float(query_lat), float(query_lon))
+        except (ValueError, TypeError):
+            pass
+    
+    if not user_location:
+        # Try current device with location
         user_device = UserDevice.objects.filter(
             user=request.user,
+            is_current_device=True,
             is_active=True,
             latitude__isnull=False,
             longitude__isnull=False
         ).first()
     
-    if not user_device or not user_device.latitude or not user_device.longitude:
-        return Response({
-            'error': 'Your device location is not available. Please register your device with location first.',
-            'missing_fields': ['latitude', 'longitude'],
-            'hint': 'Register your device at /api/v1/security/devices/ with GPS coordinates'
-        }, status=status.HTTP_400_BAD_REQUEST)
+        # Fallback to any active device with location
+        if not user_device:
+            user_device = UserDevice.objects.filter(
+                user=request.user,
+                is_active=True,
+                latitude__isnull=False,
+                longitude__isnull=False
+            ).order_by('-last_seen').first()
     
-    user_location = (float(user_device.latitude), float(user_device.longitude))
+        if user_device and user_device.latitude and user_device.longitude:
+            user_location = (float(user_device.latitude), float(user_device.longitude))
+    
+    if not user_location:
+        return Response({
+            'error': 'Your location is not available. Send latitude and longitude as query params, or update your device location.',
+            'missing_fields': ['latitude', 'longitude'],
+            'hint': 'GET /api/v1/security/nearby/?latitude=-6.8&longitude=39.2 or POST /api/v1/security/devices/update_location/'
+        }, status=status.HTTP_400_BAD_REQUEST)
 
     debug_mode = str(request.query_params.get('debug', '')).lower() in ('1', 'true', 'yes')
     diagnostics = []
@@ -284,8 +299,8 @@ def nearby_legal_professionals(request):
         'page': page,
         'page_size': page_size,
         'your_location': {
-            'latitude': float(user_device.latitude),
-            'longitude': float(user_device.longitude),
+            'latitude': user_location[0],
+            'longitude': user_location[1],
         },
         'results': paginated_results
     }
