@@ -77,22 +77,22 @@ class FCM:
             'caller_photo': str(call_data.get('caller_photo', '')),
             'caller_phone': str(call_data.get('caller_phone', '')),
             'call_type': str(call_data.get('call_type', 'voice')),
-            'timestamp': str(call_data.get('timestamp', ''))
+            'timestamp': str(call_data.get('timestamp', '')),
+            'title': 'Incoming Call',
+            'body': f"{call_data.get('caller_name', 'Someone')} is calling you",
         }
         
+        # Data-only message: no "notification" field so Android always
+        # triggers the background handler (firebaseMessagingBackgroundHandler)
+        # which shows a full-screen call notification.
         payload = {
             "message": {
                 "token": device_registration_token,
-                "notification": {
-                    "title": "Incoming Call",
-                    "body": f"{call_data.get('caller_name', 'Someone')} is calling you"
-                },
                 "data": data_payload,
                 "android": {
                     "priority": "high",
                     "notification": {
                         "channel_id": "incoming_calls",
-                        "sound": "ringtone.mp3",
                         "default_vibrate_timings": True
                     }
                 },
@@ -102,7 +102,7 @@ class FCM:
                     },
                     "payload": {
                         "aps": {
-                            "sound": "ringtone.caf",
+                            "sound": "default",
                             "content-available": 1,
                             "badge": 1
                         }
