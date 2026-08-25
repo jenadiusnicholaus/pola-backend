@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 from . import views
 from . import verification_views
 from . import nearby_views
@@ -21,7 +21,7 @@ router.register(r'admin-verification', verification_views.AdminVerificationDashb
 urlpatterns = [
     # Authentication endpoints
     path('register/', views.UserRegistrationView.as_view(), name='register'),
-    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('login/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('admin-login/', views.AdminLoginView.as_view(), name='admin-login'),
     path('refresh/', TokenRefreshView.as_view(), name='refresh_token'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

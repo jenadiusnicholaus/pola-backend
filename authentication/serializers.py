@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from .models import (
@@ -647,3 +648,22 @@ class UserSearchSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(obj.profile_picture.url)
             return obj.profile_picture.url
         return None
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """Custom JWT login serializer that returns tokens plus full user data"""
+    
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        
+        # Add user details to the response
+        user = self.user
+        data['user'] = UserDetailSerializer(user, context=self.context).data
+        data['user_id'] = user.id
+        data['email'] = user.email
+        data['full_name'] = user.get_full_name() or user.email
+        data['role'] = user.user_role.role_name if user.user_role else None
+        data['is_active'] = user.is_active
+        data['is_verified'] = getattr(user, 'is_verified', False)
+        
+        return data

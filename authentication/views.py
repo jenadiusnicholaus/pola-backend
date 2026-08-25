@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from drf_yasg.utils import swagger_auto_schema
@@ -12,6 +13,7 @@ from .serializers import (
     UserRegistrationSerializer,
     UserDetailSerializer,
     UserSearchSerializer,
+    CustomTokenObtainPairSerializer,
 )
 from .models import UserRole, Verification, Document
 
@@ -33,8 +35,7 @@ class UserRegistrationView(generics.CreateAPIView):
     Each role has specific required fields. See the model documentation for details.
     """
     serializer_class = UserRegistrationSerializer
-    permission_classes = [permissions.AllowAny]
-    
+
     @swagger_auto_schema(
         operation_description="Register a new user with role-specific information",
         responses={
@@ -65,6 +66,12 @@ class UserRegistrationView(generics.CreateAPIView):
             },
             status=status.HTTP_201_CREATED
         )
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    """JWT login endpoint that returns tokens plus full user data"""
+    serializer_class = CustomTokenObtainPairSerializer
+    permission_classes = [permissions.AllowAny]
 
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
