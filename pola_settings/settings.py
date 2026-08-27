@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'hubs',
     'statutes',  # Sheria za Nchi / Tanzania Statutes
+    'events',  # Event management
 ]
 
 MIDDLEWARE = [
