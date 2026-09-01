@@ -78,6 +78,7 @@ docs/*.md
 !docs/ADMIN_FRONTEND_IMPLEMENTATION.md
 !docs/MOBILE_API_USAGE.md
 !docs/SUBSCRIPTION_CRUD_API.md
+!docs/FLUTTER_API_GUIDE.md
 # !docs/**/*.md
 *.sh
 # Keep backup scripts tracked in Git
