@@ -71,6 +71,10 @@ urlpatterns = [
     path('deletion/requests/', deletion_views.MyDeletionRequestsView.as_view(), name='my-deletion-requests'),
     path('deletion/requests/<int:pk>/', deletion_views.DeletionRequestDetailView.as_view(), name='deletion-request-detail'),
     path('deletion/public-request/', deletion_views.public_deletion_request, name='public-deletion-request'),
+    path('deletion/public-data-request/', deletion_views.public_data_deletion_request, name='public-data-deletion-request'),
+    # Public pages for Play Store (no auth required)
+    path('deletion/account/', deletion_views.deletion_info_page, name='deletion-account-page'),
+    path('deletion/data/', deletion_views.data_deletion_info_page, name='deletion-data-page'),
     path('deletion/info/', deletion_views.deletion_info_page, name='deletion-info-page'),
     
     # Verification endpoints (from router)

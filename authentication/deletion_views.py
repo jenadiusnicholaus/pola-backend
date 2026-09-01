@@ -237,14 +237,22 @@ class DeleteSpecificDataView(APIView):
         return f'Cleared: {", ".join(cleared)}'
 
 
-# --- Public web page for Play Store listing ---
+# --- Public web pages for Play Store listing ---
 
 def deletion_info_page(request):
     """
-    Public HTML page explaining how users can request account/data deletion.
-    This URL is shown on the Google Play Store listing.
+    Public HTML page for account deletion.
+    URL for Google Play Store: /api/v1/authentication/deletion/account/
     """
-    return render(request, 'deletion_request.html')
+    return render(request, 'account_deletion_page.html')
+
+
+def data_deletion_info_page(request):
+    """
+    Public HTML page for data deletion (without deleting account).
+    URL for Google Play Store: /api/v1/authentication/deletion/data/
+    """
+    return render(request, 'data_deletion_page.html')
 
 
 @api_view(['POST'])
@@ -292,3 +300,59 @@ def public_deletion_request(request):
         'request_id': deletion_request.id,
         'scheduled_deletion_date': scheduled_date,
     }, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def public_data_deletion_request(request):
+    """
+    Public endpoint (no auth required) to request deletion of specific data
+    by providing email and data categories. Used by the public data deletion page.
+    """
+    email = request.data.get('email', '').strip().lower()
+    if not email:
+        return Response({'error': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    categories = request.data.get('data_categories', [])
+    if not categories:
+        return Response({'error': 'Select at least one data category to delete.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = User.objects.filter(email=email).first()
+    if not user:
+        return Response({
+            'message': 'If an account exists for this email, your data deletion request has been submitted.'
+        }, status=status.HTTP_200_OK)
+
+    # Perform the actual deletion
+    handler = DeleteSpecificDataView()
+    valid_categories = [c for c in categories if c in handler.DATA_HANDLERS or c == 'all']
+    if not valid_categories:
+        return Response({'error': 'Invalid data categories.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if 'all' in valid_categories:
+        valid_categories = list(handler.DATA_HANDLERS.keys())
+
+    results = {}
+    for category in valid_categories:
+        handler_name = handler.DATA_HANDLERS.get(category)
+        if handler_name:
+            method = getattr(handler, handler_name, None)
+            if method:
+                results[category] = method(user)
+
+    AccountDeletionRequest.objects.create(
+        user=user,
+        deletion_type='data',
+        data_categories=valid_categories,
+        reason='Requested via public data deletion page',
+        status='completed',
+        processed_at=timezone.now(),
+    )
+
+    logger.info(f"Public data deletion for {email}. Categories: {valid_categories}")
+
+    return Response({
+        'message': 'Your data deletion request has been processed. The selected data has been deleted. '
+                   'Your account remains active.',
+        'deleted': results
+    }, status=status.HTTP_200_OK)
