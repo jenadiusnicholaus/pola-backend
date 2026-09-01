@@ -1517,5 +1517,70 @@ class UserPrivacySettings(models.Model):
         return True
 
 
+class BlockedUser(models.Model):
+    """Track users blocked by other users."""
+    blocker = models.ForeignKey(
+        'PolaUser', on_delete=models.CASCADE, related_name='blocked_users'
+    )
+    blocked = models.ForeignKey(
+        'PolaUser', on_delete=models.CASCADE, related_name='blocked_by_users'
+    )
+    reason = models.CharField(max_length=255, blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('blocker', 'blocked')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.blocker.email} blocked {self.blocked.email}"
+
+
+class UserReport(models.Model):
+    """Track user-generated reports about other users or content."""
+    REPORT_TYPES = [
+        ('harassment', 'Harassment or Bullying'),
+        ('spam', 'Spam or Scam'),
+        ('inappropriate', 'Inappropriate Content'),
+        ('impersonation', 'Impersonation'),
+        ('fake_profile', 'Fake Profile'),
+        ('other', 'Other'),
+    ]
+    REPORT_STATUS = [
+        ('pending', 'Pending'),
+        ('reviewing', 'Under Review'),
+        ('resolved', 'Resolved'),
+        ('dismissed', 'Dismissed'),
+    ]
+
+    reporter = models.ForeignKey(
+        'PolaUser', on_delete=models.CASCADE, related_name='reports_made'
+    )
+    reported_user = models.ForeignKey(
+        'PolaUser', on_delete=models.CASCADE, related_name='reports_received',
+        null=True, blank=True
+    )
+    report_type = models.CharField(max_length=50, choices=REPORT_TYPES, default='other')
+    description = models.TextField(blank=True, default='')
+    content_type = models.CharField(max_length=100, blank=True, default='')
+    content_id = models.CharField(max_length=100, blank=True, default='')
+    status = models.CharField(max_length=20, choices=REPORT_STATUS, default='pending')
+    admin_notes = models.TextField(blank=True, default='')
+    resolved_by = models.ForeignKey(
+        'PolaUser', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='reports_resolved'
+    )
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        target = self.reported_user.email if self.reported_user else self.content_type
+        return f"{self.reporter.email} reported {target} - {self.report_type}"
+
+
 # Re-export password reset model so Django discovers migrations
 from .password_reset_models import PasswordResetOTP  # noqa: E402,F401

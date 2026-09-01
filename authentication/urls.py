@@ -4,6 +4,7 @@ from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 from . import views
 from . import verification_views
 from . import nearby_views
+from . import moderation_views
 from .password_views import (
     PasswordResetRequestView,
     PasswordResetConfirmView,
@@ -52,6 +53,15 @@ urlpatterns = [
     
     # Nearby search
     path('nearby-legal-professionals/', nearby_views.nearby_legal_professionals, name='nearby-legal-professionals'),
+    
+    # Moderation: Block / Report
+    path('block/', moderation_views.BlockUserView.as_view(), name='block-user'),
+    path('block/<int:user_id>/unblock/', moderation_views.UnblockUserView.as_view(), name='unblock-user'),
+    path('blocked-users/', moderation_views.BlockedUsersListView.as_view(), name='blocked-users-list'),
+    path('block/<int:user_id>/check/', moderation_views.CheckBlockedView.as_view(), name='check-blocked'),
+    path('report/', moderation_views.ReportUserView.as_view(), name='report-user'),
+    path('reports/', moderation_views.MyReportsListView.as_view(), name='my-reports'),
+    path('reports/<int:pk>/', moderation_views.ReportDetailView.as_view(), name='report-detail'),
     
     # Verification endpoints (from router)
     path('', include(router.urls)),

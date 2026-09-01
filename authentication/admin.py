@@ -4,7 +4,7 @@ from .models import (
     Contact, Address, Verification, VerificationDocument, Document, PolaUser,
     Region, District, OperatingRegion, OperatingDistrict, Specialization,
     ProfessionalSpecialization, RegionalChapter, DeviceToken, NotificationPreference,
-    PasswordResetOTP,
+    PasswordResetOTP, BlockedUser, UserReport,
 )
 from .device_models import UserDevice, UserSession, LoginHistory, SecurityAlert
 
@@ -354,3 +354,33 @@ class PasswordResetOTPAdmin(admin.ModelAdmin):
     list_filter = ('is_used', 'created_at')
     search_fields = ('user__email', 'otp')
     readonly_fields = ('otp', 'otp_hash', 'created_at', 'expires_at', 'attempts')
+
+
+@admin.register(BlockedUser)
+class BlockedUserAdmin(admin.ModelAdmin):
+    list_display = ('blocker', 'blocked', 'reason', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('blocker__email', 'blocked__email', 'reason')
+    readonly_fields = ('created_at',)
+
+
+@admin.register(UserReport)
+class UserReportAdmin(admin.ModelAdmin):
+    list_display = ('reporter', 'reported_user', 'report_type', 'status', 'created_at')
+    list_filter = ('status', 'report_type', 'created_at')
+    search_fields = ('reporter__email', 'reported_user__email', 'description')
+    readonly_fields = ('created_at', 'updated_at', 'resolved_at')
+    fieldsets = (
+        ('Report Details', {
+            'fields': ('reporter', 'reported_user', 'report_type', 'description')
+        }),
+        ('Content Reference', {
+            'fields': ('content_type', 'content_id')
+        }),
+        ('Status', {
+            'fields': ('status', 'admin_notes', 'resolved_by', 'resolved_at')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
