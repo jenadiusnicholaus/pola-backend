@@ -4,7 +4,7 @@ from .models import (
     Contact, Address, Verification, VerificationDocument, Document, PolaUser,
     Region, District, OperatingRegion, OperatingDistrict, Specialization,
     ProfessionalSpecialization, RegionalChapter, DeviceToken, NotificationPreference,
-    PasswordResetOTP, BlockedUser, UserReport,
+    PasswordResetOTP, BlockedUser, UserReport, AccountDeletionRequest,
 )
 from .device_models import UserDevice, UserSession, LoginHistory, SecurityAlert
 
@@ -379,6 +379,25 @@ class UserReportAdmin(admin.ModelAdmin):
         }),
         ('Status', {
             'fields': ('status', 'admin_notes', 'resolved_by', 'resolved_at')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
+
+
+@admin.register(AccountDeletionRequest)
+class AccountDeletionRequestAdmin(admin.ModelAdmin):
+    list_display = ('user', 'deletion_type', 'status', 'created_at', 'scheduled_deletion_date')
+    list_filter = ('status', 'deletion_type', 'created_at')
+    search_fields = ('user__email', 'reason', 'admin_notes')
+    readonly_fields = ('created_at', 'updated_at', 'processed_at')
+    fieldsets = (
+        ('Request Details', {
+            'fields': ('user', 'deletion_type', 'data_categories', 'reason')
+        }),
+        ('Processing', {
+            'fields': ('status', 'admin_notes', 'processed_by', 'processed_at', 'scheduled_deletion_date')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at')

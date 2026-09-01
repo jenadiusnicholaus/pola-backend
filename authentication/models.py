@@ -1582,5 +1582,52 @@ class UserReport(models.Model):
         return f"{self.reporter.email} reported {target} - {self.report_type}"
 
 
+class AccountDeletionRequest(models.Model):
+    """Track user requests to delete their account or specific data."""
+    DELETION_TYPES = [
+        ('account', 'Delete Entire Account'),
+        ('data', 'Delete Specific Data'),
+    ]
+    DELETION_STATUS = [
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    DATA_CATEGORIES = [
+        ('profile', 'Profile Information'),
+        ('documents', 'Uploaded Documents'),
+        ('call_history', 'Call History'),
+        ('messages', 'Messages / Chat History'),
+        ('location', 'Location Data'),
+        ('device_info', 'Device Information'),
+        ('payment', 'Payment & Subscription Data'),
+        ('all', 'All Data (except account)'),
+    ]
+
+    user = models.ForeignKey(
+        'PolaUser', on_delete=models.CASCADE, related_name='deletion_requests'
+    )
+    deletion_type = models.CharField(max_length=20, choices=DELETION_TYPES, default='account')
+    data_categories = models.JSONField(default=list, blank=True)
+    reason = models.TextField(blank=True, default='')
+    status = models.CharField(max_length=20, choices=DELETION_STATUS, default='pending')
+    admin_notes = models.TextField(blank=True, default='')
+    processed_by = models.ForeignKey(
+        'PolaUser', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='deletion_requests_processed'
+    )
+    processed_at = models.DateTimeField(null=True, blank=True)
+    scheduled_deletion_date = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.email} - {self.deletion_type} - {self.status}"
+
+
 # Re-export password reset model so Django discovers migrations
 from .password_reset_models import PasswordResetOTP  # noqa: E402,F401

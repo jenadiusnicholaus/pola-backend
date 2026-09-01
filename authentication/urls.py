@@ -5,6 +5,7 @@ from . import views
 from . import verification_views
 from . import nearby_views
 from . import moderation_views
+from . import deletion_views
 from .password_views import (
     PasswordResetRequestView,
     PasswordResetConfirmView,
@@ -62,6 +63,15 @@ urlpatterns = [
     path('report/', moderation_views.ReportUserView.as_view(), name='report-user'),
     path('reports/', moderation_views.MyReportsListView.as_view(), name='my-reports'),
     path('reports/<int:pk>/', moderation_views.ReportDetailView.as_view(), name='report-detail'),
+    
+    # Account & Data Deletion
+    path('delete-account/', deletion_views.RequestAccountDeletionView.as_view(), name='delete-account'),
+    path('delete-data/', deletion_views.DeleteSpecificDataView.as_view(), name='delete-data'),
+    path('deletion/cancel/<int:request_id>/', deletion_views.CancelDeletionRequestView.as_view(), name='cancel-deletion'),
+    path('deletion/requests/', deletion_views.MyDeletionRequestsView.as_view(), name='my-deletion-requests'),
+    path('deletion/requests/<int:pk>/', deletion_views.DeletionRequestDetailView.as_view(), name='deletion-request-detail'),
+    path('deletion/public-request/', deletion_views.public_deletion_request, name='public-deletion-request'),
+    path('deletion/info/', deletion_views.deletion_info_page, name='deletion-info-page'),
     
     # Verification endpoints (from router)
     path('', include(router.urls)),

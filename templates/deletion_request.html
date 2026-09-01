@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pola - Account & Data Deletion</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5; color: #333; line-height: 1.6;
+        }
+        .container { max-width: 800px; margin: 40px auto; padding: 20px; }
+        .card {
+            background: #fff; border-radius: 12px; padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        h1 { color: #0955fa; font-size: 28px; margin-bottom: 10px; }
+        h2 { color: #333; font-size: 20px; margin: 30px 0 12px; }
+        p { margin-bottom: 12px; color: #555; }
+        .steps { counter-reset: step; margin: 20px 0; }
+        .steps li {
+            list-style: none; padding: 12px 0 12px 50px; position: relative;
+            border-bottom: 1px solid #eee;
+        }
+        .steps li::before {
+            counter-increment: step; content: counter(step);
+            position: absolute; left: 0; top: 12px;
+            width: 32px; height: 32px; border-radius: 50%;
+            background: #0955fa; color: #fff; display: flex;
+            align-items: center; justify-content: center; font-weight: bold;
+        }
+        .data-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .data-table th, .data-table td {
+            padding: 12px; text-align: left; border-bottom: 1px solid #eee;
+        }
+        .data-table th { background: #f9f9f9; font-weight: 600; }
+        .badge-deleted { color: #d32f2f; font-weight: 600; }
+        .badge-kept { color: #388e3c; font-weight: 600; }
+        .form-group { margin: 20px 0; }
+        .form-group input[type="email"] {
+            width: 100%; padding: 14px; border: 1px solid #ddd;
+            border-radius: 8px; font-size: 16px;
+        }
+        .btn {
+            background: #0955fa; color: #fff; border: none; padding: 14px 32px;
+            border-radius: 8px; font-size: 16px; cursor: pointer; width: 100%;
+        }
+        .btn:hover { background: #0745d6; }
+        .alert {
+            padding: 14px; border-radius: 8px; margin: 20px 0; display: none;
+        }
+        .alert-success { background: #e8f5e9; color: #2e7d32; }
+        .alert-error { background: #ffebee; color: #c62828; }
+        .footer { text-align: center; margin-top: 30px; color: #999; font-size: 14px; }
+        .tabs { display: flex; gap: 4px; margin: 20px 0; }
+        .tab {
+            padding: 10px 20px; border: 1px solid #ddd; background: #fff;
+            border-radius: 8px 8px 0 0; cursor: pointer; font-size: 14px;
+        }
+        .tab.active { background: #0955fa; color: #fff; border-color: #0955fa; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Pola App — Account & Data Deletion</h1>
+            <p>Pola is a legal services platform connecting citizens with legal professionals in Tanzania. We respect your right to privacy and data control.</p>
+
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('account')">Delete Account</div>
+                <div class="tab" onclick="switchTab('data')">Delete Specific Data</div>
+            </div>
+
+            <!-- Tab 1: Delete Account -->
+            <div id="tab-account" class="tab-content active">
+                <h2>How to Delete Your Account</h2>
+                <p>Follow these steps to request permanent deletion of your Pola account and all associated data:</p>
+                <ol class="steps">
+                    <li><strong>Open the Pola app</strong> and log in to your account.</li>
+                    <li>Go to <strong>Settings → Privacy & Security → Delete Account</strong>.</li>
+                    <li>Review the list of data that will be deleted and confirm by tapping <strong>"Delete My Account"</strong>.</li>
+                    <li>Your account will be <strong>deactivated immediately</strong> and permanently deleted after a <strong>30-day grace period</strong>.</li>
+                    <li>To <strong>cancel</strong> within the 30 days, simply log back in and tap "Cancel Deletion".</li>
+                </ol>
+
+                <h2>Can't access the app? Request deletion by email:</h2>
+                <div class="form-group">
+                    <input type="email" id="deletion-email" placeholder="Enter your registered email address">
+                </div>
+                <button class="btn" onclick="submitDeletion()">Request Account Deletion</button>
+                <div id="deletion-alert" class="alert"></div>
+
+                <h2>What Gets Deleted vs. Kept</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Data Type</th><th>Status</th><th>Details</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Profile Information</td><td class="badge-deleted">Deleted</td><td>Name, email, photo, bio, role</td></tr>
+                        <tr><td>Contact Information</td><td class="badge-deleted">Deleted</td><td>Phone number, address</td></tr>
+                        <tr><td>Uploaded Documents</td><td class="badge-deleted">Deleted</td><td>Verification docs, templates</td></tr>
+                        <tr><td>Call History</td><td class="badge-deleted">Deleted</td><td>Call records, duration, credits</td></tr>
+                        <tr><td>Messages & Chat</td><td class="badge-deleted">Deleted</td><td>All conversation history</td></tr>
+                        <tr><td>Location Data</td><td class="badge-deleted">Deleted</td><td>GPS coordinates, device location</td></tr>
+                        <tr><td>Device Information</td><td class="badge-deleted">Deleted</td><td>Device IDs, sessions, tokens</td></tr>
+                        <tr><td>Payment Records</td><td class="badge-kept">Kept (90 days)</td><td>Retained for legal/tax compliance, then deleted</td></tr>
+                        <tr><td>Security Audit Logs</td><td class="badge-kept">Kept (180 days)</td><td>Retained for fraud prevention per Tanzanian law</td></tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Retention Period:</strong> After account deletion is requested, your data is permanently removed within 30 days, except for payment records (kept 90 days) and security audit logs (kept 180 days) as required by Tanzanian financial regulations.</p>
+            </div>
+
+            <!-- Tab 2: Delete Specific Data -->
+            <div id="tab-data" class="tab-content">
+                <h2>Delete Specific Data Without Deleting Your Account</h2>
+                <p>You can request deletion of specific data categories while keeping your account active.</p>
+                <ol class="steps">
+                    <li><strong>Open the Pola app</strong> and log in.</li>
+                    <li>Go to <strong>Settings → Privacy → Manage My Data</strong>.</li>
+                    <li>Select the data categories you want to delete.</li>
+                    <li>Tap <strong>"Delete Selected Data"</strong> to confirm.</li>
+                </ol>
+
+                <h2>Deletable Data Categories</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Category</th><th>What's Included</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Profile Information</td><td>Photo, bio, address, contact details</td></tr>
+                        <tr><td>Uploaded Documents</td><td>All documents you've uploaded</td></tr>
+                        <tr><td>Call History</td><td>Records of all past calls</td></tr>
+                        <tr><td>Location Data</td><td>GPS coordinates stored on your devices</td></tr>
+                        <tr><td>Device Information</td><td>Registered devices and sessions</td></tr>
+                    </tbody>
+                </table>
+                <p>You can also use the API directly: <code>POST /api/v1/authentication/delete-data/</code> with <code>{"data_categories": ["location", "device_info"]}</code></p>
+            </div>
+
+            <div class="footer">
+                <p>Pola — Legal Services Platform | Tanzania</p>
+                <p>For support: support@pola.co.tz</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function submitDeletion() {
+            const email = document.getElementById('deletion-email').value.trim();
+            const alertEl = document.getElementById('deletion-alert');
+
+            if (!email) {
+                alertEl.className = 'alert alert-error';
+                alertEl.textContent = 'Please enter your email address.';
+                alertEl.style.display = 'block';
+                return;
+            }
+
+            fetch('/api/v1/authentication/deletion/public-request/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            })
+            .then(r => r.json())
+            .then(data => {
+                alertEl.className = 'alert alert-success';
+                alertEl.innerHTML = data.message + (data.scheduled_deletion_date
+                    ? '<br><strong>Scheduled deletion date:</strong> ' + new Date(data.scheduled_deletion_date).toLocaleDateString()
+                    : '');
+                alertEl.style.display = 'block';
+            })
+            .catch(() => {
+                alertEl.className = 'alert alert-error';
+                alertEl.textContent = 'Something went wrong. Please try again or contact support@pola.co.tz';
+                alertEl.style.display = 'block';
+            });
+        }
+    </script>
+</body>
+</html>
