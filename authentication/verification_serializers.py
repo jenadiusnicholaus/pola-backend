@@ -4,7 +4,7 @@ Handles serialization for documents and verification processes
 """
 
 from rest_framework import serializers
-from .models import Document, Verification, VerificationDocument, PolaUser
+from .models import Document, Verification, VerificationDocument, PolaUser, VerificationRequirement
 from utils.base64_fields import Base64AnyFileField
 
 
@@ -670,52 +670,53 @@ class VerificationSerializer(serializers.ModelSerializer):
         }
 
     def get_required_documents(self, obj):
-        """Get required documents for this user's role"""
-        role_name = obj.user.user_role.role_name if obj.user.user_role else None
+        """Get required documents for this user's role using dynamic VerificationRequirement model"""
+        from .models import VerificationRequirement
         
-        requirements = {
-            'advocate': [
-                {'type': 'roll_number_cert', 'label': 'Roll Number Certificate', 'required': True},
-                {'type': 'practice_license', 'label': 'Practice License', 'required': True},
-                {'type': 'work_certificate', 'label': 'Certificate of Work (Optional)', 'required': False}
-            ],
-            'lawyer': [
-                {'type': 'professional_cert', 'label': 'Professional Certificate', 'required': True},
-                {'type': 'employment_letter', 'label': 'Employment Letter', 'required': True},
-                {'type': 'organization_cert', 'label': 'Organization Certificate', 'required': False}
-            ],
-            'paralegal': [
-                {'type': 'professional_cert', 'label': 'Professional Certificate', 'required': True},
-                {'type': 'employment_letter', 'label': 'Employment Letter', 'required': True},
-                {'type': 'organization_cert', 'label': 'Organization Certificate', 'required': False}
-            ],
-            'law_firm': [
-                {'type': 'business_license', 'label': 'Business License', 'required': True},
-                {'type': 'registration_cert', 'label': 'Registration Certificate', 'required': True},
-                {'type': 'firm_documents', 'label': 'Other Firm Documents', 'required': False}
-            ],
-            # Auto-verified roles - no documents required
-            'law_student': [],
-            'citizen': [],
-            'lecturer': []
-        }
+        role = obj.user.user_role
+        if not role:
+            return []
         
-        required = requirements.get(role_name, [])
+        # Auto-verified roles have no document requirements
+        auto_verify_roles = ['citizen', 'law_student', 'lecturer']
+        if role.role_name in auto_verify_roles:
+            return []
         
-        # Add upload status for each required document
+        # Get dynamic requirements from database
+        requirements = VerificationRequirement.objects.filter(
+            role=role, is_active=True
+        ).order_by('sort_order', 'created_at')
+        
         user_docs = Document.objects.filter(user=obj.user, is_active=True)
-        for req in required:
-            doc = user_docs.filter(document_type=req['type']).first()
-            if doc:
-                req['uploaded'] = True
-                req['status'] = doc.verification_status
-                req['document_id'] = doc.id
-            else:
-                req['uploaded'] = False
-                req['status'] = None
-                req['document_id'] = None
+        result = []
         
-        return required
+        for req in requirements:
+            doc = user_docs.filter(document_type=req.document_type).first()
+            result.append({
+                'type': req.document_type,
+                'label': req.label,
+                'required': req.is_required,
+                'uploaded': bool(doc),
+                'status': doc.verification_status if doc else None,
+                'document_id': doc.id if doc else None,
+            })
+        
+        return result
+
+
+class VerificationRequirementSerializer(serializers.ModelSerializer):
+    """Serializer for dynamic role-based verification document requirements"""
+    role_name = serializers.CharField(source='role.role_name', read_only=True)
+    document_type_display = serializers.CharField(source='get_document_type_display', read_only=True)
+
+    class Meta:
+        model = VerificationRequirement
+        fields = [
+            'id', 'role', 'role_name', 'document_type', 'document_type_display',
+            'label', 'is_required', 'sort_order', 'description', 'is_active',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
 
 
 class VerificationActionSerializer(serializers.Serializer):

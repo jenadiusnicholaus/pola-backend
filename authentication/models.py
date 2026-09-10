@@ -1629,5 +1629,27 @@ class AccountDeletionRequest(models.Model):
         return f"{self.user.email} - {self.deletion_type} - {self.status}"
 
 
+class VerificationRequirement(models.Model):
+    """Dynamic required documents per user role for verification."""
+    role = models.ForeignKey(
+        'UserRole', on_delete=models.CASCADE, related_name='verification_requirements'
+    )
+    document_type = models.CharField(max_length=50, choices=Document.DOCUMENT_TYPES)
+    label = models.CharField(max_length=255)
+    is_required = models.BooleanField(default=True)
+    sort_order = models.PositiveIntegerField(default=0)
+    description = models.TextField(blank=True, default='')
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('role', 'document_type')
+        ordering = ['sort_order', 'created_at']
+
+    def __str__(self):
+        return f"{self.role.role_name} - {self.label} ({'required' if self.is_required else 'optional'})"
+
+
 # Re-export password reset model so Django discovers migrations
 from .password_reset_models import PasswordResetOTP  # noqa: E402,F401

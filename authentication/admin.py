@@ -5,6 +5,7 @@ from .models import (
     Region, District, OperatingRegion, OperatingDistrict, Specialization,
     ProfessionalSpecialization, RegionalChapter, DeviceToken, NotificationPreference,
     PasswordResetOTP, BlockedUser, UserReport, AccountDeletionRequest,
+    VerificationRequirement,
 )
 from .device_models import UserDevice, UserSession, LoginHistory, SecurityAlert
 
@@ -403,3 +404,12 @@ class AccountDeletionRequestAdmin(admin.ModelAdmin):
             'fields': ('created_at', 'updated_at')
         }),
     )
+
+
+@admin.register(VerificationRequirement)
+class VerificationRequirementAdmin(admin.ModelAdmin):
+    list_display = ('role', 'document_type', 'label', 'is_required', 'sort_order', 'is_active')
+    list_filter = ('role', 'is_required', 'is_active', 'document_type')
+    search_fields = ('label', 'document_type', 'role__role_name')
+    ordering = ('sort_order', 'created_at')
+    list_editable = ('is_required', 'sort_order', 'is_active')
