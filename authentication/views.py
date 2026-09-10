@@ -35,6 +35,7 @@ class UserRegistrationView(generics.CreateAPIView):
     Each role has specific required fields. See the model documentation for details.
     """
     serializer_class = UserRegistrationSerializer
+    permission_classes = [permissions.AllowAny]
 
     @swagger_auto_schema(
         operation_description="Register a new user with role-specific information",
