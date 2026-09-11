@@ -52,6 +52,10 @@ class Command(BaseCommand):
         vr_updated = 0
 
         with transaction.atomic():
+            # Clear existing data to avoid duplicates
+            VerificationRequirement.objects.all().delete()
+            DocumentType.objects.all().delete()
+
             # Create/update document types
             for dt in doc_types:
                 obj, created = DocumentType.objects.update_or_create(
