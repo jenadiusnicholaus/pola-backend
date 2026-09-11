@@ -854,7 +854,7 @@ class DocumentTypeViewSet(viewsets.ModelViewSet):
     queryset = DocumentType.objects.all()
     serializer_class = DocumentTypeSerializer
     permission_classes = [IsAdminUser]
-    pagination_class = StandardResultsSetPagination
+    pagination_class = None
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['is_active']
     search_fields = ['code', 'label', 'description']

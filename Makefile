@@ -4,7 +4,7 @@
 # Usage: make <command>
 # ==========================================
 
-.PHONY: help build up down logs shell migrate test clean prod-up prod-down prod-logs backup restore deploy seed test-email prod-test-email
+.PHONY: help build up down logs shell migrate test clean prod-up prod-down prod-logs backup restore deploy seed test-email prod-test-email seed-verification-requirements prod-seed-verification-requirements
 
 # Default target
 help:
@@ -20,6 +20,7 @@ help:
 	@echo "  make migrate      - Run database migrations"
 	@echo "  make makemigrations - Create new migrations"
 	@echo "  make seed         - Seed all production data (admin, roles, etc.)"
+	@echo "  make seed-verification-requirements - Seed document types & verification requirements"
 	@echo "  make createsuperuser - Create super admin user"
 	@echo "  make test         - Run tests"
 	@echo "  make clean        - Remove all containers and volumes"
@@ -97,6 +98,9 @@ rebuild:
 seed:
 	docker compose exec -T web python seed_production.py
 
+seed-verification-requirements:
+	docker compose exec -T web python manage.py seed_verification_requirements
+
 createsuperadmin:
 	docker compose exec -T web python manage.py shell -c "from authentication.models import PolaUser; u = PolaUser.objects.create_superuser('admin@gmail.com', '1234', first_name='Super', last_name='Admin') if not PolaUser.objects.filter(email='admin@gmail.com').exists() else print('Super admin already exists'); print('✅ Super admin: admin@gmail.com / 1234')"
 
@@ -139,6 +143,9 @@ prod-migrate:
 
 prod-seed:
 	docker compose -f docker-compose.prod.yml exec -T web python seed_production.py
+
+prod-seed-verification-requirements:
+	docker compose -f docker-compose.prod.yml exec -T web python manage.py seed_verification_requirements
 
 prod-seed-document-content:
 	docker compose -f docker-compose.prod.yml exec -T web python manage.py seed_document_content
