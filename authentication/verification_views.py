@@ -14,13 +14,14 @@ from django.db.models import Q
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-from .models import PolaUser, Verification, Document, VerificationDocument
+from .models import PolaUser, Verification, Document, VerificationDocument, VerificationRequirement
 from .verification_serializers import (
     DocumentSerializer,
     DocumentUploadSerializer,
     VerificationSerializer,
     VerificationActionSerializer,
-    UserVerificationStatusSerializer
+    UserVerificationStatusSerializer,
+    VerificationRequirementSerializer
 )
 from utils.pagination import StandardResultsSetPagination
 
@@ -819,6 +820,29 @@ class VerificationViewSet(viewsets.ReadOnlyModelViewSet):
             'law_firm': ['business_license', 'registration_cert'],
         }
         return requirements.get(role_name, [])
+
+
+class VerificationRequirementViewSet(viewsets.ModelViewSet):
+    """
+    CRUD API for managing dynamic verification requirements per role.
+    Admin-only access.
+    """
+    queryset = VerificationRequirement.objects.select_related('role').all()
+    serializer_class = VerificationRequirementSerializer
+    permission_classes = [IsAdminUser]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['role', 'document_type', 'is_required', 'is_active']
+    search_fields = ['label', 'document_type', 'role__role_name']
+    ordering_fields = ['sort_order', 'created_at', 'updated_at']
+    ordering = ['sort_order', 'created_at']
+
+    @action(detail=False, methods=['get'], url_path='by-role/(?P<role_name>[^/]+)')
+    def by_role(self, request, role_name=None):
+        """Get all requirements for a specific role by name."""
+        reqs = self.queryset.filter(role__role_name=role_name, is_active=True)
+        serializer = self.get_serializer(reqs, many=True)
+        return Response(serializer.data)
 
 
 class AdminVerificationDashboardViewSet(viewsets.ViewSet):

@@ -19,6 +19,7 @@ router = DefaultRouter()
 router.register(r'documents', verification_views.DocumentUploadViewSet, basename='document')
 router.register(r'verifications', verification_views.VerificationViewSet, basename='verification')
 router.register(r'admin-verification', verification_views.AdminVerificationDashboardViewSet, basename='admin-verification')
+router.register(r'verification-requirements', verification_views.VerificationRequirementViewSet, basename='verification-requirement')
 
 urlpatterns = [
     # Authentication endpoints
