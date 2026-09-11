@@ -4,7 +4,7 @@ Handles serialization for documents and verification processes
 """
 
 from rest_framework import serializers
-from .models import Document, Verification, VerificationDocument, PolaUser, VerificationRequirement
+from .models import Document, Verification, VerificationDocument, PolaUser, VerificationRequirement, DocumentType
 from utils.base64_fields import Base64AnyFileField
 
 
@@ -691,9 +691,9 @@ class VerificationSerializer(serializers.ModelSerializer):
         result = []
         
         for req in requirements:
-            doc = user_docs.filter(document_type=req.document_type).first()
+            doc = user_docs.filter(document_type=req.document_type_ref.code).first()
             result.append({
-                'type': req.document_type,
+                'type': req.document_type_ref.code,
                 'label': req.label,
                 'required': req.is_required,
                 'uploaded': bool(doc),
@@ -704,17 +704,26 @@ class VerificationSerializer(serializers.ModelSerializer):
         return result
 
 
+class DocumentTypeSerializer(serializers.ModelSerializer):
+    """Serializer for dynamic document types"""
+    class Meta:
+        model = DocumentType
+        fields = ['id', 'code', 'label', 'description', 'is_active', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
 class VerificationRequirementSerializer(serializers.ModelSerializer):
     """Serializer for dynamic role-based verification document requirements"""
     role_name = serializers.CharField(source='role.role_name', read_only=True)
-    document_type_display = serializers.CharField(source='get_document_type_display', read_only=True)
+    document_type_code = serializers.CharField(source='document_type_ref.code', read_only=True)
+    document_type_label = serializers.CharField(source='document_type_ref.label', read_only=True)
 
     class Meta:
         model = VerificationRequirement
         fields = [
-            'id', 'role', 'role_name', 'document_type', 'document_type_display',
-            'label', 'is_required', 'sort_order', 'description', 'is_active',
-            'created_at', 'updated_at'
+            'id', 'role', 'role_name', 'document_type_ref', 'document_type_code',
+            'document_type_label', 'label', 'is_required', 'sort_order', 'description',
+            'is_active', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 

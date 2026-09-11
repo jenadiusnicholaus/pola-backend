@@ -5,7 +5,7 @@ from .models import (
     Region, District, OperatingRegion, OperatingDistrict, Specialization,
     ProfessionalSpecialization, RegionalChapter, DeviceToken, NotificationPreference,
     PasswordResetOTP, BlockedUser, UserReport, AccountDeletionRequest,
-    VerificationRequirement,
+    VerificationRequirement, DocumentType,
 )
 from .device_models import UserDevice, UserSession, LoginHistory, SecurityAlert
 
@@ -408,8 +408,17 @@ class AccountDeletionRequestAdmin(admin.ModelAdmin):
 
 @admin.register(VerificationRequirement)
 class VerificationRequirementAdmin(admin.ModelAdmin):
-    list_display = ('role', 'document_type', 'label', 'is_required', 'sort_order', 'is_active')
-    list_filter = ('role', 'is_required', 'is_active', 'document_type')
-    search_fields = ('label', 'document_type', 'role__role_name')
+    list_display = ('role', 'document_type_ref', 'label', 'is_required', 'sort_order', 'is_active')
+    list_filter = ('role', 'is_required', 'is_active', 'document_type_ref')
+    search_fields = ('label', 'document_type_ref__code', 'document_type_ref__label', 'role__role_name')
     ordering = ('sort_order', 'created_at')
     list_editable = ('is_required', 'sort_order', 'is_active')
+
+
+@admin.register(DocumentType)
+class DocumentTypeAdmin(admin.ModelAdmin):
+    list_display = ('code', 'label', 'is_active', 'created_at')
+    list_filter = ('is_active',)
+    search_fields = ('code', 'label', 'description')
+    list_editable = ('is_active',)
+    ordering = ('label',)

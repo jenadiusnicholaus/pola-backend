@@ -379,6 +379,22 @@ class VerificationDocument(models.Model):
     def __str__(self):
         return f"Verification Document for {self.user}"
 
+class DocumentType(models.Model):
+    """Dynamic document types for verification and document uploads."""
+    code = models.CharField(max_length=50, unique=True)
+    label = models.CharField(max_length=255)
+    description = models.TextField(blank=True, default='')
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['label']
+
+    def __str__(self):
+        return self.label
+
+
 class Document(models.Model):
     """Model for storing and verifying user documents"""
     DOCUMENT_TYPES = [
@@ -415,6 +431,10 @@ class Document(models.Model):
 
     user = models.ForeignKey('PolaUser', on_delete=models.CASCADE, related_name='documents')
     document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPES)
+    document_type_ref = models.ForeignKey(
+        'DocumentType', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='documents'
+    )
     file = models.FileField(upload_to='user_documents/')
     title = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
@@ -1634,7 +1654,11 @@ class VerificationRequirement(models.Model):
     role = models.ForeignKey(
         'UserRole', on_delete=models.CASCADE, related_name='verification_requirements'
     )
-    document_type = models.CharField(max_length=50, choices=Document.DOCUMENT_TYPES)
+    document_type = models.CharField(max_length=50, blank=True, default='')
+    document_type_ref = models.ForeignKey(
+        'DocumentType', on_delete=models.CASCADE, related_name='verification_requirements',
+        null=True, blank=True
+    )
     label = models.CharField(max_length=255)
     is_required = models.BooleanField(default=True)
     sort_order = models.PositiveIntegerField(default=0)
@@ -1644,7 +1668,7 @@ class VerificationRequirement(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ('role', 'document_type')
+        unique_together = ('role', 'document_type_ref')
         ordering = ['sort_order', 'created_at']
 
     def __str__(self):

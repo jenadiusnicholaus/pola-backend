@@ -14,14 +14,15 @@ from django.db.models import Q
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-from .models import PolaUser, Verification, Document, VerificationDocument, VerificationRequirement
+from .models import PolaUser, Verification, Document, VerificationDocument, VerificationRequirement, DocumentType
 from .verification_serializers import (
     DocumentSerializer,
     DocumentUploadSerializer,
     VerificationSerializer,
     VerificationActionSerializer,
     UserVerificationStatusSerializer,
-    VerificationRequirementSerializer
+    VerificationRequirementSerializer,
+    DocumentTypeSerializer
 )
 from utils.pagination import StandardResultsSetPagination
 
@@ -843,6 +844,22 @@ class VerificationRequirementViewSet(viewsets.ModelViewSet):
         reqs = self.queryset.filter(role__role_name=role_name, is_active=True)
         serializer = self.get_serializer(reqs, many=True)
         return Response(serializer.data)
+
+
+class DocumentTypeViewSet(viewsets.ModelViewSet):
+    """
+    CRUD API for managing dynamic document types.
+    Admin-only access.
+    """
+    queryset = DocumentType.objects.all()
+    serializer_class = DocumentTypeSerializer
+    permission_classes = [IsAdminUser]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['is_active']
+    search_fields = ['code', 'label', 'description']
+    ordering_fields = ['label', 'created_at', 'updated_at']
+    ordering = ['label']
 
 
 class AdminVerificationDashboardViewSet(viewsets.ViewSet):
