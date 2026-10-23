@@ -368,7 +368,7 @@ Kila ombi litapitiwa kwa haki na kwa mtu binafsi.
         # Privacy Policy
         privacy_content = """# PRIVACY POLICY
 
-**Last Updated:** 01/06/2026
+**Last Updated:** 23/10/2026
 
 POLA respects your privacy and is committed to protecting your personal information.
 
@@ -382,6 +382,8 @@ We may collect:
 - Profile information
 - Payment transaction information
 - Device information
+- Precise location information (GPS coordinates) when you grant location permission
+- Approximate location derived from your IP address
 - Usage analytics
 - Communications conducted through the Platform
 
@@ -391,25 +393,41 @@ We use information to:
 
 - Create and manage accounts.
 - Deliver services and consultations.
+- Provide location-based features, such as finding nearby lawyers and legal professionals.
 - Process payments.
 - Improve the Platform.
 - Respond to user requests.
+- Secure accounts and detect unusual device activity.
 - Prevent fraud and abuse.
 - Comply with legal obligations.
 
-## 3. AI Processing
+## 3. Location Data
+
+With your permission, the App collects your device's precise GPS location.
+
+We use location data to:
+
+- Show you nearby lawyers and legal professionals, including distances and directions.
+- Keep your device's recorded location up to date so location-based features work correctly. The App periodically sends your location to our servers while you are signed in.
+- Help secure your account by detecting sign-ins and devices from unusual locations.
+
+We also derive an approximate location from your IP address for security and analytics purposes.
+
+You can disable location access at any time in your device settings. Features that depend on location, such as Nearby Lawyers, may not work without it. You may request deletion of your location data through our support channels or by deleting your account.
+
+## 4. AI Processing
 
 Information submitted to AI-powered features may be processed to generate responses and improve service quality.
 
 Users should avoid submitting sensitive personal information unless necessary.
 
-## 4. Payment Information
+## 5. Payment Information
 
 Payment transactions are processed by third-party payment providers.
 
 POLA does not store complete payment card information on its servers.
 
-## 5. Information Sharing
+## 6. Information Sharing
 
 We do not sell personal information.
 
@@ -420,13 +438,13 @@ We may share information with:
 - Professional consultants when necessary to provide requested services.
 - Government authorities where required by law.
 
-## 6. Data Security
+## 7. Data Security
 
 We implement reasonable technical and organizational safeguards to protect user information.
 
 No method of transmission or storage is completely secure, and absolute security cannot be guaranteed.
 
-## 7. User Rights
+## 8. User Rights
 
 Users may:
 
@@ -437,23 +455,23 @@ Users may:
 
 Requests may be submitted through our support channels.
 
-## 8. Data Retention
+## 9. Data Retention
 
 Information is retained only as long as necessary for operational, legal, and security purposes.
 
-## 9. Children's Privacy
+## 10. Children's Privacy
 
 The Platform is not intended for children under 18 years of age.
 
 We do not knowingly collect personal information from children under 18.
 
-## 10. Changes to This Policy
+## 11. Changes to This Policy
 
 We may update this Privacy Policy periodically.
 
 Updated versions will be posted within the Platform.
 
-## 11. Contact
+## 12. Contact
 
 **Email:** polatanzania@gmail.com
 **Company:** Olidox Company Limited
@@ -462,7 +480,7 @@ Updated versions will be posted within the Platform.
 
         privacy_content_sw = """# SERA YA FARAGHA
 
-**Imesasishwa:** 01/06/2026
+**Imesasishwa:** 23/10/2026
 
 POLA inaheshimu faragha yako na inajitolea kulinda taarifa zako binafsi.
 
@@ -476,6 +494,8 @@ Tunaweza kukusanya:
 - Maelezo ya wasifu
 - Maelezo ya muamala wa malipo
 - Maelezo ya kifaa
+- Taarifa sahihi za mahali ulipo (vipimo vya GPS) unapotoa ruhusa ya mahali
+- Makadirio ya mahali yanayotokana na anwani yako ya IP
 - Uchambuzi wa matumizi
 - Mawasiliano yaliyofanywa kupitia Jukwaa
 
@@ -483,27 +503,43 @@ Tunaweza kukusanya:
 
 Tunatumia taarifa ili:
 
-- Kuunda na kusim akaunti.
+- Kuunda na kusimamia akaunti.
 - Kutoa huduma na ushauri.
+- Kutoa huduma zinazotegemea mahali, kama kupata mawakili na wataalamu walio karibu nawe.
 - Kuchakata malipo.
 - Kuboresha Jukwaa.
-- Kujibu ombi la watumiaji.
+- Kujibu maombi ya watumiaji.
+- Kulinda akaunti na kugundua shughuli za vifaa zisizo za kawaida.
 - Kuzuia ulaghai na matumizi mabaya.
 - Kufuata wajibu wa kisheria.
 
-## 3. Usindikaji wa AI
+## 3. Data za Mahali Ulipo
+
+Kwa idhini yako, Programu hukusanya mahali sahihi pa kifaa chako (GPS).
+
+Tunatumia data za mahali ili:
+
+- Kukuonyesha mawakili na wataalamu walio karibu nawe, ikijumuisha umbali na maelekezo.
+- Kusasisha mahali pa kifaa chako ili huduma zinazotegemea mahali zifanye kazi vizuri. Programu hutuma mahali pako kwa seva zetu mara kwa mara wakati umeingia akaunti yako.
+- Kusaidia kulinda akaunti yako kwa kugundua kuingia na vifaa kutoka maeneo yasiyo ya kawaida.
+
+Tunapata pia makadirio ya mahali yanayotokana na anwani yako ya IP kwa madhumuni ya usalama na uchambuzi.
+
+Unaweza kuzima ufikiaji wa mahali wakati wowote kwenye mipangilio ya kifaa chako. Huduma zinazotegemea mahali, kama Mawakili wa Karibu, zinaweza kutofanya kazi bila ruhusa hiyo. Unaweza kuomba kufutwa kwa data zako za mahali kupitia njia zetu za msaada au kwa kufuta akaunti yako.
+
+## 4. Usindikaji wa AI
 
 Taarifa zilizowasilishwa kwa huduma zinazotumia AI zinaweza kusindikwa ili kuzalisha majibu na kuboresha ubora wa huduma.
 
 Watumiaji wanapaswa kuepuka kuwasilisha taarifa za kibinafsi zenye hisia isipokuwa ni lazima.
 
-## 4. Maelezo ya Malipo
+## 5. Maelezo ya Malipo
 
 Muamala wa malipo huchakatwa na watoa huduma wa tatu wa malipo.
 
 POLA hauhifadhi maelezo kamili ya kadi ya malipo kwenye seva zake.
 
-## 5. Kushiriki Taarifa
+## 6. Kushiriki Taarifa
 
 Hatuuza taarifa za kibinafsi.
 
@@ -514,13 +550,13 @@ Tunaweza kushiriki taarifa na:
 - Wataalamu wa kitaalamu wakati inahitajika kutoa huduma zilizoombwa.
 - Mamlaka za serikali ambapo inahitajika na sheria.
 
-## 6. Usalama wa Data
+## 7. Usalama wa Data
 
 Tunatekeleza ulindaji wa kiufuni na wa kiutawala unaofaa kulinda taarifa za watumiaji.
 
 Hakuna njia ya uwasilishaji au uhifadhi ambayo ni salama kabisa, na usalama wa kikamiliko hauwezi kuhakikishiwa.
 
-## 7. Haki za Mtumiaji
+## 8. Haki za Mtumiaji
 
 Watumiaji wanaweza:
 
@@ -531,23 +567,23 @@ Watumiaji wanaweza:
 
 Ombi zinaweza kuwasilishwa kupitia mitandao yetu ya msaada.
 
-## 8. Uhifadhi wa Data
+## 9. Uhifadhi wa Data
 
 Taarifa huhifadhiwa kwa muda unaohitajika tu kwa madhumuni ya uendeshaji, kisheria, na usalama.
 
-## 9. Faragha ya Watoto
+## 10. Faragha ya Watoto
 
 Jukwaa halijengewa watoto chini ya miaka 18.
 
 Hatujui kusanya taarifa za kibinafsi kutoka kwa watoto chini ya miaka 18.
 
-## 10. Mabadiliko ya Sera Hii
+## 11. Mabadiliko ya Sera Hii
 
 Tunaweza kusasisha Sera hii ya Faragha mara kwa mara.
 
 Toleo zilizosasishwa zitawekwa ndani ya Jukwaa.
 
-## 11. Mawasiliano
+## 12. Mawasiliano
 
 **Barua pepe:** polatanzania@gmail.com
 **Kampuni:** Olidox Company Limited
