@@ -4,7 +4,7 @@
 # Usage: make <command>
 # ==========================================
 
-.PHONY: help build up down logs shell migrate test clean prod-up prod-down prod-logs backup restore deploy seed test-email prod-test-email seed-verification-requirements prod-seed-verification-requirements
+.PHONY: help build up down logs shell migrate test clean prod-up prod-down prod-logs backup restore deploy seed test-email prod-test-email seed-verification-requirements prod-seed-verification-requirements seed-document-content prod-seed-document-content prod-seed-chapters
 
 # Default target
 help:
@@ -21,6 +21,7 @@ help:
 	@echo "  make makemigrations - Create new migrations"
 	@echo "  make seed         - Seed all production data (admin, roles, etc.)"
 	@echo "  make seed-verification-requirements - Seed document types & verification requirements"
+	@echo "  make seed-document-content - Seed policy pages (privacy, terms, refund)"
 	@echo "  make createsuperuser - Create super admin user"
 	@echo "  make test         - Run tests"
 	@echo "  make clean        - Remove all containers and volumes"
@@ -100,6 +101,9 @@ seed:
 
 seed-verification-requirements:
 	docker compose exec -T web python manage.py seed_verification_requirements
+
+seed-document-content:
+	docker compose exec -T web python manage.py seed_document_content
 
 createsuperadmin:
 	docker compose exec -T web python manage.py shell -c "from authentication.models import PolaUser; u = PolaUser.objects.create_superuser('admin@gmail.com', '1234', first_name='Super', last_name='Admin') if not PolaUser.objects.filter(email='admin@gmail.com').exists() else print('Super admin already exists'); print('✅ Super admin: admin@gmail.com / 1234')"
