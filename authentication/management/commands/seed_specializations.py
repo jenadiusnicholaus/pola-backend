@@ -33,9 +33,9 @@ class Command(BaseCommand):
                 'description': 'Legal practice focusing on property and real estate matters'
             },
             {
-                'en': 'Labor Law',
-                'sw': 'Sheria za Kazi',
-                'description': 'Legal practice focusing on employment and labor relations'
+                'en': 'Labour and Employment Law',
+                'sw': 'Sheria za Kazi na Ajira',
+                'description': 'Legal practice focusing on employment and labour relations'
             },
             {
                 'en': 'Tax Law',
@@ -56,6 +56,51 @@ class Command(BaseCommand):
                 'en': 'Environmental Law',
                 'sw': 'Sheria za Mazingira',
                 'description': 'Legal practice focusing on environmental protection and regulations'
+            },
+            {
+                'en': 'Administrative Law',
+                'sw': 'Sheria za Utawala',
+                'description': 'Legal practice focusing on government administration and regulatory matters'
+            },
+            {
+                'en': 'Contract Law',
+                'sw': 'Sheria za Mikataba',
+                'description': 'Legal practice focusing on drafting, interpreting, and enforcing contracts'
+            },
+            {
+                'en': 'Civil Litigation',
+                'sw': 'Mashauri ya Madai',
+                'description': 'Legal practice focusing on representing clients in civil disputes and lawsuits'
+            },
+            {
+                'en': 'Probate Law',
+                'sw': 'Sheria za Mirathi',
+                'description': 'Legal practice focusing on estates, wills, and inheritance matters'
+            },
+            {
+                'en': 'Banking and Finance Law',
+                'sw': 'Sheria za Benki na Fedha',
+                'description': 'Legal practice focusing on banking, finance, and financial services regulation'
+            },
+            {
+                'en': 'Insurance Law',
+                'sw': 'Sheria za Bima',
+                'description': 'Legal practice focusing on insurance policies, claims, and regulation'
+            },
+            {
+                'en': 'Mining and Natural Resources Law',
+                'sw': 'Sheria za Madini na Maliasili',
+                'description': 'Legal practice focusing on mining, natural resources, and extractive industries'
+            },
+            {
+                'en': 'Cyber Law',
+                'sw': 'Sheria za Mtandao',
+                'description': 'Legal practice focusing on internet, digital, and information technology matters'
+            },
+            {
+                'en': 'International Law',
+                'sw': 'Sheria za Kimataifa',
+                'description': 'Legal practice focusing on treaties, cross-border matters, and international relations'
             }
         ]
 

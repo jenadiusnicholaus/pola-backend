@@ -115,34 +115,68 @@ class DocumentSerializer(serializers.ModelSerializer):
 class DocumentUploadSerializer(serializers.ModelSerializer):
     """Serializer for uploading documents with base64 support"""
     file = Base64AnyFileField(required=True)
-    
+    # Older app versions don't send a title - derive it server-side
+    title = serializers.CharField(required=False, allow_blank=True, max_length=255)
+    # Accept admin-configured DocumentType codes (up to 50 chars) as well as
+    # the legacy DOCUMENT_TYPES choices
+    document_type = serializers.CharField(max_length=50)
+
     class Meta:
         model = Document
         fields = ['document_type', 'file', 'title', 'description']
+
+    def validate_document_type(self, value):
+        """Accept active DocumentType codes or legacy DOCUMENT_TYPES keys"""
+        if DocumentType.objects.filter(code=value, is_active=True).exists():
+            return value
+        if value in dict(Document.DOCUMENT_TYPES):
+            return value
+        raise serializers.ValidationError("Unknown document type")
 
     def validate(self, data):
         """Validate document submission to prevent duplicates and ensure proper sizing"""
         user = self.context['request'].user
         document_type = data.get('document_type')
-        
+
         # Set document_type on file field for size validation
         if 'file' in data and document_type:
             self.fields['file'].document_type = document_type
-        
+
         # Check for duplicate document type
         existing_document = Document.objects.filter(
             user=user,
             document_type=document_type,
             is_active=True
         ).first()
-        
+
         if existing_document:
             raise serializers.ValidationError({
                 'document_type': f'You have already submitted a {existing_document.get_document_type_display()}. '
                                f'Please update the existing document instead of creating a new one. '
                                f'Existing document ID: {existing_document.id}'
             })
-        
+
+        # Link to the matching DocumentType when one exists
+        data['document_type_ref'] = DocumentType.objects.filter(
+            code=document_type, is_active=True
+        ).first()
+
+        # Default the title from the uploaded file name, falling back to the
+        # document type label, for clients that don't send one
+        title = (data.get('title') or '').strip()
+        if not title:
+            uploaded_file = data.get('file')
+            file_name = getattr(uploaded_file, 'name', '') or ''
+            if file_name:
+                import os
+                title = os.path.basename(file_name)[:255]
+            else:
+                doc_type = data.get('document_type_ref')
+                title = doc_type.label if doc_type else str(
+                    dict(Document.DOCUMENT_TYPES).get(document_type, document_type)
+                )
+            data['title'] = title
+
         return data
 
     def validate_file(self, value):

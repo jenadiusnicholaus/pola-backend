@@ -375,3 +375,104 @@ class AdminHubContentManagementTestCase(APITestCase):
         self.assertIn('total_content', response.data)
         self.assertIn('by_hub_type', response.data)
         self.assertIn('by_content_type', response.data)
+
+
+class HubAccessPermissionsTestCase(APITestCase):
+    """Role-based access rules for the Advocates and Students hubs"""
+
+    def setUp(self):
+        from authentication.models import UserRole
+
+        self.roles = {}
+        for role_name in ['law_student', 'lecturer', 'advocate', 'lawyer', 'citizen', 'admin']:
+            self.roles[role_name], _ = UserRole.objects.get_or_create(role_name=role_name)
+
+        def make_user(email, role_name):
+            user = User.objects.create_user(
+                email=email, password='pass123',
+                first_name='Test', last_name='User',
+            )
+            user.user_role = self.roles[role_name]
+            user.save()
+            return user
+
+        self.student = make_user('student@test.com', 'law_student')
+        self.lawyer = make_user('lawyer@test.com', 'lawyer')
+        self.advocate = make_user('advocate@test.com', 'advocate')
+        self.advocate.verification.status = 'verified'
+        self.advocate.verification.save()
+
+        self.list_url = reverse('hub-content-list')
+
+    def test_law_student_can_list_students_hub(self):
+        self.client.force_authenticate(user=self.student)
+        response = self.client.get(self.list_url, {'hub_type': 'students'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_lawyer_cannot_list_advocates_hub(self):
+        self.client.force_authenticate(user=self.lawyer)
+        response = self.client.get(self.list_url, {'hub_type': 'advocates'})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_lawyer_cannot_create_advocates_content(self):
+        self.client.force_authenticate(user=self.lawyer)
+        response = self.client.post(self.list_url, {
+            'hub_type': 'advocates',
+            'content_type': 'discussion',
+            'title': 'Lawyer post',
+            'content': 'Should be rejected',
+        })
+        # CanCreateContent is OR'ed with IsOwnerOrReadOnly so denial surfaces
+        # as a serializer validation error rather than a permission denied
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('hub_type', response.data)
+
+    def test_verified_advocate_can_list_advocates_hub(self):
+        self.client.force_authenticate(user=self.advocate)
+        response = self.client.get(self.list_url, {'hub_type': 'advocates'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class StudentHubPricingTestCase(APITestCase):
+    """Students Hub downloadable content has a fixed price of TZS 1,500"""
+
+    def setUp(self):
+        from authentication.models import UserRole
+
+        role, _ = UserRole.objects.get_or_create(role_name='law_student')
+        self.student = User.objects.create_user(
+            email='student@test.com', password='pass123',
+            first_name='Test', last_name='Student',
+        )
+        self.student.user_role = role
+        self.student.save()
+
+        self.client.force_authenticate(user=self.student)
+        self.url = reverse('hub-content-list')
+
+    def test_downloadable_content_price_forced_to_1500(self):
+        response = self.client.post(self.url, {
+            'hub_type': 'students',
+            'content_type': 'notes',
+            'title': 'Contract notes',
+            'content': 'Notes on contract law',
+            'is_downloadable': True,
+            'price': '5000.00',
+        })
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        material = LearningMaterial.objects.get(title='Contract notes')
+        self.assertEqual(str(material.price), '1500.00')
+        self.assertEqual(material.uploader_type, 'student')
+
+    def test_non_downloadable_content_is_free(self):
+        response = self.client.post(self.url, {
+            'hub_type': 'students',
+            'content_type': 'discussion',
+            'title': 'A question',
+            'content': 'Free discussion',
+            'is_downloadable': False,
+            'price': '5000.00',
+        })
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        material = LearningMaterial.objects.get(title='A question')
+        self.assertEqual(str(material.price), '0.00')

@@ -188,9 +188,11 @@ API_VERSION = config('API_VERSION', default='v1')
 
 SIMPLE_JWT = {
    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=config('ACCESS_TOKEN_LIFETIME', default=60, cast=int)),
-    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=config('REFRESH_TOKEN_LIFETIME', default=1440, cast=int)),
-    "ROTATE_REFRESH_TOKENS": False,
-    "BLACKLIST_AFTER_ROTATION": True,
+    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=config('REFRESH_TOKEN_LIFETIME', default=129600, cast=int)),
+    "ROTATE_REFRESH_TOKENS": True,
+    # Deliberate: old app versions don't store the rotated token, so the old
+    # refresh token must stay valid until its own expiry
+    "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
     "ALGORITHM": "HS256",
     "SIGNING_KEY": SECRET_KEY,

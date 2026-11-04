@@ -3,6 +3,8 @@ Unified Hub Permissions - Works for all hubs (Advocates, Students, Forum)
 """
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
+from subscriptions.permissions import check_subscription_permission
+
 
 class IsAuthenticatedOrReadOnly(BasePermission):
     """
@@ -47,26 +49,27 @@ class CanAccessHub(BasePermission):
         if request.user.is_staff or request.user.is_superuser:
             return True
         
-        # Advocates Hub - advocates, lawyers, and admins
+        # Advocates Hub - advocates and admins
         if hub_type == 'advocates':
             user_role_name = request.user.user_role.role_name if request.user.user_role else None
-            if user_role_name not in ['advocate', 'lawyer', 'admin']:
-                self.message = "Only advocates and lawyers can access the Advocates Hub"
+            if user_role_name not in ['advocate', 'admin']:
+                self.message = "Only advocates can access the Advocates Hub"
                 return False
-            
-            # Check verification for advocates and lawyers
-            if user_role_name in ['advocate', 'lawyer']:
+
+            # Check verification for advocates
+            if user_role_name == 'advocate':
                 if not hasattr(request.user, 'verification') or request.user.verification.status != 'verified':
                     self.message = "You must be verified to access this hub"
                     return False
-        
-        # Students Hub - students, lecturers, advocates, lawyers, admins
+
+        # Students Hub - law students, lecturers, advocates, lawyers, admins
         elif hub_type == 'students':
             user_role_name = request.user.user_role.role_name if request.user.user_role else None
-            if user_role_name not in ['student', 'lecturer', 'advocate', 'lawyer', 'admin']:
-                self.message = "Only students, lecturers, advocates, lawyers, and admins can access the Students Hub"
-                return False
-        
+            if user_role_name not in ['law_student', 'lecturer', 'advocate', 'lawyer', 'admin']:
+                if not check_subscription_permission(request.user, 'can_access_student_hub'):
+                    self.message = "Only students, lecturers, advocates, lawyers, and admins can access the Students Hub"
+                    return False
+
         return True
     
     def has_object_permission(self, request, view, obj):
@@ -90,11 +93,13 @@ class CanAccessHub(BasePermission):
         
         if hub_type == 'advocates':
             user_role_name = request.user.user_role.role_name if request.user.user_role else None
-            return user_role_name in ['advocate', 'lawyer', 'admin']
-        
+            return user_role_name in ['advocate', 'admin']
+
         if hub_type == 'students':
             user_role_name = request.user.user_role.role_name if request.user.user_role else None
-            return user_role_name in ['student', 'lecturer', 'advocate', 'lawyer', 'admin']
+            if user_role_name in ['law_student', 'lecturer', 'advocate', 'lawyer', 'admin']:
+                return True
+            return check_subscription_permission(request.user, 'can_access_student_hub')
         
         return True
 
@@ -158,15 +163,15 @@ class CanCreateContent(BasePermission):
                 self.message = "Only admins can create legal education content"
                 return False
         
-        # Advocates Hub - advocates, lawyers, and admins
+        # Advocates Hub - advocates and admins
         if hub_type == 'advocates':
             user_role_name = request.user.user_role.role_name if request.user.user_role else None
-            if user_role_name not in ['advocate', 'lawyer', 'admin']:
-                self.message = "Only advocates, lawyers, and admins can post in Advocates Hub"
+            if user_role_name not in ['advocate', 'admin']:
+                self.message = "Only advocates can post in Advocates Hub"
                 return False
-            
+
             # Check verification
-            if user_role_name in ['advocate', 'lawyer']:
+            if user_role_name == 'advocate':
                 if not hasattr(request.user, 'verification') or request.user.verification.status != 'verified':
                     self.message = "You must be verified"
                     return False
@@ -225,8 +230,8 @@ class CanFollowLecturer(BasePermission):
             return False
         
         # Only students can follow lecturers
-        if request.user.user_role != 'student':
+        if not request.user.user_role or request.user.user_role.role_name != 'law_student':
             self.message = "Only students can follow lecturers"
             return False
-        
+
         return True

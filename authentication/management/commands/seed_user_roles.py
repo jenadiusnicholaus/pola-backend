@@ -31,6 +31,10 @@ class Command(BaseCommand):
                 'role_name': 'citizen',
                 'description': 'General public user seeking legal information or services'
             },
+            {
+                'role_name': 'lecturer',
+                'description': 'Academic professional who teaches law at a university or legal training institution'
+            },
         ]
 
         for role_data in roles:

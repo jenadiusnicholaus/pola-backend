@@ -34,6 +34,8 @@ class CustomUserManager(BaseUserManager):
         if not email:
             raise ValueError(_("The Email must be set"))
         email = self.normalize_email(email)
+        if agreed_to_Terms is None:
+            agreed_to_Terms = self.model._meta.get_field('agreed_to_Terms').default
         user = self.model(
             email=email,
             date_of_birth=date_of_birth,
@@ -430,7 +432,7 @@ class Document(models.Model):
     ]
 
     user = models.ForeignKey('PolaUser', on_delete=models.CASCADE, related_name='documents')
-    document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPES)
+    document_type = models.CharField(max_length=50, choices=DOCUMENT_TYPES)
     document_type_ref = models.ForeignKey(
         'DocumentType', on_delete=models.SET_NULL, null=True, blank=True,
         related_name='documents'

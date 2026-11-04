@@ -457,18 +457,18 @@ class HubContentCreateSerializer(serializers.ModelSerializer):
             user_role = getattr(user, 'user_role', None)
             role_name = user_role.role_name if user_role else None
             
-            if role_name not in ['advocate', 'lawyer'] and not user.is_staff:
+            if role_name != 'advocate' and not user.is_staff:
                 raise serializers.ValidationError({
-                    'hub_type': 'Only advocates, lawyers, and admins can post in Advocates Hub'
+                    'hub_type': 'Only advocates can post in Advocates Hub'
                 })
-            
+
             # Check verification for advocates
-            if role_name in ['advocate', 'lawyer'] and not getattr(user, 'is_verified', False):
+            if role_name == 'advocate' and not getattr(user, 'is_verified', False):
                 raise serializers.ValidationError({
                     'detail': 'Only verified advocates can post in Advocates Hub'
                 })
-            
-            data['uploader_type'] = 'advocate' if role_name in ['advocate', 'lawyer'] else 'admin'
+
+            data['uploader_type'] = 'advocate' if role_name == 'advocate' else 'admin'
             
         elif hub_type == 'students':
             # Students, lecturers, admins
@@ -484,7 +484,28 @@ class HubContentCreateSerializer(serializers.ModelSerializer):
             #         'hub_type': 'Only students, lecturers, and admins can post in Students Hub'
             #             })
             
-            data['uploader_type'] = role_name if role_name in ['student', 'lecturer', 'citizen'] else 'admin'
+            # Map user roles to valid LearningMaterial.UPLOADER_TYPES
+            # ('student', 'lecturer', 'advocate', 'admin')
+            role_to_uploader_type = {
+                'law_student': 'student',
+                'student': 'student',
+                'lecturer': 'lecturer',
+                'citizen': 'student',
+                'advocate': 'advocate',
+                'lawyer': 'advocate',
+            }
+            if user.is_staff:
+                data['uploader_type'] = 'admin'
+            else:
+                data['uploader_type'] = role_to_uploader_type.get(role_name, 'student')
+
+            # Students Hub has a fixed download price (TZS 1,500) for
+            # downloadable content; non-downloadable content is free.
+            downloadable = data.get(
+                'is_downloadable',
+                self.instance.is_downloadable if self.instance else False
+            )
+            data['price'] = Decimal('1500.00') if downloadable else Decimal('0.00')
             
         elif hub_type == 'forum':
             # Everyone can post in forum
