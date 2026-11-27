@@ -27,6 +27,7 @@ help:
 	@echo "  make seed-document-content - Seed policy pages (privacy, terms, refund)"
 	@echo "  make seed-templates - Seed all 8 document templates (inactive drafts, deactivates stale)"
 	@echo "  make seed-template SLUG=employment-contract - Seed one template directory"
+	@echo "  make publish-templates - Activate all templates defined in templates/ dirs"
 	@echo "  make createsuperuser - Create super admin user"
 	@echo "  make test         - Run tests"
 	@echo "  make clean        - Remove all containers and volumes"
@@ -125,6 +126,9 @@ seed-template-dry-run:
 		docker compose exec -T web python manage.py seed_template $$slug --dry-run; \
 	done
 
+publish-templates:
+	docker compose exec -T web python manage.py shell -c "import json, pathlib; from document_templates.models import DocumentTemplate; names = [json.loads((p/'manifest.json').read_text())['name'] for p in pathlib.Path('document_templates/templates').iterdir() if (p/'manifest.json').exists()]; n = DocumentTemplate.objects.filter(name__in=names).update(is_active=True); print(f'✅ Published {n} template(s)')"
+
 createsuperadmin:
 	docker compose exec -T web python manage.py shell -c "from authentication.models import PolaUser; u = PolaUser.objects.create_superuser('admin@gmail.com', '1234', first_name='Super', last_name='Admin') if not PolaUser.objects.filter(email='admin@gmail.com').exists() else print('Super admin already exists'); print('✅ Super admin: admin@gmail.com / 1234')"
 
@@ -183,6 +187,9 @@ prod-seed-templates:
 
 prod-seed-template:
 	docker compose -f docker-compose.prod.yml exec -T web python manage.py seed_template $(SLUG) --deactivate-missing
+
+prod-publish-templates:
+	docker compose -f docker-compose.prod.yml exec -T web python manage.py shell -c "import json, pathlib; from document_templates.models import DocumentTemplate; names = [json.loads((p/'manifest.json').read_text())['name'] for p in pathlib.Path('document_templates/templates').iterdir() if (p/'manifest.json').exists()]; n = DocumentTemplate.objects.filter(name__in=names).update(is_active=True); print(f'✅ Published {n} template(s)')"
 
 prod-seed-chapters:
 	docker compose -f docker-compose.prod.yml exec -T web python manage.py seed_regional_chapters
