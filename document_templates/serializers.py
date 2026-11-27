@@ -12,25 +12,67 @@ from .models import (
 )
 
 
-class TemplateFieldSerializer(serializers.ModelSerializer):
+class LocalizedSerializerMixin:
+    """Resolve generic name/label/options/description etc. to the
+    language given by ?language= (en|sw), falling back to English.
+
+    The *_en/*_sw fields remain in the payload for backward compatibility;
+    clients should prefer the resolved generic keys.
+    """
+
+    def _is_sw(self):
+        return self.context.get('language') == 'sw'
+
+    def _pick(self, obj, en_attr, sw_attr=None):
+        sw_attr = sw_attr or f'{en_attr}_sw'
+        if self._is_sw():
+            val = getattr(obj, sw_attr, None)
+            if val:
+                return val
+        return getattr(obj, en_attr, None)
+
+
+class TemplateFieldSerializer(LocalizedSerializerMixin, serializers.ModelSerializer):
     """Serializer for template fields"""
-    
+    label = serializers.SerializerMethodField()
+    placeholder = serializers.SerializerMethodField()
+    help_text = serializers.SerializerMethodField()
+    options = serializers.SerializerMethodField()
+
     class Meta:
         model = TemplateField
         fields = [
-            'id', 'field_name', 'label_en', 'label_sw',
+            'id', 'field_name',
+            'label', 'placeholder', 'help_text', 'options',
+            'label_en', 'label_sw',
             'placeholder_en', 'placeholder_sw',
             'help_text_en', 'help_text_sw',
+            'options_sw',
             'field_type', 'is_required', 'order',
-            'validation_rules', 'options', 'options_sw',
-            'default_value'
+            'validation_rules', 'default_value'
         ]
 
+    def get_label(self, obj):
+        return self._pick(obj, 'label_en', 'label_sw')
 
-class TemplateSectionSerializer(serializers.ModelSerializer):
+    def get_placeholder(self, obj):
+        return self._pick(obj, 'placeholder_en', 'placeholder_sw')
+
+    def get_help_text(self, obj):
+        return self._pick(obj, 'help_text_en', 'help_text_sw')
+
+    def get_options(self, obj):
+        if self._is_sw() and obj.options_sw:
+            return obj.options_sw
+        return obj.options
+
+
+class TemplateSectionSerializer(LocalizedSerializerMixin, serializers.ModelSerializer):
     """Serializer for template sections with nested fields"""
     fields = TemplateFieldSerializer(many=True, read_only=True)
-    
+    name = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+
     class Meta:
         model = TemplateSection
         fields = [
@@ -38,10 +80,18 @@ class TemplateSectionSerializer(serializers.ModelSerializer):
             'description_sw', 'order', 'fields'
         ]
 
+    def get_name(self, obj):
+        return self._pick(obj, 'name')
 
-class DocumentTemplateListSerializer(serializers.ModelSerializer):
+    def get_description(self, obj):
+        return self._pick(obj, 'description')
+
+
+class DocumentTemplateListSerializer(LocalizedSerializerMixin, serializers.ModelSerializer):
     """Serializer for template list view"""
-    
+    name = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+
     class Meta:
         model = DocumentTemplate
         fields = [
@@ -50,13 +100,21 @@ class DocumentTemplateListSerializer(serializers.ModelSerializer):
             'price', 'icon', 'usage_count'
         ]
 
+    def get_name(self, obj):
+        return self._pick(obj, 'name')
 
-class DocumentTemplateDetailSerializer(serializers.ModelSerializer):
+    def get_description(self, obj):
+        return self._pick(obj, 'description')
+
+
+class DocumentTemplateDetailSerializer(LocalizedSerializerMixin, serializers.ModelSerializer):
     """Detailed serializer with sections and fields"""
+    name = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
     sections = TemplateSectionSerializer(many=True, read_only=True)
     fields_without_section = serializers.SerializerMethodField()
     all_fields = serializers.SerializerMethodField()  # Renamed from 'fields'
-    
+
     class Meta:
         model = DocumentTemplate
         fields = [
@@ -65,16 +123,22 @@ class DocumentTemplateDetailSerializer(serializers.ModelSerializer):
             'price', 'icon', 'usage_count',
             'sections', 'fields_without_section', 'all_fields'
         ]
-    
+
+    def get_name(self, obj):
+        return self._pick(obj, 'name')
+
+    def get_description(self, obj):
+        return self._pick(obj, 'description')
+
     def get_fields_without_section(self, obj):
         """Get fields that don't belong to any section"""
         fields = obj.fields.filter(section__isnull=True)
-        return TemplateFieldSerializer(fields, many=True).data
-    
+        return TemplateFieldSerializer(fields, many=True, context=self.context).data
+
     def get_all_fields(self, obj):
         """Get all fields for this template"""
         all_fields = obj.fields.all().order_by('order')
-        return TemplateFieldSerializer(all_fields, many=True).data
+        return TemplateFieldSerializer(all_fields, many=True, context=self.context).data
 
 
 class UserDocumentDataSerializer(serializers.ModelSerializer):
