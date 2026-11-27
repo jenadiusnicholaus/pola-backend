@@ -4,7 +4,10 @@
 # Usage: make <command>
 # ==========================================
 
-.PHONY: help build up down logs shell migrate test clean prod-up prod-down prod-logs backup restore deploy seed test-email prod-test-email seed-verification-requirements prod-seed-verification-requirements seed-document-content prod-seed-document-content prod-seed-chapters
+.PHONY: help build up down logs shell migrate test clean prod-up prod-down prod-logs backup restore deploy seed test-email prod-test-email seed-verification-requirements prod-seed-verification-requirements seed-document-content prod-seed-document-content prod-seed-chapters seed-templates prod-seed-templates seed-template prod-seed-template
+
+# Canonical document template slugs under document_templates/templates/
+TEMPLATE_SLUGS := employment-contract notice-of-termination resignation-letter vehicle-hire vehicle-sale house-rental estate-minutes will
 
 # Default target
 help:
@@ -22,6 +25,8 @@ help:
 	@echo "  make seed         - Seed all production data (admin, roles, etc.)"
 	@echo "  make seed-verification-requirements - Seed document types & verification requirements"
 	@echo "  make seed-document-content - Seed policy pages (privacy, terms, refund)"
+	@echo "  make seed-templates - Seed all 8 document templates (inactive drafts, deactivates stale)"
+	@echo "  make seed-template SLUG=employment-contract - Seed one template directory"
 	@echo "  make createsuperuser - Create super admin user"
 	@echo "  make test         - Run tests"
 	@echo "  make clean        - Remove all containers and volumes"
@@ -105,6 +110,21 @@ seed-verification-requirements:
 seed-document-content:
 	docker compose exec -T web python manage.py seed_document_content
 
+seed-templates:
+	@for slug in $(TEMPLATE_SLUGS); do \
+		echo "📄 Seeding $$slug..."; \
+		docker compose exec -T web python manage.py seed_template $$slug --deactivate-missing; \
+	done
+	@echo "✅ All templates seeded as inactive drafts (flip is_active to publish)"
+
+seed-template:
+	docker compose exec -T web python manage.py seed_template $(SLUG) --deactivate-missing
+
+seed-template-dry-run:
+	@for slug in $(TEMPLATE_SLUGS); do \
+		docker compose exec -T web python manage.py seed_template $$slug --dry-run; \
+	done
+
 createsuperadmin:
 	docker compose exec -T web python manage.py shell -c "from authentication.models import PolaUser; u = PolaUser.objects.create_superuser('admin@gmail.com', '1234', first_name='Super', last_name='Admin') if not PolaUser.objects.filter(email='admin@gmail.com').exists() else print('Super admin already exists'); print('✅ Super admin: admin@gmail.com / 1234')"
 
@@ -153,6 +173,16 @@ prod-seed-verification-requirements:
 
 prod-seed-document-content:
 	docker compose -f docker-compose.prod.yml exec -T web python manage.py seed_document_content
+
+prod-seed-templates:
+	@for slug in $(TEMPLATE_SLUGS); do \
+		echo "📄 Seeding $$slug..."; \
+		docker compose -f docker-compose.prod.yml exec -T web python manage.py seed_template $$slug --deactivate-missing; \
+	done
+	@echo "✅ All templates seeded as inactive drafts (flip is_active to publish)"
+
+prod-seed-template:
+	docker compose -f docker-compose.prod.yml exec -T web python manage.py seed_template $(SLUG) --deactivate-missing
 
 prod-seed-chapters:
 	docker compose -f docker-compose.prod.yml exec -T web python manage.py seed_regional_chapters
