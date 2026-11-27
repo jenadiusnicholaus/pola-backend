@@ -16,8 +16,8 @@ class LocalizedSerializerMixin:
     """Resolve generic name/label/options/description etc. to the
     language given by ?language= (en|sw), falling back to English.
 
-    The *_en/*_sw fields remain in the payload for backward compatibility;
-    clients should prefer the resolved generic keys.
+    When ?language= is passed explicitly, only the resolved generic keys
+    are returned; without it the full bilingual payload is preserved.
     """
 
     def _is_sw(self):
@@ -30,6 +30,14 @@ class LocalizedSerializerMixin:
             if val:
                 return val
         return getattr(obj, en_attr, None)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        if request and request.query_params.get('language'):
+            return {k: v for k, v in data.items()
+                    if not (k.endswith('_en') or k.endswith('_sw'))}
+        return data
 
 
 class TemplateFieldSerializer(LocalizedSerializerMixin, serializers.ModelSerializer):
