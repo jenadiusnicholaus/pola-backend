@@ -1,0 +1,399 @@
+{
+  "sections": [
+    {
+      "name": "Agreement",
+      "name_sw": "Mkataba",
+      "order": 1,
+      "fields": [
+        {
+          "field_name": "vehicle_type",
+          "label_en": "What type of motor vehicle are you selling?",
+          "label_sw": "Unauza chombo cha moto cha aina gani?",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "car",
+            "motorcycle"
+          ],
+          "options_sw": [
+            "gari",
+            "pikipiki"
+          ]
+        },
+        {
+          "field_name": "agreement_date_day",
+          "label_en": "Day the agreement is prepared",
+          "label_sw": "Tarehe ya kuandaa mkataba - Siku",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{1,2}$"
+          }
+        },
+        {
+          "field_name": "agreement_date_month",
+          "label_en": "Month the agreement is prepared",
+          "label_sw": "Mwezi wa kuandaa mkataba",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "agreement_date_year",
+          "label_en": "Year the agreement is prepared",
+          "label_sw": "Mwaka wa kuandaa mkataba",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{4}$"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Seller Information",
+      "name_sw": "Taarifa za Muuzaji",
+      "order": 2,
+      "fields": [
+        {
+          "field_name": "seller_name",
+          "label_en": "Full Name of Seller",
+          "label_sw": "Jina kamili la Muuzaji",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "seller_po_box",
+          "label_en": "P.O. Box of Seller",
+          "label_sw": "S.L.P ya Muuzaji",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "seller_residence",
+          "label_en": "Residence of Seller (Street/Village)",
+          "label_sw": "Makazi ya Muuzaji (Mtaa/Kijiji)",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "seller_region",
+          "label_en": "Region of Seller",
+          "label_sw": "Mkoa wa Muuzaji",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "seller_id_type",
+          "label_en": "Type of ID",
+          "label_sw": "Aina ya kitambulisho",
+          "field_type": "dropdown",
+          "is_required": true,
+          "options": [
+            "NIDA",
+            "Driver's License",
+            "Passport",
+            "Voter's ID",
+            "Other"
+          ],
+          "options_sw": [
+            "NIDA",
+            "Leseni ya Udereva",
+            "Pasi ya kusafiria",
+            "Kadi ya Mpiga Kura",
+            "Nyingine"
+          ]
+        },
+        {
+          "field_name": "seller_id_number",
+          "label_en": "ID Number",
+          "label_sw": "Namba ya kitambulisho",
+          "field_type": "text",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Buyer Information",
+      "name_sw": "Taarifa za Mnunuzi",
+      "order": 3,
+      "fields": [
+        {
+          "field_name": "buyer_name",
+          "label_en": "Full Name of Buyer",
+          "label_sw": "Jina kamili la Mnunuzi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "buyer_po_box",
+          "label_en": "P.O. Box of Buyer",
+          "label_sw": "S.L.P ya Mnunuzi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "buyer_residence",
+          "label_en": "Residence of Buyer (Street/Village)",
+          "label_sw": "Makazi ya Mnunuzi (Mtaa/Kijiji)",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "buyer_region",
+          "label_en": "Region of Buyer",
+          "label_sw": "Mkoa wa Mnunuzi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "buyer_id_type",
+          "label_en": "Type of ID",
+          "label_sw": "Aina ya kitambulisho",
+          "field_type": "dropdown",
+          "is_required": true,
+          "options": [
+            "NIDA",
+            "Driver's License",
+            "Passport",
+            "Voter's ID",
+            "Other"
+          ],
+          "options_sw": [
+            "NIDA",
+            "Leseni ya Udereva",
+            "Pasi ya kusafiria",
+            "Kadi ya Mpiga Kura",
+            "Nyingine"
+          ]
+        },
+        {
+          "field_name": "buyer_id_number",
+          "label_en": "ID Number",
+          "label_sw": "Namba ya kitambulisho",
+          "field_type": "text",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Motor Vehicle Details",
+      "name_sw": "Maelezo ya Chombo cha Moto",
+      "order": 4,
+      "fields": [
+        {
+          "field_name": "vehicle_make",
+          "label_en": "Make",
+          "label_sw": "Chapa (Make)",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "vehicle_model",
+          "label_en": "Model",
+          "label_sw": "Model",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "vehicle_year",
+          "label_en": "Year of Manufacture",
+          "label_sw": "Mwaka wa Kutengenezwa",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{4}$"
+          }
+        },
+        {
+          "field_name": "registration_number",
+          "label_en": "Registration Number (Plate Number)",
+          "label_sw": "Namba ya Usajili (Plate Number)",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "chassis_number",
+          "label_en": "Chassis Number",
+          "label_sw": "Namba ya Chassis",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "engine_number",
+          "label_en": "Engine Number",
+          "label_sw": "Namba ya Injini",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "vehicle_color",
+          "label_en": "Vehicle Color",
+          "label_sw": "Rangi ya chombo",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "vehicle_condition",
+          "label_en": "Condition of Vehicle",
+          "label_sw": "Hali ya chombo",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "new",
+            "used",
+            "runs_perfect",
+            "needs_maintenance"
+          ],
+          "options_sw": [
+            "mpya",
+            "mtumba",
+            "inatembea na haina shida yoyote",
+            "inatembea ila inahitaji matengenezo"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Price and Payment",
+      "name_sw": "Bei na Malipo",
+      "order": 5,
+      "fields": [
+        {
+          "field_name": "sale_price_words",
+          "label_en": "Total sale price in words",
+          "label_sw": "Bei kamili ya mauzo kwa maneno",
+          "field_type": "text",
+          "is_required": true,
+          "placeholder_en": "e.g. Five million",
+          "placeholder_sw": "mf. Milioni tano"
+        },
+        {
+          "field_name": "sale_price_figure",
+          "label_en": "Total sale price in figures (Tsh)",
+          "label_sw": "Bei kamili ya mauzo kwa namba (Tsh)",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9,]+$"
+          }
+        },
+        {
+          "field_name": "amount_paid",
+          "label_en": "Amount already paid (Tsh)",
+          "label_sw": "Kiasi kilicholipwa (Tsh)",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9,]+$"
+          }
+        },
+        {
+          "field_name": "payment_method",
+          "label_en": "Method of payment",
+          "label_sw": "Njia ya malipo",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "cash",
+            "bank",
+            "mobile_money"
+          ],
+          "options_sw": [
+            "fedha taslimu",
+            "benki",
+            "malipo ya simu"
+          ]
+        },
+        {
+          "field_name": "payment_plan",
+          "label_en": "How will payment be made?",
+          "label_sw": "Je, malipo yanafanyika kwa namna gani?",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "one_time",
+            "installments"
+          ],
+          "options_sw": [
+            "malipo ya mara moja",
+            "malipo ya mihula"
+          ],
+          "help_text_en": "If one-time, the balance fields will not appear in the contract",
+          "help_text_sw": "Kama mara moja, sehemu ya salio haitajitokeza kwenye mkataba"
+        },
+        {
+          "field_name": "balance_amount",
+          "label_en": "Balance remaining (Tsh)",
+          "label_sw": "Kiasi kilichobaki (Tsh)",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "balance_payment_method",
+          "label_en": "Payment method for the remaining balance",
+          "label_sw": "Njia ya malipo kwa kiasi kilichobakia",
+          "field_type": "radio",
+          "is_required": false,
+          "options": [
+            "cash",
+            "bank",
+            "mobile_money"
+          ],
+          "options_sw": [
+            "fedha taslimu",
+            "benki",
+            "malipo ya simu"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Handing Over the Vehicle",
+      "name_sw": "Kukabidhi Chombo",
+      "order": 6,
+      "fields": [
+        {
+          "field_name": "handover_day",
+          "label_en": "Date of handing over - Day",
+          "label_sw": "Tarehe ya kukabidhi - Siku",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{1,2}$"
+          }
+        },
+        {
+          "field_name": "handover_month",
+          "label_en": "Date of handing over - Month",
+          "label_sw": "Mwezi wa kukabidhi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "handover_year",
+          "label_en": "Date of handing over - Year",
+          "label_sw": "Mwaka wa kukabidhi",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{4}$"
+          }
+        },
+        {
+          "field_name": "handover_time",
+          "label_en": "Time of handing over",
+          "label_sw": "Saa ya kukabidhi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "handover_place",
+          "label_en": "Place of handing over",
+          "label_sw": "Mahali pa kukabidhi",
+          "field_type": "text",
+          "is_required": true
+        }
+      ]
+    }
+  ]
+}

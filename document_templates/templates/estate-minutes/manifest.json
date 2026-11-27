@@ -1,0 +1,18 @@
+{
+  "slug": "estate-minutes",
+  "name": "Minutes of Administration of Estate Family Meeting",
+  "name_sw": "Muhtasari wa Kikao cha Mirathi cha Familia",
+  "description": "Minutes of a family meeting for the administration of a deceased person's estate",
+  "description_sw": "Muhtasari wa kikao cha familia cha kusimamia mirathi ya marehemu",
+  "category": "estate_minutes",
+  "is_free": true,
+  "price": 0,
+  "icon": "📋",
+  "order": 7,
+  "source_files": {
+    "template_sw": "src/13. (a) Muhtasari wa kikao cha Mirathi cha Familia.pdf",
+    "questionnaire_sw": "src/13. (b) Maswali - Muhtasari wa kikao cha Familia.pdf",
+    "template_en": "src/14. (a) Minutes of administration of Estate  family meeting.pdf",
+    "questionnaire_en": "src/14. (b) Questionnaire - Minutes of administration of Estate  family meeting.pdf"
+  }
+}

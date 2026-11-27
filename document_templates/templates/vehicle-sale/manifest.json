@@ -1,0 +1,18 @@
+{
+  "slug": "vehicle-sale",
+  "name": "Motor Bike and Vehicle Sale Agreement",
+  "name_sw": "Mkataba wa Mauzo ya Gari au Pikipiki",
+  "description": "Agreement for the sale of a motor vehicle or motorcycle between a seller and a buyer",
+  "description_sw": "Mkataba wa mauzo ya gari au pikipiki kati ya muuzaji na mnunuzi",
+  "category": "vehicle_sale",
+  "is_free": true,
+  "price": 0,
+  "icon": "🚙",
+  "order": 5,
+  "source_files": {
+    "template_sw": "src/9. (a) Mkataba wa mauzo ya Gari au pikipiki.pdf",
+    "questionnaire_sw": "src/9. (b) maswali - Mkataba wa mauziano ya Gari au Pikipiki.pdf",
+    "template_en": "src/10. (a) Motor bike and Vehicle sale agreement.pdf",
+    "questionnaire_en": "src/10. (b) Questionnaire -Motor bike and  Vehicle sale agreement.pdf"
+  }
+}

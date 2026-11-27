@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>House Rental Agreement</title>
+    <style>
+        body { font-family: 'Times New Roman', 'DejaVu Serif', serif; font-size: 12pt; line-height: 1.6; margin: 40px; }
+        .center { text-align: center; margin: 20px 0; }
+        .left { text-align: left; margin-bottom: 5px; }
+        .bold { font-weight: bold; }
+        .underline { text-decoration: underline; }
+        .data-field { border-bottom: 1px solid #000; padding: 0 3px; display: inline-block; min-width: 140px; }
+        ol, ul { margin: 10px 0; padding-left: 40px; }
+        li { margin: 5px 0; }
+        .signature-section { margin-top: 40px; }
+    </style>
+</head>
+<body>
+
+<p class="center">
+    <span class="bold underline" style="font-size: 14pt">LEASE AGREEMENT</span>
+</p>
+
+<p class="left">
+    THIS LEASE AGREEMENT is entered on the <span class="data-field">{{agreement_date_day}}</span> day of <span class="data-field">{{agreement_date_month}}</span>, Year <span class="data-field">{{agreement_date_year}}</span>.
+</p>
+
+<p class="left"><span class="bold">BETWEEN</span></p>
+
+<p class="left">
+    Mr/Mrs/Ms <span class="data-field">{{landlord_name}}</span>, of P.O. Box <span class="data-field">{{landlord_po_box}}</span>, <span class="data-field">{{landlord_addr_region}}</span>. Resident of <span class="data-field">{{landlord_res_street}}</span>, <span class="data-field">{{landlord_res_district}}</span>, <span class="data-field">{{landlord_res_region}}</span>,
+    (hereinafter referred to as the "Landlord") of the one part.
+</p>
+
+<p class="left"><span class="bold">AND</span></p>
+
+<p class="left">
+    Mr/Mrs/Ms <span class="data-field">{{tenant_name}}</span>, of P.O. Box <span class="data-field">{{tenant_po_box}}</span>, <span class="data-field">{{tenant_addr_region}}</span>. Resident of <span class="data-field">{{tenant_res_street}}</span>, <span class="data-field">{{tenant_res_district}}</span>, <span class="data-field">{{tenant_res_region}}</span>,
+    (hereinafter referred to as the "Tenant") of the other part.
+</p>
+
+<p class="left"><span class="bold">1. PROPERTY DESCRIPTION</span></p>
+<p class="left">
+    The Landlord agrees to rent to the Tenant a {% if property_use == "business" %}business{% else %}residential{% endif %} house located at <span class="data-field">{{property_region}}</span>, <span class="data-field">{{property_district}}</span>, <span class="data-field">{{property_street}}</span>, House No. <span class="data-field">{{property_house_number}}</span>, comprising of
+    {% if bedrooms %}<span class="data-field">{{bedrooms}}</span> bedroom(s){% endif %}{% if living_rooms %}, <span class="data-field">{{living_rooms}}</span> living room(s){% endif %}{% if kitchens %}, <span class="data-field">{{kitchens}}</span> kitchen(s){% endif %}{% if bathrooms %}, <span class="data-field">{{bathrooms}}</span> bathroom(s){% endif %}{% if toilets %}, <span class="data-field">{{toilets}}</span> toilet(s){% endif %}, as shown and described to the Tenant.
+</p>
+
+<p class="left"><span class="bold">2. DURATION OF TENANCY</span></p>
+<p class="left">
+    The tenancy shall be for a period of <span class="data-field">{{tenancy_months}}</span> months, starting on <span class="data-field">{{tenancy_start_date}}</span> and ending on <span class="data-field">{{tenancy_end_date}}</span>.
+</p>
+<p class="left">
+    The Tenant may request a renewal in writing before the expiration of this agreement.
+</p>
+
+<p class="left"><span class="bold">3. RENTAL AMOUNT</span></p>
+<ul>
+    <li>The monthly rent shall be TZS <span class="data-field">{{monthly_rent}}</span>.</li>
+    <li>The terms of payment shall be {% if payment_terms == "monthly" %}monthly{% elif payment_terms == "three_months" %}every three months{% elif payment_terms == "six_months" %}every six months{% elif payment_terms == "yearly" %}yearly{% else %}<span class="data-field">{{payment_terms}}</span>{% endif %}.</li>
+    <li>The Tenant shall pay the Landlord <span class="data-field">{{signing_months}}</span> months' rent, amounting to TZS <span class="data-field">{{signing_amount}}</span> upon the signing of this contract.</li>
+    <li>Payment shall be made via {% if payment_method == "cash" %}cash{% elif payment_method == "mobile_money" %}mobile transfer{% elif payment_method == "bank" %}bank transfer{% else %}<span class="data-field">{{payment_method}}</span>{% endif %}.</li>
+</ul>
+{% if payment_method == "bank" %}
+<p class="left"><span class="bold">Bank Details:</span></p>
+<ul>
+    <li>Bank Name: <span class="data-field">{{bank_name}}</span></li>
+    <li>Bank Branch: <span class="data-field">{{bank_branch}}</span></li>
+    <li>Account Name: <span class="data-field">{{bank_account_name}}</span></li>
+    <li>Account Number: <span class="data-field">{{bank_account_number}}</span></li>
+</ul>
+{% endif %}
+
+{% if has_security_deposit == "yes" %}
+<p class="left"><span class="bold">4. SECURITY DEPOSIT</span></p>
+<p class="left">
+    The Tenant shall pay a security deposit of TZS <span class="data-field">{{security_deposit_amount}}</span> before occupying the premises. This deposit will be refunded at the end of the tenancy, provided there is no damage to the property or outstanding payments.
+</p>
+{% endif %}
+
+<p class="left"><span class="bold">5. USE OF THE PROPERTY</span></p>
+<ul>
+    <li>The house shall be used strictly for
+        {% if allowed_use_1 == "residential" %}residential{% elif allowed_use_1 == "office" %}office{% elif allowed_use_1 == "business" %}business{% endif %}
+        {% if allowed_use_2 %}, {% if allowed_use_2 == "residential" %}residential{% elif allowed_use_2 == "office" %}office{% elif allowed_use_2 == "business" %}business{% endif %}{% endif %}
+        {% if allowed_use_3 %}, {% if allowed_use_3 == "residential" %}residential{% elif allowed_use_3 == "office" %}office{% elif allowed_use_3 == "business" %}business{% endif %}{% endif %}
+        purposes only, and not for any
+        {% if prohibited_use_1 %}{% if prohibited_use_1 == "residential" %}residential{% elif prohibited_use_1 == "office" %}office{% elif prohibited_use_1 == "business" %}business{% endif %}{% endif %}
+        {% if prohibited_use_2 %}, {% if prohibited_use_2 == "residential" %}residential{% elif prohibited_use_2 == "office" %}office{% elif prohibited_use_2 == "business" %}business{% endif %}{% endif %}
+        {% if prohibited_use_3 %}, {% if prohibited_use_3 == "residential" %}residential{% elif prohibited_use_3 == "office" %}office{% elif prohibited_use_3 == "business" %}business{% endif %}{% endif %}
+        activities, without written permission from the Landlord.</li>
+    <li>The Tenant shall maintain the cleanliness and condition of the house.</li>
+</ul>
+
+<p class="left"><span class="bold">6. RESPONSIBILITIES OF THE TENANT</span></p>
+<p class="left">The Tenant shall:</p>
+<ol type="i">
+    <li>Pay the rent reserved on the days and in manner aforesaid without any deductions whatsoever.</li>
+    <li>Pay for all utilities such as water, electricity, telephone and other personal services.</li>
+    <li>Use the leased premises for the rented purposes only.</li>
+    <li>Maintain the leased premises, including all extensions, fixtures, windows, door locks, sanitary installations, water systems, electrical wiring, and fittings, in proper and tenantable repair and condition, except for reasonable wear and tear or damage resulting from accidental fire, natural causes, or force majeure.</li>
+    <li>Not undertake any renovation, structural alteration, or make any permanent or material change to the premises, or any modification which cannot be fully and effectively reinstated to its original condition, without the prior written consent of the Landlord.</li>
+    <li>Not do, or permit to be done, in or upon the leased premises or any part thereof, any act or thing which may constitute or become a nuisance, annoyance, or disturbance to the occupiers or owners of adjoining or neighbouring properties.</li>
+    <li>Not assign, sublet, transfer, or otherwise part with the possession or occupation of the demised premises or any part thereof without first obtaining the prior written consent of the Landlord.</li>
+    <li>Permit the Landlord or his agents or servants and other persons authorized in writing by the Landlord, for a reasonable cause, to enter the demised premises at any time with prior consent.</li>
+    <li>Report any damage to the property to the Landlord promptly.</li>
+    <li>On the expiry of the lease term, hand over the leased premises and its structure therein to the Landlord.</li>
+</ol>
+
+<p class="left"><span class="bold">7. RESPONSIBILITIES OF THE LANDLORD</span></p>
+<p class="left">The Landlord shall:</p>
+<ol type="i">
+    <li>Ensure the house is in habitable condition before the Tenant moves in.</li>
+    <li>Handle major structural repairs (e.g., roof, walls, floors), except for damage caused by the Tenant.</li>
+    <li>Bear, pay, and discharge all existing bills in respect of the demised premises before the Tenant moves in.</li>
+    <li>Pay all site rates, land rent and other impositions during the said term.</li>
+    <li>Upon payment of the rent, allow the Tenant quiet enjoyment of the premises and shall not cause any unreasonable disturbance.</li>
+</ol>
+
+<p class="left"><span class="bold">8. BREACH OF AGREEMENT</span></p>
+<p class="left">If either party breaches this agreement:</p>
+<ul>
+    <li>The other party shall issue a 30-day written notice to remedy the breach.</li>
+    <li>If no remedy is made within that period, the agreement may be lawfully terminated.</li>
+</ul>
+
+<p class="left"><span class="bold">9. TERMINATION OF AGREEMENT</span></p>
+<ol type="i">
+    <li>The Tenant may terminate this agreement by giving a <span class="data-field">{{tenant_notice_days}}</span> days' written notice.</li>
+    <li>The Landlord may also issue a <span class="data-field">{{landlord_notice_days}}</span>-day notice in case of valid reasons such as non-payment of rent or damage to property.</li>
+    <li>The party who intends to terminate this agreement shall pay <span class="data-field">{{termination_compensation}}</span> to the other party as compensation for the termination of the contract.</li>
+</ol>
+
+<p class="left"><span class="bold">10. DISPUTE RESOLUTION</span></p>
+<p class="left">
+    Both parties agree to attempt resolving any disputes amicably through dialogue. If unresolved, the matter shall be referred to a court of competent jurisdiction.
+</p>
+
+{% if additional_term_1 or additional_term_2 or additional_term_3 or additional_term_4 %}
+<p class="left"><span class="bold">11. ADDITIONAL TERMS</span></p>
+<ol type="i">
+    {% if additional_term_1 %}<li><span class="data-field">{{additional_term_1}}</span></li>{% endif %}
+    {% if additional_term_2 %}<li><span class="data-field">{{additional_term_2}}</span></li>{% endif %}
+    {% if additional_term_3 %}<li><span class="data-field">{{additional_term_3}}</span></li>{% endif %}
+    {% if additional_term_4 %}<li><span class="data-field">{{additional_term_4}}</span></li>{% endif %}
+</ol>
+{% endif %}
+
+<p class="left"><span class="bold">12. SIGNATURES</span></p>
+<div class="signature-section">
+    <p class="left"><span class="bold">Landlord:</span></p>
+    <p class="left">Signature: _______________________</p>
+    <p class="left">Name: <span class="data-field">{{landlord_name}}</span></p>
+    <p class="left">Phone No: <span class="data-field">{{landlord_phone}}</span></p>
+    <p class="left">Date: _______________________</p>
+
+    <p class="left" style="margin-top: 20px;"><span class="bold">Tenant:</span></p>
+    <p class="left">Signature: ___________________</p>
+    <p class="left">Name: <span class="data-field">{{tenant_name}}</span></p>
+    <p class="left">Phone No: <span class="data-field">{{tenant_phone}}</span></p>
+    <p class="left">Date: _______________________</p>
+</div>
+
+<p class="left"><span class="bold">WITNESSES</span></p>
+<p class="left"><span class="bold">Witness for the Landlord:</span></p>
+<p class="left">Signature: ____________________</p>
+<p class="left">Name: ____________________</p>
+<p class="left">Address: ____________________</p>
+<p class="left">Phone No: ______________________</p>
+<p class="left">Date: ______________________</p>
+
+<p class="left" style="margin-top: 20px;"><span class="bold">Witness for the Tenant:</span></p>
+<p class="left">Signature: ____________________</p>
+<p class="left">Name: ____________________</p>
+<p class="left">Address: ____________________</p>
+<p class="left">Phone No: ______________________</p>
+<p class="left">Date: ______________________</p>
+
+</body>
+</html>

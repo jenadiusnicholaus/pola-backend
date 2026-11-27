@@ -1,0 +1,545 @@
+{
+  "sections": [
+    {
+      "name": "Contract Heading",
+      "name_sw": "Kichwa cha Mkataba",
+      "order": 1,
+      "fields": [
+        {
+          "field_name": "vehicle_type",
+          "label_en": "What type of vehicle are you leasing?",
+          "label_sw": "Unakodisha chombo gani?",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "car",
+            "motorcycle"
+          ],
+          "options_sw": [
+            "gari",
+            "pikipiki"
+          ]
+        },
+        {
+          "field_name": "contract_date_day",
+          "label_en": "Date contract prepared - Day",
+          "label_sw": "Tarehe ya mkataba - Siku",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{1,2}$"
+          }
+        },
+        {
+          "field_name": "contract_date_month",
+          "label_en": "Date contract prepared - Month",
+          "label_sw": "Tarehe ya mkataba - Mwezi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "contract_date_year",
+          "label_en": "Date contract prepared - Year",
+          "label_sw": "Tarehe ya mkataba - Mwaka",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{4}$"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Owner's Information",
+      "name_sw": "Taarifa za Mmiliki",
+      "order": 2,
+      "fields": [
+        {
+          "field_name": "owner_name",
+          "label_en": "Full name of the Owner",
+          "label_sw": "Jina kamili la Mmiliki",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "owner_po_box",
+          "label_en": "P.O. Box",
+          "label_sw": "S.L.P",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "owner_address_region",
+          "label_en": "Address - Region",
+          "label_sw": "Anuani - Mkoa",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "owner_residence_ward",
+          "label_en": "Residence - Ward",
+          "label_sw": "Makazi - Kata",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "owner_residence_district",
+          "label_en": "Residence - District",
+          "label_sw": "Makazi - Wilaya",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "owner_residence_region",
+          "label_en": "Residence - Region",
+          "label_sw": "Makazi - Mkoa",
+          "field_type": "text",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Lessee's Information",
+      "name_sw": "Taarifa za Mkodi",
+      "order": 3,
+      "fields": [
+        {
+          "field_name": "lessee_name",
+          "label_en": "Full name of the Lessee",
+          "label_sw": "Jina kamili la Mkodi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "lessee_po_box",
+          "label_en": "P.O. Box",
+          "label_sw": "S.L.P",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "lessee_address_region",
+          "label_en": "Address - Region",
+          "label_sw": "Anuani - Mkoa",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "lessee_residence_ward",
+          "label_en": "Residence - Ward",
+          "label_sw": "Makazi - Kata",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "lessee_residence_district",
+          "label_en": "Residence - District",
+          "label_sw": "Makazi - Wilaya",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "lessee_residence_region",
+          "label_en": "Residence - Region",
+          "label_sw": "Makazi - Mkoa",
+          "field_type": "text",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Vehicle Details",
+      "name_sw": "Maelezo ya Chombo",
+      "order": 4,
+      "fields": [
+        {
+          "field_name": "vehicle_make",
+          "label_en": "Type / Make",
+          "label_sw": "Aina",
+          "field_type": "text",
+          "is_required": true,
+          "placeholder_en": "e.g. Toyota, Boxer, Honda",
+          "placeholder_sw": "mf. Toyota, Boxer, Honda"
+        },
+        {
+          "field_name": "registration_number",
+          "label_en": "Registration Number",
+          "label_sw": "Namba ya Usajili",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "vehicle_color",
+          "label_en": "Vehicle color",
+          "label_sw": "Rangi ya chombo",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "insurance_expiry_day",
+          "label_en": "Insurance expiry - Day",
+          "label_sw": "Bima inaisha - Tarehe",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{1,2}$"
+          }
+        },
+        {
+          "field_name": "insurance_expiry_month",
+          "label_en": "Insurance expiry - Month",
+          "label_sw": "Bima inaisha - Mwezi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "insurance_expiry_year",
+          "label_en": "Insurance expiry - Year",
+          "label_sw": "Bima inaisha - Mwaka",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{4}$"
+          }
+        },
+        {
+          "field_name": "chassis_number",
+          "label_en": "Chassis Number",
+          "label_sw": "Namba ya Chassis",
+          "field_type": "text",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Rental Period",
+      "name_sw": "Muda wa Ukodishaji",
+      "order": 5,
+      "fields": [
+        {
+          "field_name": "rental_start_day",
+          "label_en": "Contract begins - Day",
+          "label_sw": "Mkataba unaanza - Tarehe",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{1,2}$"
+          }
+        },
+        {
+          "field_name": "rental_start_month",
+          "label_en": "Contract begins - Month",
+          "label_sw": "Mkataba unaanza - Mwezi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "rental_start_year",
+          "label_en": "Contract begins - Year",
+          "label_sw": "Mkataba unaanza - Mwaka",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{4}$"
+          }
+        },
+        {
+          "field_name": "rental_end_day",
+          "label_en": "Contract ends - Day",
+          "label_sw": "Mkataba unamalizika - Tarehe",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{1,2}$"
+          }
+        },
+        {
+          "field_name": "rental_end_month",
+          "label_en": "Contract ends - Month",
+          "label_sw": "Mkataba unamalizika - Mwezi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "rental_end_year",
+          "label_en": "Contract ends - Year",
+          "label_sw": "Mkataba unamalizika - Mwaka",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{4}$"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rental Costs",
+      "name_sw": "Gharama za Kukodi",
+      "order": 6,
+      "fields": [
+        {
+          "field_name": "rental_amount",
+          "label_en": "Rental cost (TZS)",
+          "label_sw": "Gharama za kukodisha (TZS)",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9,]+$"
+          }
+        },
+        {
+          "field_name": "rental_period",
+          "label_en": "Per period of",
+          "label_sw": "Kwa muda wa",
+          "field_type": "dropdown",
+          "is_required": true,
+          "options": [
+            "day",
+            "week",
+            "month"
+          ],
+          "options_sw": [
+            "siku",
+            "wiki",
+            "mwezi"
+          ]
+        },
+        {
+          "field_name": "payment_frequency",
+          "label_en": "How often will payments be made?",
+          "label_sw": "Malipo yatafanyika kwa muda gani?",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "daily",
+            "weekly",
+            "monthly"
+          ],
+          "options_sw": [
+            "kila siku",
+            "kila wiki",
+            "kila mwezi"
+          ]
+        },
+        {
+          "field_name": "payment_method",
+          "label_en": "Payment method",
+          "label_sw": "Njia ya malipo",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "cash",
+            "mobile_money",
+            "bank"
+          ],
+          "options_sw": [
+            "fedha taslimu",
+            "malipo ya simu",
+            "benki"
+          ]
+        },
+        {
+          "field_name": "bank_name",
+          "label_en": "Bank Name",
+          "label_sw": "Jina la Benki",
+          "field_type": "text",
+          "is_required": false,
+          "help_text_en": "Required if payment is by bank",
+          "help_text_sw": "Inahitajika kama malipo ni kwa benki"
+        },
+        {
+          "field_name": "bank_branch",
+          "label_en": "Bank Branch",
+          "label_sw": "Tawi la benki",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "bank_account_name",
+          "label_en": "Account Name",
+          "label_sw": "Jina la Akaunti",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "bank_account_number",
+          "label_en": "Account Number",
+          "label_sw": "Namba ya Akaunti",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "signing_payment_amount",
+          "label_en": "Amount paid upon signing (TZS)",
+          "label_sw": "Kiasi cha kulipwa wakati wa kusaini (TZS)",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "signing_payment_period",
+          "label_en": "This payment covers the period of",
+          "label_sw": "Malipo haya ni ya muda wa",
+          "field_type": "text",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Security Deposit",
+      "name_sw": "Amana ya Usalama",
+      "order": 7,
+      "fields": [
+        {
+          "field_name": "has_security_deposit",
+          "label_en": "Have the parties agreed on a security deposit?",
+          "label_sw": "Je, pande zimekubaliana juu ya amana ya usalama?",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "yes",
+            "no"
+          ],
+          "options_sw": [
+            "ndiyo",
+            "hapana"
+          ],
+          "help_text_en": "Optional payment held against damage or unpaid balances; refunded if the contract ends clean",
+          "help_text_sw": "Malipo ya hiari yanayoshikiliwa kwa uharibifu au madeni; hurejeshwa kama hakuna uharibifu"
+        },
+        {
+          "field_name": "security_deposit_amount",
+          "label_en": "Deposit amount (TZS)",
+          "label_sw": "Kiasi cha amana (TZS)",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Use of the Vehicle",
+      "name_sw": "Matumizi ya Chombo",
+      "order": 8,
+      "fields": [
+        {
+          "field_name": "vehicle_use",
+          "label_en": "For what purpose will the vehicle be used?",
+          "label_sw": "Chombo kitatumika kwa madhumuni gani?",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "personal",
+            "business"
+          ],
+          "options_sw": [
+            "binafsi",
+            "biashara"
+          ]
+        },
+        {
+          "field_name": "additional_use_terms",
+          "label_en": "Additional usage terms (if any)",
+          "label_sw": "Masharti mengine ya matumizi (ikiwa yapo)",
+          "field_type": "textarea",
+          "is_required": false,
+          "help_text_en": "If none, this will not appear in the contract",
+          "help_text_sw": "Kama hayapo haitajitokeza kwenye mkataba"
+        }
+      ]
+    },
+    {
+      "name": "Termination of Contract",
+      "name_sw": "Usitishaji wa Mkataba",
+      "order": 9,
+      "fields": [
+        {
+          "field_name": "lessee_notice_days",
+          "label_en": "Days' notice the Lessee must give before terminating",
+          "label_sw": "Taarifa ya siku ngapi Mkodi atoe kabla ya kusitisha",
+          "field_type": "number",
+          "is_required": true,
+          "validation_rules": {
+            "min": 1,
+            "max": 365
+          }
+        },
+        {
+          "field_name": "owner_notice_days",
+          "label_en": "Days' notice the Owner must give (with valid reason)",
+          "label_sw": "Taarifa ya siku ngapi Mmiliki atoe (kwa sababu halali)",
+          "field_type": "number",
+          "is_required": true,
+          "validation_rules": {
+            "min": 1,
+            "max": 365
+          }
+        },
+        {
+          "field_name": "termination_compensation",
+          "label_en": "Compensation payable to the other party (TZS)",
+          "label_sw": "Fidia itakayolipwa kwa upande mwingine (TZS)",
+          "field_type": "text",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Breach of Contract",
+      "name_sw": "Kuvunjwa kwa Mkataba",
+      "order": 10,
+      "fields": [
+        {
+          "field_name": "breach_remedy_days",
+          "label_en": "Time allowed to correct a breach (days)",
+          "label_sw": "Muda wa kurekebisha ukiukwaji (siku)",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "7",
+            "14",
+            "30"
+          ],
+          "options_sw": [
+            "siku 7",
+            "siku 14",
+            "siku 30"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Additional Terms",
+      "name_sw": "Masharti ya Ziada",
+      "order": 11,
+      "fields": [
+        {
+          "field_name": "additional_term_1",
+          "label_en": "Additional term 1",
+          "label_sw": "Sharti la ziada 1",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "additional_term_2",
+          "label_en": "Additional term 2",
+          "label_sw": "Sharti la ziada 2",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "additional_term_3",
+          "label_en": "Additional term 3",
+          "label_sw": "Sharti la ziada 3",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "additional_term_4",
+          "label_en": "Additional term 4",
+          "label_sw": "Sharti la ziada 4",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    }
+  ]
+}

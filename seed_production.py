@@ -99,13 +99,24 @@ def run_seed_commands():
     except Exception as e:
         print(f"❌ Error seeding consultants: {e}")
 
-    # Document templates
-    try:
-        print("📄 Seeding document templates...")
-        call_command('seed_templates', '--clear')
-        print("✅ Document templates seeded")
-    except Exception as e:
-        print(f"❌ Error seeding templates: {e}")
+    # Document templates (from document_templates/templates/<slug>/)
+    template_slugs = [
+        'employment-contract',
+        'notice-of-termination',
+        'resignation-letter',
+        'vehicle-hire',
+        'vehicle-sale',
+        'house-rental',
+        'estate-minutes',
+        'will',
+    ]
+    for slug in template_slugs:
+        try:
+            print(f"📄 Seeding template: {slug}...")
+            call_command('seed_template', slug, '--deactivate-missing')
+            print(f"✅ Template '{slug}' seeded")
+        except Exception as e:
+            print(f"❌ Error seeding template '{slug}': {e}")
 
     # Hubs data
     try:
@@ -121,21 +132,6 @@ def run_seed_commands():
         print("✅ Hub questions seeded")
     except Exception as e:
         print(f"❌ Error seeding questions: {e}")
-
-    # Document fields
-    try:
-        print("📝 Seeding notice fields...")
-        os.system('python seed_notice_fields.py')
-        print("✅ Notice fields seeded")
-    except Exception as e:
-        print(f"❌ Error seeding notice fields: {e}")
-
-    try:
-        print("📋 Seeding questionnaire fields...")
-        os.system('python seed_questionnaire_fields.py')
-        print("✅ Questionnaire fields seeded")
-    except Exception as e:
-        print(f"❌ Error seeding questionnaire fields: {e}")
 
     print("\n🎉 Production seeding completed!")
     print("📊 Summary:")

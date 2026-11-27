@@ -1,0 +1,206 @@
+{
+  "sections": [
+    {
+      "name": "Employee Information",
+      "name_sw": "Taarifa za Mfanyakazi",
+      "order": 1,
+      "fields": [
+        {
+          "field_name": "employee_name",
+          "label_en": "Full name of Employee",
+          "label_sw": "Jina kamili la Mfanyakazi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "employee_po_box",
+          "label_en": "P.O. Box",
+          "label_sw": "S.L.P",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "employee_region",
+          "label_en": "Region",
+          "label_sw": "Mkoa",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "employee_phone",
+          "label_en": "Phone Number",
+          "label_sw": "Namba ya Simu",
+          "field_type": "phone",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^\\+?[0-9\\s\\-]{9,20}$"
+          }
+        },
+        {
+          "field_name": "employee_email",
+          "label_en": "Email",
+          "label_sw": "Barua pepe",
+          "field_type": "email",
+          "is_required": true
+        },
+        {
+          "field_name": "letter_date_day",
+          "label_en": "Date this form is completed - Day",
+          "label_sw": "Tarehe ya kuandika - Siku",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{1,2}$"
+          }
+        },
+        {
+          "field_name": "letter_date_month",
+          "label_en": "Date this form is completed - Month",
+          "label_sw": "Tarehe ya kuandika - Mwezi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "letter_date_year",
+          "label_en": "Date this form is completed - Year",
+          "label_sw": "Tarehe ya kuandika - Mwaka",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{4}$"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Employer Information",
+      "name_sw": "Taarifa za Mwajiri",
+      "order": 2,
+      "fields": [
+        {
+          "field_name": "employer_name",
+          "label_en": "Full name of Employer (company or individual)",
+          "label_sw": "Jina kamili la Mwajiri (kampuni au mtu binafsi)",
+          "field_type": "text",
+          "is_required": true,
+          "help_text_en": "If your employer is a company/organization/business, write its name; if an individual, write their full name",
+          "help_text_sw": "Kama mwajiri ni kampuni/taasisi/biashara andika jina lake, na kama ni mtu binafsi andika jina lake kamili"
+        },
+        {
+          "field_name": "employer_po_box",
+          "label_en": "P.O. Box",
+          "label_sw": "S.L.P",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "employer_region",
+          "label_en": "Region",
+          "label_sw": "Mkoa",
+          "field_type": "text",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Employment Information",
+      "name_sw": "Taarifa za Ajira",
+      "order": 3,
+      "fields": [
+        {
+          "field_name": "job_title",
+          "label_en": "What is your job title / position?",
+          "label_sw": "Cheo chako / nafasi yako kazini",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "employer_type",
+          "label_en": "Is your employer a company/institution or an individual?",
+          "label_sw": "Je, mwajiri wako ni kampuni/taasisi au mtu binafsi?",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "company",
+            "individual"
+          ],
+          "options_sw": [
+            "kampuni/taasisi/biashara",
+            "mtu binafsi"
+          ]
+        },
+        {
+          "field_name": "organization_name",
+          "label_en": "Name of company / institution / business you are employed by",
+          "label_sw": "Jina la kampuni/taasisi/biashara unayoajiriwa",
+          "field_type": "text",
+          "is_required": false,
+          "help_text_en": "Required if employer is a company/institution",
+          "help_text_sw": "Inahitajika kama mwajiri ni kampuni/taasisi"
+        },
+        {
+          "field_name": "resignation_date_day",
+          "label_en": "Resignation effective date - Day",
+          "label_sw": "Tarehe rasmi ya kujiuzulu - Siku",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{1,2}$"
+          }
+        },
+        {
+          "field_name": "resignation_date_month",
+          "label_en": "Resignation effective date - Month",
+          "label_sw": "Tarehe rasmi ya kujiuzulu - Mwezi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "resignation_date_year",
+          "label_en": "Resignation effective date - Year",
+          "label_sw": "Tarehe rasmi ya kujiuzulu - Mwaka",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{4}$"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reasons for Resignation",
+      "name_sw": "Sababu za Kujiuzulu",
+      "order": 4,
+      "fields": [
+        {
+          "field_name": "resignation_reason",
+          "label_en": "Why have you decided to resign?",
+          "label_sw": "Kwanini umeamua kujiuzulu?",
+          "field_type": "dropdown",
+          "is_required": true,
+          "options": [
+            "personal",
+            "job_opportunity",
+            "health",
+            "family",
+            "other"
+          ],
+          "options_sw": [
+            "sababu binafsi",
+            "fursa nyingine ya kazi",
+            "sababu za kiafya",
+            "majukumu ya kifamilia",
+            "nyinginezo"
+          ]
+        },
+        {
+          "field_name": "resignation_reason_other",
+          "label_en": "Other reason - explain",
+          "label_sw": "Sababu nyingine - eleza",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    }
+  ]
+}

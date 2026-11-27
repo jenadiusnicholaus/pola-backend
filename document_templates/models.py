@@ -30,7 +30,11 @@ class DocumentTemplate(models.Model):
         ('employment', 'Employment Documents'),
         ('legal_notice', 'Legal Notices'),
         ('resignation', 'Resignation Documents'),
-        ('questionnaire', 'Questionnaires'),
+        ('vehicle_hire', 'Vehicle Hire'),
+        ('vehicle_sale', 'Vehicle Sale'),
+        ('house_rental', 'House Rental'),
+        ('estate_minutes', 'Estate Minutes'),
+        ('will', 'Wills'),
         ('general', 'General Documents'),
     ]
     

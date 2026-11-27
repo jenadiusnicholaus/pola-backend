@@ -1,0 +1,203 @@
+{
+  "sections": [
+    {
+      "name": "Employer's Information",
+      "name_sw": "Taarifa za Mwajiri",
+      "order": 1,
+      "fields": [
+        {
+          "field_name": "employer_name",
+          "label_en": "Full Name of Employer",
+          "label_sw": "Jina kamili la Mwajiri",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "employer_po_box",
+          "label_en": "P.O. Box",
+          "label_sw": "S.L.P",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "employer_region",
+          "label_en": "Region",
+          "label_sw": "Mkoa",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "employer_phone",
+          "label_en": "Telephone Number",
+          "label_sw": "Namba ya Simu",
+          "field_type": "phone",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^\\+?[0-9\\s\\-]{9,20}$"
+          }
+        },
+        {
+          "field_name": "employer_email",
+          "label_en": "Email Address",
+          "label_sw": "Barua Pepe",
+          "field_type": "email",
+          "is_required": true
+        },
+        {
+          "field_name": "notice_date_day",
+          "label_en": "Date of writing - Day",
+          "label_sw": "Tarehe ya kuandika - Siku",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{1,2}$",
+            "min": 1,
+            "max": 31
+          }
+        },
+        {
+          "field_name": "notice_date_month",
+          "label_en": "Date of writing - Month",
+          "label_sw": "Tarehe ya kuandika - Mwezi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "notice_date_year",
+          "label_en": "Date of writing - Year",
+          "label_sw": "Tarehe ya kuandika - Mwaka",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{4}$"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Employee's Information",
+      "name_sw": "Taarifa za Mfanyakazi",
+      "order": 2,
+      "fields": [
+        {
+          "field_name": "employee_name",
+          "label_en": "Full Name of Employee",
+          "label_sw": "Jina kamili la Mfanyakazi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "employee_po_box",
+          "label_en": "P.O. Box",
+          "label_sw": "S.L.P",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "employee_region",
+          "label_en": "Region",
+          "label_sw": "Mkoa",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "employee_phone",
+          "label_en": "Telephone Number",
+          "label_sw": "Namba ya Simu",
+          "field_type": "phone",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^\\+?[0-9\\s\\-]{9,20}$"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Employment Dates",
+      "name_sw": "Tarehe za Ajira",
+      "order": 3,
+      "fields": [
+        {
+          "field_name": "contract_date",
+          "label_en": "Date on which employment commenced",
+          "label_sw": "Tarehe ambayo ajira ilianza",
+          "field_type": "date",
+          "is_required": true
+        },
+        {
+          "field_name": "termination_date",
+          "label_en": "Date on which employment is expected to be terminated",
+          "label_sw": "Tarehe ya kusitishwa kwa ajira",
+          "field_type": "date",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Reasons for Termination",
+      "name_sw": "Sababu za Kusitisha Ajira",
+      "order": 4,
+      "fields": [
+        {
+          "field_name": "termination_reasons",
+          "label_en": "Reasons for termination of employment",
+          "label_sw": "Sababu za kusitisha ajira",
+          "field_type": "textarea",
+          "is_required": true,
+          "validation_rules": {
+            "min_length": 5,
+            "max_length": 1000
+          },
+          "help_text_en": "List each reason on a new line",
+          "help_text_sw": "Andika kila sababu katika mstari wake"
+        }
+      ]
+    },
+    {
+      "name": "Notice Period",
+      "name_sw": "Kipindi cha Notisi",
+      "order": 5,
+      "fields": [
+        {
+          "field_name": "notice_period_days",
+          "label_en": "How many days' notice are you giving?",
+          "label_sw": "Unatoa notisi ya siku ngapi?",
+          "field_type": "number",
+          "is_required": true,
+          "validation_rules": {
+            "min": 1,
+            "max": 365
+          }
+        }
+      ]
+    },
+    {
+      "name": "Employer / Representative",
+      "name_sw": "Mwajiri / Mwakilishi",
+      "order": 6,
+      "fields": [
+        {
+          "field_name": "representative_name",
+          "label_en": "Name of Employer / Representative who wrote the letter",
+          "label_sw": "Jina la Mwajiri / Mwakilishi aliyeandika barua",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "representative_position",
+          "label_en": "Position",
+          "label_sw": "Cheo",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "signature_date",
+          "label_en": "Date",
+          "label_sw": "Tarehe",
+          "field_type": "date",
+          "is_required": false
+        }
+      ]
+    }
+  ]
+}

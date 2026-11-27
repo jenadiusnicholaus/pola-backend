@@ -1,0 +1,261 @@
+ <!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+@page {
+    size: A4;
+    margin: 2.5cm;
+}
+body {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12pt;
+    line-height: 2.0;
+    color: #000;
+}
+.center { text-align: center; }
+.left { text-align: left; }
+.right { text-align: right; }
+.justify { text-align: justify; }
+.bold { font-weight: bold; }
+.italic { font-style: italic; }
+.underline { text-decoration: underline; }
+.data-field { 
+    font-weight: bold;
+    border-bottom: 1px solid #000;
+    padding: 0 5px;
+    display: inline-block;
+    min-width: 150px;
+}
+.data-field:empty::before {
+    content: '\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0';
+}
+p { margin: 10px 0; }
+.signature-section {
+    margin-top: 30px;
+}
+.signature-line {
+    border-bottom: 1px solid #000;
+    width: 250px;
+    display: inline-block;
+    margin: 10px 0;
+}
+</style>
+</head>
+<body>
+
+<p class="center">
+    <span class="bold underline" style="font-size: 14pt">EMPLOYMENT CONTRACT</span>
+</p>
+
+<p class="center">
+    This contract is made today, date <span class="data-field">{{contract_date_day|default:"______________________________"}}</span> Month of <span class="data-field">{{contract_date_month|default:"______________________________"}}</span> Year <span class="data-field">{{contract_date_year|default:"______________________________"}}</span>
+</p>
+
+<p class="center">
+    <span class="bold">BETWEEN:</span>
+</p>
+
+<p class="center">
+    <span class="data-field">{{employer_name|default:"______________________________"}}</span> of P.O. Box <span class="data-field">{{employer_po_box|default:"______________________________"}}</span>, Region: <span class="data-field">{{employer_region|default:"______________________________"}}</span> Phone Number: <span class="data-field">{{employer_phone|default:"______________________________"}}</span> Email: <span class="data-field">{{employer_email|default:"______________________________"}}</span>
+</p>
+
+<p class="center">
+    (Who in this contract is referred to as the '<span class="bold">EMPLOYER</span>' on one part)
+</p>
+
+<p class="center">
+    <span class="bold">AND</span>
+</p>
+
+<p class="center">
+    <span class="data-field">{{employee_name|default:"______________________________"}}</span> of P.O. Box <span class="data-field">{{employee_po_box|default:"______________________________"}}</span>, Region: <span class="data-field">{{employee_region|default:"______________________________"}}</span> Phone Number: <span class="data-field">{{employee_phone|default:"______________________________"}}</span> Identification Type: <span class="data-field">{{employee_id_type|default:"______________________________"}}</span>, Identification Number <span class="data-field">{{employee_id_number|default:"______________________________"}}</span> Email: <span class="data-field">{{employee_email|default:"______________________________"}}</span>
+</p>
+
+<p class="center">
+    (Who in this contract is referred to as the '<span class="bold">EMPLOYEE</span>' on the other part)
+</p>
+
+<p class="justify">
+    <span class="bold">WHEREAS;</span> the Employer intends to offer employment to the Employee, and the Employee agrees and accepts to work for the Employer under the following terms and conditions.
+</p>
+
+<p class="left">
+    <span class="bold">1. DATE OF COMMENCEMENT OF EMPLOYMENT</span>
+</p>
+<p class="left">
+    This Employment Contract shall commence on <span class="data-field">{{employment_start_day|default:"______________________________"}}</span> Month of <span class="data-field">{{employment_start_month|default:"______________________________"}}</span> Year <span class="data-field">{{employment_start_year|default:"______________________________"}}</span> and shall continue lawfully{% if contract_is_fixed_term == "yes" %} until day <span class="data-field">{{employment_end_day|default:"______________________________"}}</span> Month of <span class="data-field">{{employment_end_month|default:"______________________________"}}</span> Year <span class="data-field">{{employment_end_year|default:"______________________________"}}</span>{% endif %}.
+</p>
+
+<p class="left">
+    <span class="bold">2. PLACE OF EMPLOYMENT</span>
+</p>
+<p class="left">
+    The Employee is employed in the region of <span class="data-field">{{employment_region|default:"______________________________"}}</span>
+</p>
+
+<p class="left">
+    <span class="bold">3. WORK LOCATION</span>
+</p>
+<p class="left">
+    The Employee shall work in the area of <span class="data-field">{{work_region|default:"______________________________"}}</span> Region, <span class="data-field">{{work_district|default:"______________________________"}}</span> District, <span class="data-field">{{work_ward|default:"______________________________"}}</span> Ward. If there is any other work location outside this, it shall be specified by the Employer.
+</p>
+
+<p class="left">
+    <span class="bold">4. POSITION / JOB TITLE</span>
+</p>
+<p class="left">
+    The Employee shall work as <span class="data-field">{{job_title|default:"______________________________"}}</span> and shall perform the following duties:<br/>
+    <span class="data-field">{{job_duties|default:"______________________________"}}</span>
+</p>
+
+<p class="left">
+    <span class="bold">5. PROBATION PERIOD</span>
+</p>
+<p class="left">
+    The Employee shall be on probation for a period of <span class="data-field">{{probation_months|default:"______________________________"}}</span> months from the date of signing this contract. The purpose of the probation period is to evaluate whether the Employee is capable and suitable for the job. If this employment contract is terminated during the first month of employment, the Employer is required to provide written notice of such intention within seven (7) days.
+</p>
+
+<p class="left">
+    <span class="bold">6. WORKING HOURS</span>
+</p>
+<p class="left">
+    The working time shall be <span class="data-field">{{work_hours_per_day|default:"______________________________"}}</span> hours per day, <span class="data-field">{{work_days_per_week|default:"______________________________"}}</span> days per week, from <span class="data-field">{{work_start_time|default:"______________________________"}}</span> to <span class="data-field">{{work_end_time|default:"______________________________"}}</span>.
+</p>
+
+<p class="left">
+    <span class="bold">7. SALARY AND PAYMENT</span>
+</p>
+<p class="left">
+    The Employee shall be paid a salary of Tsh <span class="data-field">{{salary_amount|default:"______________________________"}}</span> per {% if salary_period == "monthly" %}month{% elif salary_period == "weekly" %}week{% elif salary_period == "daily" %}day{% else %}<span class="data-field">{{salary_period}}</span>{% endif %}, payable on <span class="data-field">{{payment_date|default:"______________________________"}}</span>.
+</p>
+
+<p class="left">
+    Payment shall be made by means of: {% if payment_method == "bank" %}bank transfer{% elif payment_method == "cash" %}cash{% elif payment_method == "mobile_money" %}mobile money{% elif payment_method == "other" %}<span class="data-field">{{payment_method_other|default:"______________________________"}}</span>{% else %}<span class="data-field">{{payment_method|default:"______________________________"}}</span>{% endif %}
+</p>
+
+{% if payment_method == "bank" %}
+<p class="left">
+    <span class="bold">Bank Details:</span><br/>
+    <span class="data-field">{{bank_name|default:"______________________________"}}</span><br/>
+    <span class="data-field">{{bank_account_name|default:"______________________________"}}</span><br/>
+    <span class="data-field">{{bank_account_number|default:"______________________________"}}</span><br/>
+    <span class="data-field">{{bank_branch|default:"______________________________"}}</span>
+</p>
+{% endif %}
+
+<p class="left">
+    <span class="bold">8. ALLOWANCES AND OTHER BENEFITS</span>
+</p>
+<p class="left">
+    {% if transport_allowance %}Transport allowance: Tsh <span class="data-field">{{transport_allowance}}</span><br/>{% endif %}
+    {% if meal_allowance %}Meal allowance: Tsh <span class="data-field">{{meal_allowance}}</span><br/>{% endif %}
+    {% if accommodation_allowance %}Accommodation allowance: Tsh <span class="data-field">{{accommodation_allowance}}</span><br/>{% endif %}
+    {% if health_insurance %}Health insurance: Tsh <span class="data-field">{{health_insurance}}</span><br/>{% endif %}
+    {% if other_benefits %}<span class="data-field">{{other_benefits}}</span>{% endif %}
+</p>
+
+<p class="left">
+    <span class="bold">9. ANNUAL LEAVE</span>
+</p>
+<p class="left">
+    The Employee is entitled to annual leave (including weekly rest days), or a proportional entitlement based on time worked, in accordance with the Employment and Labour Relations Act.
+</p>
+
+<p class="left">
+    <span class="bold">10. SICK LEAVE</span>
+</p>
+<p class="left">
+    The Employee shall be entitled to sick leave as provided under the Employment and Labour Relations Act.
+</p>
+
+<p class="left">
+    <span class="bold">11. MATERNITY / PATERNITY LEAVE</span>
+</p>
+<p class="left">
+    In accordance with the Employment and Labour Relations Act, maternity leave shall be granted to female employees and paternity leave to male employees.
+</p>
+
+<p class="left">
+    <span class="bold">12. APPLICATION OF EMPLOYMENT LAW AND REGULATIONS</span>
+</p>
+<p class="left">
+    This employment shall be governed by the Employment and Labour Relations Act, 2004 and its amendments, as well as applicable company rules, internal policies, and procedures.
+</p>
+
+<p class="left">
+    <span class="bold">13. TERMINATION OF EMPLOYMENT</span>
+</p>
+<p class="left">
+    Termination of employment shall follow the notice periods below:
+</p>
+<ul>
+    <li>Seven (7) days if notice is given within the first month of employment</li>
+    <li>Four (4) days if the employee is employed on a daily or weekly arrangement</li>
+    <li>Twenty-eight (28) days if the employee is employed on a monthly basis</li>
+</ul>
+<p class="left">
+    Failure to comply with this procedure may result in compensation to the affected party.
+</p>
+
+<p class="left">
+    <span class="bold">14. DISCIPLINE AND WORK ETHICS</span>
+</p>
+<p class="left">
+    The Employee shall be required to follow the company's ethics, procedures, and guidelines. Violation of rules may result in disciplinary action.
+</p>
+
+<p class="left">
+    <span class="bold">15. CONFIDENTIALITY OF EMPLOYER INFORMATION</span>
+</p>
+<p class="left">
+    The Employee shall not disclose any confidential information of the Employer without written permission, even after leaving employment.
+</p>
+
+<p class="left">
+    <span class="bold">16. EMPLOYMENT DISPUTES</span>
+</p>
+<p class="left">
+    Any employment dispute shall first be handled through discussion. If unresolved, it shall be referred to the Commission for Mediation and Arbitration (CMA) in accordance with the law.
+</p>
+
+<div class="signature-section">
+    <p class="left">
+        <span class="bold">Signatures of the Parties</span>
+    </p>
+
+    <p class="left">
+        <span class="bold">Employer</span><br/>
+        Name: <span class="data-field">{{employer_name|default:"______________________________"}}</span><br/>
+        Signature: _________________________<br/>
+        Date: ________________________
+    </p>
+
+    <p class="left">
+        <span class="bold">Employer's Witness</span><br/>
+        Name: __________________<br/>
+        Address: ___________________________<br/>
+        Phone: ____________________________<br/>
+        Signature: _________________________<br/>
+        Date: ________________________
+    </p>
+
+    <p class="left">
+        <span class="bold">Employee</span><br/>
+        Name: <span class="data-field">{{employee_name|default:"______________________________"}}</span><br/>
+        Signature: _________________________<br/>
+        Date: ________________________
+    </p>
+
+    <p class="left">
+        <span class="bold">Employee's Witness</span><br/>
+        Name: ________________________<br/>
+        Address: ___________________________<br/>
+        Phone: ____________________________<br/>
+        Signature: _________________________<br/>
+        Date: ________________________
+    </p>
+</div>
+
+</body>
+</html>

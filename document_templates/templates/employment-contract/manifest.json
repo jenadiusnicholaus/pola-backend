@@ -1,0 +1,18 @@
+{
+  "slug": "employment-contract",
+  "name": "Employment Contract",
+  "name_sw": "Mkataba wa Ajira",
+  "description": "Employment contract between an employer and an employee",
+  "description_sw": "Mkataba wa ajira kati ya mwajiri na mwajiriwa",
+  "category": "employment",
+  "is_free": true,
+  "price": 0,
+  "icon": "📄",
+  "order": 1,
+  "source_files": {
+    "template_sw": "src/1. (a)  Mkataba wa Ajira.pdf",
+    "questionnaire_sw": "src/1. (b) Maswali - Mkataba wa Ajira.pdf",
+    "template_en": "src/2. (a) Employment Contract.pdf",
+    "questionnaire_en": "src/2. (b) Questionnaire - Employment Contract.pdf"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "slug": "notice-of-termination",
+  "name": "Notice of Termination of Employment",
+  "name_sw": "Notisi ya Kuachishwa Kazi",
+  "description": "Formal notice letter informing an employee of termination of employment",
+  "description_sw": "Barua rasmi ya taarifa ya kusitisha ajira kwa mfanyakazi",
+  "category": "legal_notice",
+  "is_free": true,
+  "price": 0,
+  "icon": "📃",
+  "order": 2,
+  "source_files": {
+    "template_sw": "src/3. (a) Notisi ya kuachishwa kazi.pdf",
+    "questionnaire_sw": "src/3. (b) Maswali - Notisi ya kuachishwa kazi.pdf",
+    "template_en": "src/4. (a) Notice of Termination of Employment.pdf",
+    "questionnaire_en": "src/4. (b) Questionnaire - Notice of Termination of Employment.pdf"
+  }
+}

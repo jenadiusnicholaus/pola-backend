@@ -1,0 +1,18 @@
+{
+  "slug": "house-rental",
+  "name": "House Rental Agreement",
+  "name_sw": "Mkataba wa Upangishaji Nyumba",
+  "description": "House rental/lease agreement between a landlord and a tenant",
+  "description_sw": "Mkataba wa upangishaji nyumba kati ya mwenye nyumba na mpangaji",
+  "category": "house_rental",
+  "is_free": true,
+  "price": 0,
+  "icon": "🏠",
+  "order": 6,
+  "source_files": {
+    "template_sw": "src/11. (a) Mkataba wa upangishaji nyumba.pdf",
+    "questionnaire_sw": "src/11. (b) Maswali-Mkataba wa Upangishaji Nyumba.pdf",
+    "template_en": "src/12. (a) House Rental A greement.pdf",
+    "questionnaire_en": null
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "slug": "resignation-letter",
+  "name": "Resignation Letter",
+  "name_sw": "Barua ya Kujiuzulu Kazi",
+  "description": "Formal resignation letter from an employee to an employer",
+  "description_sw": "Barua rasmi ya kujiuzulu kazi kutoka kwa mfanyakazi kwa mwajiri",
+  "category": "resignation",
+  "is_free": true,
+  "price": 0,
+  "icon": "✉️",
+  "order": 3,
+  "source_files": {
+    "template_sw": "src/5. (a) Barua ya kujiuzulu  kazi.pdf",
+    "questionnaire_sw": "src/5. (b) Maswali - Barua ya kujiuzulu kazi.pdf",
+    "template_en": "src/6. (a) Resignation letter.pdf",
+    "questionnaire_en": "src/6. (b)  Questionnaire - Resignation Letter.pdf"
+  }
+}

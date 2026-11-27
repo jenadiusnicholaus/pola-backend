@@ -1,0 +1,18 @@
+{
+  "slug": "will",
+  "name": "Will",
+  "name_sw": "Wosia",
+  "description": "Last will and testament - declaration of how assets should be distributed after death",
+  "description_sw": "Wosia wa mwisho - tamko la jinsi mali zitakavyogawanywa baada ya kifo",
+  "category": "will",
+  "is_free": true,
+  "price": 0,
+  "icon": "📜",
+  "order": 8,
+  "source_files": {
+    "template_sw": "src/15. (a) Wosia.pdf",
+    "questionnaire_sw": "src/15. (b) Maswali Wosia.pdf",
+    "template_en": "src/16. (a) Will.pdf",
+    "questionnaire_en": "src/16. (b) Questionnaire - Will.pdf"
+  }
+}

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Mkataba wa Kukodisha {% if vehicle_type == "car" %}Gari{% else %}Pikipiki{% endif %}</title>
+    <style>
+        body { font-family: 'Times New Roman', 'DejaVu Serif', serif; font-size: 12pt; line-height: 1.6; margin: 40px; }
+        .center { text-align: center; margin: 20px 0; }
+        .left { text-align: left; margin-bottom: 5px; }
+        .bold { font-weight: bold; }
+        .underline { text-decoration: underline; }
+        .data-field { border-bottom: 1px solid #000; padding: 0 3px; display: inline-block; min-width: 140px; }
+        ol, ul { margin: 10px 0; padding-left: 40px; }
+        li { margin: 5px 0; }
+        .signature-section { margin-top: 40px; }
+    </style>
+</head>
+<body>
+
+<p class="center">
+    <span class="bold underline" style="font-size: 14pt">MKATABA WA KUKODISHA {% if vehicle_type == "car" %}GARI{% else %}PIKIPIKI{% endif %}</span>
+</p>
+
+<p class="left">
+    Makubaliano haya ya kukodisha yamefanyika tarehe <span class="data-field">{{contract_date_day}}</span> Mwezi wa <span class="data-field">{{contract_date_month}}</span> Mwaka <span class="data-field">{{contract_date_year}}</span>.
+</p>
+
+<p class="left"><span class="bold">KATI YA</span></p>
+
+<p class="left">
+    Bw/Bi/Bwst <span class="data-field">{{owner_name}}</span>, wa S.L.P <span class="data-field">{{owner_po_box}}</span>, <span class="data-field">{{owner_address_region}}</span>. Mkazi wa <span class="data-field">{{owner_residence_ward}}</span>, <span class="data-field">{{owner_residence_district}}</span>, <span class="data-field">{{owner_residence_region}}</span>,
+    (ambaye katika makubaliano haya atajulikana kama "Mmiliki") kwa upande mmoja.
+</p>
+
+<p class="left"><span class="bold">NA</span></p>
+
+<p class="left">
+    Bw/Bi/Bwst <span class="data-field">{{lessee_name}}</span>, wa S.L.P <span class="data-field">{{lessee_po_box}}</span>, <span class="data-field">{{lessee_address_region}}</span>. Mkazi wa <span class="data-field">{{lessee_residence_ward}}</span>, <span class="data-field">{{lessee_residence_district}}</span>, <span class="data-field">{{lessee_residence_region}}</span>,
+    (ambaye katika makubaliano haya atajulikana kama "Mkodi") kwa upande mwingine.
+</p>
+
+<p class="left"><span class="bold">1. MAELEZO YA {% if vehicle_type == "car" %}GARI{% else %}PIKIPIKI{% endif %}</span></p>
+<p class="left">
+    Mwenye {% if vehicle_type == "car" %}gari{% else %}pikipiki{% endif %} anakubali kumkodisha Mkodi {% if vehicle_type == "car" %}gari{% else %}pikipiki{% endif %} yake aina ya <span class="data-field">{{vehicle_make}}</span>, yenye namba ya Usajili <span class="data-field">{{registration_number}}</span>, Rangi ya <span class="data-field">{{vehicle_color}}</span>, Namba ya Chassis <span class="data-field">{{chassis_number}}</span>, na bima inayoisha tarehe <span class="data-field">{{insurance_expiry_day}}</span> Mwezi wa <span class="data-field">{{insurance_expiry_month}}</span> Mwaka <span class="data-field">{{insurance_expiry_year}}</span>.
+</p>
+<p class="left">
+    Ya kwamba, {% if vehicle_type == "car" %}gari{% else %}pikipiki{% endif %} husika ina hati zote muhimu za usajili na bima halali. Na, kwa mujibu wa mkataba huu, {% if vehicle_type == "car" %}gari{% else %}pikipiki{% endif %} husika pia itatajwa kama "chombo cha usafiri".
+</p>
+
+<p class="left"><span class="bold">2. MUDA WA KUKODISHA</span></p>
+<p class="left">
+    Muda wa kukodisha utakuwa kuanzia tarehe <span class="data-field">{{rental_start_day}}</span> Mwezi wa <span class="data-field">{{rental_start_month}}</span> Mwaka <span class="data-field">{{rental_start_year}}</span> hadi tarehe <span class="data-field">{{rental_end_day}}</span> Mwezi wa <span class="data-field">{{rental_end_month}}</span> Mwaka <span class="data-field">{{rental_end_year}}</span>.
+</p>
+<p class="left">
+    Mkodi ana haki ya kuomba kuongeza muda wa kukodi chombo kwa kibali cha Mmiliki.
+</p>
+
+<p class="left"><span class="bold">3. GHARAMA ZA KUKODI</span></p>
+<ul>
+    <li>Gharama za kukodisha zitakuwa kiasi cha TZS <span class="data-field">{{rental_amount}}</span> kwa {% if rental_period == "day" %}siku{% elif rental_period == "week" %}wiki{% elif rental_period == "month" %}mwezi{% else %}<span class="data-field">{{rental_period}}</span>{% endif %}.</li>
+    <li>Malipo yatafanyika kwa utaratibu wa kila {% if payment_frequency == "daily" %}siku{% elif payment_frequency == "weekly" %}wiki{% elif payment_frequency == "monthly" %}mwezi{% else %}<span class="data-field">{{payment_frequency}}</span>{% endif %}.</li>
+    <li>Malipo yatafanyika kwa njia ya: {% if payment_method == "cash" %}fedha taslimu{% elif payment_method == "mobile_money" %}malipo ya simu{% elif payment_method == "bank" %}benki{% else %}<span class="data-field">{{payment_method}}</span>{% endif %}.</li>
+</ul>
+{% if payment_method == "bank" %}
+<p class="left"><span class="bold">Taarifa za benki</span></p>
+<ul>
+    <li>Jina la Benki: <span class="data-field">{{bank_name}}</span></li>
+    <li>Tawi: <span class="data-field">{{bank_branch}}</span></li>
+    <li>Jina la Akaunti: <span class="data-field">{{bank_account_name}}</span></li>
+    <li>Namba ya Akaunti: <span class="data-field">{{bank_account_number}}</span></li>
+</ul>
+{% endif %}
+<p class="left">
+    Mkodi atalipa kiasi cha <span class="data-field">{{signing_payment_amount}}</span> kwa Mmiliki, ikiwa ni malipo ya muda wa <span class="data-field">{{signing_payment_period}}</span> wakati wa kusaini mkataba huu.
+</p>
+
+{% if has_security_deposit == "yes" %}
+<p class="left"><span class="bold">4. AMANA YA USALAMA</span></p>
+<p class="left">
+    Mkodi atalipa amana ya usalama ya kiasi cha TZS <span class="data-field">{{security_deposit_amount}}</span> kabla ya kukabidhiwa chombo cha usafiri. Amana hii itarudishwa mwishoni mwa kipindi cha ukodishaji endapo chombo cha usafiri kitarudishwa bila uharibifu na malipo yote yatakuwa yamekamilika.
+</p>
+{% endif %}
+
+<p class="left"><span class="bold">5. MATUMIZI YA CHOMBO CHA USAFIRI</span></p>
+<ul>
+    <li>Chombo cha usafiri kitatumika kwa madhumuni ya: {% if vehicle_use == "personal" %}binafsi{% elif vehicle_use == "business" %}biashara{% else %}<span class="data-field">{{vehicle_use}}</span>{% endif %}.</li>
+    {% if additional_use_terms %}
+    <li>Matumizi mengine ni: <span class="data-field">{{additional_use_terms}}</span></li>
+    {% endif %}
+    <li>Mkodi hataruhusiwa:
+        <ol type="a">
+            <li>Kukodisha chombo cha usafiri kwa mtu mwingine bila idhini ya Mmiliki.</li>
+            <li>Kutumia chombo cha usafiri kwa shughuli haramu au zinazoweza kusababisha madhara.</li>
+        </ol>
+    </li>
+    <li>Mkodi atatunza chombo cha usafiri na kuhakikisha kinabaki katika hali nzuri.</li>
+</ul>
+
+<p class="left"><span class="bold">6. WAJIBU WA MKODI</span></p>
+<p class="left">Mkodi atatakiwa:</p>
+<ol type="i">
+    <li>Kulipa kodi kwa wakati na kwa kiwango kilichokubaliwa.</li>
+    <li>Kulipa gharama zote za mafuta, huduma za barabara, na kodi za trafiki.</li>
+    <li>Kuripoti mara moja uharibifu, ajali, au tukio lolote linalohusiana na chombo cha usafiri.</li>
+    <li>Kurejesha chombo kikiwa katika hali nzuri na sawa kama alivyokipokea, isipokuwa uharibifu wa kawaida kutokana na matumizi ya kawaida ambao hayazuiliki kama kuchoka kwa tairi, kupungua kwa betri, kupungua mng'ao wa taa.</li>
+    <li>Kutochukua hatua za kubadilisha au kurekebisha chombo cha usafiri bila idhini ya Mmiliki.</li>
+</ol>
+
+<p class="left"><span class="bold">7. WAJIBU WA MMILIKI</span></p>
+<p class="left">Mmiliki wa chombo atatakiwa:</p>
+<ol type="a">
+    <li>Kuhakikisha chombo kipo katika hali nzuri na inayoweza kutumika.</li>
+    <li>Kuhakikisha hati za usajili na bima zipo sahihi.</li>
+    <li>Kumfahamisha Mkodi kuhusu matengenezo makubwa yanayohitajika, ikiwa ni jukumu lake.</li>
+</ol>
+
+<p class="left"><span class="bold">8. UVUNJAJI WA MKATABA</span></p>
+<p class="left">Iwapo upande wowote utavunja mkataba:</p>
+<ul>
+    <li>Upande mwingine utatoa taarifa ya maandishi ya siku <span class="data-field">{{breach_remedy_days}}</span> kwa ajili ya kurekebisha uvunjaji.</li>
+    <li>Ikiwa hakuna marekebisho ndani ya muda uliotolewa, mkataba unaweza kusitishwa kihalali.</li>
+</ul>
+
+<p class="left"><span class="bold">9. USITISHAJI WA MKATABA</span></p>
+<ul>
+    <li>Mkodi anaweza kusitisha mkataba huu kwa kutoa taarifa ya siku <span class="data-field">{{lessee_notice_days}}</span> kabla.</li>
+    <li>Mmiliki anaweza kutoa taarifa ya siku <span class="data-field">{{owner_notice_days}}</span> za kusitisha mkataba huu endapo kutakuwa na sababu halali.</li>
+    <li>Upande unaokusudia kusitisha mkataba utalipa fidia ya TZS <span class="data-field">{{termination_compensation}}</span> kwa upande mwingine.</li>
+</ul>
+
+<p class="left"><span class="bold">10. UTATUZI WA MIGOGORO</span></p>
+<p class="left">
+    Pande zote zinakubaliana kutatua migogoro kwa amani. Endapo itashindikana, kesi itafikishwa kwenye mahakama yenye mamlaka.
+</p>
+
+{% if additional_term_1 or additional_term_2 or additional_term_3 or additional_term_4 %}
+<p class="left"><span class="bold">11. MASHARTI YA ZIADA</span></p>
+<ol type="i">
+    {% if additional_term_1 %}<li><span class="data-field">{{additional_term_1}}</span></li>{% endif %}
+    {% if additional_term_2 %}<li><span class="data-field">{{additional_term_2}}</span></li>{% endif %}
+    {% if additional_term_3 %}<li><span class="data-field">{{additional_term_3}}</span></li>{% endif %}
+    {% if additional_term_4 %}<li><span class="data-field">{{additional_term_4}}</span></li>{% endif %}
+</ol>
+{% endif %}
+
+<p class="left"><span class="bold">12. SAHIHI</span></p>
+<div class="signature-section">
+    <p class="left"><span class="bold">Mmiliki</span></p>
+    <p class="left">Jina: <span class="data-field">{{owner_name}}</span></p>
+    <p class="left">Sahihi: __________________________</p>
+    <p class="left">Tarehe: __________________________</p>
+
+    <p class="left" style="margin-top: 20px;"><span class="bold">Mkodi</span></p>
+    <p class="left">Jina: <span class="data-field">{{lessee_name}}</span></p>
+    <p class="left">Sahihi: __________________________</p>
+    <p class="left">Tarehe: __________________________</p>
+</div>
+
+<p class="left"><span class="bold">13. MASHUHUDA</span></p>
+<p class="left"><span class="bold">Shahidi wa Mmiliki:</span></p>
+<p class="left">Sahihi: __________________________</p>
+<p class="left">Jina: __________________________</p>
+<p class="left">Namba ya Simu: __________________________</p>
+
+<p class="left" style="margin-top: 20px;"><span class="bold">Shahidi wa Mkodi:</span></p>
+<p class="left">Sahihi: __________________________</p>
+<p class="left">Jina: __________________________</p>
+<p class="left">Namba ya Simu: __________________________</p>
+
+</body>
+</html>

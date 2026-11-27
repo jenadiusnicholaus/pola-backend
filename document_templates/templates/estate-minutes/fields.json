@@ -1,0 +1,473 @@
+{
+  "sections": [
+    {
+      "name": "Meeting Information",
+      "name_sw": "Taarifa za Kikao",
+      "order": 1,
+      "fields": [
+        {
+          "field_name": "meeting_date",
+          "label_en": "Date of the meeting",
+          "label_sw": "Tarehe ya kikao",
+          "field_type": "date",
+          "is_required": true
+        },
+        {
+          "field_name": "meeting_street",
+          "label_en": "Village/Street",
+          "label_sw": "Kijiji/Mtaa",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "meeting_ward",
+          "label_en": "Ward",
+          "label_sw": "Kata",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "meeting_district",
+          "label_en": "District",
+          "label_sw": "Wilaya",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "meeting_region",
+          "label_en": "Region",
+          "label_sw": "Mkoa",
+          "field_type": "text",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Meeting Attendees",
+      "name_sw": "Waliohudhuria Kikao",
+      "order": 2,
+      "fields": [
+        {
+          "field_name": "attendee_1_name",
+          "label_en": "Attendee 1 - Full name",
+          "label_sw": "Mshiriki 1 - Jina kamili",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "attendee_1_relationship",
+          "label_en": "Attendee 1 - Relationship with the deceased",
+          "label_sw": "Mshiriki 1 - Mahusiano na marehemu",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "attendee_2_name",
+          "label_en": "Attendee 2 - Full name",
+          "label_sw": "Mshiriki 2 - Jina kamili",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "attendee_2_relationship",
+          "label_en": "Attendee 2 - Relationship with the deceased",
+          "label_sw": "Mshiriki 2 - Mahusiano na marehemu",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "attendee_3_name",
+          "label_en": "Attendee 3 - Full name",
+          "label_sw": "Mshiriki 3 - Jina kamili",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "attendee_3_relationship",
+          "label_en": "Attendee 3 - Relationship with the deceased",
+          "label_sw": "Mshiriki 3 - Mahusiano na marehemu",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "attendee_4_name",
+          "label_en": "Attendee 4 - Full name",
+          "label_sw": "Mshiriki 4 - Jina kamili",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "attendee_4_relationship",
+          "label_en": "Attendee 4 - Relationship with the deceased",
+          "label_sw": "Mshiriki 4 - Mahusiano na marehemu",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "attendee_5_name",
+          "label_en": "Attendee 5 - Full name",
+          "label_sw": "Mshiriki 5 - Jina kamili",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "attendee_5_relationship",
+          "label_en": "Attendee 5 - Relationship with the deceased",
+          "label_sw": "Mshiriki 5 - Mahusiano na marehemu",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "attendee_6_name",
+          "label_en": "Attendee 6 - Full name",
+          "label_sw": "Mshiriki 6 - Jina kamili",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "attendee_6_relationship",
+          "label_en": "Attendee 6 - Relationship with the deceased",
+          "label_sw": "Mshiriki 6 - Mahusiano na marehemu",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Meeting Agenda",
+      "name_sw": "Ajenda ya Kikao",
+      "order": 3,
+      "fields": [
+        {
+          "field_name": "agenda_confirm_death",
+          "label_en": "Confirming the death of the deceased?",
+          "label_sw": "Kuthibitisha kifo cha marehemu?",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "yes",
+            "no"
+          ],
+          "options_sw": [
+            "ndiyo",
+            "hapana"
+          ]
+        },
+        {
+          "field_name": "agenda_asset_distribution",
+          "label_en": "Discussing the distribution of the deceased's assets?",
+          "label_sw": "Kujadili mgawo wa mali ya marehemu?",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "yes",
+            "no"
+          ],
+          "options_sw": [
+            "ndiyo",
+            "hapana"
+          ]
+        },
+        {
+          "field_name": "agenda_appoint_administrator",
+          "label_en": "Appointing an estate administrator?",
+          "label_sw": "Kuteua msimamizi wa mirathi?",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "yes",
+            "no"
+          ],
+          "options_sw": [
+            "ndiyo",
+            "hapana"
+          ]
+        },
+        {
+          "field_name": "agenda_other",
+          "label_en": "Other agenda item",
+          "label_sw": "Ajenda nyingine",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Information About the Deceased",
+      "name_sw": "Maelezo ya Marehemu",
+      "order": 4,
+      "fields": [
+        {
+          "field_name": "deceased_name",
+          "label_en": "Full name of the deceased",
+          "label_sw": "Jina kamili la marehemu",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "death_date",
+          "label_en": "Date of death",
+          "label_sw": "Tarehe ya kufariki",
+          "field_type": "date",
+          "is_required": true
+        },
+        {
+          "field_name": "death_place",
+          "label_en": "Place of death",
+          "label_sw": "Mahali alikofariki",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "death_certificate_issuer",
+          "label_en": "Death certificate issued by (hospital/ward etc.)",
+          "label_sw": "Cheti cha kifo kilitolewa na (hospitali/kata n.k.)",
+          "field_type": "text",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Assets Left by the Deceased",
+      "name_sw": "Mali Zilizobaki kwa Marehemu",
+      "order": 5,
+      "fields": [
+        {
+          "field_name": "asset_1",
+          "label_en": "Asset 1",
+          "label_sw": "Mali 1",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "asset_2",
+          "label_en": "Asset 2",
+          "label_sw": "Mali 2",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "asset_3",
+          "label_en": "Asset 3",
+          "label_sw": "Mali 3",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "asset_4",
+          "label_en": "Asset 4",
+          "label_sw": "Mali 4",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "asset_5",
+          "label_en": "Asset 5",
+          "label_sw": "Mali 5",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Heirs of the Deceased",
+      "name_sw": "Warithi wa Marehemu",
+      "order": 6,
+      "fields": [
+        {
+          "field_name": "heir_1_name",
+          "label_en": "Heir 1 - Full name",
+          "label_sw": "Warithi 1 - Jina kamili",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "heir_1_age",
+          "label_en": "Heir 1 - Age",
+          "label_sw": "Warithi 1 - Umri",
+          "field_type": "number",
+          "is_required": true
+        },
+        {
+          "field_name": "heir_1_relationship",
+          "label_en": "Heir 1 - Relationship",
+          "label_sw": "Warithi 1 - Mahusiano",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "heir_2_name",
+          "label_en": "Heir 2 - Full name",
+          "label_sw": "Warithi 2 - Jina kamili",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "heir_2_age",
+          "label_en": "Heir 2 - Age",
+          "label_sw": "Warithi 2 - Umri",
+          "field_type": "number",
+          "is_required": false
+        },
+        {
+          "field_name": "heir_2_relationship",
+          "label_en": "Heir 2 - Relationship",
+          "label_sw": "Warithi 2 - Mahusiano",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "heir_3_name",
+          "label_en": "Heir 3 - Full name",
+          "label_sw": "Warithi 3 - Jina kamili",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "heir_3_age",
+          "label_en": "Heir 3 - Age",
+          "label_sw": "Warithi 3 - Umri",
+          "field_type": "number",
+          "is_required": false
+        },
+        {
+          "field_name": "heir_3_relationship",
+          "label_en": "Heir 3 - Relationship",
+          "label_sw": "Warithi 3 - Mahusiano",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "heir_4_name",
+          "label_en": "Heir 4 - Full name",
+          "label_sw": "Warithi 4 - Jina kamili",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "heir_4_age",
+          "label_en": "Heir 4 - Age",
+          "label_sw": "Warithi 4 - Umri",
+          "field_type": "number",
+          "is_required": false
+        },
+        {
+          "field_name": "heir_4_relationship",
+          "label_en": "Heir 4 - Relationship",
+          "label_sw": "Warithi 4 - Mahusiano",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Appointment of Estate Administrator",
+      "name_sw": "Uteuzi wa Msimamizi wa Mirathi",
+      "order": 7,
+      "fields": [
+        {
+          "field_name": "administrator_name",
+          "label_en": "Full name of estate administrator",
+          "label_sw": "Jina kamili la msimamizi wa mirathi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "administrator_parent",
+          "label_en": "Child of",
+          "label_sw": "Mwana wa",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "administrator_residence",
+          "label_en": "Resident of",
+          "label_sw": "Mkazi wa",
+          "field_type": "text",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Conclusion",
+      "name_sw": "Hitimisho",
+      "order": 8,
+      "fields": [
+        {
+          "field_name": "closing_time",
+          "label_en": "Time the meeting was closed",
+          "label_sw": "Saa kikao kilifungwa",
+          "field_type": "text",
+          "is_required": true,
+          "placeholder_en": "e.g. 14:30",
+          "placeholder_sw": "mf. 14:30"
+        }
+      ]
+    },
+    {
+      "name": "Family Members Who Agreed to the Decisions",
+      "name_sw": "Wanafamilia Waliohudhuria na Kukubali Maamuzi",
+      "order": 9,
+      "fields": [
+        {
+          "field_name": "signatory_1",
+          "label_en": "Full name 1",
+          "label_sw": "Jina kamili 1",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "signatory_2",
+          "label_en": "Full name 2",
+          "label_sw": "Jina kamili 2",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "signatory_3",
+          "label_en": "Full name 3",
+          "label_sw": "Jina kamili 3",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "signatory_4",
+          "label_en": "Full name 4",
+          "label_sw": "Jina kamili 4",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "signatory_5",
+          "label_en": "Full name 5",
+          "label_sw": "Jina kamili 5",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Witness of the Meeting",
+      "name_sw": "Shahidi wa Kikao",
+      "order": 10,
+      "fields": [
+        {
+          "field_name": "witness_name",
+          "label_en": "Name",
+          "label_sw": "Jina",
+          "field_type": "text",
+          "is_required": true,
+          "help_text_en": "e.g. Ward Chairman / Village Chairman",
+          "help_text_sw": "mf. Diwani / Mwenyekiti wa Mtaa/Kijiji"
+        },
+        {
+          "field_name": "witness_position",
+          "label_en": "Position",
+          "label_sw": "Cheo",
+          "field_type": "text",
+          "is_required": true
+        }
+      ]
+    }
+  ]
+}

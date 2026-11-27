@@ -1,0 +1,896 @@
+{
+  "sections": [
+    {
+      "name": "Testator Details",
+      "name_sw": "Taarifa za Mtoa Wosia",
+      "order": 1,
+      "fields": [
+        {
+          "field_name": "testator_name",
+          "label_en": "Full name of the testator",
+          "label_sw": "Jina kamili la mtoa wosia",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "testator_po_box",
+          "label_en": "P.O. Box",
+          "label_sw": "S.L.P",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "testator_region",
+          "label_en": "Region",
+          "label_sw": "Mkoa",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "testator_id_number",
+          "label_en": "Identification number",
+          "label_sw": "Namba ya kitambulisho",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "testator_id_type",
+          "label_en": "Type of identification",
+          "label_sw": "Aina ya kitambulisho",
+          "field_type": "dropdown",
+          "is_required": true,
+          "options": [
+            "national_id",
+            "passport",
+            "voter_id",
+            "driving_license"
+          ],
+          "options_sw": [
+            "kitambulisho cha taifa",
+            "pasi ya kusafiria",
+            "kitambulisho cha mpiga kura",
+            "leseni ya udereva"
+          ]
+        },
+        {
+          "field_name": "testator_dob",
+          "label_en": "Date of birth",
+          "label_sw": "Tarehe ya kuzaliwa",
+          "field_type": "date",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Executor of the Estate",
+      "name_sw": "Msimamizi wa Mirathi",
+      "order": 2,
+      "fields": [
+        {
+          "field_name": "executor_name",
+          "label_en": "Full name of the executor",
+          "label_sw": "Jina kamili la msimamizi wa mirathi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "executor_po_box",
+          "label_en": "Executor - P.O. Box",
+          "label_sw": "Msimamizi - S.L.P",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "executor_region",
+          "label_en": "Executor - Region",
+          "label_sw": "Msimamizi - Mkoa",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "executor_phone",
+          "label_en": "Executor - Phone",
+          "label_sw": "Msimamizi - Simu",
+          "field_type": "phone",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^\\+?[0-9\\s\\-]{9,20}$"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Alternative Executor",
+      "name_sw": "Msimamizi Mbadala wa Mirathi",
+      "order": 3,
+      "fields": [
+        {
+          "field_name": "alt_executor_name",
+          "label_en": "Name of the alternative executor",
+          "label_sw": "Jina la msimamizi mbadala",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "alt_executor_po_box",
+          "label_en": "Alternative executor - P.O. Box",
+          "label_sw": "Msimamizi mbadala - S.L.P",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "alt_executor_region",
+          "label_en": "Alternative executor - Region",
+          "label_sw": "Msimamizi mbadala - Mkoa",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "alt_executor_phone",
+          "label_en": "Alternative executor - Phone",
+          "label_sw": "Msimamizi mbadala - Simu",
+          "field_type": "phone",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^\\+?[0-9\\s\\-]{9,20}$"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Houses",
+      "name_sw": "Nyumba",
+      "order": 4,
+      "fields": [
+        {
+          "field_name": "house_1_street",
+          "label_en": "House 1 - Street",
+          "label_sw": "Nyumba 1 - Mtaa",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "house_1_region",
+          "label_en": "House 1 - Region",
+          "label_sw": "Nyumba 1 - Mkoa",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "house_2_street",
+          "label_en": "House 2 - Street",
+          "label_sw": "Nyumba 2 - Mtaa",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "house_2_region",
+          "label_en": "House 2 - Region",
+          "label_sw": "Nyumba 2 - Mkoa",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "house_3_street",
+          "label_en": "House 3 - Street",
+          "label_sw": "Nyumba 3 - Mtaa",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "house_3_region",
+          "label_en": "House 3 - Region",
+          "label_sw": "Nyumba 3 - Mkoa",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "house_4_street",
+          "label_en": "House 4 - Street",
+          "label_sw": "Nyumba 4 - Mtaa",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "house_4_region",
+          "label_en": "House 4 - Region",
+          "label_sw": "Nyumba 4 - Mkoa",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "house_5_street",
+          "label_en": "House 5 - Street",
+          "label_sw": "Nyumba 5 - Mtaa",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "house_5_region",
+          "label_en": "House 5 - Region",
+          "label_sw": "Nyumba 5 - Mkoa",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Land",
+      "name_sw": "Mashamba",
+      "order": 5,
+      "fields": [
+        {
+          "field_name": "land_1_street",
+          "label_en": "Land 1 - Street",
+          "label_sw": "Shamba 1 - Mtaa",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "land_1_region",
+          "label_en": "Land 1 - Region",
+          "label_sw": "Shamba 1 - Mkoa",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "land_2_street",
+          "label_en": "Land 2 - Street",
+          "label_sw": "Shamba 2 - Mtaa",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "land_2_region",
+          "label_en": "Land 2 - Region",
+          "label_sw": "Shamba 2 - Mkoa",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "land_3_street",
+          "label_en": "Land 3 - Street",
+          "label_sw": "Shamba 3 - Mtaa",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "land_3_region",
+          "label_en": "Land 3 - Region",
+          "label_sw": "Shamba 3 - Mkoa",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "land_4_street",
+          "label_en": "Land 4 - Street",
+          "label_sw": "Shamba 4 - Mtaa",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "land_4_region",
+          "label_en": "Land 4 - Region",
+          "label_sw": "Shamba 4 - Mkoa",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Motor Vehicles",
+      "name_sw": "Magari",
+      "order": 6,
+      "fields": [
+        {
+          "field_name": "vehicle_1_brand",
+          "label_en": "Motor Vehicle 1 - Brand",
+          "label_sw": "Gari 1 - Aina",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "vehicle_1_registration",
+          "label_en": "Motor Vehicle 1 - Registration/Plate Number",
+          "label_sw": "Gari 1 - Namba ya Usajili",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "vehicle_2_brand",
+          "label_en": "Motor Vehicle 2 - Brand",
+          "label_sw": "Gari 2 - Aina",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "vehicle_2_registration",
+          "label_en": "Motor Vehicle 2 - Registration/Plate Number",
+          "label_sw": "Gari 2 - Namba ya Usajili",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "vehicle_3_brand",
+          "label_en": "Motor Vehicle 3 - Brand",
+          "label_sw": "Gari 3 - Aina",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "vehicle_3_registration",
+          "label_en": "Motor Vehicle 3 - Registration/Plate Number",
+          "label_sw": "Gari 3 - Namba ya Usajili",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Motorcycles",
+      "name_sw": "Pikipiki",
+      "order": 7,
+      "fields": [
+        {
+          "field_name": "motorcycle_1_brand",
+          "label_en": "Motorcycle 1 - Brand",
+          "label_sw": "Pikipiki 1 - Aina",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "motorcycle_1_registration",
+          "label_en": "Motorcycle 1 - Registration/Plate Number",
+          "label_sw": "Pikipiki 1 - Namba ya Usajili",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "motorcycle_2_brand",
+          "label_en": "Motorcycle 2 - Brand",
+          "label_sw": "Pikipiki 2 - Aina",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "motorcycle_2_registration",
+          "label_en": "Motorcycle 2 - Registration/Plate Number",
+          "label_sw": "Pikipiki 2 - Namba ya Usajili",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "motorcycle_3_brand",
+          "label_en": "Motorcycle 3 - Brand",
+          "label_sw": "Pikipiki 3 - Aina",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "motorcycle_3_registration",
+          "label_en": "Motorcycle 3 - Registration/Plate Number",
+          "label_sw": "Pikipiki 3 - Namba ya Usajili",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Bank Accounts",
+      "name_sw": "Akaunti za Benki",
+      "order": 8,
+      "fields": [
+        {
+          "field_name": "bank_1_bank_name",
+          "label_en": "Bank Account 1 - Bank Name",
+          "label_sw": "Akaunti 1 - Jina la Benki",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "bank_1_account_name",
+          "label_en": "Bank Account 1 - Account Name",
+          "label_sw": "Akaunti 1 - Jina la Akaunti",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "bank_1_account_number",
+          "label_en": "Bank Account 1 - Account Number",
+          "label_sw": "Akaunti 1 - Namba ya Akaunti",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "bank_2_bank_name",
+          "label_en": "Bank Account 2 - Bank Name",
+          "label_sw": "Akaunti 2 - Jina la Benki",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "bank_2_account_name",
+          "label_en": "Bank Account 2 - Account Name",
+          "label_sw": "Akaunti 2 - Jina la Akaunti",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "bank_2_account_number",
+          "label_en": "Bank Account 2 - Account Number",
+          "label_sw": "Akaunti 2 - Namba ya Akaunti",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "bank_3_bank_name",
+          "label_en": "Bank Account 3 - Bank Name",
+          "label_sw": "Akaunti 3 - Jina la Benki",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "bank_3_account_name",
+          "label_en": "Bank Account 3 - Account Name",
+          "label_sw": "Akaunti 3 - Jina la Akaunti",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "bank_3_account_number",
+          "label_en": "Bank Account 3 - Account Number",
+          "label_sw": "Akaunti 3 - Namba ya Akaunti",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "bank_4_bank_name",
+          "label_en": "Bank Account 4 - Bank Name",
+          "label_sw": "Akaunti 4 - Jina la Benki",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "bank_4_account_name",
+          "label_en": "Bank Account 4 - Account Name",
+          "label_sw": "Akaunti 4 - Jina la Akaunti",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "bank_4_account_number",
+          "label_en": "Bank Account 4 - Account Number",
+          "label_sw": "Akaunti 4 - Namba ya Akaunti",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Businesses",
+      "name_sw": "Biashara",
+      "order": 9,
+      "fields": [
+        {
+          "field_name": "business_1_name",
+          "label_en": "Business 1 - Name",
+          "label_sw": "Biashara 1 - Jina",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "business_1_type",
+          "label_en": "Business 1 - Type of Business",
+          "label_sw": "Biashara 1 - Aina ya Biashara",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "business_1_location",
+          "label_en": "Business 1 - Location (Street, District, Region)",
+          "label_sw": "Biashara 1 - Mahali (Mtaa, Wilaya, Mkoa)",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "business_2_name",
+          "label_en": "Business 2 - Name",
+          "label_sw": "Biashara 2 - Jina",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "business_2_type",
+          "label_en": "Business 2 - Type of Business",
+          "label_sw": "Biashara 2 - Aina ya Biashara",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "business_2_location",
+          "label_en": "Business 2 - Location (Street, District, Region)",
+          "label_sw": "Biashara 2 - Mahali (Mtaa, Wilaya, Mkoa)",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "business_3_name",
+          "label_en": "Business 3 - Name",
+          "label_sw": "Biashara 3 - Jina",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "business_3_type",
+          "label_en": "Business 3 - Type of Business",
+          "label_sw": "Biashara 3 - Aina ya Biashara",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "business_3_location",
+          "label_en": "Business 3 - Location (Street, District, Region)",
+          "label_sw": "Biashara 3 - Mahali (Mtaa, Wilaya, Mkoa)",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Other Assets",
+      "name_sw": "Mali Nyingine",
+      "order": 10,
+      "fields": [
+        {
+          "field_name": "other_asset_1",
+          "label_en": "Other asset 1",
+          "label_sw": "Mali nyingine 1",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "other_asset_2",
+          "label_en": "Other asset 2",
+          "label_sw": "Mali nyingine 2",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "other_asset_3",
+          "label_en": "Other asset 3",
+          "label_sw": "Mali nyingine 3",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "other_asset_4",
+          "label_en": "Other asset 4",
+          "label_sw": "Mali nyingine 4",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "other_asset_5",
+          "label_en": "Other asset 5",
+          "label_sw": "Mali nyingine 5",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "other_asset_6",
+          "label_en": "Other asset 6",
+          "label_sw": "Mali nyingine 6",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Beneficiaries",
+      "name_sw": "Warithi",
+      "order": 11,
+      "fields": [
+        {
+          "field_name": "beneficiary_1_name",
+          "label_en": "Beneficiary 1 - Name",
+          "label_sw": "Warithi 1 - Jina",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "beneficiary_1_relationship",
+          "label_en": "Beneficiary 1 - Relationship (e.g. spouse, child, sibling)",
+          "label_sw": "Warithi 1 - Uhusiano (mf. mke/mume, mtoto, ndugu)",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "beneficiary_2_name",
+          "label_en": "Beneficiary 2 - Name",
+          "label_sw": "Warithi 2 - Jina",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "beneficiary_2_relationship",
+          "label_en": "Beneficiary 2 - Relationship (e.g. spouse, child, sibling)",
+          "label_sw": "Warithi 2 - Uhusiano (mf. mke/mume, mtoto, ndugu)",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "beneficiary_3_name",
+          "label_en": "Beneficiary 3 - Name",
+          "label_sw": "Warithi 3 - Jina",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "beneficiary_3_relationship",
+          "label_en": "Beneficiary 3 - Relationship (e.g. spouse, child, sibling)",
+          "label_sw": "Warithi 3 - Uhusiano (mf. mke/mume, mtoto, ndugu)",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "beneficiary_4_name",
+          "label_en": "Beneficiary 4 - Name",
+          "label_sw": "Warithi 4 - Jina",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "beneficiary_4_relationship",
+          "label_en": "Beneficiary 4 - Relationship (e.g. spouse, child, sibling)",
+          "label_sw": "Warithi 4 - Uhusiano (mf. mke/mume, mtoto, ndugu)",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "beneficiary_5_name",
+          "label_en": "Beneficiary 5 - Name",
+          "label_sw": "Warithi 5 - Jina",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "beneficiary_5_relationship",
+          "label_en": "Beneficiary 5 - Relationship (e.g. spouse, child, sibling)",
+          "label_sw": "Warithi 5 - Uhusiano (mf. mke/mume, mtoto, ndugu)",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Distribution of Assets",
+      "name_sw": "Mgawanyo wa Mali",
+      "order": 12,
+      "fields": [
+        {
+          "field_name": "distribution_1_asset",
+          "label_en": "Bequest 1 - Description of the asset",
+          "label_sw": "Urithi 1 - Maelezo ya mali",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "distribution_1_beneficiary",
+          "label_en": "Bequest 1 - Beneficiary / beneficiaries",
+          "label_sw": "Urithi 1 - Mrithi / warithi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "distribution_2_asset",
+          "label_en": "Bequest 2 - Description of the asset",
+          "label_sw": "Urithi 2 - Maelezo ya mali",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "distribution_2_beneficiary",
+          "label_en": "Bequest 2 - Beneficiary / beneficiaries",
+          "label_sw": "Urithi 2 - Mrithi / warithi",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "distribution_3_asset",
+          "label_en": "Bequest 3 - Description of the asset",
+          "label_sw": "Urithi 3 - Maelezo ya mali",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "distribution_3_beneficiary",
+          "label_en": "Bequest 3 - Beneficiary / beneficiaries",
+          "label_sw": "Urithi 3 - Mrithi / warithi",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "distribution_4_asset",
+          "label_en": "Bequest 4 - Description of the asset",
+          "label_sw": "Urithi 4 - Maelezo ya mali",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "distribution_4_beneficiary",
+          "label_en": "Bequest 4 - Beneficiary / beneficiaries",
+          "label_sw": "Urithi 4 - Mrithi / warithi",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "distribution_5_asset",
+          "label_en": "Bequest 5 - Description of the asset",
+          "label_sw": "Urithi 5 - Maelezo ya mali",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "distribution_5_beneficiary",
+          "label_en": "Bequest 5 - Beneficiary / beneficiaries",
+          "label_sw": "Urithi 5 - Mrithi / warithi",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Residuary Estate",
+      "name_sw": "Mali Iliyosalia",
+      "order": 13,
+      "fields": [
+        {
+          "field_name": "residuary_beneficiary",
+          "label_en": "Beneficiary of all remaining assets",
+          "label_sw": "Mrithi/warithi wa mali yote iliyosalia",
+          "field_type": "text",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Guardian (Minor Children)",
+      "name_sw": "Mlezi (Watoto Wadogo)",
+      "order": 14,
+      "fields": [
+        {
+          "field_name": "has_minor_children",
+          "label_en": "Do you have children under the age of 18?",
+          "label_sw": "Je, una watoto chini ya miaka 18?",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "yes",
+            "no"
+          ],
+          "options_sw": [
+            "ndiyo",
+            "hapana"
+          ]
+        },
+        {
+          "field_name": "guardian_name",
+          "label_en": "Name of the guardian",
+          "label_sw": "Jina la mlezi",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "guardian_address",
+          "label_en": "Address of the guardian",
+          "label_sw": "Anuani ya mlezi",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Funeral Arrangements",
+      "name_sw": "Gharama za Mazishi",
+      "order": 15,
+      "fields": [
+        {
+          "field_name": "funeral_details",
+          "label_en": "Other details regarding funeral arrangements",
+          "label_sw": "Maelezo mengine kuhusu mazishi",
+          "field_type": "textarea",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Signature",
+      "name_sw": "Sahihi ya Wosia",
+      "order": 16,
+      "fields": [
+        {
+          "field_name": "signature_day",
+          "label_en": "Day of signing",
+          "label_sw": "Tarehe ya saini - Siku",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{1,2}$"
+          }
+        },
+        {
+          "field_name": "signature_month",
+          "label_en": "Month of signing",
+          "label_sw": "Mwezi wa saini",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "signature_year",
+          "label_en": "Year of signing",
+          "label_sw": "Mwaka wa saini",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{4}$"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Witnesses",
+      "name_sw": "Mashahidi",
+      "order": 17,
+      "fields": [
+        {
+          "field_name": "witness_1_name",
+          "label_en": "Witness 1 - Full name",
+          "label_sw": "Shahidi 1 - Jina kamili",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "witness_1_address",
+          "label_en": "Witness 1 - Address",
+          "label_sw": "Shahidi 1 - Anuani",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "witness_1_phone",
+          "label_en": "Witness 1 - Phone",
+          "label_sw": "Shahidi 1 - Simu",
+          "field_type": "phone",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^\\+?[0-9\\s\\-]{9,20}$"
+          }
+        },
+        {
+          "field_name": "witness_2_name",
+          "label_en": "Witness 2 - Full name",
+          "label_sw": "Shahidi 2 - Jina kamili",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "witness_2_address",
+          "label_en": "Witness 2 - Address",
+          "label_sw": "Shahidi 2 - Anuani",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "witness_2_phone",
+          "label_en": "Witness 2 - Phone",
+          "label_sw": "Shahidi 2 - Simu",
+          "field_type": "phone",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^\\+?[0-9\\s\\-]{9,20}$"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,530 @@
+{
+  "sections": [
+    {
+      "name": "Contract Date",
+      "name_sw": "Tarehe ya Mkataba",
+      "order": 1,
+      "fields": [
+        {
+          "field_name": "contract_date_day",
+          "label_en": "Day",
+          "label_sw": "Siku",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{1,2}$",
+            "min": 1,
+            "max": 31
+          }
+        },
+        {
+          "field_name": "contract_date_month",
+          "label_en": "Month",
+          "label_sw": "Mwezi",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "min_length": 3,
+            "max_length": 20
+          }
+        },
+        {
+          "field_name": "contract_date_year",
+          "label_en": "Year",
+          "label_sw": "Mwaka",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{4}$",
+            "min": 2000,
+            "max": 2100
+          }
+        }
+      ]
+    },
+    {
+      "name": "Employer Information",
+      "name_sw": "Taarifa za Mwajiri",
+      "order": 2,
+      "fields": [
+        {
+          "field_name": "employer_name",
+          "label_en": "Full name of Employer",
+          "label_sw": "Jina kamili la Mwajiri",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "min_length": 2,
+            "max_length": 100
+          }
+        },
+        {
+          "field_name": "employer_po_box",
+          "label_en": "P.O. Box",
+          "label_sw": "S.L.P",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "employer_region",
+          "label_en": "Region",
+          "label_sw": "Mkoa",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "employer_phone",
+          "label_en": "Phone Number",
+          "label_sw": "Namba ya Simu",
+          "field_type": "phone",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^\\+?[0-9\\s\\-]{9,20}$"
+          }
+        },
+        {
+          "field_name": "employer_email",
+          "label_en": "Email",
+          "label_sw": "Barua Pepe",
+          "field_type": "email",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Employee Information",
+      "name_sw": "Taarifa za Mwajiriwa",
+      "order": 3,
+      "fields": [
+        {
+          "field_name": "employee_name",
+          "label_en": "Full name of Employee",
+          "label_sw": "Jina kamili la Mwajiriwa",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "min_length": 2,
+            "max_length": 100
+          }
+        },
+        {
+          "field_name": "employee_po_box",
+          "label_en": "P.O. Box",
+          "label_sw": "S.L.P",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "employee_region",
+          "label_en": "Region",
+          "label_sw": "Mkoa",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "employee_phone",
+          "label_en": "Phone Number",
+          "label_sw": "Namba ya Simu",
+          "field_type": "phone",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^\\+?[0-9\\s\\-]{9,20}$"
+          }
+        },
+        {
+          "field_name": "employee_id_type",
+          "label_en": "Identification used by the Employee",
+          "label_sw": "Aina ya Kitambulisho",
+          "field_type": "dropdown",
+          "is_required": true,
+          "options": [
+            "NIDA",
+            "Driver's License",
+            "Passport",
+            "Voter's ID",
+            "Other"
+          ],
+          "options_sw": [
+            "NIDA",
+            "Leseni ya Udereva",
+            "Pasi ya kusafiria",
+            "Kadi ya Mpiga Kura",
+            "Nyingine"
+          ]
+        },
+        {
+          "field_name": "employee_id_number",
+          "label_en": "Identification Number",
+          "label_sw": "Namba ya Kitambulisho",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "min_length": 3,
+            "max_length": 50
+          }
+        },
+        {
+          "field_name": "employee_email",
+          "label_en": "Email",
+          "label_sw": "Barua Pepe",
+          "field_type": "email",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Employment Dates",
+      "name_sw": "Tarehe za Ajira",
+      "order": 4,
+      "fields": [
+        {
+          "field_name": "employment_start_day",
+          "label_en": "Start Date - Day",
+          "label_sw": "Tarehe ya kuanza - Siku",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{1,2}$",
+            "min": 1,
+            "max": 31
+          }
+        },
+        {
+          "field_name": "employment_start_month",
+          "label_en": "Start Date - Month",
+          "label_sw": "Tarehe ya kuanza - Mwezi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "employment_start_year",
+          "label_en": "Start Date - Year",
+          "label_sw": "Tarehe ya kuanza - Mwaka",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{4}$"
+          }
+        },
+        {
+          "field_name": "contract_is_fixed_term",
+          "label_en": "Is the contract for a fixed term?",
+          "label_sw": "Je, mkataba ni wa muda maalum?",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "yes",
+            "no"
+          ],
+          "options_sw": [
+            "ndio",
+            "hapana"
+          ],
+          "help_text_en": "If No, the contract continues until terminated under its terms.",
+          "help_text_sw": "Kama hapana, mkataba utaendelea hadi kusitishwa kisheria."
+        },
+        {
+          "field_name": "employment_end_day",
+          "label_en": "End Date - Day",
+          "label_sw": "Tarehe ya mwisho - Siku",
+          "field_type": "text",
+          "is_required": false,
+          "help_text_en": "Required if the contract is for a fixed term",
+          "help_text_sw": "Inahitajika kama mkataba ni wa muda maalum"
+        },
+        {
+          "field_name": "employment_end_month",
+          "label_en": "End Date - Month",
+          "label_sw": "Tarehe ya mwisho - Mwezi",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "employment_end_year",
+          "label_en": "End Date - Year",
+          "label_sw": "Tarehe ya mwisho - Mwaka",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Place of Employment",
+      "name_sw": "Mahali pa Ajira",
+      "order": 5,
+      "fields": [
+        {
+          "field_name": "employment_region",
+          "label_en": "Region of employment",
+          "label_sw": "Mkoa wa ajira",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "work_region",
+          "label_en": "Work location - Region",
+          "label_sw": "Mahali pa kazi - Mkoa",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "work_district",
+          "label_en": "Work location - District",
+          "label_sw": "Mahali pa kazi - Wilaya",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "work_ward",
+          "label_en": "Work location - Ward",
+          "label_sw": "Mahali pa kazi - Kata",
+          "field_type": "text",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Position / Job Description",
+      "name_sw": "Wadhifa / Kazi ya Kufanya",
+      "order": 6,
+      "fields": [
+        {
+          "field_name": "job_title",
+          "label_en": "Job title/position",
+          "label_sw": "Wadhifa/Kazi",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "min_length": 2,
+            "max_length": 100
+          }
+        },
+        {
+          "field_name": "job_duties",
+          "label_en": "Duties/Responsibilities",
+          "label_sw": "Majukumu ya kazi",
+          "field_type": "textarea",
+          "is_required": true,
+          "validation_rules": {
+            "min_length": 10,
+            "max_length": 2000
+          },
+          "help_text_en": "List each duty on a new line",
+          "help_text_sw": "Andika kila jukumu katika mstari wake"
+        }
+      ]
+    },
+    {
+      "name": "Probation Period",
+      "name_sw": "Kipindi cha Majaribio",
+      "order": 7,
+      "fields": [
+        {
+          "field_name": "probation_months",
+          "label_en": "Duration of probation period (months)",
+          "label_sw": "Muda wa majaribio (miezi)",
+          "field_type": "number",
+          "is_required": true,
+          "validation_rules": {
+            "min": 0,
+            "max": 12
+          }
+        }
+      ]
+    },
+    {
+      "name": "Working Hours",
+      "name_sw": "Masaa ya Kazi",
+      "order": 8,
+      "fields": [
+        {
+          "field_name": "work_hours_per_day",
+          "label_en": "Working hours per day",
+          "label_sw": "Masaa ya kazi kwa siku",
+          "field_type": "number",
+          "is_required": true,
+          "validation_rules": {
+            "min": 1,
+            "max": 24
+          }
+        },
+        {
+          "field_name": "work_days_per_week",
+          "label_en": "Working days per week",
+          "label_sw": "Siku za kazi kwa wiki",
+          "field_type": "number",
+          "is_required": true,
+          "validation_rules": {
+            "min": 1,
+            "max": 7
+          }
+        },
+        {
+          "field_name": "work_start_time",
+          "label_en": "From",
+          "label_sw": "Kuanzia",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
+          },
+          "placeholder_en": "08:00",
+          "placeholder_sw": "08:00"
+        },
+        {
+          "field_name": "work_end_time",
+          "label_en": "To",
+          "label_sw": "Hadi",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
+          },
+          "placeholder_en": "17:00",
+          "placeholder_sw": "17:00"
+        }
+      ]
+    },
+    {
+      "name": "Salary and Payment",
+      "name_sw": "Mshahara na Malipo",
+      "order": 9,
+      "fields": [
+        {
+          "field_name": "salary_amount",
+          "label_en": "Amount of salary (Tsh)",
+          "label_sw": "Kiasi cha mshahara (Tsh)",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9,]+$"
+          }
+        },
+        {
+          "field_name": "salary_period",
+          "label_en": "Payment period",
+          "label_sw": "Kipindi cha malipo",
+          "field_type": "dropdown",
+          "is_required": true,
+          "options": [
+            "monthly",
+            "weekly",
+            "daily"
+          ],
+          "options_sw": [
+            "kila mwezi",
+            "kila wiki",
+            "kila siku"
+          ]
+        },
+        {
+          "field_name": "payment_date",
+          "label_en": "Payment date",
+          "label_sw": "Tarehe ya malipo",
+          "field_type": "text",
+          "is_required": true,
+          "help_text_en": "e.g. 28th of each month",
+          "help_text_sw": "mf. tarehe 28 ya kila mwezi"
+        },
+        {
+          "field_name": "payment_method",
+          "label_en": "Mode of payment",
+          "label_sw": "Njia ya malipo",
+          "field_type": "dropdown",
+          "is_required": true,
+          "options": [
+            "bank",
+            "cash",
+            "mobile_money",
+            "other"
+          ],
+          "options_sw": [
+            "benki",
+            "fedha taslimu",
+            "pesa ya simu",
+            "nyingine"
+          ]
+        },
+        {
+          "field_name": "payment_method_other",
+          "label_en": "Other payment method - specify",
+          "label_sw": "Njia nyingine ya malipo - eleza",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "bank_name",
+          "label_en": "Bank Name",
+          "label_sw": "Jina la Benki",
+          "field_type": "text",
+          "is_required": false,
+          "help_text_en": "Required if payment is by bank",
+          "help_text_sw": "Inahitajika kama malipo ni kwa benki"
+        },
+        {
+          "field_name": "bank_branch",
+          "label_en": "Bank Branch",
+          "label_sw": "Tawi la Benki",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "bank_account_name",
+          "label_en": "Account Name",
+          "label_sw": "Jina la Akaunti",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "bank_account_number",
+          "label_en": "Account Number",
+          "label_sw": "Namba ya Akaunti",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Allowances and Benefits",
+      "name_sw": "Posho na Manufaa",
+      "order": 10,
+      "fields": [
+        {
+          "field_name": "transport_allowance",
+          "label_en": "Transport allowance (Tsh)",
+          "label_sw": "Posho ya usafiri (Tsh)",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "meal_allowance",
+          "label_en": "Meal allowance (Tsh)",
+          "label_sw": "Posho ya chakula (Tsh)",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "accommodation_allowance",
+          "label_en": "Accommodation allowance (Tsh)",
+          "label_sw": "Posho ya malazi (Tsh)",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "health_insurance",
+          "label_en": "Health insurance (Tsh)",
+          "label_sw": "Bima ya afya (Tsh)",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "other_benefits",
+          "label_en": "Others - specify",
+          "label_sw": "Mengineyo - eleza",
+          "field_type": "textarea",
+          "is_required": false
+        }
+      ]
+    }
+  ]
+}

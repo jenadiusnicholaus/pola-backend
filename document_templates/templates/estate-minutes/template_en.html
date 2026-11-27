@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Minutes of Administration of Estate Family Meeting</title>
+    <style>
+        body { font-family: 'Times New Roman', 'DejaVu Serif', serif; font-size: 12pt; line-height: 1.6; margin: 40px; }
+        .center { text-align: center; margin: 20px 0; }
+        .left { text-align: left; margin-bottom: 5px; }
+        .bold { font-weight: bold; }
+        .underline { text-decoration: underline; }
+        .data-field { border-bottom: 1px solid #000; padding: 0 3px; display: inline-block; min-width: 140px; }
+        ol, ul { margin: 10px 0; padding-left: 40px; }
+        li { margin: 5px 0; }
+        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+        th, td { border: 1px solid #000; padding: 6px; text-align: left; }
+        th { font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<p class="center">
+    <span class="bold underline" style="font-size: 14pt">FAMILY MEETING MINUTES</span>
+</p>
+
+<p class="left">
+    Held on <span class="data-field">{{meeting_date}}</span>, at <span class="data-field">{{meeting_street}}</span> Street, <span class="data-field">{{meeting_ward}}</span> Ward, <span class="data-field">{{meeting_district}}</span> District of <span class="data-field">{{meeting_region}}</span> Region.
+</p>
+
+<p class="left"><span class="bold">1. ATTENDEES</span></p>
+<p class="left">The meeting was attended by the following relatives/family members:</p>
+<table>
+    <tr><th>No.</th><th>Full Name</th><th>Relationship with the Deceased</th><th>Signature</th></tr>
+    <tr><td>i.</td><td><span class="data-field">{{attendee_1_name}}</span></td><td><span class="data-field">{{attendee_1_relationship}}</span></td><td></td></tr>
+    {% if attendee_2_name %}<tr><td>ii.</td><td><span class="data-field">{{attendee_2_name}}</span></td><td><span class="data-field">{{attendee_2_relationship}}</span></td><td></td></tr>{% endif %}
+    {% if attendee_3_name %}<tr><td>iii.</td><td><span class="data-field">{{attendee_3_name}}</span></td><td><span class="data-field">{{attendee_3_relationship}}</span></td><td></td></tr>{% endif %}
+    {% if attendee_4_name %}<tr><td>iv.</td><td><span class="data-field">{{attendee_4_name}}</span></td><td><span class="data-field">{{attendee_4_relationship}}</span></td><td></td></tr>{% endif %}
+    {% if attendee_5_name %}<tr><td>v.</td><td><span class="data-field">{{attendee_5_name}}</span></td><td><span class="data-field">{{attendee_5_relationship}}</span></td><td></td></tr>{% endif %}
+    {% if attendee_6_name %}<tr><td>vi.</td><td><span class="data-field">{{attendee_6_name}}</span></td><td><span class="data-field">{{attendee_6_relationship}}</span></td><td></td></tr>{% endif %}
+</table>
+
+<p class="left"><span class="bold">2. AGENDA OF THE MEETING</span></p>
+<ul>
+    {% if agenda_confirm_death == "yes" %}<li>Confirming the death of the deceased</li>{% endif %}
+    {% if agenda_asset_distribution == "yes" %}<li>Discussing the distribution of the deceased's assets</li>{% endif %}
+    {% if agenda_appoint_administrator == "yes" %}<li>Appointing an estate administrator</li>{% endif %}
+    {% if agenda_other %}<li><span class="data-field">{{agenda_other}}</span></li>{% endif %}
+</ul>
+
+<p class="left"><span class="bold">3. INFORMATION ABOUT THE DECEASED</span></p>
+<ul>
+    <li>Full Name: <span class="data-field">{{deceased_name}}</span></li>
+    <li>Passed away on: <span class="data-field">{{death_date}}</span></li>
+    <li>Place of death: <span class="data-field">{{death_place}}</span></li>
+    <li>Death certificate issued by: <span class="data-field">{{death_certificate_issuer}}</span></li>
+</ul>
+
+<p class="left"><span class="bold">4. ASSETS LEFT BY THE DECEASED</span></p>
+<p class="left">The following are assets known to be owned by the deceased:</p>
+<ol type="i">
+    <li><span class="data-field">{{asset_1}}</span></li>
+    {% if asset_2 %}<li><span class="data-field">{{asset_2}}</span></li>{% endif %}
+    {% if asset_3 %}<li><span class="data-field">{{asset_3}}</span></li>{% endif %}
+    {% if asset_4 %}<li><span class="data-field">{{asset_4}}</span></li>{% endif %}
+    {% if asset_5 %}<li><span class="data-field">{{asset_5}}</span></li>{% endif %}
+</ol>
+
+<p class="left"><span class="bold">5. HEIRS OF THE DECEASED</span></p>
+<p class="left">The deceased left the following heirs:</p>
+<table>
+    <tr><th>No.</th><th>Full Name</th><th>Age</th><th>Relationship</th></tr>
+    <tr><td>1</td><td><span class="data-field">{{heir_1_name}}</span></td><td><span class="data-field">{{heir_1_age}}</span></td><td><span class="data-field">{{heir_1_relationship}}</span></td></tr>
+    {% if heir_2_name %}<tr><td>2</td><td><span class="data-field">{{heir_2_name}}</span></td><td><span class="data-field">{{heir_2_age}}</span></td><td><span class="data-field">{{heir_2_relationship}}</span></td></tr>{% endif %}
+    {% if heir_3_name %}<tr><td>3</td><td><span class="data-field">{{heir_3_name}}</span></td><td><span class="data-field">{{heir_3_age}}</span></td><td><span class="data-field">{{heir_3_relationship}}</span></td></tr>{% endif %}
+    {% if heir_4_name %}<tr><td>4</td><td><span class="data-field">{{heir_4_name}}</span></td><td><span class="data-field">{{heir_4_age}}</span></td><td><span class="data-field">{{heir_4_relationship}}</span></td></tr>{% endif %}
+</table>
+
+<p class="left"><span class="bold">6. APPOINTMENT OF THE ESTATE ADMINISTRATOR</span></p>
+<p class="left">After discussions, the family collectively agreed to appoint:</p>
+<p class="left">
+    <span class="data-field">{{administrator_name}}</span><br/>
+    Child of <span class="data-field">{{administrator_parent}}</span>, resident of <span class="data-field">{{administrator_residence}}</span><br/>
+    As the estate administrator of the deceased according to the law.
+</p>
+
+<p class="left"><span class="bold">7. DECISIONS OF THE MEETING</span></p>
+<ul>
+    <li>The family agreed that there is no objection regarding the appointment of the estate administrator.</li>
+    <li>The deceased's assets will be distributed to the heirs according to the law.</li>
+</ul>
+
+<p class="left"><span class="bold">8. CONCLUSION</span></p>
+<p class="left">
+    The meeting was closed at <span class="data-field">{{closing_time}}</span>, and all parties agreed voluntarily without pressure.
+</p>
+
+<p class="left"><span class="bold">9. SIGNATURES OF FAMILY MEMBERS WHO ATTENDED THE MEETING AND AGREED TO DECISIONS</span></p>
+<table>
+    <tr><th>No.</th><th>Full Name</th><th>Signature</th></tr>
+    <tr><td>i.</td><td><span class="data-field">{{signatory_1}}</span></td><td></td></tr>
+    {% if signatory_2 %}<tr><td>ii.</td><td><span class="data-field">{{signatory_2}}</span></td><td></td></tr>{% endif %}
+    {% if signatory_3 %}<tr><td>iii.</td><td><span class="data-field">{{signatory_3}}</span></td><td></td></tr>{% endif %}
+    {% if signatory_4 %}<tr><td>iv.</td><td><span class="data-field">{{signatory_4}}</span></td><td></td></tr>{% endif %}
+    {% if signatory_5 %}<tr><td>v.</td><td><span class="data-field">{{signatory_5}}</span></td><td></td></tr>{% endif %}
+</table>
+
+<p class="left"><span class="bold">10. WITNESS OF THE MEETING</span></p>
+<p class="left">Name: <span class="data-field">{{witness_name}}</span></p>
+<p class="left">Position: <span class="data-field">{{witness_position}}</span></p>
+<p class="left">Signature: _________________________</p>
+<p class="left">Date: _________________________</p>
+
+</body>
+</html>

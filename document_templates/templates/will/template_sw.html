@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Wosia wa Mwisho</title>
+    <style>
+        body { font-family: 'Times New Roman', 'DejaVu Serif', serif; font-size: 12pt; line-height: 1.6; margin: 40px; }
+        .center { text-align: center; margin: 20px 0; }
+        .left { text-align: left; margin-bottom: 5px; }
+        .bold { font-weight: bold; }
+        .underline { text-decoration: underline; }
+        .data-field { border-bottom: 1px solid #000; padding: 0 3px; display: inline-block; min-width: 140px; }
+        ol, ul { margin: 10px 0; padding-left: 40px; }
+        li { margin: 5px 0; }
+    </style>
+</head>
+<body>
+
+<p class="center">
+    <span class="bold underline" style="font-size: 14pt">WOSIA WA MWISHO WA {{testator_name}}</span>
+</p>
+
+<p class="left">
+    Mimi, <span class="data-field">{{testator_name}}</span>, wa <span class="data-field">{{testator_po_box}}</span>, <span class="data-field">{{testator_region}}</span>, nikiwa na akili timamu na uwezo wa kufanya maamuzi, ninaandika wosia huu kama tamko langu la mwisho na la hiari.
+</p>
+
+<p class="left"><span class="bold">1. TAMKO LA WOSIA</span></p>
+<p class="left">
+    Ninatangaza rasmi kwamba huu ndio wosia wangu wa mwisho na ninautengua wosia wowote niliowahi kuandika kabla ya tarehe hii.
+</p>
+
+<p class="left"><span class="bold">2. TAARIFA ZA MWANDISHI WA WOSIA</span></p>
+<ul>
+    <li>Jina kamili: <span class="data-field">{{testator_name}}</span></li>
+    <li>Namba ya kitambulisho: <span class="data-field">{{testator_id_number}}</span></li>
+    <li>Aina ya Kitambulisho: <span class="data-field">{{testator_id_type}}</span></li>
+    <li>Anuani: <span class="data-field">{{testator_po_box}}</span>, <span class="data-field">{{testator_region}}</span></li>
+    <li>Tarehe ya kuzaliwa: <span class="data-field">{{testator_dob}}</span></li>
+</ul>
+
+<p class="left"><span class="bold">3. UTEUZI WA MSIMAMIZI WA MIRATHI</span></p>
+<p class="left">
+    Ninamteua <span class="data-field">{{executor_name}}</span>, wa <span class="data-field">{{executor_po_box}}</span>, <span class="data-field">{{executor_region}}</span>, mwenye namba ya simu <span class="data-field">{{executor_phone}}</span> kuwa msimamizi wa mirathi yangu.
+</p>
+<p class="left">
+    Endapo hataweza au hatapenda kutekeleza jukumu hili, au endapo atakuwa amefariki wakati au baada ya kifo changu, namteua <span class="data-field">{{alt_executor_name}}</span>, wa <span class="data-field">{{alt_executor_po_box}}</span>, <span class="data-field">{{alt_executor_region}}</span>, mwenye simu namba <span class="data-field">{{alt_executor_phone}}</span> kuchukua nafasi hiyo.
+</p>
+
+<p class="left"><span class="bold">4. ORODHA YA MALI</span></p>
+<p class="left">Mali zangu zinajumuisha:</p>
+
+{% if house_1_street %}
+<p class="left"><span class="bold">a. Nyumba iliyo eneo la</span></p>
+<ol type="i">
+    <li>Mtaa wa <span class="data-field">{{house_1_street}}</span>, Mkoa wa <span class="data-field">{{house_1_region}}</span></li>
+    {% if house_2_street %}<li>Mtaa wa <span class="data-field">{{house_2_street}}</span>, Mkoa wa <span class="data-field">{{house_2_region}}</span></li>{% endif %}
+    {% if house_3_street %}<li>Mtaa wa <span class="data-field">{{house_3_street}}</span>, Mkoa wa <span class="data-field">{{house_3_region}}</span></li>{% endif %}
+    {% if house_4_street %}<li>Mtaa wa <span class="data-field">{{house_4_street}}</span>, Mkoa wa <span class="data-field">{{house_4_region}}</span></li>{% endif %}
+    {% if house_5_street %}<li>Mtaa wa <span class="data-field">{{house_5_street}}</span>, Mkoa wa <span class="data-field">{{house_5_region}}</span></li>{% endif %}
+</ol>
+{% endif %}
+
+{% if land_1_street %}
+<p class="left"><span class="bold">b. Shamba lililopo</span></p>
+<ol type="i">
+    <li>Mtaa wa <span class="data-field">{{land_1_street}}</span>, Mkoa wa <span class="data-field">{{land_1_region}}</span></li>
+    {% if land_2_street %}<li>Mtaa wa <span class="data-field">{{land_2_street}}</span>, Mkoa wa <span class="data-field">{{land_2_region}}</span></li>{% endif %}
+    {% if land_3_street %}<li>Mtaa wa <span class="data-field">{{land_3_street}}</span>, Mkoa wa <span class="data-field">{{land_3_region}}</span></li>{% endif %}
+    {% if land_4_street %}<li>Mtaa wa <span class="data-field">{{land_4_street}}</span>, Mkoa wa <span class="data-field">{{land_4_region}}</span></li>{% endif %}
+</ol>
+{% endif %}
+
+{% if vehicle_1_brand %}
+<p class="left"><span class="bold">c. Gari</span></p>
+<ol type="i">
+    <li>Aina <span class="data-field">{{vehicle_1_brand}}</span> yenye Namba ya Usajili: <span class="data-field">{{vehicle_1_registration}}</span></li>
+    {% if vehicle_2_brand %}<li>Aina <span class="data-field">{{vehicle_2_brand}}</span> yenye Namba ya Usajili: <span class="data-field">{{vehicle_2_registration}}</span></li>{% endif %}
+    {% if vehicle_3_brand %}<li>Aina <span class="data-field">{{vehicle_3_brand}}</span> yenye Namba ya Usajili: <span class="data-field">{{vehicle_3_registration}}</span></li>{% endif %}
+</ol>
+{% endif %}
+
+{% if motorcycle_1_brand %}
+<p class="left"><span class="bold">d. Pikipiki</span></p>
+<ol type="i">
+    <li>Aina <span class="data-field">{{motorcycle_1_brand}}</span> yenye Namba ya Usajili: <span class="data-field">{{motorcycle_1_registration}}</span></li>
+    {% if motorcycle_2_brand %}<li>Aina <span class="data-field">{{motorcycle_2_brand}}</span> yenye Namba ya Usajili: <span class="data-field">{{motorcycle_2_registration}}</span></li>{% endif %}
+    {% if motorcycle_3_brand %}<li>Aina <span class="data-field">{{motorcycle_3_brand}}</span> yenye Namba ya Usajili: <span class="data-field">{{motorcycle_3_registration}}</span></li>{% endif %}
+</ol>
+{% endif %}
+
+{% if bank_1_bank_name %}
+<p class="left"><span class="bold">e. Akaunti za benki</span></p>
+<ol type="i">
+    <li>Jina la Benki: <span class="data-field">{{bank_1_bank_name}}</span>, Jina la Akaunti: <span class="data-field">{{bank_1_account_name}}</span>, Namba ya Akaunti: <span class="data-field">{{bank_1_account_number}}</span></li>
+    {% if bank_2_bank_name %}<li>Jina la Benki: <span class="data-field">{{bank_2_bank_name}}</span>, Jina la Akaunti: <span class="data-field">{{bank_2_account_name}}</span>, Namba ya Akaunti: <span class="data-field">{{bank_2_account_number}}</span></li>{% endif %}
+    {% if bank_3_bank_name %}<li>Jina la Benki: <span class="data-field">{{bank_3_bank_name}}</span>, Jina la Akaunti: <span class="data-field">{{bank_3_account_name}}</span>, Namba ya Akaunti: <span class="data-field">{{bank_3_account_number}}</span></li>{% endif %}
+    {% if bank_4_bank_name %}<li>Jina la Benki: <span class="data-field">{{bank_4_bank_name}}</span>, Jina la Akaunti: <span class="data-field">{{bank_4_account_name}}</span>, Namba ya Akaunti: <span class="data-field">{{bank_4_account_number}}</span></li>{% endif %}
+</ol>
+{% endif %}
+
+{% if business_1_name %}
+<p class="left"><span class="bold">f. Biashara</span></p>
+<ol type="i">
+    <li>Jina la Biashara: <span class="data-field">{{business_1_name}}</span>, Aina: <span class="data-field">{{business_1_type}}</span>, Mahali: <span class="data-field">{{business_1_location}}</span></li>
+    {% if business_2_name %}<li>Jina la Biashara: <span class="data-field">{{business_2_name}}</span>, Aina: <span class="data-field">{{business_2_type}}</span>, Mahali: <span class="data-field">{{business_2_location}}</span></li>{% endif %}
+    {% if business_3_name %}<li>Jina la Biashara: <span class="data-field">{{business_3_name}}</span>, Aina: <span class="data-field">{{business_3_type}}</span>, Mahali: <span class="data-field">{{business_3_location}}</span></li>{% endif %}
+</ol>
+{% endif %}
+
+{% if other_asset_1 %}
+<p class="left"><span class="bold">g. Mali nyingine</span></p>
+<ol type="i">
+    <li><span class="data-field">{{other_asset_1}}</span></li>
+    {% if other_asset_2 %}<li><span class="data-field">{{other_asset_2}}</span></li>{% endif %}
+    {% if other_asset_3 %}<li><span class="data-field">{{other_asset_3}}</span></li>{% endif %}
+    {% if other_asset_4 %}<li><span class="data-field">{{other_asset_4}}</span></li>{% endif %}
+    {% if other_asset_5 %}<li><span class="data-field">{{other_asset_5}}</span></li>{% endif %}
+    {% if other_asset_6 %}<li><span class="data-field">{{other_asset_6}}</span></li>{% endif %}
+</ol>
+{% endif %}
+
+<p class="left"><span class="bold">5. ORODHA YA WARITHI</span></p>
+<ol type="i">
+    <li>Jina: <span class="data-field">{{beneficiary_1_name}}</span>, Uhusiano: <span class="data-field">{{beneficiary_1_relationship}}</span></li>
+    {% if beneficiary_2_name %}<li>Jina: <span class="data-field">{{beneficiary_2_name}}</span>, Uhusiano: <span class="data-field">{{beneficiary_2_relationship}}</span></li>{% endif %}
+    {% if beneficiary_3_name %}<li>Jina: <span class="data-field">{{beneficiary_3_name}}</span>, Uhusiano: <span class="data-field">{{beneficiary_3_relationship}}</span></li>{% endif %}
+    {% if beneficiary_4_name %}<li>Jina: <span class="data-field">{{beneficiary_4_name}}</span>, Uhusiano: <span class="data-field">{{beneficiary_4_relationship}}</span></li>{% endif %}
+    {% if beneficiary_5_name %}<li>Jina: <span class="data-field">{{beneficiary_5_name}}</span>, Uhusiano: <span class="data-field">{{beneficiary_5_relationship}}</span></li>{% endif %}
+</ol>
+
+<p class="left"><span class="bold">6. MGAWANYO WA MALI</span></p>
+<p class="left">a. Natoa mali yangu ya <span class="data-field">{{distribution_1_asset}}</span> kama urithi kwa <span class="data-field">{{distribution_1_beneficiary}}</span>.</p>
+{% if distribution_2_asset %}<p class="left">b. Natoa mali yangu ya <span class="data-field">{{distribution_2_asset}}</span> kama urithi kwa <span class="data-field">{{distribution_2_beneficiary}}</span>.</p>{% endif %}
+{% if distribution_3_asset %}<p class="left">c. Natoa mali yangu ya <span class="data-field">{{distribution_3_asset}}</span> kama urithi kwa <span class="data-field">{{distribution_3_beneficiary}}</span>.</p>{% endif %}
+{% if distribution_4_asset %}<p class="left">d. Natoa mali yangu ya <span class="data-field">{{distribution_4_asset}}</span> kama urithi kwa <span class="data-field">{{distribution_4_beneficiary}}</span>.</p>{% endif %}
+{% if distribution_5_asset %}<p class="left">e. Natoa mali yangu ya <span class="data-field">{{distribution_5_asset}}</span> kama urithi kwa <span class="data-field">{{distribution_5_beneficiary}}</span>.</p>{% endif %}
+
+<p class="left"><span class="bold">7. MALI ILIYOSALIA (RESIDUARY CLAUSE)</span></p>
+<p class="left">
+    Mali yote itakayobaki baada ya kugawa mali niliyotaja hapo juu, iwe ya aina yoyote ile na mahali popote ilipo, natoa kwa: <span class="data-field">{{residuary_beneficiary}}</span>
+</p>
+
+{% if has_minor_children == "yes" %}
+<p class="left"><span class="bold">8. UTEUZI WA MLEZI (KWA WATOTO WADOGO)</span></p>
+<p class="left">
+    Endapo kutakuwa na mtoto wangu yeyote ambaye bado hajafikisha umri wa miaka 18 wakati wa kifo changu, namteua <span class="data-field">{{guardian_name}}</span> wa <span class="data-field">{{guardian_address}}</span> kuwa mlezi wa watoto wangu.
+</p>
+{% endif %}
+
+<p class="left"><span class="bold">9. KUWAACHA WASIOTAJWA KWA MAKUSUDI</span></p>
+<p class="left">
+    Iwapo sijamtaja mtu yeyote ambaye angeweza kutarajia kunufaika na mali zangu, dhamira yangu ni kumwacha nje kwa makusudi.
+</p>
+
+<p class="left"><span class="bold">10. MADENI NA GHARAMA ZA MAZISHI</span></p>
+<p class="left">
+    Ninaagiza madeni yangu yote halali yalipwe kwanza kabla ya kugawa mali.<br/>
+    Ninapenda mazishi yangu yafanyike kwa namna ya kawaida na yasigharimu kupita kiasi.
+    {% if funeral_details %}<br/><span class="data-field">{{funeral_details}}</span>{% endif %}
+</p>
+
+<p class="left"><span class="bold">11. UFAFANUZI WA MIGOGORO</span></p>
+<p class="left">
+    Ikitokea utata wa maneno au tafsiri katika wosia huu, msimamizi wa mirathi atafanya maamuzi kwa kufuata sheria za Tanzania.
+</p>
+
+<p class="left"><span class="bold">12. SAHIHI YA WOSIA</span></p>
+<p class="left">
+    Imesainiwa na mimi, mtoa wosia, tarehe <span class="data-field">{{signature_day}}</span> mwezi <span class="data-field">{{signature_month}}</span> mwaka <span class="data-field">{{signature_year}}</span>.
+</p>
+<p class="left">Sahihi ya Mtoa Wosia: _________________________</p>
+<p class="left">Jina Kamili: <span class="data-field">{{testator_name}}</span></p>
+
+<p class="left"><span class="bold">13. MASHAHIDI</span></p>
+<p class="left">
+    Sisi tuliotia saini hapa chini, tumesimamia utiaji saini wa wosia huu na tumeshuhudia mtoa wosia akisaini mbele yetu na mbele ya kila mmoja wetu, na kutamka kuwa huu ndio Wosia wake wa Mwisho.
+</p>
+
+<p class="left"><span class="bold">Shahidi 1</span></p>
+<p class="left">Jina Kamili: <span class="data-field">{{witness_1_name}}</span></p>
+<p class="left">Anwani: <span class="data-field">{{witness_1_address}}</span></p>
+<p class="left">Simu: <span class="data-field">{{witness_1_phone}}</span></p>
+<p class="left">Sahihi: _________________________</p>
+<p class="left">Tarehe: _________________________</p>
+
+<p class="left"><span class="bold">Shahidi 2</span></p>
+<p class="left">Jina Kamili: <span class="data-field">{{witness_2_name}}</span></p>
+<p class="left">Anwani: <span class="data-field">{{witness_2_address}}</span></p>
+<p class="left">Simu: <span class="data-field">{{witness_2_phone}}</span></p>
+<p class="left">Sahihi: _________________________</p>
+<p class="left">Tarehe: _________________________</p>
+
+</body>
+</html>

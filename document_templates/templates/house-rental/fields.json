@@ -1,0 +1,610 @@
+{
+  "sections": [
+    {
+      "name": "Agreement Date",
+      "name_sw": "Maelezo ya Makubaliano",
+      "order": 1,
+      "fields": [
+        {
+          "field_name": "agreement_date_day",
+          "label_en": "Day",
+          "label_sw": "Siku",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{1,2}$"
+          }
+        },
+        {
+          "field_name": "agreement_date_month",
+          "label_en": "Month",
+          "label_sw": "Mwezi",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "agreement_date_year",
+          "label_en": "Year",
+          "label_sw": "Mwaka",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9]{4}$"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Landlord Information",
+      "name_sw": "Taarifa za Mwenye Nyumba",
+      "order": 2,
+      "fields": [
+        {
+          "field_name": "landlord_name",
+          "label_en": "Full name of Landlord",
+          "label_sw": "Jina kamili la Mwenye Nyumba",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "landlord_po_box",
+          "label_en": "P.O. Box",
+          "label_sw": "S.L.P",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "landlord_addr_region",
+          "label_en": "Address - Region",
+          "label_sw": "Anuani - Mkoa",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "landlord_res_street",
+          "label_en": "Residence - Street",
+          "label_sw": "Makazi - Mtaa",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "landlord_res_district",
+          "label_en": "Residence - District",
+          "label_sw": "Makazi - Wilaya",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "landlord_res_region",
+          "label_en": "Residence - Region",
+          "label_sw": "Makazi - Mkoa",
+          "field_type": "text",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Tenant Information",
+      "name_sw": "Taarifa za Mpangaji",
+      "order": 3,
+      "fields": [
+        {
+          "field_name": "tenant_name",
+          "label_en": "Full name of Tenant",
+          "label_sw": "Jina kamili la Mpangaji",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "tenant_po_box",
+          "label_en": "P.O. Box",
+          "label_sw": "S.L.P",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "tenant_addr_region",
+          "label_en": "Address - Region",
+          "label_sw": "Anuani - Mkoa",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "tenant_res_street",
+          "label_en": "Residence - Street",
+          "label_sw": "Makazi - Mtaa",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "tenant_res_district",
+          "label_en": "Residence - District",
+          "label_sw": "Makazi - Wilaya",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "tenant_res_region",
+          "label_en": "Residence - Region",
+          "label_sw": "Makazi - Mkoa",
+          "field_type": "text",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Property Details",
+      "name_sw": "Maelezo ya Mali Inayopangishwa",
+      "order": 4,
+      "fields": [
+        {
+          "field_name": "property_region",
+          "label_en": "Property address - Region",
+          "label_sw": "Anuani ya mali - Mkoa",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "property_district",
+          "label_en": "Property address - District",
+          "label_sw": "Anuani ya mali - Wilaya",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "property_street",
+          "label_en": "Property address - Street",
+          "label_sw": "Anuani ya mali - Mtaa",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "property_house_number",
+          "label_en": "House number",
+          "label_sw": "Namba ya nyumba",
+          "field_type": "text",
+          "is_required": true
+        },
+        {
+          "field_name": "property_use",
+          "label_en": "Use of the house",
+          "label_sw": "Matumizi ya nyumba",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "residential",
+            "business"
+          ],
+          "options_sw": [
+            "makazi",
+            "biashara"
+          ]
+        },
+        {
+          "field_name": "bedrooms",
+          "label_en": "Bedrooms (number)",
+          "label_sw": "Vyumba vya kulala (idadi)",
+          "field_type": "number",
+          "is_required": false,
+          "validation_rules": {
+            "min": 0,
+            "max": 50
+          }
+        },
+        {
+          "field_name": "living_rooms",
+          "label_en": "Living rooms (number)",
+          "label_sw": "Sebule (idadi)",
+          "field_type": "number",
+          "is_required": false,
+          "validation_rules": {
+            "min": 0,
+            "max": 20
+          }
+        },
+        {
+          "field_name": "kitchens",
+          "label_en": "Kitchens (number)",
+          "label_sw": "Vijiko (idadi)",
+          "field_type": "number",
+          "is_required": false,
+          "validation_rules": {
+            "min": 0,
+            "max": 20
+          }
+        },
+        {
+          "field_name": "bathrooms",
+          "label_en": "Bathrooms (number)",
+          "label_sw": "Mabafu (idadi)",
+          "field_type": "number",
+          "is_required": false,
+          "validation_rules": {
+            "min": 0,
+            "max": 20
+          }
+        },
+        {
+          "field_name": "toilets",
+          "label_en": "Toilets (number)",
+          "label_sw": "Vyoo (idadi)",
+          "field_type": "number",
+          "is_required": false,
+          "validation_rules": {
+            "min": 0,
+            "max": 20
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tenancy Period",
+      "name_sw": "Muda wa Upangishaji",
+      "order": 5,
+      "fields": [
+        {
+          "field_name": "tenancy_months",
+          "label_en": "Duration of tenancy (months)",
+          "label_sw": "Muda wa upangaji (miezi)",
+          "field_type": "number",
+          "is_required": true,
+          "validation_rules": {
+            "min": 1,
+            "max": 600
+          }
+        },
+        {
+          "field_name": "tenancy_start_date",
+          "label_en": "Tenancy start date",
+          "label_sw": "Tarehe ya kuanza kwa upangaji",
+          "field_type": "date",
+          "is_required": true
+        },
+        {
+          "field_name": "tenancy_end_date",
+          "label_en": "Tenancy end date",
+          "label_sw": "Tarehe ya kumalizika kwa upangaji",
+          "field_type": "date",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Rent",
+      "name_sw": "Kiasi cha Pango",
+      "order": 6,
+      "fields": [
+        {
+          "field_name": "monthly_rent",
+          "label_en": "Monthly rent (TZS)",
+          "label_sw": "Pango la kila mwezi (TZS)",
+          "field_type": "text",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^[0-9,]+$"
+          }
+        },
+        {
+          "field_name": "payment_terms",
+          "label_en": "Payment terms",
+          "label_sw": "Masharti ya malipo",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "monthly",
+            "three_months",
+            "six_months",
+            "yearly"
+          ],
+          "options_sw": [
+            "kila mwezi",
+            "miezi mitatu",
+            "miezi sita",
+            "kila mwaka"
+          ]
+        },
+        {
+          "field_name": "payment_method",
+          "label_en": "Payment method",
+          "label_sw": "Njia ya malipo",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "cash",
+            "mobile_money",
+            "bank"
+          ],
+          "options_sw": [
+            "pesa taslimu",
+            "uhamisho wa simu",
+            "uhamisho wa benki"
+          ]
+        },
+        {
+          "field_name": "bank_name",
+          "label_en": "Bank Name",
+          "label_sw": "Jina la Benki",
+          "field_type": "text",
+          "is_required": false,
+          "help_text_en": "Required if payment is by bank",
+          "help_text_sw": "Inahitajika kama malipo ni kwa benki"
+        },
+        {
+          "field_name": "bank_branch",
+          "label_en": "Bank Branch",
+          "label_sw": "Tawi la Benki",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "bank_account_name",
+          "label_en": "Account Name",
+          "label_sw": "Jina la Akaunti",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "bank_account_number",
+          "label_en": "Account Number",
+          "label_sw": "Namba ya Akaunti",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "signing_months",
+          "label_en": "Months' rent payable on signing",
+          "label_sw": "Miezi ya pango inayolipwa wakati wa kusaini",
+          "field_type": "number",
+          "is_required": true,
+          "validation_rules": {
+            "min": 0,
+            "max": 60
+          }
+        },
+        {
+          "field_name": "signing_amount",
+          "label_en": "Total amount payable on signing (TZS)",
+          "label_sw": "Kiasi kinacholipwa wakati wa kusaini (TZS)",
+          "field_type": "text",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Security Deposit",
+      "name_sw": "Amana ya Usalama",
+      "order": 7,
+      "fields": [
+        {
+          "field_name": "has_security_deposit",
+          "label_en": "Have the parties agreed on a security deposit?",
+          "label_sw": "Je, pande zimekubaliana juu ya amana ya usalama?",
+          "field_type": "radio",
+          "is_required": true,
+          "options": [
+            "yes",
+            "no"
+          ],
+          "options_sw": [
+            "ndiyo",
+            "hapana"
+          ]
+        },
+        {
+          "field_name": "security_deposit_amount",
+          "label_en": "Deposit amount (TZS)",
+          "label_sw": "Kiasi cha amana (TZS)",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Use of the Property",
+      "name_sw": "Matumizi ya Mali",
+      "order": 8,
+      "fields": [
+        {
+          "field_name": "allowed_use_1",
+          "label_en": "Allowed use 1",
+          "label_sw": "Matumizi yaliyoruhusiwa 1",
+          "field_type": "dropdown",
+          "is_required": true,
+          "options": [
+            "residential",
+            "office",
+            "business"
+          ],
+          "options_sw": [
+            "makazi",
+            "ofisi",
+            "biashara/shughuli za kibiashara"
+          ]
+        },
+        {
+          "field_name": "allowed_use_2",
+          "label_en": "Allowed use 2 (optional)",
+          "label_sw": "Matumizi yaliyoruhusiwa 2 (hiari)",
+          "field_type": "dropdown",
+          "is_required": false,
+          "options": [
+            "residential",
+            "office",
+            "business"
+          ],
+          "options_sw": [
+            "makazi",
+            "ofisi",
+            "biashara/shughuli za kibiashara"
+          ]
+        },
+        {
+          "field_name": "allowed_use_3",
+          "label_en": "Allowed use 3 (optional)",
+          "label_sw": "Matumizi yaliyoruhusiwa 3 (hiari)",
+          "field_type": "dropdown",
+          "is_required": false,
+          "options": [
+            "residential",
+            "office",
+            "business"
+          ],
+          "options_sw": [
+            "makazi",
+            "ofisi",
+            "biashara/shughuli za kibiashara"
+          ]
+        },
+        {
+          "field_name": "prohibited_use_1",
+          "label_en": "Prohibited use 1 (optional)",
+          "label_sw": "Matumizi yasiyoruhusiwa 1 (hiari)",
+          "field_type": "dropdown",
+          "is_required": false,
+          "options": [
+            "residential",
+            "office",
+            "business"
+          ],
+          "options_sw": [
+            "makazi",
+            "ofisi",
+            "biashara/shughuli za kibiashara"
+          ]
+        },
+        {
+          "field_name": "prohibited_use_2",
+          "label_en": "Prohibited use 2 (optional)",
+          "label_sw": "Matumizi yasiyoruhusiwa 2 (hiari)",
+          "field_type": "dropdown",
+          "is_required": false,
+          "options": [
+            "residential",
+            "office",
+            "business"
+          ],
+          "options_sw": [
+            "makazi",
+            "ofisi",
+            "biashara/shughuli za kibiashara"
+          ]
+        },
+        {
+          "field_name": "prohibited_use_3",
+          "label_en": "Prohibited use 3 (optional)",
+          "label_sw": "Matumizi yasiyoruhusiwa 3 (hiari)",
+          "field_type": "dropdown",
+          "is_required": false,
+          "options": [
+            "residential",
+            "office",
+            "business"
+          ],
+          "options_sw": [
+            "makazi",
+            "ofisi",
+            "biashara/shughuli za kibiashara"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Termination",
+      "name_sw": "Usitishaji wa Makubaliano",
+      "order": 9,
+      "fields": [
+        {
+          "field_name": "tenant_notice_days",
+          "label_en": "Days' notice the Tenant must give to terminate",
+          "label_sw": "Notisi ya siku ngapi Mpangaji atoe kusitisha",
+          "field_type": "number",
+          "is_required": true,
+          "validation_rules": {
+            "min": 1,
+            "max": 365
+          }
+        },
+        {
+          "field_name": "landlord_notice_days",
+          "label_en": "Days' notice the Landlord must give (valid reason)",
+          "label_sw": "Notisi ya siku ngapi Mwenye Nyumba atoe (sababu halali)",
+          "field_type": "number",
+          "is_required": true,
+          "validation_rules": {
+            "min": 1,
+            "max": 365
+          }
+        },
+        {
+          "field_name": "termination_compensation",
+          "label_en": "Compensation payable on termination (TZS)",
+          "label_sw": "Fidia ya kusitishwa kwa mkataba (TZS)",
+          "field_type": "text",
+          "is_required": true
+        }
+      ]
+    },
+    {
+      "name": "Additional Terms",
+      "name_sw": "Masharti ya Ziada",
+      "order": 10,
+      "fields": [
+        {
+          "field_name": "additional_term_1",
+          "label_en": "Additional term 1",
+          "label_sw": "Sharti la ziada 1",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "additional_term_2",
+          "label_en": "Additional term 2",
+          "label_sw": "Sharti la ziada 2",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "additional_term_3",
+          "label_en": "Additional term 3",
+          "label_sw": "Sharti la ziada 3",
+          "field_type": "text",
+          "is_required": false
+        },
+        {
+          "field_name": "additional_term_4",
+          "label_en": "Additional term 4",
+          "label_sw": "Sharti la ziada 4",
+          "field_type": "text",
+          "is_required": false
+        }
+      ]
+    },
+    {
+      "name": "Contacts",
+      "name_sw": "Mawasiliano",
+      "order": 11,
+      "fields": [
+        {
+          "field_name": "landlord_phone",
+          "label_en": "Landlord phone number",
+          "label_sw": "Namba ya Simu ya Mwenye Nyumba",
+          "field_type": "phone",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^\\+?[0-9\\s\\-]{9,20}$"
+          }
+        },
+        {
+          "field_name": "tenant_phone",
+          "label_en": "Tenant phone number",
+          "label_sw": "Namba ya Simu ya Mpangaji",
+          "field_type": "phone",
+          "is_required": true,
+          "validation_rules": {
+            "pattern": "^\\+?[0-9\\s\\-]{9,20}$"
+          }
+        }
+      ]
+    }
+  ]
+}
