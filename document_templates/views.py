@@ -51,8 +51,11 @@ class DocumentTemplateViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ['order', 'name']
     
     def get_queryset(self):
-        """Only return active templates"""
-        return DocumentTemplate.objects.filter(is_active=True)
+        """Only return active templates that have content in the requested language"""
+        qs = DocumentTemplate.objects.filter(is_active=True)
+        language = self.request.query_params.get('language', 'en')
+        content_field = 'template_content_sw' if language == 'sw' else 'template_content_en'
+        return qs.filter(**{f'{content_field}__gt': ''})
     
     def get_serializer_class(self):
         """Use different serializers for list and detail"""
