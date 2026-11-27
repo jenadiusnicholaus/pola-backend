@@ -41,17 +41,23 @@ class LocalizedSerializerMixin:
 
 
 class TemplateFieldSerializer(LocalizedSerializerMixin, serializers.ModelSerializer):
-    """Serializer for template fields"""
+    """Serializer for template fields.
+
+    `options` always contains the stable value keys that must be submitted
+    back in generate payloads; `options_display` holds the localized
+    labels aligned by index for rendering choices to the user.
+    """
     label = serializers.SerializerMethodField()
     placeholder = serializers.SerializerMethodField()
     help_text = serializers.SerializerMethodField()
     options = serializers.SerializerMethodField()
+    options_display = serializers.SerializerMethodField()
 
     class Meta:
         model = TemplateField
         fields = [
             'id', 'field_name',
-            'label', 'placeholder', 'help_text', 'options',
+            'label', 'placeholder', 'help_text', 'options', 'options_display',
             'label_en', 'label_sw',
             'placeholder_en', 'placeholder_sw',
             'help_text_en', 'help_text_sw',
@@ -70,6 +76,9 @@ class TemplateFieldSerializer(LocalizedSerializerMixin, serializers.ModelSeriali
         return self._pick(obj, 'help_text_en', 'help_text_sw')
 
     def get_options(self, obj):
+        return obj.options
+
+    def get_options_display(self, obj):
         if self._is_sw() and obj.options_sw:
             return obj.options_sw
         return obj.options
