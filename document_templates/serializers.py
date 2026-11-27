@@ -227,8 +227,9 @@ class ValidateDocumentDataSerializer(serializers.Serializer):
         return value
 
 
-class DocumentContentListSerializer(serializers.ModelSerializer):
+class DocumentContentListSerializer(LocalizedSerializerMixin, serializers.ModelSerializer):
     """Serializer for document content list view"""
+    title = serializers.SerializerMethodField()
 
     class Meta:
         model = DocumentContent
@@ -238,9 +239,14 @@ class DocumentContentListSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
 
+    def get_title(self, obj):
+        return self._pick(obj, 'title')
 
-class DocumentContentDetailSerializer(serializers.ModelSerializer):
+
+class DocumentContentDetailSerializer(LocalizedSerializerMixin, serializers.ModelSerializer):
     """Detailed serializer for document content"""
+    title = serializers.SerializerMethodField()
+    content = serializers.SerializerMethodField()
 
     class Meta:
         model = DocumentContent
@@ -249,6 +255,12 @@ class DocumentContentDetailSerializer(serializers.ModelSerializer):
             'content', 'content_sw', 'is_active', 'is_public',
             'display_order', 'created_at', 'updated_at'
         ]
+
+    def get_title(self, obj):
+        return self._pick(obj, 'title')
+
+    def get_content(self, obj):
+        return self._pick(obj, 'content')
 
 
 class DocumentContentCreateUpdateSerializer(serializers.ModelSerializer):

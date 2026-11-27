@@ -362,6 +362,11 @@ class DocumentContentAdminViewSet(viewsets.ModelViewSet):
             return DocumentContentCreateUpdateSerializer
         return DocumentContentListSerializer
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['language'] = self.request.query_params.get('language', 'en')
+        return context
+
     @action(detail=True, methods=['post'])
     def toggle(self, request, pk=None):
         """
@@ -406,3 +411,8 @@ class DocumentContentPublicViewSet(viewsets.ReadOnlyModelViewSet):
         if self.action == 'retrieve':
             return DocumentContentDetailSerializer
         return DocumentContentListSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['language'] = self.request.query_params.get('language', 'en')
+        return context
