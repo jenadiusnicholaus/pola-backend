@@ -8,6 +8,7 @@
         .center { text-align: center; margin: 20px 0; }
         .left { text-align: left; margin-bottom: 5px; }
         .bold { font-weight: bold; }
+        .section { text-align: left; margin-bottom: 5px; -pdf-keep-with-next: true; }
         .underline { text-decoration: underline; }
         .data-field { border-bottom: 1px solid #000; padding: 0 3px; display: inline-block; min-width: 140px; }
         ol, ul { margin: 10px 0; padding-left: 40px; }
@@ -25,21 +26,21 @@
     This is an agreement for the sale of {% if vehicle_type == "car" %}a motor vehicle{% else %}a motorcycle{% endif %} made on the <span class="data-field">{{agreement_date_day}}</span> day of <span class="data-field">{{agreement_date_month}}</span>, the year <span class="data-field">{{agreement_date_year}}</span>.
 </p>
 
-<p class="left"><span class="bold">BETWEEN</span></p>
+<p class="section"><span class="bold">BETWEEN</span></p>
 
 <p class="left">
     <span class="data-field">{{seller_name}}</span>, P.O. Box <span class="data-field">{{seller_po_box}}</span>, Resident of <span class="data-field">{{seller_residence}}</span>, Region of <span class="data-field">{{seller_region}}</span>, holder of Identification Document type <span class="data-field">{{seller_id_type}}</span> with number <span class="data-field">{{seller_id_number}}</span>
     (who shall hereinafter be referred to as "the Seller") of the one part.
 </p>
 
-<p class="left"><span class="bold">AND</span></p>
+<p class="section"><span class="bold">AND</span></p>
 
 <p class="left">
     <span class="data-field">{{buyer_name}}</span>, P.O. Box <span class="data-field">{{buyer_po_box}}</span>, Resident of <span class="data-field">{{buyer_residence}}</span>, Region of <span class="data-field">{{buyer_region}}</span>, holder of Identification Document type <span class="data-field">{{buyer_id_type}}</span> with number <span class="data-field">{{buyer_id_number}}</span>
     (who shall hereinafter be referred to as "the Buyer") of the other part.
 </p>
 
-<p class="left"><span class="bold">1. DETAILS OF THE MOTOR VEHICLE</span></p>
+<p class="section"><span class="bold">1. DETAILS OF THE MOTOR VEHICLE</span></p>
 <p class="left">The Seller agrees to sell to the Buyer a {% if vehicle_type == "car" %}motor vehicle{% else %}motorcycle{% endif %} with the following details:</p>
 <ol type="a">
     <li>Type of Vehicle: {% if vehicle_type == "car" %}Car{% else %}Motorcycle{% endif %}</li>
@@ -53,7 +54,7 @@
     <li>Condition of the Vehicle: {% if vehicle_condition == "new" %}New{% elif vehicle_condition == "used" %}Used{% elif vehicle_condition == "runs_perfect" %}Runs perfectly without any problem{% elif vehicle_condition == "needs_maintenance" %}Runs but requires maintenance{% else %}<span class="data-field">{{vehicle_condition}}</span>{% endif %}</li>
 </ol>
 
-<p class="left"><span class="bold">2. PRICE AND PAYMENT</span></p>
+<p class="section"><span class="bold">2. PRICE AND PAYMENT</span></p>
 <ol type="a">
     <li>The parties agree that the price for the sale of the said vehicle is Tanzanian Shillings <span class="data-field">{{sale_price_words}}</span> (Tsh. <span class="data-field">{{sale_price_figure}}</span>).</li>
     <li>The Buyer has paid the Seller the amount of Tanzanian Shillings <span class="data-field">{{amount_paid}}</span> through: {% if payment_method == "cash" %}cash{% elif payment_method == "bank" %}bank{% elif payment_method == "mobile_money" %}mobile transaction{% else %}<span class="data-field">{{payment_method}}</span>{% endif %}.</li>
@@ -63,7 +64,7 @@
     {% endif %}
 </ol>
 
-<p class="left"><span class="bold">3. CONDITION OF THE VEHICLE</span></p>
+<p class="section"><span class="bold">3. CONDITION OF THE VEHICLE</span></p>
 <p class="left">The Seller confirms that:</p>
 <ol type="a">
     <li>The vehicle is legally owned by him/her.</li>
@@ -72,7 +73,7 @@
     <li>The Buyer has inspected it before purchase.</li>
 </ol>
 
-<p class="left"><span class="bold">4. TRANSFER OF OWNERSHIP</span></p>
+<p class="section"><span class="bold">4. TRANSFER OF OWNERSHIP</span></p>
 <ol type="a">
     <li>Upon completion of payment, the Seller shall provide all necessary documents including:
         <ul>
@@ -84,22 +85,22 @@
     <li>Both parties shall cooperate to complete the transfer of ownership through the relevant authorities (e.g., TRA) where necessary.</li>
 </ol>
 
-<p class="left"><span class="bold">5. OTHER TERMS</span></p>
+<p class="section"><span class="bold">5. OTHER TERMS</span></p>
 <ol type="a">
     <li>Both parties agree to the terms of this agreement.</li>
     <li>Any amendments shall be in writing.</li>
     <li>This agreement is governed by the laws of the United Republic of Tanzania.</li>
 </ol>
 
-<p class="left"><span class="bold">6. HANDING OVER THE VEHICLE</span></p>
+<p class="section"><span class="bold">6. HANDING OVER THE VEHICLE</span></p>
 <p class="left">
     The Seller hands over the vehicle to the Buyer on the <span class="data-field">{{handover_day}}</span> day of <span class="data-field">{{handover_month}}</span>, the year <span class="data-field">{{handover_year}}</span> at <span class="data-field">{{handover_time}}</span> at the location <span class="data-field">{{handover_place}}</span>.
     Both parties have inspected the vehicle together and agreed that it is in acceptable condition.
 </p>
 
-<p class="left"><span class="bold">7. SIGNATURES OF THE PARTIES</span></p>
+<p class="section"><span class="bold">7. SIGNATURES OF THE PARTIES</span></p>
 <div class="signature-section">
-    <p class="left"><span class="bold">SELLER</span></p>
+    <p class="section"><span class="bold">SELLER</span></p>
     <p class="left"><span class="data-field">{{seller_name}}</span></p>
     <p class="left">Signature: _____________________</p>
     <p class="left">Date: _____________________</p>
@@ -110,8 +111,8 @@
     <p class="left">Date: _____________________</p>
 </div>
 
-<p class="left"><span class="bold">8. WITNESSES</span></p>
-<p class="left"><span class="bold">Seller's Witness</span></p>
+<p class="section"><span class="bold">8. WITNESSES</span></p>
+<p class="section"><span class="bold">Seller's Witness</span></p>
 <p class="left">Full Name: _______________________</p>
 <p class="left">Address: ______________________________</p>
 <p class="left">Phone: _______________________</p>

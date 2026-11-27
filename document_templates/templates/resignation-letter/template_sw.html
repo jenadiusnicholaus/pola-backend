@@ -40,6 +40,11 @@
         .bold {
             font-weight: bold;
         }
+        .section {
+            text-align: left;
+            margin-bottom: 5px;
+            -pdf-keep-with-next: true;
+        }
         
         .underline {
             text-decoration: underline;
@@ -78,7 +83,7 @@
 
     <!-- Employer Address (Left) -->
     <div class="employer-address">
-        <p><span class="bold">Kwa:</span></p>
+        <p class="section"><span class="bold">Kwa:</span></p>
         <p><span class="data-field">{{employer_name|default:"______________________________"}}</span></p>
         <p>S.L.P <span class="data-field">{{employer_po_box|default:"______________________________"}}</span>,</p>
         <p><span class="data-field">{{employer_region|default:"______________________________"}}</span>.</p>

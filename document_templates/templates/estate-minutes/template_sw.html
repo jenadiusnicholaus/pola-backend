@@ -8,6 +8,7 @@
         .center { text-align: center; margin: 20px 0; }
         .left { text-align: left; margin-bottom: 5px; }
         .bold { font-weight: bold; }
+        .section { text-align: left; margin-bottom: 5px; -pdf-keep-with-next: true; }
         .underline { text-decoration: underline; }
         .data-field { border-bottom: 1px solid #000; padding: 0 3px; display: inline-block; min-width: 140px; }
         ol, ul { margin: 10px 0; padding-left: 40px; }
@@ -27,7 +28,7 @@
     Kimefanyika tarehe <span class="data-field">{{meeting_date}}</span>, katika Mtaa/Kijiji cha <span class="data-field">{{meeting_street}}</span>, Kata ya <span class="data-field">{{meeting_ward}}</span>, Wilaya ya <span class="data-field">{{meeting_district}}</span>, Mkoa wa <span class="data-field">{{meeting_region}}</span>.
 </p>
 
-<p class="left"><span class="bold">1. WALIOHUDHURIA KIKAO</span></p>
+<p class="section"><span class="bold">1. WALIOHUDHURIA KIKAO</span></p>
 <p class="left">Kikao kilihudhuriwa na ndugu/wanafamilia wafuatao:</p>
 <table>
     <tr><th>Namba</th><th>Jina Kamili</th><th>Mahusiano na Marehemu</th><th>Sahihi</th></tr>
@@ -39,7 +40,7 @@
     {% if attendee_6_name %}<tr><td>vi.</td><td><span class="data-field">{{attendee_6_name}}</span></td><td><span class="data-field">{{attendee_6_relationship}}</span></td><td></td></tr>{% endif %}
 </table>
 
-<p class="left"><span class="bold">2. AJENDA YA KIKAO</span></p>
+<p class="section"><span class="bold">2. AJENDA YA KIKAO</span></p>
 <ul>
     {% if agenda_confirm_death == "yes" %}<li>Kuthibitisha kifo cha marehemu</li>{% endif %}
     {% if agenda_asset_distribution == "yes" %}<li>Kujadili kuhusu mgawo wa mali ya marehemu</li>{% endif %}
@@ -47,7 +48,7 @@
     {% if agenda_other %}<li><span class="data-field">{{agenda_other}}</span></li>{% endif %}
 </ul>
 
-<p class="left"><span class="bold">3. MAELEZO YA MAREHEMU</span></p>
+<p class="section"><span class="bold">3. MAELEZO YA MAREHEMU</span></p>
 <ul>
     <li>Jina Kamili: <span class="data-field">{{deceased_name}}</span></li>
     <li>Alifariki tarehe: <span class="data-field">{{death_date}}</span></li>
@@ -55,7 +56,7 @@
     <li>Cheti cha kifo kilitolewa na: <span class="data-field">{{death_certificate_issuer}}</span></li>
 </ul>
 
-<p class="left"><span class="bold">4. MALI ZILIZOBAKI KWA MAREHEMU</span></p>
+<p class="section"><span class="bold">4. MALI ZILIZOBAKI KWA MAREHEMU</span></p>
 <p class="left">Mali zifuatazo ni zile zinazojulikana kumilikiwa na marehemu:</p>
 <ol type="i">
     <li><span class="data-field">{{asset_1}}</span></li>
@@ -65,7 +66,7 @@
     {% if asset_5 %}<li><span class="data-field">{{asset_5}}</span></li>{% endif %}
 </ol>
 
-<p class="left"><span class="bold">5. WARITHI WA MAREHEMU</span></p>
+<p class="section"><span class="bold">5. WARITHI WA MAREHEMU</span></p>
 <p class="left">Marehemu aliacha warithi wafuatao:</p>
 <table>
     <tr><th>Namba</th><th>Jina Kamili</th><th>Umri</th><th>Mahusiano</th></tr>
@@ -75,7 +76,7 @@
     {% if heir_4_name %}<tr><td>4</td><td><span class="data-field">{{heir_4_name}}</span></td><td><span class="data-field">{{heir_4_age}}</span></td><td><span class="data-field">{{heir_4_relationship}}</span></td></tr>{% endif %}
 </table>
 
-<p class="left"><span class="bold">6. UTEUZI WA MSIMAMIZI WA MIRATHI</span></p>
+<p class="section"><span class="bold">6. UTEUZI WA MSIMAMIZI WA MIRATHI</span></p>
 <p class="left">Baada ya majadiliano, familia kwa pamoja imekubali kumteua:</p>
 <p class="left">
     <span class="data-field">{{administrator_name}}</span><br/>
@@ -83,18 +84,18 @@
     Kuwa msimamizi wa mirathi ya marehemu kwa mujibu wa sheria.
 </p>
 
-<p class="left"><span class="bold">7. MAAMUZI YA KIKAO</span></p>
+<p class="section"><span class="bold">7. MAAMUZI YA KIKAO</span></p>
 <ul>
     <li>Familia imekubaliana kuwa hakuna kipingamizi kuhusu uteuzi wa msimamizi wa mirathi.</li>
     <li>Mali za marehemu zitagawanywa kwa warithi kwa mujibu wa sheria.</li>
 </ul>
 
-<p class="left"><span class="bold">8. HITIMISHO</span></p>
+<p class="section"><span class="bold">8. HITIMISHO</span></p>
 <p class="left">
     Kikao kilifungwa saa <span class="data-field">{{closing_time}}</span>, na pande zote zimekubali kwa hiari bila shinikizo lolote.
 </p>
 
-<p class="left"><span class="bold">9. SAHIHI ZA WANAFAMILIA WALIOHUDHURIA KIKAO NA KUKUBALI MAAMUZI</span></p>
+<p class="section"><span class="bold">9. SAHIHI ZA WANAFAMILIA WALIOHUDHURIA KIKAO NA KUKUBALI MAAMUZI</span></p>
 <table>
     <tr><th>Namba</th><th>Jina Kamili</th><th>Sahihi</th></tr>
     <tr><td>i.</td><td><span class="data-field">{{signatory_1}}</span></td><td></td></tr>
@@ -104,7 +105,7 @@
     {% if signatory_5 %}<tr><td>v.</td><td><span class="data-field">{{signatory_5}}</span></td><td></td></tr>{% endif %}
 </table>
 
-<p class="left"><span class="bold">10. SHAHIDI WA KIKAO</span></p>
+<p class="section"><span class="bold">10. SHAHIDI WA KIKAO</span></p>
 <p class="left">Jina: <span class="data-field">{{witness_name}}</span></p>
 <p class="left">Cheo: <span class="data-field">{{witness_position}}</span></p>
 <p class="left">Sahihi: _________________________</p>

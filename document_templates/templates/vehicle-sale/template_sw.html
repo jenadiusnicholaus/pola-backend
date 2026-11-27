@@ -8,6 +8,7 @@
         .center { text-align: center; margin: 20px 0; }
         .left { text-align: left; margin-bottom: 5px; }
         .bold { font-weight: bold; }
+        .section { text-align: left; margin-bottom: 5px; -pdf-keep-with-next: true; }
         .underline { text-decoration: underline; }
         .data-field { border-bottom: 1px solid #000; padding: 0 3px; display: inline-block; min-width: 140px; }
         ol, ul { margin: 10px 0; padding-left: 40px; }
@@ -25,21 +26,21 @@
     Huu ni mkataba wa mauziano ya {% if vehicle_type == "car" %}gari{% else %}pikipiki{% endif %} uliofanyika tarehe <span class="data-field">{{agreement_date_day}}</span> Mwezi wa <span class="data-field">{{agreement_date_month}}</span> Mwaka <span class="data-field">{{agreement_date_year}}</span>.
 </p>
 
-<p class="left"><span class="bold">KATI YA</span></p>
+<p class="section"><span class="bold">KATI YA</span></p>
 
 <p class="left">
     <span class="data-field">{{seller_name}}</span>, wa S.L.P <span class="data-field">{{seller_po_box}}</span>, Mkazi wa <span class="data-field">{{seller_residence}}</span>, Mkoa wa <span class="data-field">{{seller_region}}</span>, mwenye kitambulisho aina ya <span class="data-field">{{seller_id_type}}</span> chenye namba <span class="data-field">{{seller_id_number}}</span>
     (ambaye katika makubaliano haya atajulikana kama "Muuzaji") kwa upande mmoja.
 </p>
 
-<p class="left"><span class="bold">NA</span></p>
+<p class="section"><span class="bold">NA</span></p>
 
 <p class="left">
     <span class="data-field">{{buyer_name}}</span>, wa S.L.P <span class="data-field">{{buyer_po_box}}</span>, Mkazi wa <span class="data-field">{{buyer_residence}}</span>, Mkoa wa <span class="data-field">{{buyer_region}}</span>, mwenye kitambulisho aina ya <span class="data-field">{{buyer_id_type}}</span> chenye namba <span class="data-field">{{buyer_id_number}}</span>
     (ambaye katika makubaliano haya atajulikana kama "Mnunuzi") kwa upande mwingine.
 </p>
 
-<p class="left"><span class="bold">1. MAELEZO YA CHOMBO CHA MOTO</span></p>
+<p class="section"><span class="bold">1. MAELEZO YA CHOMBO CHA MOTO</span></p>
 <p class="left">Muuzaji anakubali kumuuzia Mnunuzi chombo cha moto chenye maelezo yafuatayo:</p>
 <ol type="a">
     <li>Aina ya Chombo: {% if vehicle_type == "car" %}Gari{% else %}Pikipiki{% endif %}</li>
@@ -53,7 +54,7 @@
     <li>Hali ya Chombo: {% if vehicle_condition == "new" %}Mpya{% elif vehicle_condition == "used" %}Mtumba{% elif vehicle_condition == "runs_perfect" %}Inatembea na haina shida yoyote{% elif vehicle_condition == "needs_maintenance" %}Inatembea ila inahitaji matengenezo{% else %}<span class="data-field">{{vehicle_condition}}</span>{% endif %}</li>
 </ol>
 
-<p class="left"><span class="bold">2. BEI NA MALIPO</span></p>
+<p class="section"><span class="bold">2. BEI NA MALIPO</span></p>
 <ol type="a">
     <li>Pande zote mbili zimekubaliana kuwa bei ya kuuza chombo hiki ni Shilingi <span class="data-field">{{sale_price_words}}</span> za Kitanzania (Tsh. <span class="data-field">{{sale_price_figure}}</span>).</li>
     <li>Mnunuzi amelipa kiasi cha pesa Shilingi <span class="data-field">{{amount_paid}}</span> kwa muuzaji kwa njia ya: {% if payment_method == "cash" %}fedha taslimu{% elif payment_method == "bank" %}benki{% elif payment_method == "mobile_money" %}malipo ya simu{% else %}<span class="data-field">{{payment_method}}</span>{% endif %}.</li>
@@ -63,7 +64,7 @@
     {% endif %}
 </ol>
 
-<p class="left"><span class="bold">3. HALI YA CHOMBO</span></p>
+<p class="section"><span class="bold">3. HALI YA CHOMBO</span></p>
 <p class="left">Muuzaji anathibitisha kuwa:</p>
 <ol type="a">
     <li>Chombo ni mali yake halali.</li>
@@ -72,7 +73,7 @@
     <li>Mnunuzi amekikagua kabla ya kununua.</li>
 </ol>
 
-<p class="left"><span class="bold">4. UHAMISHO WA UMILIKI</span></p>
+<p class="section"><span class="bold">4. UHAMISHO WA UMILIKI</span></p>
 <ol type="a">
     <li>Baada ya malipo kukamilika, Muuzaji atatoa nyaraka zote muhimu ikiwa ni pamoja na:
         <ul>
@@ -84,22 +85,22 @@
     <li>Pande zote mbili zitashirikiana kufanya uhamisho wa umiliki kupitia mamlaka husika (kama TRA) pale itakapohitajika.</li>
 </ol>
 
-<p class="left"><span class="bold">5. MASHARTI MENGINE</span></p>
+<p class="section"><span class="bold">5. MASHARTI MENGINE</span></p>
 <ol type="a">
     <li>Pande zote mbili zimekubali masharti ya mkataba huu.</li>
     <li>Marekebisho yoyote yatakuwa kwa maandishi.</li>
     <li>Mkataba unatawaliwa na sheria za Jamhuri ya Muungano wa Tanzania.</li>
 </ol>
 
-<p class="left"><span class="bold">6. KUKABIDHI CHOMBO</span></p>
+<p class="section"><span class="bold">6. KUKABIDHI CHOMBO</span></p>
 <p class="left">
     Muuzaji anakabidhi chombo kwa Mnunuzi leo tarehe <span class="data-field">{{handover_day}}</span> Mwezi wa <span class="data-field">{{handover_month}}</span> Mwaka <span class="data-field">{{handover_year}}</span> saa <span class="data-field">{{handover_time}}</span> mahali <span class="data-field">{{handover_place}}</span>.
     Pande mbili zimekagua chombo pamoja na kukubaliana kuwa kiko katika hali inayokubalika.
 </p>
 
-<p class="left"><span class="bold">7. SAINI ZA PANDE MBILI</span></p>
+<p class="section"><span class="bold">7. SAINI ZA PANDE MBILI</span></p>
 <div class="signature-section">
-    <p class="left"><span class="bold">MUUZAJI</span></p>
+    <p class="section"><span class="bold">MUUZAJI</span></p>
     <p class="left"><span class="data-field">{{seller_name}}</span></p>
     <p class="left">Sahihi: _____________________</p>
     <p class="left">Tarehe: _____________________</p>
@@ -110,8 +111,8 @@
     <p class="left">Tarehe: _____________________</p>
 </div>
 
-<p class="left"><span class="bold">8. MASHAHIDI</span></p>
-<p class="left"><span class="bold">Shahidi wa Muuzaji</span></p>
+<p class="section"><span class="bold">8. MASHAHIDI</span></p>
+<p class="section"><span class="bold">Shahidi wa Muuzaji</span></p>
 <p class="left">Jina Kamili: _______________________</p>
 <p class="left">Anwani: ______________________________</p>
 <p class="left">Simu: _______________________</p>

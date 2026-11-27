@@ -8,6 +8,7 @@
         .center { text-align: center; margin: 20px 0; }
         .left { text-align: left; margin-bottom: 5px; }
         .bold { font-weight: bold; }
+        .section { text-align: left; margin-bottom: 5px; -pdf-keep-with-next: true; }
         .underline { text-decoration: underline; }
         .data-field { border-bottom: 1px solid #000; padding: 0 3px; display: inline-block; min-width: 140px; }
         ol, ul { margin: 10px 0; padding-left: 40px; }
@@ -25,27 +26,27 @@
     Makubaliano haya ya Upangishaji yamefanyika tarehe <span class="data-field">{{agreement_date_day}}</span> Mwezi wa <span class="data-field">{{agreement_date_month}}</span> Mwaka <span class="data-field">{{agreement_date_year}}</span>.
 </p>
 
-<p class="left"><span class="bold">KATI YA</span></p>
+<p class="section"><span class="bold">KATI YA</span></p>
 
 <p class="left">
     Bw/Bi/Bwst <span class="data-field">{{landlord_name}}</span>, wa S.L.P <span class="data-field">{{landlord_po_box}}</span>, <span class="data-field">{{landlord_addr_region}}</span>. Mkazi wa <span class="data-field">{{landlord_res_street}}</span>, <span class="data-field">{{landlord_res_district}}</span>, <span class="data-field">{{landlord_res_region}}</span>,
     (ambaye katika makubaliano haya atajulikana kama "Mwenye Nyumba") kwa upande mmoja.
 </p>
 
-<p class="left"><span class="bold">NA</span></p>
+<p class="section"><span class="bold">NA</span></p>
 
 <p class="left">
     Bw/Bi/Bwst <span class="data-field">{{tenant_name}}</span>, wa S.L.P <span class="data-field">{{tenant_po_box}}</span>, <span class="data-field">{{tenant_addr_region}}</span>. Mkazi wa <span class="data-field">{{tenant_res_street}}</span>, <span class="data-field">{{tenant_res_district}}</span>, <span class="data-field">{{tenant_res_region}}</span>,
     (ambaye katika makubaliano haya atajulikana kama "Mpangaji") kwa upande mwingine.
 </p>
 
-<p class="left"><span class="bold">1. MAELEZO YA MALI INAYOPANGISHWA</span></p>
+<p class="section"><span class="bold">1. MAELEZO YA MALI INAYOPANGISHWA</span></p>
 <p class="left">
     Mwenye Nyumba anakubali kumpangisha Mpangaji nyumba ya {% if property_use == "business" %}biashara{% else %}makazi{% endif %} iliyopo <span class="data-field">{{property_region}}</span>, <span class="data-field">{{property_district}}</span>, <span class="data-field">{{property_street}}</span>, Namba ya nyumba <span class="data-field">{{property_house_number}}</span>, ikiwa na
     {% if bedrooms %}<span class="data-field">{{bedrooms}}</span> chumba/ vyumba vya kulala{% endif %}{% if living_rooms %}, <span class="data-field">{{living_rooms}}</span> sebule{% endif %}{% if kitchens %}, <span class="data-field">{{kitchens}}</span> jiko/ vijiko{% endif %}{% if bathrooms %}, <span class="data-field">{{bathrooms}}</span> bafu/ mabafu{% endif %}{% if toilets %}, <span class="data-field">{{toilets}}</span> choo/ vyoo{% endif %}, kama ilivyoonyeshwa na kuelezwa kwa Mpangaji.
 </p>
 
-<p class="left"><span class="bold">2. MUDA WA UPANGAJI</span></p>
+<p class="section"><span class="bold">2. MUDA WA UPANGAJI</span></p>
 <p class="left">
     Muda wa upangaji utakuwa wa miezi <span class="data-field">{{tenancy_months}}</span> kuanzia tarehe <span class="data-field">{{tenancy_start_date}}</span> hadi <span class="data-field">{{tenancy_end_date}}</span>.
 </p>
@@ -53,7 +54,7 @@
     Mpangaji anaweza kuomba kuongeza muda wa mkataba kwa maandishi kabla ya mwisho wa makubaliano haya.
 </p>
 
-<p class="left"><span class="bold">3. KIASI CHA PANGO</span></p>
+<p class="section"><span class="bold">3. KIASI CHA PANGO</span></p>
 <ul>
     <li>Pango la kila mwezi litakuwa TZS <span class="data-field">{{monthly_rent}}</span>.</li>
     <li>Masharti ya malipo yatakuwa kwa {% if payment_terms == "monthly" %}kila mwezi{% elif payment_terms == "three_months" %}kila miezi mitatu{% elif payment_terms == "six_months" %}kila miezi sita{% elif payment_terms == "yearly" %}kila mwaka{% else %}<span class="data-field">{{payment_terms}}</span>{% endif %}.</li>
@@ -61,7 +62,7 @@
     <li>Malipo yatafanywa kupitia {% if payment_method == "cash" %}fedha taslimu{% elif payment_method == "mobile_money" %}uhamisho wa simu{% elif payment_method == "bank" %}uhamisho wa benki{% else %}<span class="data-field">{{payment_method}}</span>{% endif %}.</li>
 </ul>
 {% if payment_method == "bank" %}
-<p class="left"><span class="bold">Taarifa za Benki:</span></p>
+<p class="section"><span class="bold">Taarifa za Benki:</span></p>
 <ul>
     <li>Jina la Benki: <span class="data-field">{{bank_name}}</span></li>
     <li>Tawi la Benki: <span class="data-field">{{bank_branch}}</span></li>
@@ -71,13 +72,13 @@
 {% endif %}
 
 {% if has_security_deposit == "yes" %}
-<p class="left"><span class="bold">4. AMANA YA USALAMA</span></p>
+<p class="section"><span class="bold">4. AMANA YA USALAMA</span></p>
 <p class="left">
     Mpangaji atalipa amana ya usalama ya kiasi cha TZS <span class="data-field">{{security_deposit_amount}}</span> kabla ya kuanza kukaa kwenye nyumba. Amana hii itarudishwa mwishoni mwa upangaji endapo hakutakuwa na uharibifu wowote wa mali au malipo ya nyuma.
 </p>
 {% endif %}
 
-<p class="left"><span class="bold">5. MATUMIZI YA NYUMBA</span></p>
+<p class="section"><span class="bold">5. MATUMIZI YA NYUMBA</span></p>
 <ul>
     <li>Nyumba itatumika kwa madhumuni ya
         {% if allowed_use_1 == "residential" %}makazi{% elif allowed_use_1 == "office" %}ofisi{% elif allowed_use_1 == "business" %}biashara{% endif %}
@@ -91,7 +92,7 @@
     <li>Mpangaji atadumisha usafi na hali nzuri ya nyumba.</li>
 </ul>
 
-<p class="left"><span class="bold">6. WAJIBU WA MPANGAJI</span></p>
+<p class="section"><span class="bold">6. WAJIBU WA MPANGAJI</span></p>
 <p class="left">Mpangaji atatakiwa:</p>
 <ol type="i">
     <li>Kulipa pango lililokubaliwa kwa wakati na kwa namna ilivyoelezwa bila makato yoyote.</li>
@@ -106,7 +107,7 @@
     <li>Kukabidhi nyumba na mali yote ndani yake kwa Mwenye Nyumba mara tu mkataba unapomalizika.</li>
 </ol>
 
-<p class="left"><span class="bold">7. WAJIBU WA MWENYE NYUMBA</span></p>
+<p class="section"><span class="bold">7. WAJIBU WA MWENYE NYUMBA</span></p>
 <p class="left">Mwenye Nyumba atatakiwa:</p>
 <ol type="i">
     <li>Kuhakikisha kuwa nyumba iko katika hali nzuri na inafaa kuishi kabla ya Mpangaji kuhamia.</li>
@@ -116,27 +117,27 @@
     <li>Baada ya kupokea malipo ya pango, atamruhusu Mpangaji kutumia nyumba kwa amani bila usumbufu wowote usio wa lazima.</li>
 </ol>
 
-<p class="left"><span class="bold">8. UVUNJAJI WA MAKUBALIANO</span></p>
+<p class="section"><span class="bold">8. UVUNJAJI WA MAKUBALIANO</span></p>
 <p class="left">Iwapo upande wowote utavunja mkataba huu:</p>
 <ul>
     <li>Upande mwingine utatoa taarifa ya maandishi ya siku 30 kwa ajili ya kurekebisha uvunjaji.</li>
     <li>Endapo hakutakuwa na marekebisho ndani ya muda huo, mkataba unaweza kusitishwa kihalali.</li>
 </ul>
 
-<p class="left"><span class="bold">9. USITISHAJI WA MAKUBALIANO</span></p>
+<p class="section"><span class="bold">9. USITISHAJI WA MAKUBALIANO</span></p>
 <ol type="i">
     <li>Mpangaji anaweza kusitisha mkataba huu kwa kutoa taarifa ya maandishi ya siku <span class="data-field">{{tenant_notice_days}}</span>.</li>
     <li>Mwenye Nyumba pia anaweza kutoa taarifa ya siku <span class="data-field">{{landlord_notice_days}}</span> endapo kuna sababu halali kama vile kutolipa pango au uharibifu wa mali.</li>
     <li>Upande unaokusudia kusitisha mkataba utalipa <span class="data-field">{{termination_compensation}}</span> kwa upande mwingine kama fidia ya kusitishwa kwa mkataba.</li>
 </ol>
 
-<p class="left"><span class="bold">10. UTATUZI WA MIGOGORO</span></p>
+<p class="section"><span class="bold">10. UTATUZI WA MIGOGORO</span></p>
 <p class="left">
     Pande zote mbili zinakubaliana kutatua migogoro yoyote kwa mazungumzo ya amani. Ikiwa haitatuliwi, suala litafikishwa kwenye mahakama yenye mamlaka.
 </p>
 
 {% if additional_term_1 or additional_term_2 or additional_term_3 or additional_term_4 %}
-<p class="left"><span class="bold">11. MASHARTI YA ZIADA</span></p>
+<p class="section"><span class="bold">11. MASHARTI YA ZIADA</span></p>
 <ol type="i">
     {% if additional_term_1 %}<li><span class="data-field">{{additional_term_1}}</span></li>{% endif %}
     {% if additional_term_2 %}<li><span class="data-field">{{additional_term_2}}</span></li>{% endif %}
@@ -145,9 +146,9 @@
 </ol>
 {% endif %}
 
-<p class="left"><span class="bold">12. SAHIHI</span></p>
+<p class="section"><span class="bold">12. SAHIHI</span></p>
 <div class="signature-section">
-    <p class="left"><span class="bold">Mwenye Nyumba:</span></p>
+    <p class="section"><span class="bold">Mwenye Nyumba:</span></p>
     <p class="left">Sahihi: _______________________</p>
     <p class="left">Jina: <span class="data-field">{{landlord_name}}</span></p>
     <p class="left">Namba ya Simu: <span class="data-field">{{landlord_phone}}</span></p>
@@ -160,8 +161,8 @@
     <p class="left">Tarehe: _______________________</p>
 </div>
 
-<p class="left"><span class="bold">MASHUHUDA</span></p>
-<p class="left"><span class="bold">Shahidi wa Mwenye Nyumba:</span></p>
+<p class="section"><span class="bold">MASHUHUDA</span></p>
+<p class="section"><span class="bold">Shahidi wa Mwenye Nyumba:</span></p>
 <p class="left">Sahihi: ____________________</p>
 <p class="left">Jina: ____________________</p>
 <p class="left">Anuani: ____________________</p>

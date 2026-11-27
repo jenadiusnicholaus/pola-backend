@@ -18,6 +18,7 @@ body {
 .right { text-align: right; }
 .justify { text-align: justify; }
 .bold { font-weight: bold; }
+        .section { text-align: left; margin-bottom: 5px; -pdf-keep-with-next: true; }
 .italic { font-style: italic; }
 .underline { text-decoration: underline; }
 .data-field { 
@@ -80,28 +81,28 @@ p { margin: 10px 0; }
     <span class="bold">AMBAPO;</span> Mwajiri ana nia ya kumpa kazi/ajira mwajiriwa, na Mwajiriwa ana nia na ameridhia kufanya kazi ya Mwajiri kwa masharti na makubaliano kama yafuatayo.
 </p>
 
-<p class="left">
+<p class="section">
     <span class="bold">1. TAREHE YA KUANZA KAZI</span>
 </p>
 <p class="left">
     Mkataba huu wa Ajira utaanza tarehe <span class="data-field">{{employment_start_day|default:"______________________________"}}</span> Mwezi wa <span class="data-field">{{employment_start_month|default:"______________________________"}}</span> Mwaka <span class="data-field">{{employment_start_year|default:"______________________________"}}</span> na kuendelea kisheria{% if contract_is_fixed_term == "yes" %} mpaka tarehe <span class="data-field">{{employment_end_day|default:"______________________________"}}</span> Mwezi wa <span class="data-field">{{employment_end_month|default:"______________________________"}}</span> Mwaka <span class="data-field">{{employment_end_year|default:"______________________________"}}</span>{% endif %}.
 </p>
 
-<p class="left">
+<p class="section">
     <span class="bold">2. MAHALI ALIPOAJIRIWA</span>
 </p>
 <p class="left">
     Mwajiriwa ameajiriwa mkoa wa <span class="data-field">{{employment_region|default:"______________________________"}}</span>
 </p>
 
-<p class="left">
+<p class="section">
     <span class="bold">3. MAHALI PA KAZI</span>
 </p>
 <p class="left">
     Mwajiriwa atafanya kazi katika eneo la mkoa wa <span class="data-field">{{work_region|default:"______________________________"}}</span> wilaya ya <span class="data-field">{{work_district|default:"______________________________"}}</span> Kata ya <span class="data-field">{{work_ward|default:"______________________________"}}</span>. Endapo kuna eneo lingine la kazi nje ya hili litabainishwa na Mwajiri.
 </p>
 
-<p class="left">
+<p class="section">
     <span class="bold">4. WADHIFA/KAZI YA KUFANYA</span>
 </p>
 <p class="left">
@@ -109,21 +110,21 @@ p { margin: 10px 0; }
     <span class="data-field">{{job_duties|default:"______________________________"}}</span>
 </p>
 
-<p class="left">
+<p class="section">
     <span class="bold">5. MUDA WA MAJARIBIO</span>
 </p>
 <p class="left">
     Mwajiriwa atakuwa katika kipindi cha majaribio kwa muda wa miezi <span class="data-field">{{probation_months|default:"______________________________"}}</span> kuanzia tarehe aliyosaini mkataba huu. Madhumuni ya kipindi cha majaribio ni kutathmini endapo Mwajiriwa ana uwezo na anafaa kwa kazi hiyo. Iwapo mkataba huu wa ajira utasitishwa kipindi cha mwezi wa kwanza wa ajira yake, Mwajiri analazimika kutoa taarifa na kueleza nia yake hiyo kwa maandishi (notisi) ndani ya siku saba (7).
 </p>
 
-<p class="left">
+<p class="section">
     <span class="bold">6. MUDA WA KAZI</span>
 </p>
 <p class="left">
     Muda wa kazi utakuwa ni masaa <span class="data-field">{{work_hours_per_day|default:"______________________________"}}</span> kwa siku, siku <span class="data-field">{{work_days_per_week|default:"______________________________"}}</span> kwa wiki, kuanzia saa <span class="data-field">{{work_start_time|default:"______________________________"}}</span> hadi <span class="data-field">{{work_end_time|default:"______________________________"}}</span>.
 </p>
 
-<p class="left">
+<p class="section">
     <span class="bold">7. MSHAHARA NA MALIPO</span>
 </p>
 <p class="left">
@@ -144,7 +145,7 @@ p { margin: 10px 0; }
 </p>
 {% endif %}
 
-<p class="left">
+<p class="section">
     <span class="bold">8. POSHO NA MANUFAA MENGINE</span>
 </p>
 <p class="left">
@@ -155,35 +156,35 @@ p { margin: 10px 0; }
     {% if other_benefits %}<span class="data-field">{{other_benefits}}</span>{% endif %}
 </p>
 
-<p class="left">
+<p class="section">
     <span class="bold">9. LIKIZO</span>
 </p>
 <p class="left">
     Mwajiriwa anastahili likizo ya mwaka (ikiwa ni pamoja na siku za mapumziko ya wiki), au kwa uwiano wa muda aliyokuwa kazini kwa mujibu wa Sheria ya Ajira na Mahusiano Kazini.
 </p>
 
-<p class="left">
+<p class="section">
     <span class="bold">10. LIKIZO YA UGONJWA</span>
 </p>
 <p class="left">
     Mwajiriwa atastahili likizo ya ugonjwa kwa mujibu wa Sheria ya Ajira na Mahusiano Kazini.
 </p>
 
-<p class="left">
+<p class="section">
     <span class="bold">11. LIKIZO YA UZAZI</span>
 </p>
 <p class="left">
     Kwa mujibu wa Sheria ya Ajira na Mahusiano Kazini, likizo ya uzazi itatolewa kwa Wafanyakazi wa kike na Wafanyakazi wa kiume.
 </p>
 
-<p class="left">
+<p class="section">
     <span class="bold">12. MATUMIZI YA SHERIA NA KANUNI ZA KAZI</span>
 </p>
 <p class="left">
     Ajira hii itaongozwa na Sheria ya Ajira na Mahusiano Kazini ya mwaka 2004 na marekebisho yake, pamoja na kanuni, miongozo ya ndani ya kampuni, na sera husika.
 </p>
 
-<p class="left">
+<p class="section">
     <span class="bold">13. KUSITISHA AJIRA</span>
 </p>
 <p class="left">
@@ -198,21 +199,21 @@ p { margin: 10px 0; }
     Kusitisha bila kufuata utaratibu huu kunaweza kutoa haki ya fidia kwa upande ulioathirika.
 </p>
 
-<p class="left">
+<p class="section">
     <span class="bold">14. NIDHAMU NA MAADILI YA KAZI</span>
 </p>
 <p class="left">
     Mwajiriwa atahitajika kufuata maadili, taratibu na miongozo ya kampuni. Ukiukwaji wa kanuni unaweza kusababisha hatua za kinidhamu.
 </p>
 
-<p class="left">
+<p class="section">
     <span class="bold">15. SIRI ZA MWAJIRI</span>
 </p>
 <p class="left">
     Mwajiriwa hataruhusiwa kufichua taarifa zozote za siri za Mwajiri bila idhini ya maandishi, hata baada ya kuondoka kazini.
 </p>
 
-<p class="left">
+<p class="section">
     <span class="bold">16. MIGOGORO YA KAZI</span>
 </p>
 <p class="left">
@@ -220,7 +221,7 @@ p { margin: 10px 0; }
 </p>
 
 <div class="signature-section">
-    <p class="left">
+    <p class="section">
         <span class="bold">Sahihi za Wahusika</span>
     </p>
 

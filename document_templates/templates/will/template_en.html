@@ -8,6 +8,7 @@
         .center { text-align: center; margin: 20px 0; }
         .left { text-align: left; margin-bottom: 5px; }
         .bold { font-weight: bold; }
+        .section { text-align: left; margin-bottom: 5px; -pdf-keep-with-next: true; }
         .underline { text-decoration: underline; }
         .data-field { border-bottom: 1px solid #000; padding: 0 3px; display: inline-block; min-width: 140px; }
         ol, ul { margin: 10px 0; padding-left: 40px; }
@@ -24,12 +25,12 @@
     I, <span class="data-field">{{testator_name}}</span>, of <span class="data-field">{{testator_po_box}}</span>, <span class="data-field">{{testator_region}}</span>, being of sound mind and having full capacity to make decisions, do hereby make this Will as my last and voluntary declaration.
 </p>
 
-<p class="left"><span class="bold">1. DECLARATION OF WILL</span></p>
+<p class="section"><span class="bold">1. DECLARATION OF WILL</span></p>
 <p class="left">
     I hereby formally declare that this is my Last Will and I revoke any Will that I may have made prior to this date.
 </p>
 
-<p class="left"><span class="bold">2. DETAILS OF THE TESTATOR</span></p>
+<p class="section"><span class="bold">2. DETAILS OF THE TESTATOR</span></p>
 <ul>
     <li>Full Name: <span class="data-field">{{testator_name}}</span></li>
     <li>Identification Number: <span class="data-field">{{testator_id_number}}</span></li>
@@ -38,7 +39,7 @@
     <li>Date of Birth: <span class="data-field">{{testator_dob}}</span></li>
 </ul>
 
-<p class="left"><span class="bold">3. APPOINTMENT OF EXECUTOR</span></p>
+<p class="section"><span class="bold">3. APPOINTMENT OF EXECUTOR</span></p>
 <p class="left">
     I hereby appoint <span class="data-field">{{executor_name}}</span>, of <span class="data-field">{{executor_po_box}}</span>, <span class="data-field">{{executor_region}}</span>, of phone number <span class="data-field">{{executor_phone}}</span> to be the executor of my estate.
 </p>
@@ -46,11 +47,11 @@
     In the event that he/she is unable or unwilling to perform this duty, or if he/she shall have died at the time of or after my death, I hereby appoint <span class="data-field">{{alt_executor_name}}</span>, of <span class="data-field">{{alt_executor_po_box}}</span>, <span class="data-field">{{alt_executor_region}}</span>, of phone number <span class="data-field">{{alt_executor_phone}}</span> to take over that role.
 </p>
 
-<p class="left"><span class="bold">4. LIST OF ASSETS</span></p>
+<p class="section"><span class="bold">4. LIST OF ASSETS</span></p>
 <p class="left">My assets include:</p>
 
 {% if house_1_street %}
-<p class="left"><span class="bold">a. House(s) located at</span></p>
+<p class="section"><span class="bold">a. House(s) located at</span></p>
 <ol type="i">
     <li><span class="data-field">{{house_1_street}}</span>, <span class="data-field">{{house_1_region}}</span></li>
     {% if house_2_street %}<li><span class="data-field">{{house_2_street}}</span>, <span class="data-field">{{house_2_region}}</span></li>{% endif %}
@@ -61,7 +62,7 @@
 {% endif %}
 
 {% if land_1_street %}
-<p class="left"><span class="bold">b. Land located at</span></p>
+<p class="section"><span class="bold">b. Land located at</span></p>
 <ol type="i">
     <li><span class="data-field">{{land_1_street}}</span>, <span class="data-field">{{land_1_region}}</span></li>
     {% if land_2_street %}<li><span class="data-field">{{land_2_street}}</span>, <span class="data-field">{{land_2_region}}</span></li>{% endif %}
@@ -71,7 +72,7 @@
 {% endif %}
 
 {% if vehicle_1_brand %}
-<p class="left"><span class="bold">c. Motor Vehicle(s)</span></p>
+<p class="section"><span class="bold">c. Motor Vehicle(s)</span></p>
 <ol type="i">
     <li><span class="data-field">{{vehicle_1_brand}}</span> with Registration Number: <span class="data-field">{{vehicle_1_registration}}</span></li>
     {% if vehicle_2_brand %}<li><span class="data-field">{{vehicle_2_brand}}</span> with Registration Number: <span class="data-field">{{vehicle_2_registration}}</span></li>{% endif %}
@@ -80,7 +81,7 @@
 {% endif %}
 
 {% if motorcycle_1_brand %}
-<p class="left"><span class="bold">d. Motorcycle(s)</span></p>
+<p class="section"><span class="bold">d. Motorcycle(s)</span></p>
 <ol type="i">
     <li><span class="data-field">{{motorcycle_1_brand}}</span> with Registration Number: <span class="data-field">{{motorcycle_1_registration}}</span></li>
     {% if motorcycle_2_brand %}<li><span class="data-field">{{motorcycle_2_brand}}</span> with Registration Number: <span class="data-field">{{motorcycle_2_registration}}</span></li>{% endif %}
@@ -89,7 +90,7 @@
 {% endif %}
 
 {% if bank_1_bank_name %}
-<p class="left"><span class="bold">e. Bank Account(s)</span></p>
+<p class="section"><span class="bold">e. Bank Account(s)</span></p>
 <ol type="i">
     <li>Bank Name: <span class="data-field">{{bank_1_bank_name}}</span>, Account Name: <span class="data-field">{{bank_1_account_name}}</span>, Account Number: <span class="data-field">{{bank_1_account_number}}</span></li>
     {% if bank_2_bank_name %}<li>Bank Name: <span class="data-field">{{bank_2_bank_name}}</span>, Account Name: <span class="data-field">{{bank_2_account_name}}</span>, Account Number: <span class="data-field">{{bank_2_account_number}}</span></li>{% endif %}
@@ -99,7 +100,7 @@
 {% endif %}
 
 {% if business_1_name %}
-<p class="left"><span class="bold">f. Business(es)</span></p>
+<p class="section"><span class="bold">f. Business(es)</span></p>
 <ol type="i">
     <li>Business Name: <span class="data-field">{{business_1_name}}</span>, Type: <span class="data-field">{{business_1_type}}</span>, Location: <span class="data-field">{{business_1_location}}</span></li>
     {% if business_2_name %}<li>Business Name: <span class="data-field">{{business_2_name}}</span>, Type: <span class="data-field">{{business_2_type}}</span>, Location: <span class="data-field">{{business_2_location}}</span></li>{% endif %}
@@ -108,7 +109,7 @@
 {% endif %}
 
 {% if other_asset_1 %}
-<p class="left"><span class="bold">g. Other assets</span></p>
+<p class="section"><span class="bold">g. Other assets</span></p>
 <ol type="i">
     <li><span class="data-field">{{other_asset_1}}</span></li>
     {% if other_asset_2 %}<li><span class="data-field">{{other_asset_2}}</span></li>{% endif %}
@@ -119,7 +120,7 @@
 </ol>
 {% endif %}
 
-<p class="left"><span class="bold">5. LIST OF BENEFICIARIES</span></p>
+<p class="section"><span class="bold">5. LIST OF BENEFICIARIES</span></p>
 <ol type="i">
     <li>Name: <span class="data-field">{{beneficiary_1_name}}</span>, Relationship: <span class="data-field">{{beneficiary_1_relationship}}</span></li>
     {% if beneficiary_2_name %}<li>Name: <span class="data-field">{{beneficiary_2_name}}</span>, Relationship: <span class="data-field">{{beneficiary_2_relationship}}</span></li>{% endif %}
@@ -128,62 +129,62 @@
     {% if beneficiary_5_name %}<li>Name: <span class="data-field">{{beneficiary_5_name}}</span>, Relationship: <span class="data-field">{{beneficiary_5_relationship}}</span></li>{% endif %}
 </ol>
 
-<p class="left"><span class="bold">6. DISTRIBUTION OF ASSETS</span></p>
+<p class="section"><span class="bold">6. DISTRIBUTION OF ASSETS</span></p>
 <p class="left">a. I bequeath my <span class="data-field">{{distribution_1_asset}}</span> to <span class="data-field">{{distribution_1_beneficiary}}</span>.</p>
 {% if distribution_2_asset %}<p class="left">b. I bequeath my <span class="data-field">{{distribution_2_asset}}</span> to <span class="data-field">{{distribution_2_beneficiary}}</span>.</p>{% endif %}
 {% if distribution_3_asset %}<p class="left">c. I bequeath my <span class="data-field">{{distribution_3_asset}}</span> to <span class="data-field">{{distribution_3_beneficiary}}</span>.</p>{% endif %}
 {% if distribution_4_asset %}<p class="left">d. I bequeath my <span class="data-field">{{distribution_4_asset}}</span> to <span class="data-field">{{distribution_4_beneficiary}}</span>.</p>{% endif %}
 {% if distribution_5_asset %}<p class="left">e. I bequeath my <span class="data-field">{{distribution_5_asset}}</span> to <span class="data-field">{{distribution_5_beneficiary}}</span>.</p>{% endif %}
 
-<p class="left"><span class="bold">7. RESIDUARY ESTATE (RESIDUARY CLAUSE)</span></p>
+<p class="section"><span class="bold">7. RESIDUARY ESTATE (RESIDUARY CLAUSE)</span></p>
 <p class="left">
     All assets remaining after the distribution of the assets listed above, of whatever nature and wherever situated, I bequeath to: <span class="data-field">{{residuary_beneficiary}}</span>
 </p>
 
 {% if has_minor_children == "yes" %}
-<p class="left"><span class="bold">8. APPOINTMENT OF GUARDIAN (FOR MINOR CHILDREN)</span></p>
+<p class="section"><span class="bold">8. APPOINTMENT OF GUARDIAN (FOR MINOR CHILDREN)</span></p>
 <p class="left">
     In the event that any of my children has not attained the age of 18 years at the time of my death, I hereby appoint <span class="data-field">{{guardian_name}}</span> of <span class="data-field">{{guardian_address}}</span> to be the guardian of my children.
 </p>
 {% endif %}
 
-<p class="left"><span class="bold">9. INTENTIONAL EXCLUSION</span></p>
+<p class="section"><span class="bold">9. INTENTIONAL EXCLUSION</span></p>
 <p class="left">
     If I have not mentioned any person who might have expected to benefit from my estate, it is my intention to exclude such person deliberately.
 </p>
 
-<p class="left"><span class="bold">10. DEBTS AND FUNERAL EXPENSES</span></p>
+<p class="section"><span class="bold">10. DEBTS AND FUNERAL EXPENSES</span></p>
 <p class="left">
     I direct that all my lawful debts be paid first before the distribution of my estate.<br/>
     I wish that my funeral be conducted in a modest manner and without unnecessary expense.
     {% if funeral_details %}<br/><span class="data-field">{{funeral_details}}</span>{% endif %}
 </p>
 
-<p class="left"><span class="bold">11. INTERPRETATION OF DISPUTES</span></p>
+<p class="section"><span class="bold">11. INTERPRETATION OF DISPUTES</span></p>
 <p class="left">
     In the event of any ambiguity or dispute in wording or interpretation of this Will, the executor shall make determinations in accordance with the laws of Tanzania.
 </p>
 
-<p class="left"><span class="bold">12. SIGNATURE OF THE WILL</span></p>
+<p class="section"><span class="bold">12. SIGNATURE OF THE WILL</span></p>
 <p class="left">
     Signed by me, the Testator, on the <span class="data-field">{{signature_day}}</span> day of <span class="data-field">{{signature_month}}</span>, year <span class="data-field">{{signature_year}}</span>.
 </p>
 <p class="left">Signature of the Testator: _________________________</p>
 <p class="left">Full Name: <span class="data-field">{{testator_name}}</span></p>
 
-<p class="left"><span class="bold">13. WITNESSES</span></p>
+<p class="section"><span class="bold">13. WITNESSES</span></p>
 <p class="left">
     We, the undersigned, have witnessed the signing of this Will and do hereby confirm that the Testator signed this Will in our presence and in the presence of each other, and declared it to be his/her Last Will.
 </p>
 
-<p class="left"><span class="bold">Witness 1</span></p>
+<p class="section"><span class="bold">Witness 1</span></p>
 <p class="left">Full Name: <span class="data-field">{{witness_1_name}}</span></p>
 <p class="left">Address: <span class="data-field">{{witness_1_address}}</span></p>
 <p class="left">Phone: <span class="data-field">{{witness_1_phone}}</span></p>
 <p class="left">Signature: _________________________</p>
 <p class="left">Date: _________________________</p>
 
-<p class="left"><span class="bold">Witness 2</span></p>
+<p class="section"><span class="bold">Witness 2</span></p>
 <p class="left">Full Name: <span class="data-field">{{witness_2_name}}</span></p>
 <p class="left">Address: <span class="data-field">{{witness_2_address}}</span></p>
 <p class="left">Phone: <span class="data-field">{{witness_2_phone}}</span></p>

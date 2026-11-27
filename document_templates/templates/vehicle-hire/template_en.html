@@ -8,6 +8,7 @@
         .center { text-align: center; margin: 20px 0; }
         .left { text-align: left; margin-bottom: 5px; }
         .bold { font-weight: bold; }
+        .section { text-align: left; margin-bottom: 5px; -pdf-keep-with-next: true; }
         .underline { text-decoration: underline; }
         .data-field { border-bottom: 1px solid #000; padding: 0 3px; display: inline-block; min-width: 140px; }
         ol, ul { margin: 10px 0; padding-left: 40px; }
@@ -25,21 +26,21 @@
     This Lease Agreement is made on the <span class="data-field">{{contract_date_day}}</span> day of <span class="data-field">{{contract_date_month}}</span> Year <span class="data-field">{{contract_date_year}}</span>.
 </p>
 
-<p class="left"><span class="bold">BETWEEN</span></p>
+<p class="section"><span class="bold">BETWEEN</span></p>
 
 <p class="left">
     Mr/Mrs/Ms <span class="data-field">{{owner_name}}</span>, P.O. Box <span class="data-field">{{owner_po_box}}</span>, <span class="data-field">{{owner_address_region}}</span>. Resident of <span class="data-field">{{owner_residence_ward}}</span>, <span class="data-field">{{owner_residence_district}}</span>, <span class="data-field">{{owner_residence_region}}</span>,
     (who in this agreement shall be referred to as the "Owner") of the one part.
 </p>
 
-<p class="left"><span class="bold">AND</span></p>
+<p class="section"><span class="bold">AND</span></p>
 
 <p class="left">
     Mr/Mrs/Ms <span class="data-field">{{lessee_name}}</span>, P.O. Box <span class="data-field">{{lessee_po_box}}</span>, <span class="data-field">{{lessee_address_region}}</span>. Resident of <span class="data-field">{{lessee_residence_ward}}</span>, <span class="data-field">{{lessee_residence_district}}</span>, <span class="data-field">{{lessee_residence_region}}</span>,
     (who in this agreement shall be referred to as the "Lessee") of the other part.
 </p>
 
-<p class="left"><span class="bold">1. DETAILS OF THE {% if vehicle_type == "car" %}CAR{% else %}MOTORCYCLE{% endif %}</span></p>
+<p class="section"><span class="bold">1. DETAILS OF THE {% if vehicle_type == "car" %}CAR{% else %}MOTORCYCLE{% endif %}</span></p>
 <p class="left">
     The Owner of the {% if vehicle_type == "car" %}car{% else %}motorcycle{% endif %} agrees to lease to the Lessee a {% if vehicle_type == "car" %}car{% else %}motorcycle{% endif %} of type <span class="data-field">{{vehicle_make}}</span>, with Registration Number <span class="data-field">{{registration_number}}</span>, Color <span class="data-field">{{vehicle_color}}</span>, Chassis Number <span class="data-field">{{chassis_number}}</span>, and insurance expiring on <span class="data-field">{{insurance_expiry_day}}</span> Month of <span class="data-field">{{insurance_expiry_month}}</span> Year <span class="data-field">{{insurance_expiry_year}}</span>.
 </p>
@@ -47,7 +48,7 @@
     The {% if vehicle_type == "car" %}car{% else %}motorcycle{% endif %} has all valid registration and insurance documents. And, according to this agreement, the said {% if vehicle_type == "car" %}car{% else %}motorcycle{% endif %} shall also be referred to as the "motor vehicle".
 </p>
 
-<p class="left"><span class="bold">2. RENTAL PERIOD</span></p>
+<p class="section"><span class="bold">2. RENTAL PERIOD</span></p>
 <p class="left">
     The rental period shall be FROM <span class="data-field">{{rental_start_day}}</span> Day of <span class="data-field">{{rental_start_month}}</span> Year <span class="data-field">{{rental_start_year}}</span> TO <span class="data-field">{{rental_end_day}}</span> Day of <span class="data-field">{{rental_end_month}}</span> Year <span class="data-field">{{rental_end_year}}</span>.
 </p>
@@ -55,14 +56,14 @@
     The Lessee has the right to request an extension of the rental period with the Owner's approval.
 </p>
 
-<p class="left"><span class="bold">3. RENTAL COSTS</span></p>
+<p class="section"><span class="bold">3. RENTAL COSTS</span></p>
 <ul>
     <li>The rental cost shall be TZS <span class="data-field">{{rental_amount}}</span> per {% if rental_period == "day" %}day{% elif rental_period == "week" %}week{% elif rental_period == "month" %}month{% else %}<span class="data-field">{{rental_period}}</span>{% endif %}.</li>
     <li>Payments shall be made every {% if payment_frequency == "daily" %}day{% elif payment_frequency == "weekly" %}week{% elif payment_frequency == "monthly" %}month{% else %}<span class="data-field">{{payment_frequency}}</span>{% endif %}.</li>
     <li>Payments shall be made through: {% if payment_method == "cash" %}cash{% elif payment_method == "mobile_money" %}mobile payment{% elif payment_method == "bank" %}bank{% else %}<span class="data-field">{{payment_method}}</span>{% endif %}.</li>
 </ul>
 {% if payment_method == "bank" %}
-<p class="left"><span class="bold">Bank details</span></p>
+<p class="section"><span class="bold">Bank details</span></p>
 <ul>
     <li>Bank Name: <span class="data-field">{{bank_name}}</span></li>
     <li>Branch: <span class="data-field">{{bank_branch}}</span></li>
@@ -75,13 +76,13 @@
 </p>
 
 {% if has_security_deposit == "yes" %}
-<p class="left"><span class="bold">4. SECURITY DEPOSIT</span></p>
+<p class="section"><span class="bold">4. SECURITY DEPOSIT</span></p>
 <p class="left">
     The Lessee shall pay a security deposit of TZS <span class="data-field">{{security_deposit_amount}}</span> before the vehicle is handed over. This deposit shall be refunded at the end of the rental period if the vehicle is returned without damage and all payments have been completed.
 </p>
 {% endif %}
 
-<p class="left"><span class="bold">5. USE OF THE VEHICLE</span></p>
+<p class="section"><span class="bold">5. USE OF THE VEHICLE</span></p>
 <ul>
     <li>The motor vehicle shall be used for the purpose of: {% if vehicle_use == "personal" %}personal use{% elif vehicle_use == "business" %}business use{% else %}<span class="data-field">{{vehicle_use}}</span>{% endif %}.</li>
     {% if additional_use_terms %}
@@ -96,7 +97,7 @@
     <li>The Lessee shall maintain the vehicle and ensure it remains in good condition.</li>
 </ul>
 
-<p class="left"><span class="bold">6. OBLIGATIONS OF THE LESSEE</span></p>
+<p class="section"><span class="bold">6. OBLIGATIONS OF THE LESSEE</span></p>
 <p class="left">The Lessee shall:</p>
 <ol type="i">
     <li>Pay rent on time and at the agreed rate.</li>
@@ -106,7 +107,7 @@
     <li>Not make any modifications or repairs to the vehicle without the Owner's approval.</li>
 </ol>
 
-<p class="left"><span class="bold">7. OBLIGATIONS OF THE OWNER</span></p>
+<p class="section"><span class="bold">7. OBLIGATIONS OF THE OWNER</span></p>
 <p class="left">The Owner shall:</p>
 <ol type="i">
     <li>Ensure the vehicle is in good and usable condition.</li>
@@ -114,27 +115,27 @@
     <li>Inform the Lessee of major repairs required if they are the Owner's responsibility.</li>
 </ol>
 
-<p class="left"><span class="bold">8. BREACH OF CONTRACT</span></p>
+<p class="section"><span class="bold">8. BREACH OF CONTRACT</span></p>
 <p class="left">If either party breaches the contract:</p>
 <ul>
     <li>The other party shall issue a written notice of <span class="data-field">{{breach_remedy_days}}</span> days to remedy the breach.</li>
     <li>If no remedy is made within the given period, the contract may be lawfully terminated.</li>
 </ul>
 
-<p class="left"><span class="bold">9. TERMINATION OF CONTRACT</span></p>
+<p class="section"><span class="bold">9. TERMINATION OF CONTRACT</span></p>
 <ul>
     <li>The Lessee may terminate this agreement by giving <span class="data-field">{{lessee_notice_days}}</span> days' notice.</li>
     <li>The Owner may give <span class="data-field">{{owner_notice_days}}</span> days' notice to terminate this agreement if there is a valid reason.</li>
     <li>The party intending to terminate the agreement shall pay compensation of TZS <span class="data-field">{{termination_compensation}}</span> to the other party.</li>
 </ul>
 
-<p class="left"><span class="bold">10. DISPUTE RESOLUTION</span></p>
+<p class="section"><span class="bold">10. DISPUTE RESOLUTION</span></p>
 <p class="left">
     Both parties agree to settle disputes amicably. If this fails, the matter shall be taken to a court of competent jurisdiction.
 </p>
 
 {% if additional_term_1 or additional_term_2 or additional_term_3 or additional_term_4 %}
-<p class="left"><span class="bold">11. ADDITIONAL TERMS</span></p>
+<p class="section"><span class="bold">11. ADDITIONAL TERMS</span></p>
 <ol type="i">
     {% if additional_term_1 %}<li><span class="data-field">{{additional_term_1}}</span></li>{% endif %}
     {% if additional_term_2 %}<li><span class="data-field">{{additional_term_2}}</span></li>{% endif %}
@@ -143,9 +144,9 @@
 </ol>
 {% endif %}
 
-<p class="left"><span class="bold">12. SIGNATURES</span></p>
+<p class="section"><span class="bold">12. SIGNATURES</span></p>
 <div class="signature-section">
-    <p class="left"><span class="bold">Owner</span></p>
+    <p class="section"><span class="bold">Owner</span></p>
     <p class="left">Name: <span class="data-field">{{owner_name}}</span></p>
     <p class="left">Signature: __________________________</p>
     <p class="left">Date: __________________________</p>
@@ -156,8 +157,8 @@
     <p class="left">Date: __________________________</p>
 </div>
 
-<p class="left"><span class="bold">13. WITNESSES</span></p>
-<p class="left"><span class="bold">Owner's Witness:</span></p>
+<p class="section"><span class="bold">13. WITNESSES</span></p>
+<p class="section"><span class="bold">Owner's Witness:</span></p>
 <p class="left">Signature: __________________________</p>
 <p class="left">Name: __________________________</p>
 <p class="left">Phone Number: __________________________</p>
